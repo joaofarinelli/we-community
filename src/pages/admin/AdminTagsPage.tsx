@@ -123,12 +123,10 @@ export const AdminTagsPage = () => {
                   {tags.map((tag) => (
                     <TableRow key={tag.id}>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <Badge style={{ backgroundColor: tag.color, color: '#fff' }} className="inline-flex items-center">
                           <TagIcon tag={tag} size="sm" />
-                          <Badge style={{ backgroundColor: tag.color, color: '#fff' }}>
-                            {tag.name}
-                          </Badge>
-                        </div>
+                          {tag.name}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <span className="text-muted-foreground">

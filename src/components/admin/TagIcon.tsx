@@ -6,9 +6,9 @@ interface TagIconProps {
 }
 
 const sizeClasses = {
-  sm: 'w-4 h-4 text-sm',
-  md: 'w-5 h-5 text-base',
-  lg: 'w-6 h-6 text-lg'
+  sm: 'w-3 h-3 text-xs',
+  md: 'w-4 h-4 text-sm',
+  lg: 'w-5 h-5 text-base'
 };
 
 export const TagIcon = ({ tag, size = 'md' }: TagIconProps) => {
@@ -18,7 +18,7 @@ export const TagIcon = ({ tag, size = 'md' }: TagIconProps) => {
 
   if (tag.icon_type === 'emoji') {
     return (
-      <span className={`inline-flex items-center justify-center ${sizeClasses[size]}`}>
+      <span className={`inline-flex items-center justify-center mr-1 ${sizeClasses[size]}`}>
         {tag.icon_value}
       </span>
     );
@@ -29,7 +29,7 @@ export const TagIcon = ({ tag, size = 'md' }: TagIconProps) => {
       <img
         src={tag.icon_value}
         alt={`Ícone da tag ${tag.name}`}
-        className={`inline-block rounded-sm object-cover ${sizeClasses[size]}`}
+        className={`inline-block rounded-sm object-cover mr-1 ${sizeClasses[size]}`}
       />
     );
   }
