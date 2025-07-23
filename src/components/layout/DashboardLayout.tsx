@@ -128,7 +128,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 px-4 py-6">
           {children}
         </main>
       </div>
