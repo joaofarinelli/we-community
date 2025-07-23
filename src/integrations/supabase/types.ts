@@ -62,6 +62,36 @@ export type Database = {
         }
         Relationships: []
       }
+      point_transactions: {
+        Row: {
+          action_type: string
+          company_id: string
+          created_at: string
+          id: string
+          points: number
+          reference_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          company_id: string
+          created_at?: string
+          id?: string
+          points: number
+          reference_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          points?: number
+          reference_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       post_interactions: {
         Row: {
           comment_text: string | null
@@ -374,6 +404,33 @@ export type Database = {
           },
         ]
       }
+      user_points: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           company_id: string
@@ -446,6 +503,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_points: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_action_type: string
+          p_reference_id?: string
+        }
+        Returns: undefined
+      }
+      calculate_points_for_action: {
+        Args: { action_type: string }
+        Returns: number
+      }
       can_user_see_space: {
         Args: { space_id: string; user_id: string }
         Returns: boolean

@@ -6,6 +6,7 @@ import { SearchBar } from '@/components/dashboard/SearchBar';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { IconButton } from '@/components/dashboard/IconButton';
 import { CircleSidebar } from '@/components/dashboard/CircleSidebar';
+import { UserPointsBadge } from '@/components/gamification/UserPointsBadge';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 
@@ -64,6 +65,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="max-w-[200px] mr-2">
               <SearchBar />
             </div>
+            <UserPointsBadge />
             <IconButton icon={Bell} />
             <IconButton icon={MessageCircle} />
             <IconButton icon={Users} />
