@@ -62,6 +62,75 @@ export type Database = {
         }
         Relationships: []
       }
+      post_interactions: {
+        Row: {
+          comment_text: string | null
+          created_at: string
+          id: string
+          post_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          comment_text?: string | null
+          created_at?: string
+          id?: string
+          post_id: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          author_id: string
+          company_id: string
+          content: string
+          created_at: string
+          id: string
+          is_announcement: boolean
+          is_pinned: boolean
+          space_id: string
+          title: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          company_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_announcement?: boolean
+          is_pinned?: boolean
+          space_id: string
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          company_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_announcement?: boolean
+          is_pinned?: boolean
+          space_id?: string
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_id: string
@@ -146,6 +215,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      space_members: {
+        Row: {
+          id: string
+          joined_at: string
+          role: string
+          space_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          role?: string
+          space_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          role?: string
+          space_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       spaces: {
         Row: {

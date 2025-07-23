@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -8,13 +10,13 @@ import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { getSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
-import { useState } from 'react';
 
 interface CircleSidebarProps {
   onClose?: () => void;
 }
 
 export function CircleSidebar({ onClose }: CircleSidebarProps) {
+  const navigate = useNavigate();
   const { data: categories = [] } = useSpaceCategories();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(() => 
     categories.map(cat => cat.id)
@@ -78,6 +80,7 @@ export function CircleSidebar({ onClose }: CircleSidebarProps) {
               isExpanded={expandedCategories.includes(category.id)}
               onToggle={() => toggleCategory(category.id)}
               onCreateSpace={openTypeSelection}
+              onSpaceClick={(spaceId) => navigate(`/dashboard/space/${spaceId}`)}
             />
           ))}
           
@@ -158,9 +161,10 @@ interface SpaceCategorySectionProps {
   isExpanded: boolean;
   onToggle: () => void;
   onCreateSpace: (categoryId: string) => void;
+  onSpaceClick: (spaceId: string) => void;
 }
 
-function SpaceCategorySection({ category, isExpanded, onToggle, onCreateSpace }: SpaceCategorySectionProps) {
+function SpaceCategorySection({ category, isExpanded, onToggle, onCreateSpace, onSpaceClick }: SpaceCategorySectionProps) {
   const { data: spaces = [] } = useSpaces(category.id);
 
   return (
@@ -186,6 +190,7 @@ function SpaceCategorySection({ category, isExpanded, onToggle, onCreateSpace }:
             <Button
               key={space.id}
               variant="ghost"
+              onClick={() => onSpaceClick(space.id)}
               className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-sm"
             >
               <IconComponent className="h-4 w-4 mr-2" />
