@@ -17,6 +17,7 @@ import { PostContent } from './PostContent';
 import { DeletePostDialog } from './DeletePostDialog';
 import { EditPostDialog } from './EditPostDialog';
 import { useAuth } from '@/hooks/useAuth';
+import { UserTagsDisplay } from './UserTagsDisplay';
 
 interface Post {
   id: string;
@@ -66,8 +67,9 @@ export const PostCard = ({ post }: PostCardProps) => {
             </Avatar>
             
             <div className="flex-1">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 flex-wrap">
                 <h4 className="font-medium text-foreground">{authorName}</h4>
+                <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
                 {post.is_pinned && (
                   <Pin className="h-4 w-4 text-primary" />
                 )}
