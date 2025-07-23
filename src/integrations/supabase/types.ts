@@ -422,6 +422,39 @@ export type Database = {
           },
         ]
       }
+      tags: {
+        Row: {
+          color: string
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_current_level: {
         Row: {
           company_id: string
@@ -534,7 +567,6 @@ export type Database = {
           created_at: string
           id: string
           total_coins: number
-          total_points: number
           updated_at: string
           user_id: string
         }
@@ -543,7 +575,6 @@ export type Database = {
           created_at?: string
           id?: string
           total_coins?: number
-          total_points?: number
           updated_at?: string
           user_id: string
         }
@@ -552,7 +583,6 @@ export type Database = {
           created_at?: string
           id?: string
           total_coins?: number
-          total_points?: number
           updated_at?: string
           user_id?: string
         }
@@ -636,6 +666,41 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_tags: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          company_id: string
+          id: string
+          tag_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          company_id: string
+          id?: string
+          tag_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          company_id?: string
+          id?: string
+          tag_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
         ]
