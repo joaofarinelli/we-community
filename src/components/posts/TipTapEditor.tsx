@@ -2,7 +2,13 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import Mention from '@tiptap/extension-mention';
+import { ReactRenderer } from '@tiptap/react';
+import tippy from 'tippy.js';
 import { cn } from '@/lib/utils';
+import { useCompanyUsers, CompanyUser } from '@/hooks/useCompanyUsers';
+import { MentionSuggestion, MentionSuggestionRef } from './MentionSuggestion';
+import { useState } from 'react';
 
 interface TipTapEditorProps {
   content: string;
@@ -17,6 +23,9 @@ export const TipTapEditor = ({
   placeholder = "Escreva algo...", 
   className 
 }: TipTapEditorProps) => {
+  const [mentionQuery, setMentionQuery] = useState('');
+  const { data: users = [] } = useCompanyUsers(mentionQuery);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -25,6 +34,74 @@ export const TipTapEditor = ({
       }),
       Link.configure({
         openOnClick: false,
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'mention bg-primary/10 text-primary px-1 py-0.5 rounded font-medium',
+        },
+        suggestion: {
+          items: ({ query }: { query: string }) => {
+            setMentionQuery(query);
+            return users.filter((user: CompanyUser) =>
+              `${user.first_name} ${user.last_name}`
+                .toLowerCase()
+                .includes(query.toLowerCase())
+            ).slice(0, 5);
+          },
+          render: () => {
+            let component: ReactRenderer<MentionSuggestionRef>;
+            let popup: any;
+
+            return {
+              onStart: (props: any) => {
+                component = new ReactRenderer(MentionSuggestion, {
+                  props,
+                  editor: props.editor,
+                });
+
+                if (!props.clientRect) {
+                  return;
+                }
+
+                popup = tippy('body', {
+                  getReferenceClientRect: props.clientRect,
+                  appendTo: () => document.body,
+                  content: component.element,
+                  showOnCreate: true,
+                  interactive: true,
+                  trigger: 'manual',
+                  placement: 'bottom-start',
+                });
+              },
+
+              onUpdate(props: any) {
+                component.updateProps(props);
+
+                if (!props.clientRect) {
+                  return;
+                }
+
+                popup[0].setProps({
+                  getReferenceClientRect: props.clientRect,
+                });
+              },
+
+              onKeyDown(props: any) {
+                if (props.event.key === 'Escape') {
+                  popup[0].hide();
+                  return true;
+                }
+
+                return component.ref?.onKeyDown(props.event);
+              },
+
+              onExit() {
+                popup[0].destroy();
+                component.destroy();
+              },
+            };
+          },
+        },
       }),
     ],
     content,

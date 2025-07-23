@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
+import Mention from '@tiptap/extension-mention';
 import { cn } from '@/lib/utils';
 
 interface PostContentProps {
@@ -17,6 +18,22 @@ export const PostContent = ({ content, className }: PostContentProps) => {
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer',
+        },
+      }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'mention bg-primary/10 text-primary px-1 py-0.5 rounded font-medium cursor-pointer',
+        },
+        renderHTML({ options, node }) {
+          return [
+            'span',
+            {
+              ...options.HTMLAttributes,
+              'data-type': 'mention',
+              'data-id': node.attrs.id,
+            },
+            `@${node.attrs.label || node.attrs.id}`,
+          ];
         },
       }),
     ],
