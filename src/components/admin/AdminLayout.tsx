@@ -17,7 +17,8 @@ import {
   BarChart3,
   HelpCircle,
   Code,
-  ArrowLeft
+  ArrowLeft,
+  ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -54,6 +55,14 @@ const mainMenuItems = [
     key: 'courses',
     subItems: [
       { label: 'Gerenciar cursos', path: '/admin/courses' },
+    ]
+  },
+  {
+    icon: ShoppingBag,
+    label: 'Marketplace',
+    key: 'marketplace',
+    subItems: [
+      { label: 'Gerenciar marketplace', path: '/admin/marketplace' },
     ]
   },
   {

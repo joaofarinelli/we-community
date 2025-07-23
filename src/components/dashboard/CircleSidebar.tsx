@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss, BookOpen } from 'lucide-react';
+import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss, BookOpen, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -154,6 +154,22 @@ export function CircleSidebar({
           >
             <BookOpen className="h-4 w-4 mr-2" />
             Cursos
+          </Button>
+        </div>
+
+        {/* Marketplace */}
+        <div>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              location.pathname.startsWith('/dashboard/marketplace') 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => navigate('/dashboard/marketplace')}
+          >
+            <ShoppingBag className="h-4 w-4 mr-2" />
+            Marketplace
           </Button>
         </div>
 

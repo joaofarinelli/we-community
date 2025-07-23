@@ -194,6 +194,179 @@ export type Database = {
           },
         ]
       }
+      marketplace_categories: {
+        Row: {
+          color: string
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          icon_type: string | null
+          icon_value: string | null
+          id: string
+          is_active: boolean
+          name: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          icon_type?: string | null
+          icon_value?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          icon_type?: string | null
+          icon_value?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_categories_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_items: {
+        Row: {
+          category_id: string
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_featured: boolean
+          name: string
+          order_index: number
+          price_coins: number
+          stock_quantity: number | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          name: string
+          order_index?: number
+          price_coins: number
+          stock_quantity?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_featured?: boolean
+          name?: string
+          order_index?: number
+          price_coins?: number
+          stock_quantity?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_items_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_purchases: {
+        Row: {
+          company_id: string
+          id: string
+          item_id: string
+          item_name: string
+          price_coins: number
+          purchased_at: string
+          quantity: number
+          refunded_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          item_id: string
+          item_name: string
+          price_coins: number
+          purchased_at?: string
+          quantity?: number
+          refunded_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          item_id?: string
+          item_name?: string
+          price_coins?: number
+          purchased_at?: string
+          quantity?: number
+          refunded_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_purchases_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       point_transactions: {
         Row: {
           action_type: string
@@ -938,6 +1111,15 @@ export type Database = {
         Args: { p_company_id: string; p_created_by: string }
         Returns: undefined
       }
+      deduct_user_coins: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_coins: number
+          p_reference_id?: string
+        }
+        Returns: boolean
+      }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -949,6 +1131,15 @@ export type Database = {
       is_space_member: {
         Args: { space_id: string; user_id: string }
         Returns: boolean
+      }
+      process_marketplace_purchase: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_item_id: string
+          p_quantity?: number
+        }
+        Returns: Json
       }
     }
     Enums: {
