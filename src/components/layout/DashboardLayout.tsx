@@ -85,7 +85,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
               Espaços
             </Button>
-            <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-foreground hover:text-primary"
+              onClick={() => navigate('/dashboard/members')}
+            >
               Membros
             </Button>
           </nav>

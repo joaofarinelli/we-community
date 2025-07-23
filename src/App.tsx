@@ -28,6 +28,7 @@ import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
 import { MarketplacePurchasesPage } from "./pages/MarketplacePurchasesPage";
 import { AdminMarketplacePage } from "./pages/admin/AdminMarketplacePage";
+import { MembersPage } from "./pages/MembersPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const AppRoutes = () => {
       <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
       <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
       <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
+      <Route path="/dashboard/members" element={<AuthGuard><MembersPage /></AuthGuard>} />
       <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
       <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
       <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
