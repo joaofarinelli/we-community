@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PostInteractions } from './PostInteractions';
+import { PostContent } from './PostContent';
 
 interface Post {
   id: string;
@@ -76,9 +77,7 @@ export const PostCard = ({ post }: PostCardProps) => {
               {post.title}
             </h3>
           )}
-          <div className="text-foreground whitespace-pre-wrap">
-            {post.content}
-          </div>
+          <PostContent content={post.content} />
         </div>
 
         {/* Interações */}
