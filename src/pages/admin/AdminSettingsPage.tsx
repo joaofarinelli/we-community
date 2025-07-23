@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
+import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -60,6 +61,8 @@ export const AdminSettingsPage = () => {
               </Button>
             </CardContent>
           </Card>
+
+          <ThemeConfiguration />
         </div>
       </div>
     </AdminLayout>

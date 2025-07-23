@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useIsAdmin } from '@/hooks/useUserRole';
+import { ThemeApplier } from '@/components/ThemeApplier';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,6 +27,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <div className="h-screen bg-background flex flex-col">
+      <ThemeApplier />
       {/* Header */}
       <header className="shrink-0 bg-card border-b border-border z-10">
         <div className="flex items-center justify-between px-4 py-3">

@@ -25,9 +25,12 @@ export type Database = {
           phone: string | null
           plan: string | null
           postal_code: string | null
+          primary_color: string | null
           state: string | null
           status: string | null
           subdomain: string | null
+          theme_config: Json | null
+          theme_mode: string | null
           updated_at: string
         }
         Insert: {
@@ -40,9 +43,12 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           postal_code?: string | null
+          primary_color?: string | null
           state?: string | null
           status?: string | null
           subdomain?: string | null
+          theme_config?: Json | null
+          theme_mode?: string | null
           updated_at?: string
         }
         Update: {
@@ -55,9 +61,12 @@ export type Database = {
           phone?: string | null
           plan?: string | null
           postal_code?: string | null
+          primary_color?: string | null
           state?: string | null
           status?: string | null
           subdomain?: string | null
+          theme_config?: Json | null
+          theme_mode?: string | null
           updated_at?: string
         }
         Relationships: []
