@@ -339,7 +339,7 @@ function SpaceCategorySection({
       <CollapsibleTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50 cursor-pointer"
+          className="w-full justify-between p-3 h-[34px] text-left hover:bg-muted/50 cursor-pointer"
           {...dragHandleProps}
         >
           <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
