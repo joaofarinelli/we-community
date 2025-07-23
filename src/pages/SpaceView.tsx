@@ -18,6 +18,8 @@ import { useSpace } from '@/hooks/useSpace';
 import { useSpacePosts } from '@/hooks/useSpacePosts';
 import { useSpaceMembers } from '@/hooks/useSpaceMembers';
 import { useSpaceAccess } from '@/hooks/useSpaceAccess';
+import { useIsSpaceMember } from '@/hooks/useIsSpaceMember';
+import { useManageSpaceMembers } from '@/hooks/useManageSpaceMembers';
 import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
@@ -55,6 +57,8 @@ export const SpaceView = () => {
     data: spaceAccess,
     isLoading: accessLoading
   } = useSpaceAccess(spaceId!);
+  const { data: memberInfo } = useIsSpaceMember(spaceId!);
+  const { leaveSpace } = useManageSpaceMembers();
   if (!spaceId) {
     navigate('/dashboard');
     return null;
@@ -211,13 +215,21 @@ export const SpaceView = () => {
                       <UserPlus className="h-4 w-4 mr-2" />
                       Convidar membro
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => console.log('Sair do espaço')}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <UserMinus className="h-4 w-4 mr-2" />
-                      Sair do espaço
-                    </DropdownMenuItem>
+                    {memberInfo?.isMember && memberInfo.role !== 'admin' && (
+                      <DropdownMenuItem 
+                        onClick={() => {
+                          if (confirm('Tem certeza que deseja sair deste espaço?')) {
+                            leaveSpace.mutate(spaceId!, {
+                              onSuccess: () => navigate('/dashboard')
+                            });
+                          }
+                        }}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <UserMinus className="h-4 w-4 mr-2" />
+                        Sair do espaço
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem 
                       onClick={() => console.log('Excluir espaço')}
                       className="text-destructive focus:text-destructive"
