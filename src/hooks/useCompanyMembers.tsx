@@ -20,36 +20,48 @@ export const useCompanyMembers = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // Buscar todos os usuários com roles na empresa
+      // Buscar a empresa do usuário atual
+      const { data: userProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !userProfile?.company_id) {
+        console.error('Error fetching user profile:', profileError);
+        return [];
+      }
+
+      // Buscar todos os membros da empresa com suas informações de perfil
       const { data, error } = await supabase
         .from('user_roles')
         .select(`
           id,
           user_id,
           role,
-          created_at
-        `);
+          created_at,
+          profiles!inner (
+            first_name,
+            last_name,
+            company_id
+          )
+        `)
+        .eq('company_id', userProfile.company_id);
 
       if (error) {
         console.error('Error fetching company members:', error);
         return [];
       }
 
-      // Por enquanto, vamos mostrar apenas o usuário atual como membro
-      // Em uma implementação completa, você precisaria de uma tabela de profiles
-      const currentUserMember = data.find(userRole => userRole.user_id === user.id);
-      
-      if (!currentUserMember) return [];
-
-      return [{
-        id: currentUserMember.id,
-        user_id: currentUserMember.user_id,
-        email: user.email || '',
-        display_name: user.user_metadata?.display_name || null,
-        avatar_url: user.user_metadata?.avatar_url || null,
-        created_at: currentUserMember.created_at,
-        role: currentUserMember.role
-      }] as CompanyMember[];
+      return data.map((member: any) => ({
+        id: member.id,
+        user_id: member.user_id,
+        email: member.user_id === user.id ? user.email : 'email@exemplo.com', // Para outros usuários, precisaríamos de uma tabela separada
+        display_name: `${member.profiles.first_name} ${member.profiles.last_name}`.trim(),
+        avatar_url: member.user_id === user.id ? user.user_metadata?.avatar_url : null,
+        created_at: member.created_at,
+        role: member.role
+      })) as CompanyMember[];
     },
     enabled: !!user?.id,
   });
