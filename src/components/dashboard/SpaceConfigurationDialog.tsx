@@ -44,24 +44,20 @@ export const SpaceConfigurationDialog = ({
   const { data: categories = [] } = useSpaceCategories();
   const spaceTypeInfo = selectedType ? getSpaceTypeInfo(selectedType) : null;
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(spaceConfigurationSchema),
+  const form = useForm<SpaceConfigurationFormData>({
     defaultValues: {
+      name: '',
       categoryId: selectedCategoryId || '',
-      accessLevel: 'open' as const,
+      visibility: 'public',
       enableNotifications: true,
-      customIconType: 'default' as const,
+      customIconType: 'default',
       customIconValue: '',
     },
   });
 
-  const accessLevel = watch('accessLevel');
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = form;
+
+  const visibility = watch('visibility');
   const enableNotifications = watch('enableNotifications');
 
   const onSubmit = (data: SpaceConfigurationFormData) => {
@@ -70,21 +66,21 @@ export const SpaceConfigurationDialog = ({
 
   const accessLevels = [
     {
-      value: 'open',
-      label: 'Aberto',
-      description: 'Qualquer membro pode ver e participar',
+      value: 'public' as const,
+      label: 'Público',
+      description: 'Qualquer pessoa da empresa pode visualizar e participar',
       icon: Globe,
     },
     {
-      value: 'private',
+      value: 'private' as const,
       label: 'Privado',
-      description: 'Apenas membros convidados podem ver',
+      description: 'Visível para todos, mas apenas membros podem participar',
       icon: Lock,
     },
     {
-      value: 'secret',
+      value: 'secret' as const,
       label: 'Secreto',
-      description: 'Invisível para não-membros',
+      description: 'Visível apenas para membros e administradores',
       icon: EyeOff,
     },
   ];
@@ -147,8 +143,8 @@ export const SpaceConfigurationDialog = ({
           <div className="space-y-3">
             <Label>Nível de acesso</Label>
             <RadioGroup
-              value={accessLevel}
-              onValueChange={(value) => setValue('accessLevel', value as any)}
+              value={visibility}
+              onValueChange={(value) => setValue('visibility', value as any)}
               className="space-y-3"
             >
               {accessLevels.map((level) => {
@@ -172,8 +168,8 @@ export const SpaceConfigurationDialog = ({
                 );
               })}
             </RadioGroup>
-            {errors.accessLevel && (
-              <p className="text-sm text-destructive">{errors.accessLevel.message}</p>
+            {errors.visibility && (
+              <p className="text-sm text-destructive">{errors.visibility.message}</p>
             )}
           </div>
 

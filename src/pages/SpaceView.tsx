@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { useSpace } from '@/hooks/useSpace';
 import { useSpacePosts } from '@/hooks/useSpacePosts';
 import { useSpaceMembers } from '@/hooks/useSpaceMembers';
+import { useSpaceAccess } from '@/hooks/useSpaceAccess';
 import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
@@ -50,24 +51,46 @@ export const SpaceView = () => {
     data: members,
     isLoading: membersLoading
   } = useSpaceMembers(spaceId!);
+  const {
+    data: spaceAccess,
+    isLoading: accessLoading
+  } = useSpaceAccess(spaceId!);
   if (!spaceId) {
     navigate('/dashboard');
     return null;
   }
-  if (spaceLoading) {
+  if (spaceLoading || accessLoading) {
     return <DashboardLayout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
         </div>
       </DashboardLayout>;
   }
-  if (!space) {
+  if (!space || !spaceAccess?.canSee) {
     return <DashboardLayout>
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-2">Espaço não encontrado</h2>
             <p className="text-muted-foreground mb-4">
               O espaço que você está procurando não existe ou você não tem permissão para acessá-lo.
+            </p>
+            <Button onClick={() => navigate('/dashboard')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar ao Dashboard
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>;
+  }
+
+  // If user can see space but can't access content (private/secret without membership)
+  if (!spaceAccess?.canAccess) {
+    return <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Acesso Restrito</h2>
+            <p className="text-muted-foreground mb-4">
+              Este espaço é {spaceAccess?.visibility === 'private' ? 'privado' : 'secreto'} e você precisa ser membro para acessar seu conteúdo.
             </p>
             <Button onClick={() => navigate('/dashboard')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -105,7 +128,8 @@ export const SpaceView = () => {
                       {space.space_categories?.name}
                     </p>
                   </div>
-                  {space.is_private && <Badge variant="secondary">Privado</Badge>}
+                  {space.visibility === 'private' && <Badge variant="secondary">Privado</Badge>}
+                  {space.visibility === 'secret' && <Badge variant="destructive">Secreto</Badge>}
                 </div>
               </div>
               

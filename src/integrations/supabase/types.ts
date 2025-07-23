@@ -323,6 +323,7 @@ export type Database = {
           order_index: number
           type: string
           updated_at: string
+          visibility: string | null
         }
         Insert: {
           category_id: string
@@ -338,6 +339,7 @@ export type Database = {
           order_index?: number
           type?: string
           updated_at?: string
+          visibility?: string | null
         }
         Update: {
           category_id?: string
@@ -353,6 +355,7 @@ export type Database = {
           order_index?: number
           type?: string
           updated_at?: string
+          visibility?: string | null
         }
         Relationships: [
           {
@@ -443,12 +446,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_user_see_space: {
+        Args: { space_id: string; user_id: string }
+        Returns: boolean
+      }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
       is_company_owner: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_space_member: {
+        Args: { space_id: string; user_id: string }
         Returns: boolean
       }
     }

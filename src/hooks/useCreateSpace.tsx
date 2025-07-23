@@ -42,7 +42,7 @@ export const useCreateSpace = () => {
           company_id: company.id,
           created_by: user.id,
           order_index: nextOrderIndex,
-          is_private: data.accessLevel !== 'open',
+          visibility: data.visibility,
           custom_icon_type: data.customIconType || 'default',
           custom_icon_value: data.customIconValue || null,
         })

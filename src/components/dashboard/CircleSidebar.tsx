@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
-import { useSpaces } from '@/hooks/useSpaces';
+import { useUserSpaces } from '@/hooks/useUserSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { useReorderSpaces } from '@/hooks/useReorderSpaces';
@@ -297,7 +297,7 @@ function SpaceCategorySection({
   currentPath,
   dragHandleProps
 }: SpaceCategorySectionProps) {
-  const { data: spaces = [] } = useSpaces(category.id);
+  const { data: spaces = [] } = useUserSpaces(category.id);
   const reorderSpacesMutation = useReorderSpaces();
   
   const sensors = useSensors(
@@ -323,7 +323,7 @@ function SpaceCategorySection({
       
       // Create updates with new order indices
       const spaceUpdates = reorderedSpaces.map((space, index) => ({
-        id: space.id,
+        id: (space as any).id,
         order_index: index,
       }));
 

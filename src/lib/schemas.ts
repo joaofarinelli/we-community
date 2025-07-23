@@ -49,7 +49,7 @@ export const spaceTypeSelectionSchema = z.object({
 export const spaceConfigurationSchema = z.object({
   name: z.string().min(2, 'Nome do espaço deve ter pelo menos 2 caracteres'),
   categoryId: z.string().min(1, 'Categoria é obrigatória'),
-  accessLevel: z.enum(['open', 'private', 'secret']),
+  visibility: z.enum(['public', 'private', 'secret']),
   enableNotifications: z.boolean(),
   customIconType: z.enum(['default', 'emoji', 'image']).optional().default('default'),
   customIconValue: z.string().optional(),
