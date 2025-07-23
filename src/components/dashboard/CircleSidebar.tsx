@@ -48,7 +48,11 @@ export function CircleSidebar({
   const reorderCategories = useReorderCategories();
 
   const categorySensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -209,12 +213,22 @@ const DraggableSpaceItem = ({ space, isActive, onSpaceClick }: DraggableSpaceIte
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
+      className="flex items-center group"
     >
+      <div 
+        className="flex-shrink-0 p-1 cursor-grab hover:bg-muted/30 rounded transition-colors mr-1 opacity-0 group-hover:opacity-100" 
+        {...listeners}
+      >
+        <div className="w-3 h-4 flex flex-col justify-center items-center gap-0.5">
+          <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+          <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+          <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+        </div>
+      </div>
       <Button 
         variant="ghost" 
         onClick={() => onSpaceClick(space.id)} 
-        className={`w-full justify-start p-2 h-auto text-left text-sm transition-all duration-200 ${
+        className={`flex-1 justify-start p-2 h-auto text-left text-sm transition-all duration-200 ${
           isActive 
             ? 'bg-primary text-primary-foreground shadow-sm' 
             : 'hover:bg-muted/50'
@@ -299,7 +313,11 @@ function SpaceCategorySection({
   const reorderSpacesMutation = useReorderSpaces();
   
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -330,11 +348,20 @@ function SpaceCategorySection({
   return (
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <div className="w-full group">
+        <div className="w-full group flex items-center">
+          <div 
+            className="flex-shrink-0 p-1 cursor-grab hover:bg-muted/30 rounded transition-colors mr-1" 
+            {...dragHandleProps}
+          >
+            <div className="w-3 h-4 flex flex-col justify-center items-center gap-0.5">
+              <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+              <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+              <div className="w-1 h-0.5 bg-muted-foreground/60 rounded-full"></div>
+            </div>
+          </div>
           <Button 
             variant="ghost" 
-            className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50 cursor-pointer"
-            {...dragHandleProps}
+            className="flex-1 justify-between p-3 h-auto text-left hover:bg-muted/50 cursor-pointer"
           >
             <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
             <div className="flex items-center gap-1">
