@@ -29,7 +29,8 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
   };
 
   const handleEditProfile = () => {
-    navigate('/profile/edit');
+    // Por enquanto, vamos abrir o mesmo dialog - pode ser melhorado para um modo de edição
+    setProfileDialogOpen(true);
   };
 
   const handleSignOut = async () => {
