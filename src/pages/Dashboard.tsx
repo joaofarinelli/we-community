@@ -6,12 +6,9 @@ import { useAllPosts, SortOption } from '@/hooks/useAllPosts';
 import { FeedSortControls } from '@/components/posts/FeedSortControls';
 import { FeedPostCard } from '@/components/posts/FeedPostCard';
 import { GlobalCreatePostForm } from '@/components/posts/GlobalCreatePostForm';
-import { RankingTab } from '@/components/gamification/RankingTab';
-import { PointsHistory } from '@/components/gamification/PointsHistory';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare, Trophy, History } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 
 
 export const Dashboard = () => {
@@ -22,55 +19,9 @@ export const Dashboard = () => {
 
   const { data: posts, isLoading: postsLoading } = useAllPosts(sortBy);
 
-  const renderFeedContent = () => (
-    <div className="space-y-6">
-      {postsLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <Skeleton className="h-10 w-10 rounded-full" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : posts && posts.length > 0 ? (
-        posts.map(post => (
-          <FeedPostCard key={post.id} post={post} />
-        ))
-      ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <div className="space-y-3">
-              <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                <MessageSquare className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-medium">Nenhum post ainda</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
-
   return (
     <DashboardLayout>
-      <div className="max-w-6xl p-8">
+      <div className="max-w-4xl p-8">
         <div className="space-y-6">
           {/* Welcome Title */}
           <div>
@@ -82,44 +33,58 @@ export const Dashboard = () => {
             </p>
           </div>
 
-          {/* Tabs Navigation */}
-          <Tabs defaultValue="feed" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="feed" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Feed
-              </TabsTrigger>
-              <TabsTrigger value="ranking" className="flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                Ranking
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center gap-2">
-                <History className="h-4 w-4" />
-                Meu Histórico
-              </TabsTrigger>
-            </TabsList>
+          {/* Create Post Form */}
+          <GlobalCreatePostForm />
 
-            <TabsContent value="feed" className="space-y-6">
-              {/* Create Post Form */}
-              <GlobalCreatePostForm />
+          {/* Sort Controls */}
+          <div className="flex items-center justify-between">
+            <FeedSortControls sortBy={sortBy} onSortChange={setSortBy} />
+          </div>
 
-              {/* Sort Controls */}
-              <div className="flex items-center justify-between">
-                <FeedSortControls sortBy={sortBy} onSortChange={setSortBy} />
+          {/* Posts Feed */}
+          <div className="space-y-6">
+            {postsLoading ? (
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}>
+                    <CardContent className="p-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-3 w-24" />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-
-              {/* Posts Feed */}
-              {renderFeedContent()}
-            </TabsContent>
-
-            <TabsContent value="ranking">
-              <RankingTab />
-            </TabsContent>
-
-            <TabsContent value="history">
-              <PointsHistory />
-            </TabsContent>
-          </Tabs>
+            ) : posts && posts.length > 0 ? (
+              posts.map(post => (
+                <FeedPostCard key={post.id} post={post} />
+              ))
+            ) : (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <div className="space-y-3">
+                    <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                      <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-medium">Nenhum post ainda</h3>
+                    <p className="text-muted-foreground max-w-md mx-auto">
+                      Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </DashboardLayout>
