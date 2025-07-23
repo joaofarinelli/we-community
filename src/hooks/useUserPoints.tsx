@@ -15,7 +15,7 @@ export const useUserPoints = (userId?: string) => {
         .from('user_points')
         .select(`
           *,
-          profiles(first_name, last_name)
+          profiles!user_points_user_id_fkey(first_name, last_name)
         `)
         .eq('user_id', targetUserId)
         .single();
@@ -34,5 +34,7 @@ export const useUserPoints = (userId?: string) => {
       return userPoints;
     },
     enabled: !!targetUserId,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false,
   });
 };

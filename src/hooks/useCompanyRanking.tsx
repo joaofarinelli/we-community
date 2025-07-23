@@ -14,7 +14,7 @@ export const useCompanyRanking = (limit: number = 10) => {
         .from('user_points')
         .select(`
           *,
-          profiles(first_name, last_name, user_id)
+          profiles!user_points_user_id_fkey(first_name, last_name, user_id)
         `)
         .order('total_points', { ascending: false })
         .limit(limit);
@@ -30,6 +30,8 @@ export const useCompanyRanking = (limit: number = 10) => {
       return rankedData;
     },
     enabled: !!user,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -41,22 +43,21 @@ export const useUserRankingPosition = () => {
     queryFn: async () => {
       if (!user) return null;
 
-      // Get user's current points
+      // Get user's current points first
       const { data: userPoints } = await supabase
         .from('user_points')
         .select('total_points')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (!userPoints) return { rank: null, total_users: 0 };
+      if (!userPoints) return { rank: null, total_users: 0, points: 0 };
 
-      // Count how many users have more points
+      // Use a more efficient approach with count aggregation
       const { count: usersAhead } = await supabase
         .from('user_points')
         .select('*', { count: 'exact', head: true })
         .gt('total_points', userPoints.total_points);
 
-      // Count total users with points
       const { count: totalUsers } = await supabase
         .from('user_points')
         .select('*', { count: 'exact', head: true });
@@ -68,5 +69,7 @@ export const useUserRankingPosition = () => {
       };
     },
     enabled: !!user,
+    staleTime: 30000, // Cache for 30 seconds
+    refetchOnWindowFocus: false,
   });
 };
