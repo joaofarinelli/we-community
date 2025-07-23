@@ -9,6 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useUserLevel } from '@/hooks/useUserLevel';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { 
   User, 
   Mail, 
@@ -20,7 +21,8 @@ import {
   FileText, 
   Users,
   Clock,
-  X
+  X,
+  Phone
 } from 'lucide-react';
 
 interface UserProfileDialogProps {
@@ -33,40 +35,41 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
   const { data: company } = useCompany();
   const { data: userPoints } = useUserPoints();
   const { data: userLevel } = useUserLevel();
+  const { data: userProfile, isLoading } = useUserProfile();
 
   const getUserInitials = () => {
-    const firstName = user?.user_metadata?.first_name;
-    const lastName = user?.user_metadata?.last_name;
+    const firstName = userProfile?.first_name;
+    const lastName = userProfile?.last_name;
     
     if (firstName && lastName) {
       return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
     } else if (firstName) {
       return firstName.substring(0, 2).toUpperCase();
-    } else if (user?.email) {
-      return user.email.substring(0, 2).toUpperCase();
+    } else if (userProfile?.email) {
+      return userProfile.email.substring(0, 2).toUpperCase();
     }
     
     return 'U';
   };
 
   const getDisplayName = () => {
-    const firstName = user?.user_metadata?.first_name;
-    const lastName = user?.user_metadata?.last_name;
+    const firstName = userProfile?.first_name;
+    const lastName = userProfile?.last_name;
     
     if (firstName && lastName) {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
       return firstName;
-    } else if (user?.email) {
-      return user.email.split('@')[0];
+    } else if (userProfile?.email) {
+      return userProfile.email.split('@')[0];
     }
     
     return 'Usuário';
   };
 
   const getMemberSince = () => {
-    if (user?.created_at) {
-      return new Date(user.created_at).toLocaleDateString('pt-BR', {
+    if (userProfile?.created_at) {
+      return new Date(userProfile.created_at).toLocaleDateString('pt-BR', {
         day: 'numeric',
         month: 'long',
         year: 'numeric'
@@ -76,9 +79,49 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
   };
 
   const getLastSeen = () => {
-    // Para este exemplo, vamos simular "visto recentemente"
-    return 'há 2 horas';
+    if (userProfile?.updated_at) {
+      const updatedDate = new Date(userProfile.updated_at);
+      const now = new Date();
+      const diffMs = now.getTime() - updatedDate.getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffDays > 0) {
+        return `há ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
+      } else if (diffHours > 0) {
+        return `há ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+      } else {
+        return 'online agora';
+      }
+    }
+    return 'não disponível';
   };
+
+  if (isLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          <DialogHeader className="flex flex-row items-center justify-between p-6 border-b">
+            <DialogTitle className="text-2xl font-bold">Perfil</DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogHeader>
+          <div className="flex items-center justify-center p-12">
+            <div className="text-center">
+              <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Carregando perfil...</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -116,6 +159,13 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                   <Calendar className="h-4 w-4 mr-1" />
                   Membro desde {getMemberSince()}
                 </div>
+                {userProfile?.role && (
+                  <Badge variant="secondary" className="mt-2">
+                    {userProfile.role === 'owner' ? 'Proprietário' : 
+                     userProfile.role === 'admin' ? 'Administrador' :
+                     userProfile.role === 'moderator' ? 'Moderador' : 'Membro'}
+                  </Badge>
+                )}
               </div>
 
               <Button className="w-full" variant="outline">
@@ -146,7 +196,9 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Biografia</h3>
                   <p className="text-muted-foreground">
-                    {user?.user_metadata?.bio || 'Nenhuma biografia adicionada ainda.'}
+                    {userProfile?.first_name && userProfile?.last_name 
+                      ? `${userProfile.first_name} ${userProfile.last_name}` 
+                      : 'Nenhuma biografia adicionada ainda.'}
                   </p>
                 </div>
 
@@ -156,28 +208,26 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                   <div className="space-y-2">
                     <div className="flex items-center">
                       <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>{user?.email}</span>
+                      <span>{userProfile?.email}</span>
                     </div>
-                    {user?.user_metadata?.location && (
+                    {userProfile?.phone && (
                       <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>{user.user_metadata.location}</span>
+                        <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{userProfile.phone}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Social */}
-                {user?.user_metadata?.social && (
+                {/* Company Info */}
+                {company && (
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Social</h3>
+                    <h3 className="text-lg font-semibold mb-3">Empresa</h3>
                     <div className="space-y-2">
-                      {user.user_metadata.social.instagram && (
-                        <div className="flex items-center">
-                          <Instagram className="h-4 w-4 mr-3 text-muted-foreground" />
-                          <span>{user.user_metadata.social.instagram}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center">
+                        <Users className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{company.name}</span>
+                      </div>
                     </div>
                   </div>
                 )}
