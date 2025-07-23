@@ -14,7 +14,10 @@ export const usePostInteractions = (postId: string) => {
 
       const { data, error } = await supabase
         .from('post_interactions')
-        .select('*')
+        .select(`
+          *,
+          profiles!post_interactions_user_id_fkey(first_name, last_name)
+        `)
         .eq('post_id', postId);
 
       if (error) throw error;
@@ -24,7 +27,7 @@ export const usePostInteractions = (postId: string) => {
   });
 
   const addInteraction = useMutation({
-    mutationFn: async ({ type, commentText }: { type: 'like' | 'love' | 'comment'; commentText?: string }) => {
+    mutationFn: async ({ type, commentText }: { type: 'like' | 'comment'; commentText?: string }) => {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
@@ -48,7 +51,7 @@ export const usePostInteractions = (postId: string) => {
   });
 
   const removeInteraction = useMutation({
-    mutationFn: async (type: 'like' | 'love') => {
+    mutationFn: async (type: 'like') => {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
@@ -70,19 +73,15 @@ export const usePostInteractions = (postId: string) => {
   });
 
   const likes = interactions?.filter(i => i.type === 'like') || [];
-  const loves = interactions?.filter(i => i.type === 'love') || [];
   const comments = interactions?.filter(i => i.type === 'comment') || [];
   
   const userLiked = likes.some(i => i.user_id === user?.id);
-  const userLoved = loves.some(i => i.user_id === user?.id);
 
   return {
     interactions,
     likes,
-    loves,
     comments,
     userLiked,
-    userLoved,
     isLoading,
     addInteraction,
     removeInteraction,
