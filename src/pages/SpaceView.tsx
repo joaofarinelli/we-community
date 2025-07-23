@@ -1,6 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Settings } from 'lucide-react';
+import { ArrowLeft, Users, MoreHorizontal, ImagePlus, Link, CreditCard, Palette, Smartphone, UserPlus, Settings as SettingsIcon, Zap, Bell, Mail, CheckSquare, UserMinus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +21,15 @@ import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { getSpaceTypeInfo } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { useState } from 'react';
+
 export const SpaceView = () => {
+  const [notificationSettings, setNotificationSettings] = useState({
+    posts: true,
+    email: false,
+    platform: true,
+    mobile: false
+  });
   const {
     spaceId
   } = useParams<{
@@ -86,10 +103,99 @@ export const SpaceView = () => {
               </div>
               
               <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configurações
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => console.log('Adicionar capa')}>
+                      <ImagePlus className="h-4 w-4 mr-2" />
+                      Adicionar capa
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Adicionar links')}>
+                      <Link className="h-4 w-4 mr-2" />
+                      Adicionar links de espaço
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Paywalls')}>
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Paywalls
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Personalizar')}>
+                      <Palette className="h-4 w-4 mr-2" />
+                      Personalizar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Página de vendas')}>
+                      <Smartphone className="h-4 w-4 mr-2" />
+                      Página de Vendas Interna Móvel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Membros')}>
+                      <Users className="h-4 w-4 mr-2" />
+                      Membros
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Opções')}>
+                      <SettingsIcon className="h-4 w-4 mr-2" />
+                      Opções
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => console.log('Automações')}>
+                      <Zap className="h-4 w-4 mr-2" />
+                      Automações
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuLabel>Notificações das minhas publicações</DropdownMenuLabel>
+                    <DropdownMenuCheckboxItem
+                      checked={notificationSettings.email}
+                      onCheckedChange={(checked) => 
+                        setNotificationSettings(prev => ({ ...prev, email: checked }))
+                      }
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      Notificações por email
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={notificationSettings.platform}
+                      onCheckedChange={(checked) => 
+                        setNotificationSettings(prev => ({ ...prev, platform: checked }))
+                      }
+                    >
+                      <Bell className="h-4 w-4 mr-2" />
+                      Notificações na plataforma
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                      checked={notificationSettings.mobile}
+                      onCheckedChange={(checked) => 
+                        setNotificationSettings(prev => ({ ...prev, mobile: checked }))
+                      }
+                    >
+                      <Smartphone className="h-4 w-4 mr-2" />
+                      Notificações no celular
+                    </DropdownMenuCheckboxItem>
+                    
+                    <DropdownMenuSeparator />
+                    
+                    <DropdownMenuItem onClick={() => console.log('Convidar membro')}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Convidar membro
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => console.log('Sair do espaço')}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <UserMinus className="h-4 w-4 mr-2" />
+                      Sair do espaço
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => console.log('Excluir espaço')}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Excluir espaço
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
