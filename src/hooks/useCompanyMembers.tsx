@@ -25,43 +25,49 @@ export const useCompanyMembers = () => {
         .from('profiles')
         .select('company_id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError || !userProfile?.company_id) {
         console.error('Error fetching user profile:', profileError);
         return [];
       }
 
-      // Buscar todos os membros da empresa com suas informações de perfil
-      const { data, error } = await supabase
+      // Buscar todos os user_roles da empresa
+      const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select(`
-          id,
-          user_id,
-          role,
-          created_at,
-          profiles!inner (
-            first_name,
-            last_name,
-            company_id
-          )
-        `)
+        .select('id, user_id, role, created_at')
         .eq('company_id', userProfile.company_id);
 
-      if (error) {
-        console.error('Error fetching company members:', error);
+      if (rolesError || !userRoles) {
+        console.error('Error fetching user roles:', rolesError);
         return [];
       }
 
-      return data.map((member: any) => ({
-        id: member.id,
-        user_id: member.user_id,
-        email: member.user_id === user.id ? user.email : 'email@exemplo.com', // Para outros usuários, precisaríamos de uma tabela separada
-        display_name: `${member.profiles.first_name} ${member.profiles.last_name}`.trim(),
-        avatar_url: member.user_id === user.id ? user.user_metadata?.avatar_url : null,
-        created_at: member.created_at,
-        role: member.role
-      })) as CompanyMember[];
+      // Buscar os profiles correspondentes
+      const userIds = userRoles.map(role => role.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        return [];
+      }
+
+      // Combinar os dados
+      return userRoles.map((userRole: any) => {
+        const profile = profiles?.find(p => p.user_id === userRole.user_id);
+        return {
+          id: userRole.id,
+          user_id: userRole.user_id,
+          email: userRole.user_id === user.id ? user.email : 'email@exemplo.com',
+          display_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Nome não encontrado',
+          avatar_url: userRole.user_id === user.id ? user.user_metadata?.avatar_url : null,
+          created_at: userRole.created_at,
+          role: userRole.role
+        };
+      }) as CompanyMember[];
     },
     enabled: !!user?.id,
   });
