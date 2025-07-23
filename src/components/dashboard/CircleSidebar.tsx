@@ -38,7 +38,7 @@ export function CircleSidebar({
       
 
       {/* Content */}
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 p-6 space-y-4">
         {/* Primeiros Passos */}
         <div>
           <Button 
