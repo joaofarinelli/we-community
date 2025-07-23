@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SetupCard } from '@/components/dashboard/SetupCard';
+
 import { useAuth } from '@/hooks/useAuth';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAllPosts, SortOption } from '@/hooks/useAllPosts';
@@ -9,12 +9,12 @@ import { GlobalCreatePostForm } from '@/components/posts/GlobalCreatePostForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const [sortBy, setSortBy] = useState<SortOption>('recent');
-  const [showSetup, setShowSetup] = useState(true);
+  
   const userName = user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'Usuário';
 
   const { data: posts, isLoading: postsLoading } = useAllPosts(sortBy);
@@ -33,20 +33,6 @@ export const Dashboard = () => {
             </p>
           </div>
 
-          {/* Setup Checklist Card - Collapsible */}
-          {showSetup && (
-            <div className="relative">
-              <SetupCard />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => setShowSetup(false)}
-              >
-                ×
-              </Button>
-            </div>
-          )}
 
           {/* Create Post Form */}
           <GlobalCreatePostForm />

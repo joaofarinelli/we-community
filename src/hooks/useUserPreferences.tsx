@@ -9,14 +9,12 @@ interface UserPreferences {
   expanded_categories: string[];
   sidebar_collapsed?: boolean;
   theme?: string;
-  hide_first_steps?: boolean;
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   expanded_categories: [], // Iniciará vazio, será populado na primeira vez
   sidebar_collapsed: false,
   theme: 'light',
-  hide_first_steps: false,
 };
 
 export const useUserPreferences = () => {
@@ -111,15 +109,6 @@ export const useUserPreferences = () => {
     return localPreferences.expanded_categories.includes(categoryId);
   }, [localPreferences.expanded_categories]);
 
-  // Function to hide first steps section
-  const hideFirstSteps = useCallback(() => {
-    const newPreferences = {
-      ...localPreferences,
-      hide_first_steps: true,
-    };
-    setLocalPreferences(newPreferences);
-    savePreferences(newPreferences);
-  }, [localPreferences, savePreferences]);
 
   return {
     preferences: localPreferences,
@@ -127,7 +116,5 @@ export const useUserPreferences = () => {
     updateExpandedCategories,
     toggleCategory,
     isCategoryExpanded,
-    hideFirstSteps,
-    isFirstStepsHidden: localPreferences.hide_first_steps || false,
   };
 };

@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -21,7 +21,7 @@ export function CircleSidebar({
   const {
     data: categories = []
   } = useSpaceCategories();
-  const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading, hideFirstSteps, isFirstStepsHidden } = useUserPreferences();
+  const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading } = useUserPreferences();
   const {
     isTypeSelectionOpen,
     isConfigurationOpen,
@@ -40,33 +40,6 @@ export function CircleSidebar({
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-1">
-        {/* Primeiros Passos */}
-        {!isFirstStepsHidden && (
-          <div className="relative group">
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 pr-8 text-left text-[13px] font-medium transition-all duration-200 ${
-                location.pathname === '/dashboard/setup' 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/setup')}
-            >
-              📋 Primeiros Passos
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
-              onClick={(e) => {
-                e.stopPropagation();
-                hideFirstSteps();
-              }}
-            >
-              <X className="h-3 w-3" />
-            </Button>
-          </div>
-        )}
 
         {/* Feed */}
         <div>

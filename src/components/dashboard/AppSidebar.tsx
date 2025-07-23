@@ -12,7 +12,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Progress } from "@/components/ui/progress";
+
 import { useCompany } from "@/hooks/useCompany";
 
 const mainItems = [
@@ -52,25 +52,6 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* First Steps Section */}
-        {!collapsed && (
-          <SidebarGroup className="px-4 py-4">
-            <SidebarGroupLabel className="text-xs font-bold tracking-wider uppercase text-muted-foreground/80 mb-3">
-              Primeiros Passos
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="space-y-4 px-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">1 de 11 tarefas concluídas</span>
-                </div>
-                <Progress value={9} className="h-3 bg-muted/50 rounded-full overflow-hidden shadow-soft" />
-                <div className="text-xs text-muted-foreground/70 font-medium">
-                  9% concluído
-                </div>
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
 
         {/* Main Navigation */}
         <SidebarGroup className="px-4">
