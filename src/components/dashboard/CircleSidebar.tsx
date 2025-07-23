@@ -41,10 +41,25 @@ export function CircleSidebar({
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-6">
+        {/* Primeiros Passos */}
+        <div>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
+            onClick={() => navigate('/dashboard/setup')}
+          >
+            📋 Primeiros Passos
+          </Button>
+        </div>
+
         {/* Feed */}
         <div>
-          <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50">
-            Feed
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
+            onClick={() => navigate('/dashboard')}
+          >
+            📰 Feed
           </Button>
         </div>
 
