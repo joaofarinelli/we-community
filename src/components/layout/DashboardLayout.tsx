@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Search, Bell, MessageCircle, Users } from 'lucide-react';
+import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { IconButton } from '@/components/dashboard/IconButton';
 import { CircleSidebar } from '@/components/dashboard/CircleSidebar';
 import { UserPointsBadge } from '@/components/gamification/UserPointsBadge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 
@@ -19,6 +20,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user } = useAuth();
   const { data: company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Check if user is admin (you might need to adjust this based on your user role system)
+  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.is_admin;
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,9 +40,34 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <Menu className="h-5 w-5" />
             </Button>
             
-            <h1 className="text-xl font-semibold text-foreground">
-              {company?.name || 'Minha Empresa'}
-            </h1>
+            {isAdmin ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-xl font-semibold text-foreground hover:text-primary h-auto p-0">
+                    {company?.name || 'Minha Empresa'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  <DropdownMenuItem onClick={() => navigate('/admin/levels')}>
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Gerenciar Níveis
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Configurações da Empresa
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/admin/users')}>
+                    <Users className="mr-2 h-4 w-4" />
+                    Gerenciar Usuários
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <h1 className="text-xl font-semibold text-foreground">
+                {company?.name || 'Minha Empresa'}
+              </h1>
+            )}
           </div>
 
           {/* Center - Navigation */}
