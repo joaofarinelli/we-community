@@ -10,6 +10,7 @@ import { UserPointsBadge } from '@/components/gamification/UserPointsBadge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
+import { useIsAdmin } from '@/hooks/useUserRole';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -21,8 +22,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { data: company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
-  // Check if user is admin (you might need to adjust this based on your user role system)
-  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.is_admin;
+  const isAdmin = useIsAdmin();
 
   return (
     <div className="min-h-screen bg-background">
