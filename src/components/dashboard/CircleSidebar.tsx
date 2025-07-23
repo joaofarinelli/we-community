@@ -71,14 +71,8 @@ export function CircleSidebar({
         <div>
           <h3 className="text-sm font-medium text-muted-foreground mb-3">Links</h3>
           <div className="space-y-2">
-            <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
-              <span>Baixe o aplicativo Android</span>
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
-              <span>Baixe o aplicativo iOS</span>
-              <ExternalLink className="h-4 w-4" />
-            </Button>
+            
+            
             <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50">
               <Plus className="h-4 w-4 mr-2" />
               Adicionar link
