@@ -61,57 +61,74 @@ export function SetupChecklist() {
   };
 
   return (
-    <Card className="w-full max-w-2xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CheckCircle className="h-5 w-5 text-green-500" />
-          Primeiros Passos
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {completedCount} de {checklistItems.length} tarefas concluídas
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <h2 className="text-3xl font-bold font-heading text-gradient">Complete os primeiros passos</h2>
+        <p className="text-muted-foreground text-lg">
+          {completedCount} de {checklistItems.length} tarefas concluídas • Configure sua comunidade seguindo este guia passo a passo.
         </p>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {checklistItems.map((item) => {
+      </div>
+      
+      <div className="space-y-4">
+        {checklistItems.map((item, index) => {
           const Icon = item.icon;
           const isOpen = openItems.includes(item.id);
           
           return (
-            <Collapsible key={item.id} open={isOpen} onOpenChange={() => toggleItem(item.id)}>
-              <Card className="border-l-4 border-l-primary/20">
+            <Collapsible 
+              key={item.id} 
+              open={isOpen} 
+              onOpenChange={() => toggleItem(item.id)}
+              className="animate-slide-up"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <Card className="bg-gradient-card shadow-card hover:shadow-card-hover transition-all duration-300 rounded-2xl overflow-hidden border-0">
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="pb-3 hover:bg-muted/50 cursor-pointer">
+                  <CardHeader className="pb-4 hover:bg-background-secondary/50 cursor-pointer transition-colors">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {item.completed ? (
-                          <CheckCircle className="h-5 w-5 text-green-500" />
-                        ) : (
-                          <Circle className="h-5 w-5 text-muted-foreground" />
-                        )}
-                        <Icon className="h-5 w-5 text-primary" />
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                          item.completed 
+                            ? 'bg-gradient-primary text-white shadow-elegant animate-float' 
+                            : 'bg-muted/70 hover:bg-muted'
+                        }`}>
+                          {item.completed ? (
+                            <CheckCircle className="h-5 w-5" />
+                          ) : (
+                            <Circle className="h-5 w-5" />
+                          )}
+                        </div>
+                        <Icon className="h-6 w-6 text-primary" />
                         <div className="text-left">
-                          <h3 className="font-medium">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.description}</p>
+                          <h3 className="font-bold text-lg font-heading mb-1">{item.title}</h3>
+                          <p className="text-muted-foreground font-medium">{item.description}</p>
                         </div>
                       </div>
-                      {isOpen ? (
-                        <ChevronDown className="h-4 w-4" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        {item.completed && (
+                          <div className="px-3 py-1 rounded-full bg-success/20 text-success text-xs font-semibold">
+                            Concluído
+                          </div>
+                        )}
+                        {isOpen ? (
+                          <ChevronDown className="h-4 w-4 transition-transform" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 transition-transform" />
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
-                  <CardContent className="pt-0">
-                    <div className="space-y-2 ml-8">
-                      {item.tasks.map((task, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                          <Circle className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">{task}</span>
+                  <CardContent className="pt-0 pb-6">
+                    <div className="space-y-3 ml-16">
+                      {item.tasks.map((task, taskIndex) => (
+                        <div key={taskIndex} className="flex items-center gap-4 p-4 bg-background-secondary/50 rounded-xl hover:bg-background-secondary/70 transition-colors group">
+                          <div className="w-2 h-2 rounded-full bg-primary group-hover:scale-125 transition-transform"></div>
+                          <span className="font-medium text-foreground/90">{task}</span>
                         </div>
                       ))}
-                      <Button size="sm" className="mt-3">
+                      <Button className="mt-4 shadow-soft hover:shadow-medium transition-all duration-200 hover:-translate-y-0.5">
                         Começar
                       </Button>
                     </div>
@@ -121,7 +138,7 @@ export function SetupChecklist() {
             </Collapsible>
           );
         })}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

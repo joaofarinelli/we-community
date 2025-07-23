@@ -35,18 +35,18 @@ export function AppSidebar() {
     isActive ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-64"} collapsible="icon">
-      <SidebarContent className="bg-background border-r">
+    <Sidebar className={collapsed ? "w-16" : "w-72"} collapsible="icon">
+      <SidebarContent className="glass border-r border-border/20 backdrop-blur-xl">
         {/* Company Header */}
-        <div className="p-4 border-b">
+        <div className="p-6 border-b border-border/20">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Users className="h-5 w-5 text-white" />
+            <div className="h-10 w-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-elegant hover:shadow-glow transition-all duration-300 animate-float">
+              <Users className="h-6 w-6 text-white" />
             </div>
             {!collapsed && (
-              <div>
-                <h2 className="text-sm font-semibold">{company?.name || "Minha Comunidade"}</h2>
-                <p className="text-xs text-muted-foreground">Comunidade</p>
+              <div className="animate-fade-in">
+                <h2 className="text-lg font-bold font-heading">{company?.name || "Minha Comunidade"}</h2>
+                <p className="text-sm text-muted-foreground font-medium">Comunidade Premium</p>
               </div>
             )}
           </div>
@@ -54,29 +54,50 @@ export function AppSidebar() {
 
         {/* First Steps Section */}
         {!collapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Primeiros Passos</SidebarGroupLabel>
+          <SidebarGroup className="px-4 py-4">
+            <SidebarGroupLabel className="text-xs font-bold tracking-wider uppercase text-muted-foreground/80 mb-3">
+              Primeiros Passos
+            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="px-3 py-2 space-y-3">
+              <div className="space-y-4 px-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">1 de 11 tarefas concluídas</span>
+                  <span className="text-sm font-medium text-muted-foreground">1 de 11 tarefas concluídas</span>
                 </div>
-                <Progress value={9} className="h-2" />
+                <Progress value={9} className="h-3 bg-muted/50 rounded-full overflow-hidden shadow-soft" />
+                <div className="text-xs text-muted-foreground/70 font-medium">
+                  9% concluído
+                </div>
               </div>
             </SidebarGroupContent>
           </SidebarGroup>
         )}
 
         {/* Main Navigation */}
-        <SidebarGroup>
+        <SidebarGroup className="px-4">
           <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
+            <SidebarMenu className="space-y-2">
+              {mainItems.map((item, index) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                  <SidebarMenuButton 
+                    asChild 
+                    className="rounded-xl transition-all duration-200 hover:shadow-soft"
+                  >
+                    <NavLink 
+                      to={item.url} 
+                      end 
+                      className={({ isActive }) => 
+                        `flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 ${
+                          isActive 
+                            ? "bg-primary text-primary-foreground shadow-elegant scale-[1.02]" 
+                            : "hover:bg-muted/50 hover:translate-x-1"
+                        }`
+                      }
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <item.icon className={`h-5 w-5 ${isActive(item.url) ? "animate-float" : ""}`} />
+                      {!collapsed && (
+                        <span className="animate-fade-in font-semibold">{item.title}</span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -87,14 +108,16 @@ export function AppSidebar() {
 
         {/* Spaces Section */}
         {!collapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Spaces</SidebarGroupLabel>
+          <SidebarGroup className="px-4 mt-6">
+            <SidebarGroupLabel className="text-xs font-bold tracking-wider uppercase text-muted-foreground/80 mb-3">
+              Spaces
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <Plus className="h-4 w-4" />
-                    <span>Criar espaço</span>
+                  <SidebarMenuButton className="rounded-xl hover:shadow-soft transition-all duration-200 hover:bg-muted/50 px-3 py-2.5">
+                    <Plus className="h-5 w-5 text-primary" />
+                    <span className="font-semibold text-primary">Criar espaço</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -104,14 +127,20 @@ export function AppSidebar() {
 
         {/* App Links Section */}
         {!collapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Links</SidebarGroupLabel>
+          <SidebarGroup className="px-4 mt-6">
+            <SidebarGroupLabel className="text-xs font-bold tracking-wider uppercase text-muted-foreground/80 mb-3">
+              Links
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <Smartphone className="h-4 w-4" />
-                    <span>Download App</span>
+                  <SidebarMenuButton className="rounded-xl hover:shadow-soft transition-all duration-200 hover:bg-muted/50 px-3 py-2.5 group">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-lg bg-accent/20 group-hover:bg-accent/30 transition-colors">
+                        <Smartphone className="h-4 w-4 text-accent" />
+                      </div>
+                      <span className="font-semibold text-accent">Download App</span>
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
