@@ -61,16 +61,21 @@ export function CircleSidebar({
           </Button>
         </div>
 
+        {/* Criar Categoria */}
+        {categories.length > 0 && (
+          <div>
+            <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50 text-muted-foreground">
+              <Plus className="h-4 w-4 mr-2" />
+              Criar categoria
+            </Button>
+          </div>
+        )}
+
         <Separator />
 
         {/* Categories and Spaces Section */}
         <div className="space-y-2">
           {categories.map(category => <SpaceCategorySection key={category.id} category={category} isExpanded={isCategoryExpanded(category.id)} onToggle={() => toggleCategory(category.id)} onCreateSpace={openTypeSelection} onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} />)}
-          
-          {categories.length > 0 && <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50 text-muted-foreground">
-              <Plus className="h-4 w-4 mr-2" />
-              Criar categoria
-            </Button>}
         </div>
 
         <Separator />
