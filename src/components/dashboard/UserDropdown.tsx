@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from './UserAvatar';
 import { UserProfileDialog } from './UserProfileDialog';
+import { NotificationDropdown } from './NotificationDropdown';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +40,9 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
   };
 
   return (
-    <DropdownMenu>
+    <div className="flex items-center gap-2">
+      <NotificationDropdown />
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="cursor-pointer">
           <UserAvatar 
@@ -84,5 +87,6 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
         onOpenChange={setProfileDialogOpen} 
       />
     </DropdownMenu>
+    </div>
   );
 }

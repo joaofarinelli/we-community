@@ -8,12 +8,14 @@ import { CategoryFilter } from '@/components/marketplace/CategoryFilter';
 import { UserCoinsBadge } from '@/components/gamification/UserPointsBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ShoppingBag } from 'lucide-react';
+import { Search, ShoppingBag, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { CreateUserItemDialog } from '@/components/marketplace/CreateUserItemDialog';
 
 export const MarketplacePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const { data: categories = [], isLoading: categoriesLoading } = useMarketplaceCategories();
   const { data: items = [], isLoading: itemsLoading } = useMarketplaceItems(selectedCategory || undefined);
@@ -46,6 +48,19 @@ export const MarketplacePage = () => {
           
           <div className="flex items-center gap-4">
             <UserCoinsBadge />
+            <Button 
+              variant="outline" 
+              onClick={() => setShowCreateDialog(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Anunciar
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/my-items">
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Meus Anúncios
+              </Link>
+            </Button>
             <Button asChild variant="outline">
               <Link to="/dashboard/marketplace/purchases">
                 <ShoppingBag className="h-4 w-4 mr-2" />
@@ -117,6 +132,11 @@ export const MarketplacePage = () => {
             )}
           </div>
         </div>
+
+        <CreateUserItemDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+        />
       </div>
     </DashboardLayout>
   );

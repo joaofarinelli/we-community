@@ -28,6 +28,7 @@ import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
 import { MarketplacePurchasesPage } from "./pages/MarketplacePurchasesPage";
 import { AdminMarketplacePage } from "./pages/admin/AdminMarketplacePage";
+import MyItemsPage from "./pages/MyItemsPage";
 import { MembersPage } from "./pages/MembersPage";
 import NotFound from "./pages/NotFound";
 
@@ -68,6 +69,7 @@ const AppRoutes = () => {
       <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
       <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
       <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
+      <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
       <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />

@@ -9,7 +9,8 @@ export const useMarketplaceItems = (categoryId?: string) => {
         .from('marketplace_items')
         .select(`
           *,
-          marketplace_categories!inner(*)
+          marketplace_categories!inner(*),
+          profiles!marketplace_items_seller_id_fkey(first_name, last_name)
         `)
         .eq('is_active', true)
         .order('order_index');

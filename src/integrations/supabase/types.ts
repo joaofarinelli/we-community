@@ -276,6 +276,8 @@ export type Database = {
           name: string
           order_index: number
           price_coins: number
+          seller_id: string | null
+          seller_type: string
           stock_quantity: number | null
           updated_at: string
         }
@@ -292,6 +294,8 @@ export type Database = {
           name: string
           order_index?: number
           price_coins: number
+          seller_id?: string | null
+          seller_type?: string
           stock_quantity?: number | null
           updated_at?: string
         }
@@ -308,6 +312,8 @@ export type Database = {
           name?: string
           order_index?: number
           price_coins?: number
+          seller_id?: string | null
+          seller_type?: string
           stock_quantity?: number | null
           updated_at?: string
         }
@@ -381,6 +387,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          company_id: string
+          content: string | null
+          created_at: string
+          id: string
+          is_read: boolean
+          reference_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          reference_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          reference_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       point_transactions: {
         Row: {
@@ -1155,6 +1200,16 @@ export type Database = {
           p_quantity?: number
         }
         Returns: Json
+      }
+      transfer_user_coins: {
+        Args: {
+          p_from_user_id: string
+          p_to_user_id: string
+          p_company_id: string
+          p_coins: number
+          p_reference_id?: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

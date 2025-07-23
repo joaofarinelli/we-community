@@ -13,6 +13,9 @@ interface MarketplaceItem {
   price_coins: number;
   stock_quantity: number | null;
   is_featured: boolean;
+  seller_type: string;
+  seller_id?: string;
+  profiles?: any;
 }
 
 interface MarketplaceItemCardProps {
@@ -56,6 +59,13 @@ export const MarketplaceItemCard = ({ item, userCoins }: MarketplaceItemCardProp
                 {item.description}
               </p>
             )}
+            
+            <p className="text-xs text-muted-foreground">
+              Vendido por:{' '}
+              {item.seller_type === 'company' 
+                ? 'Empresa' 
+                : `${item.profiles?.first_name} ${item.profiles?.last_name}`}
+            </p>
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
