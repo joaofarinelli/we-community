@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				ui: ["var(--font-ui)", "Inter", "system-ui", "sans-serif"],
-				heading: ["var(--font-heading)", "Poppins", "system-ui", "sans-serif"],
+				sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+				inter: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
 			},
 			letterSpacing: {
 				tighter: "var(--letter-spacing-tight)",
