@@ -171,7 +171,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
         {/* Submenu Sidebar */}
         {activeMenuData && (
-          <div className="w-64 bg-white border-r border-border flex flex-col">
+          <div className="w-64 bg-card border-r border-border flex flex-col">
             <div className="p-4 border-b border-border">
               <h2 className="text-lg font-semibold text-foreground">
                 {activeMenuData.label}
