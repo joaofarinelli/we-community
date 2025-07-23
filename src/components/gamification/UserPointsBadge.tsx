@@ -19,7 +19,7 @@ export const UserCoinsBadge = () => {
   return (
     <Badge variant="secondary" className="bg-gradient-to-r from-primary/10 to-secondary/10 hover:from-primary/20 hover:to-secondary/20 transition-all duration-300">
       <Coins className="h-3 w-3 mr-1 text-primary" />
-      {coins} WomanCoins
+      {coins}
     </Badge>
   );
 };
