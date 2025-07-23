@@ -1,31 +1,36 @@
-import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight, Hash, Volume2, Megaphone } from 'lucide-react';
+import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useSpaces } from '@/hooks/useSpaces';
+import { useCreateSpace } from '@/hooks/useCreateSpace';
+import { getSpaceIcon } from '@/lib/spaceUtils';
+import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
+import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
 import { useState } from 'react';
 
 interface CircleSidebarProps {
   onClose?: () => void;
 }
 
-const getSpaceIcon = (type: string) => {
-  switch (type) {
-    case 'voice':
-      return Volume2;
-    case 'announcement':
-      return Megaphone;
-    default:
-      return Hash;
-  }
-};
-
 export function CircleSidebar({ onClose }: CircleSidebarProps) {
   const { data: categories = [] } = useSpaceCategories();
   const [expandedCategories, setExpandedCategories] = useState<string[]>(() => 
     categories.map(cat => cat.id)
   );
+  
+  const {
+    isTypeSelectionOpen,
+    isConfigurationOpen,
+    selectedType,
+    selectedCategoryId,
+    isCreating,
+    openTypeSelection,
+    selectTypeAndProceed,
+    closeAllDialogs,
+    createSpace,
+  } = useCreateSpace();
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories(prev => 
@@ -72,6 +77,7 @@ export function CircleSidebar({ onClose }: CircleSidebarProps) {
               category={category}
               isExpanded={expandedCategories.includes(category.id)}
               onToggle={() => toggleCategory(category.id)}
+              onCreateSpace={openTypeSelection}
             />
           ))}
           
@@ -127,6 +133,22 @@ export function CircleSidebar({ onClose }: CircleSidebarProps) {
           Desenvolvido pela Circle
         </p>
       </div>
+
+      {/* Dialogs de Criação de Espaço */}
+      <SpaceTypeSelectionDialog
+        open={isTypeSelectionOpen}
+        onClose={closeAllDialogs}
+        onSelectType={selectTypeAndProceed}
+      />
+      
+      <SpaceConfigurationDialog
+        open={isConfigurationOpen}
+        onClose={closeAllDialogs}
+        onCreateSpace={createSpace}
+        selectedType={selectedType}
+        selectedCategoryId={selectedCategoryId}
+        isCreating={isCreating}
+      />
     </aside>
   );
 }
@@ -135,9 +157,10 @@ interface SpaceCategorySectionProps {
   category: any;
   isExpanded: boolean;
   onToggle: () => void;
+  onCreateSpace: (categoryId: string) => void;
 }
 
-function SpaceCategorySection({ category, isExpanded, onToggle }: SpaceCategorySectionProps) {
+function SpaceCategorySection({ category, isExpanded, onToggle, onCreateSpace }: SpaceCategorySectionProps) {
   const { data: spaces = [] } = useSpaces(category.id);
 
   return (
@@ -174,6 +197,7 @@ function SpaceCategorySection({ category, isExpanded, onToggle }: SpaceCategoryS
         <Button
           variant="ghost"
           className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm"
+          onClick={() => onCreateSpace(category.id)}
         >
           <Plus className="h-4 w-4 mr-2" />
           Criar espaço

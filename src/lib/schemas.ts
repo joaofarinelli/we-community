@@ -40,8 +40,27 @@ export const companySignupSchema = z.object({
   userPhone: z.string().optional(),
 });
 
+// Schema para seleção de tipo de espaço
+export const spaceTypeSelectionSchema = z.object({
+  type: z.enum(['publications', 'events', 'chat', 'course', 'members', 'images']),
+});
+
+// Schema para configuração do espaço
+export const spaceConfigurationSchema = z.object({
+  name: z.string().min(2, 'Nome do espaço deve ter pelo menos 2 caracteres'),
+  categoryId: z.string().min(1, 'Categoria é obrigatória'),
+  accessLevel: z.enum(['open', 'private', 'secret']),
+  enableNotifications: z.boolean(),
+});
+
+// Schema completo para criação de espaço
+export const createSpaceSchema = spaceTypeSelectionSchema.merge(spaceConfigurationSchema);
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type EmailStepFormData = z.infer<typeof emailStepSchema>;
 export type UserDetailsStepFormData = z.infer<typeof userDetailsStepSchema>;
 export type TwoStepSignupFormData = z.infer<typeof twoStepSignupSchema>;
 export type CompanySignupFormData = z.infer<typeof companySignupSchema>;
+export type SpaceTypeSelectionFormData = z.infer<typeof spaceTypeSelectionSchema>;
+export type SpaceConfigurationFormData = z.infer<typeof spaceConfigurationSchema>;
+export type CreateSpaceFormData = z.infer<typeof createSpaceSchema>;
