@@ -8,6 +8,7 @@ import { useSpaces } from '@/hooks/useSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { useReorderSpaces } from '@/hooks/useReorderSpaces';
+import { useReorderCategories } from '@/hooks/useReorderCategories';
 import { renderSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
@@ -44,6 +45,14 @@ export function CircleSidebar({
     data: categories = []
   } = useSpaceCategories();
   const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading } = useUserPreferences();
+  const reorderCategories = useReorderCategories();
+
+  const categorySensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   const {
     isTypeSelectionOpen,
     isConfigurationOpen,
@@ -65,6 +74,28 @@ export function CircleSidebar({
 
   const openCategoryDialog = () => setCategoryDialogOpen(true);
   const closeCategoryDialog = () => setCategoryDialogOpen(false);
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = categories.findIndex(cat => cat.id === active.id);
+    const newIndex = categories.findIndex(cat => cat.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
+
+    const categoryUpdates = reorderedCategories.map((category, index) => ({
+      id: category.id,
+      order_index: index,
+    }));
+
+    reorderCategories.mutate({ categoryUpdates });
+  };
 
   return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
@@ -106,7 +137,28 @@ export function CircleSidebar({
 
         {/* Categories and Spaces Section */}
         <div className="space-y-2">
-          {categories.map(category => <SpaceCategorySection key={category.id} category={category} isExpanded={isCategoryExpanded(category.id)} onToggle={() => toggleCategory(category.id)} onCreateSpace={openTypeSelection} onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} currentPath={location.pathname} />)}
+          <DndContext
+            sensors={categorySensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCategoryDragEnd}
+          >
+            <SortableContext
+              items={categories.map(cat => cat.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {categories.map(category => (
+                <DraggableCategorySection 
+                  key={category.id} 
+                  category={category} 
+                  isExpanded={isCategoryExpanded(category.id)} 
+                  onToggle={() => toggleCategory(category.id)} 
+                  onCreateSpace={openTypeSelection} 
+                  onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} 
+                  currentPath={location.pathname} 
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
 
       </div>
@@ -177,7 +229,7 @@ const DraggableSpaceItem = ({ space, isActive, onSpaceClick }: DraggableSpaceIte
   );
 };
 
-interface SpaceCategorySectionProps {
+interface DraggableCategorySectionProps {
   category: any;
   isExpanded: boolean;
   onToggle: () => void;
@@ -186,13 +238,62 @@ interface SpaceCategorySectionProps {
   currentPath: string;
 }
 
+const DraggableCategorySection = ({ 
+  category, 
+  isExpanded, 
+  onToggle, 
+  onCreateSpace, 
+  onSpaceClick, 
+  currentPath 
+}: DraggableCategorySectionProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <SpaceCategorySection
+        category={category}
+        isExpanded={isExpanded}
+        onToggle={onToggle}
+        onCreateSpace={onCreateSpace}
+        onSpaceClick={onSpaceClick}
+        currentPath={currentPath}
+        dragHandleProps={{ ...attributes, ...listeners }}
+      />
+    </div>
+  );
+};
+
+interface SpaceCategorySectionProps {
+  category: any;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onCreateSpace: (categoryId: string) => void;
+  onSpaceClick: (spaceId: string) => void;
+  currentPath: string;
+  dragHandleProps?: any;
+}
+
 function SpaceCategorySection({
   category,
   isExpanded,
   onToggle,
   onCreateSpace,
   onSpaceClick,
-  currentPath
+  currentPath,
+  dragHandleProps
 }: SpaceCategorySectionProps) {
   const { data: spaces = [] } = useSpaces(category.id);
   const reorderSpacesMutation = useReorderSpaces();
@@ -230,7 +331,11 @@ function SpaceCategorySection({
     <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
         <div className="w-full group">
-          <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50 cursor-pointer"
+            {...dragHandleProps}
+          >
             <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
             <div className="flex items-center gap-1">
               {spaces.length > 0 && (
