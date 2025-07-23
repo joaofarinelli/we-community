@@ -91,12 +91,12 @@ export const SpaceView = () => {
                 
                 
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-primary/10 rounded-lg flex items-center justify-center">
+                  <div className="flex items-center justify-center">
                     {renderSpaceIcon(
                       space.type, 
                       space.custom_icon_type, 
                       space.custom_icon_value, 
-                      "h-5 w-5 text-primary"
+                      "h-6 w-6"
                     )}
                   </div>
                   <div>
