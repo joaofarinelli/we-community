@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 interface CompanyThemeConfig {
   theme_mode: 'light' | 'dark' | 'auto';
   primary_color: string;
+  text_color: string;
+  button_text_color: string;
   theme_config: Record<string, any>;
 }
 
@@ -24,7 +26,7 @@ export const useCompanyTheme = () => {
 
       const { data, error } = await supabase
         .from('companies')
-        .select('theme_mode, primary_color, theme_config')
+        .select('theme_mode, primary_color, text_color, button_text_color, theme_config')
         .eq('id', company.id)
         .single();
 
@@ -47,6 +49,15 @@ export const useCompanyTheme = () => {
       // Apply primary color to CSS variables
       if (themeConfig.primary_color) {
         applyPrimaryColor(themeConfig.primary_color);
+      }
+
+      // Apply text colors
+      if (themeConfig.text_color) {
+        applyTextColor(themeConfig.text_color);
+      }
+
+      if (themeConfig.button_text_color) {
+        applyButtonTextColor(themeConfig.button_text_color);
       }
     }
   }, [themeConfig, setTheme]);
@@ -82,6 +93,28 @@ export const useCompanyTheme = () => {
       root.style.setProperty('--primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
       root.style.setProperty('--primary-glow', `${hsl.h} ${Math.max(hsl.s - 10, 0)}% ${Math.min(hsl.l + 15, 100)}%`);
       root.style.setProperty('--ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+    }
+  };
+
+  // Apply text color to CSS variables
+  const applyTextColor = (hexColor: string) => {
+    const hsl = hexToHsl(hexColor);
+    if (hsl) {
+      const root = document.documentElement;
+      root.style.setProperty('--foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+      root.style.setProperty('--card-foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+      root.style.setProperty('--popover-foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+      root.style.setProperty('--secondary-foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+      root.style.setProperty('--accent-foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+    }
+  };
+
+  // Apply button text color to CSS variables
+  const applyButtonTextColor = (hexColor: string) => {
+    const hsl = hexToHsl(hexColor);
+    if (hsl) {
+      const root = document.documentElement;
+      root.style.setProperty('--primary-foreground', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
     }
   };
 
@@ -125,11 +158,23 @@ export const useCompanyTheme = () => {
     applyPrimaryColor(color);
   };
 
+  const updateTextColor = (color: string) => {
+    updateThemeMutation.mutate({ text_color: color });
+    applyTextColor(color);
+  };
+
+  const updateButtonTextColor = (color: string) => {
+    updateThemeMutation.mutate({ button_text_color: color });
+    applyButtonTextColor(color);
+  };
+
   return {
     themeConfig,
     isLoading,
     updateThemeMode,
     updatePrimaryColor,
+    updateTextColor,
+    updateButtonTextColor,
     isUpdating: updateThemeMutation.isPending,
   };
 };

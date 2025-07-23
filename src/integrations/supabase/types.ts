@@ -17,6 +17,7 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          button_text_color: string | null
           city: string | null
           cnpj: string | null
           created_at: string
@@ -29,12 +30,14 @@ export type Database = {
           state: string | null
           status: string | null
           subdomain: string | null
+          text_color: string | null
           theme_config: Json | null
           theme_mode: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
           created_at?: string
@@ -47,12 +50,14 @@ export type Database = {
           state?: string | null
           status?: string | null
           subdomain?: string | null
+          text_color?: string | null
           theme_config?: Json | null
           theme_mode?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
           created_at?: string
@@ -65,6 +70,7 @@ export type Database = {
           state?: string | null
           status?: string | null
           subdomain?: string | null
+          text_color?: string | null
           theme_config?: Json | null
           theme_mode?: string | null
           updated_at?: string

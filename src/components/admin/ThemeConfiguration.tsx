@@ -18,8 +18,10 @@ const PRESET_COLORS = [
 ];
 
 export const ThemeConfiguration = () => {
-  const { themeConfig, updateThemeMode, updatePrimaryColor, isLoading, isUpdating } = useCompanyTheme();
+  const { themeConfig, updateThemeMode, updatePrimaryColor, updateTextColor, updateButtonTextColor, isLoading, isUpdating } = useCompanyTheme();
   const [selectedColor, setSelectedColor] = useState(themeConfig?.primary_color || '#334155');
+  const [selectedTextColor, setSelectedTextColor] = useState(themeConfig?.text_color || '#F0F3F5');
+  const [selectedButtonTextColor, setSelectedButtonTextColor] = useState(themeConfig?.button_text_color || '#FFFFFF');
   const [selectedMode, setSelectedMode] = useState(themeConfig?.theme_mode || 'light');
 
   const handleSaveChanges = () => {
@@ -29,11 +31,19 @@ export const ThemeConfiguration = () => {
     if (selectedColor !== themeConfig?.primary_color) {
       updatePrimaryColor(selectedColor);
     }
+    if (selectedTextColor !== themeConfig?.text_color) {
+      updateTextColor(selectedTextColor);
+    }
+    if (selectedButtonTextColor !== themeConfig?.button_text_color) {
+      updateButtonTextColor(selectedButtonTextColor);
+    }
   };
 
   const hasChanges = 
     selectedMode !== themeConfig?.theme_mode || 
-    selectedColor !== themeConfig?.primary_color;
+    selectedColor !== themeConfig?.primary_color ||
+    selectedTextColor !== themeConfig?.text_color ||
+    selectedButtonTextColor !== themeConfig?.button_text_color;
 
   if (isLoading) {
     return (
@@ -149,11 +159,57 @@ export const ThemeConfiguration = () => {
           </div>
         </div>
 
+        {/* Cor de Texto */}
+        <div className="space-y-3">
+          <Label htmlFor="text-color" className="text-base font-medium">
+            Cor de Texto
+          </Label>
+          <div className="flex items-center gap-3">
+            <input
+              id="text-color"
+              type="color"
+              value={selectedTextColor}
+              onChange={(e) => setSelectedTextColor(e.target.value)}
+              className="w-12 h-12 rounded border border-border cursor-pointer"
+            />
+            <input
+              type="text"
+              value={selectedTextColor}
+              onChange={(e) => setSelectedTextColor(e.target.value)}
+              placeholder="#F0F3F5"
+              className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+
+        {/* Cor de Texto em Botões */}
+        <div className="space-y-3">
+          <Label htmlFor="button-text-color" className="text-base font-medium">
+            Cor de Texto em Botões
+          </Label>
+          <div className="flex items-center gap-3">
+            <input
+              id="button-text-color"
+              type="color"
+              value={selectedButtonTextColor}
+              onChange={(e) => setSelectedButtonTextColor(e.target.value)}
+              className="w-12 h-12 rounded border border-border cursor-pointer"
+            />
+            <input
+              type="text"
+              value={selectedButtonTextColor}
+              onChange={(e) => setSelectedButtonTextColor(e.target.value)}
+              placeholder="#FFFFFF"
+              className="flex-1 px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+
         {/* Preview */}
         <div className="space-y-3">
           <Label className="text-base font-medium">Preview</Label>
           <div className="p-4 border rounded-lg bg-background">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <div 
                 className="w-4 h-4 rounded-full"
                 style={{ backgroundColor: selectedColor }}
@@ -162,17 +218,27 @@ export const ThemeConfiguration = () => {
                 size="sm"
                 style={{ 
                   backgroundColor: selectedColor,
-                  borderColor: selectedColor 
+                  borderColor: selectedColor,
+                  color: selectedButtonTextColor
                 }}
               >
                 Botão de Exemplo
               </Button>
               <div 
-                className="px-2 py-1 rounded text-sm font-medium text-white"
-                style={{ backgroundColor: selectedColor }}
+                className="px-2 py-1 rounded text-sm font-medium"
+                style={{ 
+                  backgroundColor: selectedColor,
+                  color: selectedButtonTextColor
+                }}
               >
                 Badge
               </div>
+              <span 
+                className="text-sm"
+                style={{ color: selectedTextColor }}
+              >
+                Exemplo de texto
+              </span>
             </div>
           </div>
         </div>
