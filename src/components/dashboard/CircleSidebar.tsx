@@ -1,12 +1,40 @@
-import { X, ExternalLink, Video, Plus } from 'lucide-react';
+import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight, Hash, Volume2, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useSpaceCategories } from '@/hooks/useSpaceCategories';
+import { useSpaces } from '@/hooks/useSpaces';
+import { useState } from 'react';
 
 interface CircleSidebarProps {
   onClose?: () => void;
 }
 
+const getSpaceIcon = (type: string) => {
+  switch (type) {
+    case 'voice':
+      return Volume2;
+    case 'announcement':
+      return Megaphone;
+    default:
+      return Hash;
+  }
+};
+
 export function CircleSidebar({ onClose }: CircleSidebarProps) {
+  const { data: categories = [] } = useSpaceCategories();
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(() => 
+    categories.map(cat => cat.id)
+  );
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
+
   return (
     <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
@@ -36,16 +64,26 @@ export function CircleSidebar({ onClose }: CircleSidebarProps) {
 
         <Separator />
 
-        {/* Spaces Section */}
-        <div>
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Spaces</h3>
-          <Button
-            variant="ghost"
-            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Criar espaço
-          </Button>
+        {/* Categories and Spaces Section */}
+        <div className="space-y-2">
+          {categories.map((category) => (
+            <SpaceCategorySection
+              key={category.id}
+              category={category}
+              isExpanded={expandedCategories.includes(category.id)}
+              onToggle={() => toggleCategory(category.id)}
+            />
+          ))}
+          
+          {categories.length > 0 && (
+            <Button
+              variant="ghost"
+              className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50 text-muted-foreground"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Criar categoria
+            </Button>
+          )}
         </div>
 
         <Separator />
@@ -90,5 +128,57 @@ export function CircleSidebar({ onClose }: CircleSidebarProps) {
         </p>
       </div>
     </aside>
+  );
+}
+
+interface SpaceCategorySectionProps {
+  category: any;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+function SpaceCategorySection({ category, isExpanded, onToggle }: SpaceCategorySectionProps) {
+  const { data: spaces = [] } = useSpaces(category.id);
+
+  return (
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
+      <CollapsibleTrigger asChild>
+        <Button
+          variant="ghost"
+          className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50"
+        >
+          <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
+          {isExpanded ? (
+            <ChevronDown className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent className="space-y-1 ml-3">
+        {spaces.map((space) => {
+          const IconComponent = getSpaceIcon(space.type);
+          return (
+            <Button
+              key={space.id}
+              variant="ghost"
+              className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-sm"
+            >
+              <IconComponent className="h-4 w-4 mr-2" />
+              <span className={space.is_private ? "text-muted-foreground" : ""}>{space.name}</span>
+            </Button>
+          );
+        })}
+        
+        <Button
+          variant="ghost"
+          className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Criar espaço
+        </Button>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
