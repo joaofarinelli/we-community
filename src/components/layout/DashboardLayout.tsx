@@ -25,9 +25,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isAdmin = useIsAdmin();
 
   return (
-    <div className="h-screen bg-background overflow-hidden flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
+      <header className="shrink-0 bg-card border-b border-border z-10">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left side */}
           <div className="flex items-center space-x-4 flex-1">
@@ -108,7 +108,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </header>
 
       {/* Layout with sidebar */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <CircleSidebar />
