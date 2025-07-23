@@ -7,7 +7,7 @@ import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { getSpaceIcon } from '@/lib/spaceUtils';
+import { renderSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
 import { CreateCategoryDialog } from './CreateCategoryDialog';
@@ -155,7 +155,6 @@ function SpaceCategorySection({
       
       <CollapsibleContent className="space-y-1 ml-3">
         {spaces.map(space => {
-        const IconComponent = getSpaceIcon(space.type);
         const isActiveSpace = currentPath === `/dashboard/space/${space.id}`;
         return <Button 
           key={space.id} 
@@ -167,7 +166,9 @@ function SpaceCategorySection({
               : 'hover:bg-muted/50'
           }`}
         >
-              <IconComponent className="h-4 w-4 mr-2" />
+              <div className="h-4 w-4 mr-2 flex items-center justify-center">
+                {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-4 w-4")}
+              </div>
               <span className={space.is_private && !isActiveSpace ? "text-muted-foreground" : ""}>{space.name}</span>
             </Button>;
       })}

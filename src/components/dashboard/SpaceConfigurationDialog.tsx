@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { IconSelector } from '@/components/ui/icon-selector';
 import { getSpaceTypeInfo, type SpaceType } from '@/lib/spaceUtils';
 import { spaceConfigurationSchema, type SpaceConfigurationFormData } from '@/lib/schemas';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
@@ -49,12 +50,14 @@ export const SpaceConfigurationDialog = ({
     watch,
     setValue,
     formState: { errors },
-  } = useForm<SpaceConfigurationFormData>({
+  } = useForm({
     resolver: zodResolver(spaceConfigurationSchema),
     defaultValues: {
       categoryId: selectedCategoryId || '',
       accessLevel: 'open' as const,
       enableNotifications: true,
+      customIconType: 'default' as const,
+      customIconValue: '',
     },
   });
 
@@ -172,6 +175,22 @@ export const SpaceConfigurationDialog = ({
             {errors.accessLevel && (
               <p className="text-sm text-destructive">{errors.accessLevel.message}</p>
             )}
+          </div>
+
+          {/* Ícone do Espaço */}
+          <div className="space-y-2">
+            <IconSelector
+              spaceType={selectedType}
+              iconType={watch('customIconType') || 'default'}
+              iconValue={watch('customIconValue')}
+              onIconTypeChange={(type) => {
+                setValue('customIconType', type);
+                if (type === 'default') {
+                  setValue('customIconValue', '');
+                }
+              }}
+              onIconValueChange={(value) => setValue('customIconValue', value)}
+            />
           </div>
 
           {/* Notificações */}

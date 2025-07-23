@@ -314,6 +314,8 @@ export type Database = {
           company_id: string
           created_at: string
           created_by: string
+          custom_icon_type: string | null
+          custom_icon_value: string | null
           description: string | null
           id: string
           is_private: boolean
@@ -327,6 +329,8 @@ export type Database = {
           company_id: string
           created_at?: string
           created_by: string
+          custom_icon_type?: string | null
+          custom_icon_value?: string | null
           description?: string | null
           id?: string
           is_private?: boolean
@@ -340,6 +344,8 @@ export type Database = {
           company_id?: string
           created_at?: string
           created_by?: string
+          custom_icon_type?: string | null
+          custom_icon_value?: string | null
           description?: string | null
           id?: string
           is_private?: boolean

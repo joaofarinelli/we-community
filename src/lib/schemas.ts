@@ -51,6 +51,8 @@ export const spaceConfigurationSchema = z.object({
   categoryId: z.string().min(1, 'Categoria é obrigatória'),
   accessLevel: z.enum(['open', 'private', 'secret']),
   enableNotifications: z.boolean(),
+  customIconType: z.enum(['default', 'emoji', 'image']).optional().default('default'),
+  customIconValue: z.string().optional(),
 });
 
 // Schema completo para criação de espaço

@@ -1,3 +1,4 @@
+import React from 'react';
 import { 
   FileText, 
   Calendar, 
@@ -59,6 +60,31 @@ export const spaceTypes: SpaceTypeInfo[] = [
 export const getSpaceIcon = (type: string): LucideIcon => {
   const spaceType = spaceTypes.find(st => st.type === type);
   return spaceType?.icon || FileText;
+};
+
+export const renderSpaceIcon = (
+  type: string, 
+  customIconType?: string, 
+  customIconValue?: string,
+  className?: string
+): JSX.Element => {
+  const iconClass = className || "h-5 w-5";
+  
+  if (customIconType === 'emoji' && customIconValue) {
+    return React.createElement('span', { className: 'text-lg' }, customIconValue);
+  }
+  
+  if (customIconType === 'image' && customIconValue) {
+    return React.createElement('img', {
+      src: customIconValue,
+      alt: 'Space icon',
+      className: `${iconClass} object-cover rounded`
+    });
+  }
+  
+  // Default icon
+  const DefaultIcon = getSpaceIcon(type);
+  return React.createElement(DefaultIcon, { className: iconClass });
 };
 
 export const getSpaceTypeInfo = (type: SpaceType): SpaceTypeInfo | undefined => {
