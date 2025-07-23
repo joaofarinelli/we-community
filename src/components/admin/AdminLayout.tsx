@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Users, 
   Shield, 
@@ -61,44 +62,53 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <TooltipProvider>
+      <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className="w-64 bg-card border-r border-border flex flex-col">
+      <div className="w-16 bg-card border-r border-border flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/dashboard')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar ao Dashboard
-          </Button>
+        <div className="p-2 border-b border-border">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+                className="text-muted-foreground hover:text-foreground w-full"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Voltar ao Dashboard</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Menu */}
         <div className="flex-1 overflow-y-auto">
           {menuItems.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="p-4">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                {section.section}
-              </h3>
+            <div key={sectionIndex} className="p-2">
               <div className="space-y-1">
                 {section.items.map((item) => (
-                  <Button
-                    key={item.path}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(item.path)}
-                    className={cn(
-                      "w-full justify-start text-left",
-                      location.pathname === item.path && "bg-muted text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-4 w-4 mr-3" />
-                    {item.label}
-                  </Button>
+                  <Tooltip key={item.path}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(item.path)}
+                        className={cn(
+                          "w-full",
+                          location.pathname === item.path && "bg-muted text-foreground"
+                        )}
+                      >
+                        <item.icon className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 ))}
               </div>
             </div>
@@ -112,6 +122,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           {children}
         </main>
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
