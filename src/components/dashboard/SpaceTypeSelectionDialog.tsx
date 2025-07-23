@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { spaceTypes, type SpaceType } from '@/lib/spaceUtils';
-import { spaceTypeSelectionSchema, type SpaceTypeSelectionFormData } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 interface SpaceTypeSelectionDialogProps {
@@ -25,18 +23,15 @@ export const SpaceTypeSelectionDialog = ({
 }: SpaceTypeSelectionDialogProps) => {
   const [selectedType, setSelectedType] = useState<SpaceType | null>(null);
 
-  const { handleSubmit } = useForm<SpaceTypeSelectionFormData>({
-    resolver: zodResolver(spaceTypeSelectionSchema),
-  });
-
-  const onSubmit = () => {
-    if (selectedType) {
-      onSelectType(selectedType);
-    }
-  };
-
   const handleTypeSelect = (type: SpaceType) => {
     setSelectedType(type);
+  };
+
+  const handleNext = () => {
+    if (selectedType) {
+      onSelectType(selectedType);
+      setSelectedType(null); // Reset para próxima abertura
+    }
   };
 
   return (
@@ -46,9 +41,12 @@ export const SpaceTypeSelectionDialog = ({
           <DialogTitle className="text-xl font-semibold">
             Escolha o tipo de espaço
           </DialogTitle>
+          <DialogDescription>
+            Selecione o tipo de espaço que você gostaria de criar
+          </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {spaceTypes.map((spaceType) => {
               const Icon = spaceType.icon;
@@ -94,14 +92,14 @@ export const SpaceTypeSelectionDialog = ({
               Cancelar
             </Button>
             <Button 
-              type="submit" 
+              onClick={handleNext}
               disabled={!selectedType}
               className="px-8"
             >
               Próximo
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
