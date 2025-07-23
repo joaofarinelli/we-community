@@ -17,8 +17,8 @@ export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/50 px-6 py-3">
-        <div className="flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border/50 px-6 h-[63px] flex items-center">
+        <div className="flex items-center justify-between w-full">
           {/* Left: Company Name + Navigation */}
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-2">
@@ -67,7 +67,7 @@ export const Dashboard = () => {
         </div>
       </header>
 
-      <div className="flex pt-16">
+      <div className="flex pt-[63px]">
         {/* Left Sidebar */}
         <CircleSidebar />
 

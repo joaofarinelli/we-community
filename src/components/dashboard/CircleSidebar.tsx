@@ -8,7 +8,7 @@ interface CircleSidebarProps {
 
 export function CircleSidebar({ onClose }: CircleSidebarProps) {
   return (
-    <aside className="w-80 bg-background border-r border-border/50 flex flex-col">
+    <aside className="w-[280px] h-screen bg-background border-r border-border/50 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-border/50">
         <h2 className="text-lg font-semibold">Primeiros Passos</h2>
