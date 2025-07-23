@@ -67,6 +67,7 @@ export type Database = {
           comment_text: string | null
           created_at: string
           id: string
+          parent_comment_id: string | null
           post_id: string
           type: string
           user_id: string
@@ -75,6 +76,7 @@ export type Database = {
           comment_text?: string | null
           created_at?: string
           id?: string
+          parent_comment_id?: string | null
           post_id: string
           type: string
           user_id: string
@@ -83,11 +85,19 @@ export type Database = {
           comment_text?: string | null
           created_at?: string
           id?: string
+          parent_comment_id?: string | null
           post_id?: string
           type?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "post_interactions_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_interactions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "post_interactions_post_id_fkey"
             columns: ["post_id"]

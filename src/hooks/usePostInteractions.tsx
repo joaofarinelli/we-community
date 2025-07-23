@@ -27,7 +27,11 @@ export const usePostInteractions = (postId: string) => {
   });
 
   const addInteraction = useMutation({
-    mutationFn: async ({ type, commentText }: { type: 'like' | 'comment'; commentText?: string }) => {
+    mutationFn: async ({ type, commentText, parentCommentId }: { 
+      type: 'like' | 'comment'; 
+      commentText?: string; 
+      parentCommentId?: string;
+    }) => {
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
@@ -37,6 +41,7 @@ export const usePostInteractions = (postId: string) => {
           user_id: user.id,
           type,
           comment_text: commentText,
+          parent_comment_id: parentCommentId,
         });
 
       if (error) throw error;
@@ -73,14 +78,24 @@ export const usePostInteractions = (postId: string) => {
   });
 
   const likes = interactions?.filter(i => i.type === 'like') || [];
-  const comments = interactions?.filter(i => i.type === 'comment') || [];
+  const allComments = interactions?.filter(i => i.type === 'comment') || [];
+  
+  // Organizar comentários em estrutura hierárquica
+  const mainComments = allComments.filter(c => !c.parent_comment_id);
+  const replies = allComments.filter(c => c.parent_comment_id);
+  
+  const commentsWithReplies = mainComments.map(comment => ({
+    ...comment,
+    replies: replies.filter(reply => reply.parent_comment_id === comment.id)
+  }));
   
   const userLiked = likes.some(i => i.user_id === user?.id);
 
   return {
     interactions,
     likes,
-    comments,
+    comments: allComments,
+    commentsWithReplies,
     userLiked,
     isLoading,
     addInteraction,

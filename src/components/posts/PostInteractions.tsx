@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { usePostInteractions } from '@/hooks/usePostInteractions';
+import { CommentItem } from './CommentItem';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -16,6 +17,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
   const {
     likes,
     comments,
+    commentsWithReplies,
     userLiked,
     addInteraction,
     removeInteraction,
@@ -23,6 +25,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
   const handleLike = () => {
     if (userLiked) {
@@ -40,6 +43,22 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
       });
       setCommentText('');
     }
+  };
+
+  const handleReply = async (parentCommentId: string, replyText: string) => {
+    await addInteraction.mutateAsync({
+      type: 'comment',
+      commentText: replyText.trim(),
+      parentCommentId
+    });
+  };
+
+  const handleStartReply = (commentId: string) => {
+    setReplyingTo(commentId);
+  };
+
+  const handleCancelReply = () => {
+    setReplyingTo(null);
   };
 
   return (
@@ -127,40 +146,19 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
           </div>
 
           {/* Lista de comentários */}
-          <div className="space-y-3">
-            {(comments || []).map((comment) => {
-              const authorName = comment.profiles 
-                ? `${comment.profiles.first_name} ${comment.profiles.last_name}`
-                : 'Usuário';
-              
-              const authorInitials = comment.profiles
-                ? `${comment.profiles.first_name[0]}${comment.profiles.last_name[0]}`
-                : 'U';
-
-              return (
-                <div key={comment.id} className="flex space-x-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                      {authorInitials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="bg-muted rounded-lg p-3">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="font-medium text-sm">{authorName}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(comment.created_at), {
-                            addSuffix: true,
-                            locale: ptBR,
-                          })}
-                        </span>
-                      </div>
-                      <p className="text-sm text-foreground">{comment.comment_text}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="space-y-4">
+            {(commentsWithReplies || []).map((comment) => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                replies={comment.replies}
+                onReply={handleReply}
+                onStartReply={handleStartReply}
+                onCancelReply={handleCancelReply}
+                isReplying={!!replyingTo}
+                replyingTo={replyingTo}
+              />
+            ))}
             
             {(comments?.length || 0) === 0 && (
               <p className="text-sm text-muted-foreground italic text-center py-4">
