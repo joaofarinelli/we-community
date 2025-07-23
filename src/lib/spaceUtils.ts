@@ -82,7 +82,11 @@ export const renderSpaceIcon = (
     });
   }
   
-  // Default icon
+  // Default icon - use 🔵 emoji as default
+  if (!customIconType || customIconType === 'default') {
+    return React.createElement('span', { className: 'text-lg' }, '🔵');
+  }
+  
   const DefaultIcon = getSpaceIcon(type);
   return React.createElement(DefaultIcon, { className: iconClass });
 };

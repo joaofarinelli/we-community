@@ -19,7 +19,7 @@ import { useSpacePosts } from '@/hooks/useSpacePosts';
 import { useSpaceMembers } from '@/hooks/useSpaceMembers';
 import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
-import { getSpaceTypeInfo } from '@/lib/spaceUtils';
+import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { useState } from 'react';
@@ -91,8 +91,13 @@ export const SpaceView = () => {
                 
                 
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <SpaceIcon className="h-5 w-5 text-primary" />
+                  <div className="p-2 bg-primary/10 rounded-lg flex items-center justify-center">
+                    {renderSpaceIcon(
+                      space.type, 
+                      space.custom_icon_type, 
+                      space.custom_icon_value, 
+                      "h-5 w-5 text-primary"
+                    )}
                   </div>
                   <div>
                     <h1 className="text-xl font-semibold">{space.name}</h1>

@@ -38,10 +38,8 @@ export const IconSelector = ({
           <span className="text-muted-foreground text-sm">Nenhuma imagem selecionada</span>
         );
       default:
-        return DefaultIcon ? (
-          <DefaultIcon className="h-5 w-5" />
-        ) : (
-          <span className="text-muted-foreground text-sm">Ícone padrão</span>
+        return (
+          <span className="text-xl">🔵</span>
         );
     }
   };
@@ -64,7 +62,7 @@ export const IconSelector = ({
         
         <TabsContent value="default" className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Usar o ícone padrão baseado no tipo do espaço
+            Usar o ícone padrão 🔵 para todos os espaços
           </p>
         </TabsContent>
         

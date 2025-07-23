@@ -16,6 +16,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
+import { useUpdateSpace } from '@/hooks/useUpdateSpace';
+import { IconSelector } from '@/components/ui/icon-selector';
+import { SpaceType } from '@/lib/spaceUtils';
 
 interface SpaceCustomizationDrawerProps {
   open: boolean;
@@ -26,6 +29,8 @@ interface SpaceCustomizationDrawerProps {
     category_id: string;
     is_private: boolean;
     type: string;
+    custom_icon_type?: string;
+    custom_icon_value?: string;
   };
 }
 
@@ -35,6 +40,7 @@ export const SpaceCustomizationDrawer = ({
   space 
 }: SpaceCustomizationDrawerProps) => {
   const { data: categories = [] } = useSpaceCategories();
+  const updateSpaceMutation = useUpdateSpace();
   
   // Estados para as configurações
   const [spaceName, setSpaceName] = useState(space.name);
@@ -44,19 +50,24 @@ export const SpaceCustomizationDrawer = ({
   const [layoutType, setLayoutType] = useState('feed');
   const [showRightSidebar, setShowRightSidebar] = useState(true);
   const [topicNavigation, setTopicNavigation] = useState(false);
+  const [customIconType, setCustomIconType] = useState<'default' | 'emoji' | 'image'>(
+    (space.custom_icon_type as 'default' | 'emoji' | 'image') || 'default'
+  );
+  const [customIconValue, setCustomIconValue] = useState(space.custom_icon_value || '');
 
   const handleSave = () => {
-    // TODO: Implementar salvamento no Supabase
-    console.log('Salvando configurações:', {
-      spaceName,
-      categoryId,
-      hideFromSidebar,
-      accessType,
-      layoutType,
-      showRightSidebar,
-      topicNavigation
+    updateSpaceMutation.mutate({
+      id: space.id,
+      name: spaceName,
+      category_id: categoryId,
+      is_private: accessType !== 'open',
+      custom_icon_type: customIconType,
+      custom_icon_value: customIconValue || null,
+    }, {
+      onSuccess: () => {
+        onOpenChange(false);
+      }
     });
-    onOpenChange(false);
   };
 
   const handleCancel = () => {
@@ -68,6 +79,8 @@ export const SpaceCustomizationDrawer = ({
     setLayoutType('feed');
     setShowRightSidebar(true);
     setTopicNavigation(false);
+    setCustomIconType((space.custom_icon_type as 'default' | 'emoji' | 'image') || 'default');
+    setCustomIconValue(space.custom_icon_value || '');
     onOpenChange(false);
   };
 
@@ -121,6 +134,21 @@ export const SpaceCustomizationDrawer = ({
                   onCheckedChange={setHideFromSidebar}
                 />
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Seção Ícone do Espaço */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-foreground">Ícone do Espaço</h3>
+              
+              <IconSelector
+                spaceType={space.type as SpaceType}
+                iconType={customIconType}
+                iconValue={customIconValue}
+                onIconTypeChange={setCustomIconType}
+                onIconValueChange={setCustomIconValue}
+              />
             </div>
 
             <Separator />
@@ -253,8 +281,12 @@ export const SpaceCustomizationDrawer = ({
             <Button variant="outline" onClick={handleCancel} className="flex-1">
               Cancelar
             </Button>
-            <Button onClick={handleSave} className="flex-1">
-              Salvar alterações
+            <Button 
+              onClick={handleSave} 
+              className="flex-1"
+              disabled={updateSpaceMutation.isPending}
+            >
+              {updateSpaceMutation.isPending ? 'Salvando...' : 'Salvar alterações'}
             </Button>
           </div>
         </DrawerFooter>
