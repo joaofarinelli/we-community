@@ -5,8 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
-import { Search, Users, Grid, List, Filter } from 'lucide-react';
+import { Search, Users, Grid, List, Filter, User, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -51,72 +52,119 @@ export const MembersPage = () => {
     }
   };
 
-  const MemberCard = ({ member }: { member: any }) => (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex flex-col items-center text-center space-y-4">
-          <Avatar className="h-20 w-20">
+  const MemberHoverCard = ({ member, children }: { member: any; children: React.ReactNode }) => (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        {children}
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80 p-4" side="top">
+        <div className="flex items-start space-x-4">
+          <Avatar className="h-16 w-16">
             <AvatarImage src={member.avatar_url} alt={member.display_name} />
             <AvatarFallback className="text-lg">
               {getUserInitials(member.display_name, member.email)}
             </AvatarFallback>
           </Avatar>
           
-          <div className="space-y-2">
-            <h3 className="font-semibold text-lg">
-              {member.display_name || 'Nome não disponível'}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {member.email}
-            </p>
+          <div className="flex-1 space-y-2">
+            <div>
+              <h4 className="text-lg font-semibold">
+                {member.display_name || 'Nome não disponível'}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {member.email}
+              </p>
+            </div>
+            
             <Badge variant="secondary" className={getRoleColor(member.role)}>
               {getRoleLabel(member.role)}
             </Badge>
-          </div>
-
-          <div className="text-xs text-muted-foreground">
-            Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
+            
+            <div className="flex items-center text-xs text-muted-foreground">
+              <Calendar className="h-3 w-3 mr-1" />
+              Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
+            </div>
+            
+            <Button size="sm" className="w-full mt-3">
+              <User className="h-4 w-4 mr-2" />
+              Ver perfil
+            </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </HoverCardContent>
+    </HoverCard>
+  );
+
+  const MemberCard = ({ member }: { member: any }) => (
+    <MemberHoverCard member={member}>
+      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
+        <CardContent className="p-6">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={member.avatar_url} alt={member.display_name} />
+              <AvatarFallback className="text-lg">
+                {getUserInitials(member.display_name, member.email)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="space-y-2">
+              <h3 className="font-semibold text-lg">
+                {member.display_name || 'Nome não disponível'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {member.email}
+              </p>
+              <Badge variant="secondary" className={getRoleColor(member.role)}>
+                {getRoleLabel(member.role)}
+              </Badge>
+            </div>
+
+            <div className="text-xs text-muted-foreground">
+              Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </MemberHoverCard>
   );
 
   const MemberListItem = ({ member }: { member: any }) => (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={member.avatar_url} alt={member.display_name} />
-            <AvatarFallback>
-              {getUserInitials(member.display_name, member.email)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium truncate">
-                  {member.display_name || 'Nome não disponível'}
-                </h3>
-                <p className="text-sm text-muted-foreground truncate">
-                  {member.email}
-                </p>
-              </div>
-              
-              <div className="flex items-center space-x-2 ml-4">
-                <Badge variant="secondary" className={getRoleColor(member.role)}>
-                  {getRoleLabel(member.role)}
-                </Badge>
-                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(member.created_at).toLocaleDateString('pt-BR')}
+    <MemberHoverCard member={member}>
+      <Card className="cursor-pointer hover:shadow-md transition-shadow">
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-4">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={member.avatar_url} alt={member.display_name} />
+              <AvatarFallback>
+                {getUserInitials(member.display_name, member.email)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-medium truncate">
+                    {member.display_name || 'Nome não disponível'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {member.email}
+                  </p>
+                </div>
+                
+                <div className="flex items-center space-x-2 ml-4">
+                  <Badge variant="secondary" className={getRoleColor(member.role)}>
+                    {getRoleLabel(member.role)}
+                  </Badge>
+                  <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(member.created_at).toLocaleDateString('pt-BR')}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </MemberHoverCard>
   );
 
   return (
