@@ -14,9 +14,11 @@ import {
   Crown,
   Gamepad2
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-community.jpg";
 
 const Index = () => {
+  const navigate = useNavigate();
   const features = [
     {
       icon: Users,
@@ -69,8 +71,8 @@ const Index = () => {
             <span className="text-xl font-bold">CommunityHub</span>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost">Login</Button>
-            <Button variant="hero">Começar Grátis</Button>
+            <Button variant="ghost" onClick={() => navigate('/auth')}>Login</Button>
+            <Button variant="hero" onClick={() => navigate('/auth')}>Começar Grátis</Button>
           </div>
         </div>
       </header>
@@ -100,7 +102,12 @@ const Index = () => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-4 animate-slide-up">
-                <Button variant="hero" size="xl" className="shadow-glow">
+                <Button 
+                  variant="hero" 
+                  size="xl" 
+                  className="shadow-glow"
+                  onClick={() => navigate('/auth')}
+                >
                   <Shield className="h-5 w-5 mr-2" />
                   Criar Minha Comunidade
                 </Button>
@@ -259,7 +266,12 @@ const Index = () => {
               Junte-se a milhares de criadores que já estão construindo comunidades incríveis com nossa plataforma.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="xl" className="shadow-glow">
+              <Button 
+                variant="secondary" 
+                size="xl" 
+                className="shadow-glow"
+                onClick={() => navigate('/auth')}
+              >
                 <Users className="h-5 w-5 mr-2" />
                 Começar Grátis por 14 dias
               </Button>
