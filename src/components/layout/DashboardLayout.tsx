@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Menu, Search, Bell, MessageCircle, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
@@ -13,6 +14,7 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data: company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -39,7 +41,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-6 ml-8">
-              <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-foreground hover:text-primary"
+                onClick={() => navigate('/dashboard')}
+              >
                 Feed
               </Button>
               <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">

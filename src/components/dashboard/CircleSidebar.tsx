@@ -48,7 +48,11 @@ export function CircleSidebar({
       <div className="flex-1 p-6 space-y-6">
         {/* Feed */}
         <div>
-          <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
+            onClick={() => navigate('/dashboard')}
+          >
             Feed
           </Button>
         </div>
