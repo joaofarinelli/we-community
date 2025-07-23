@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TagDialog } from '@/components/admin/TagDialog';
+import { TagIcon } from '@/components/admin/TagIcon';
 import { useTags, useCreateTag, useUpdateTag, useDeleteTag, Tag } from '@/hooks/useTags';
 import { MoreHorizontal, Plus, Edit, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -122,9 +123,12 @@ export const AdminTagsPage = () => {
                   {tags.map((tag) => (
                     <TableRow key={tag.id}>
                       <TableCell>
-                        <Badge style={{ backgroundColor: tag.color, color: '#fff' }}>
-                          {tag.name}
-                        </Badge>
+                        <div className="flex items-center space-x-2">
+                          <TagIcon tag={tag} size="sm" />
+                          <Badge style={{ backgroundColor: tag.color, color: '#fff' }}>
+                            {tag.name}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-muted-foreground">

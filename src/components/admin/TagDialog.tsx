@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useForm } from 'react-hook-form';
 import { CreateTagData, UpdateTagData, Tag } from '@/hooks/useTags';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface TagDialogProps {
   open: boolean;
@@ -21,8 +23,18 @@ const defaultColors = [
   '#EC4899', '#6B7280'
 ];
 
+const popularEmojis = [
+  '🏷️', '⭐', '🔥', '💎', '👑', '🎯', '💝', '🚀',
+  '💰', '🎨', '🌟', '⚡', '🎪', '🎭', '🎲', '🎸',
+  '📱', '💻', '🏠', '🚗', '✈️', '🍕', '☕', '🎂'
+];
+
 export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagDialogProps) => {
   const [selectedColor, setSelectedColor] = useState(tag?.color || '#3B82F6');
+  const [iconType, setIconType] = useState<'none' | 'emoji' | 'image'>(tag?.icon_type || 'none');
+  const [selectedEmoji, setSelectedEmoji] = useState(tag?.icon_type === 'emoji' ? tag.icon_value : '');
+  const [uploadedImage, setUploadedImage] = useState(tag?.icon_type === 'image' ? tag.icon_value : '');
+  
   const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateTagData>({
     defaultValues: {
       name: tag?.name || '',
@@ -32,20 +44,39 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
   });
 
   const handleFormSubmit = (data: CreateTagData) => {
-    const submitData = { ...data, color: selectedColor };
+    let iconValue = null;
+    
+    if (iconType === 'emoji' && selectedEmoji) {
+      iconValue = selectedEmoji;
+    } else if (iconType === 'image' && uploadedImage) {
+      iconValue = uploadedImage;
+    }
+
+    const submitData = { 
+      ...data, 
+      color: selectedColor,
+      icon_type: iconType,
+      icon_value: iconValue
+    };
+    
     if (tag) {
       onSubmit({ ...submitData, id: tag.id } as UpdateTagData);
     } else {
       onSubmit(submitData);
     }
+    
+    // Reset form
     reset();
     setSelectedColor('#3B82F6');
+    setIconType('none');
+    setSelectedEmoji('');
+    setUploadedImage('');
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{tag ? 'Editar Tag' : 'Nova Tag'}</DialogTitle>
           <DialogDescription>
@@ -87,6 +118,61 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
               onChange={(e) => setSelectedColor(e.target.value)}
               className="w-full h-10"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Ícone da Tag</Label>
+            <Tabs value={iconType} onValueChange={(value) => setIconType(value as typeof iconType)}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="none">Sem Ícone</TabsTrigger>
+                <TabsTrigger value="emoji">Emoji</TabsTrigger>
+                <TabsTrigger value="image">Imagem</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="none" className="mt-4">
+                <p className="text-sm text-muted-foreground">A tag não terá ícone.</p>
+              </TabsContent>
+              
+              <TabsContent value="emoji" className="mt-4 space-y-3">
+                <div className="grid grid-cols-8 gap-2">
+                  {popularEmojis.map((emoji) => (
+                    <button
+                      key={emoji}
+                      type="button"
+                      onClick={() => setSelectedEmoji(emoji)}
+                      className={`p-2 text-lg rounded-md border transition-colors ${
+                        selectedEmoji === emoji 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <Label>Ou digite um emoji customizado:</Label>
+                  <Input
+                    value={selectedEmoji}
+                    onChange={(e) => setSelectedEmoji(e.target.value)}
+                    placeholder="Digite um emoji..."
+                    className="text-center text-lg"
+                  />
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="image" className="mt-4">
+                <ImageUpload
+                  value={uploadedImage}
+                  onChange={setUploadedImage}
+                  onRemove={() => setUploadedImage('')}
+                  bucketName="space-icons"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Recomendamos imagens quadradas (1:1) para melhor resultado.
+                </p>
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="space-y-2">

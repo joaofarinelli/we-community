@@ -9,6 +9,8 @@ export interface Tag {
   name: string;
   color: string;
   description: string | null;
+  icon_type: 'none' | 'emoji' | 'image';
+  icon_value: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -18,6 +20,8 @@ export interface CreateTagData {
   name: string;
   color: string;
   description?: string;
+  icon_type?: 'none' | 'emoji' | 'image';
+  icon_value?: string;
 }
 
 export interface UpdateTagData extends CreateTagData {

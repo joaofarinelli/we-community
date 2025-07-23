@@ -429,6 +429,8 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          icon_type: string | null
+          icon_value: string | null
           id: string
           name: string
           updated_at: string
@@ -439,6 +441,8 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          icon_type?: string | null
+          icon_value?: string | null
           id?: string
           name: string
           updated_at?: string
@@ -449,6 +453,8 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          icon_type?: string | null
+          icon_value?: string | null
           id?: string
           name?: string
           updated_at?: string
