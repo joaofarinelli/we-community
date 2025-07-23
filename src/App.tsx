@@ -16,6 +16,7 @@ import { AdminLevelsPage } from "./pages/admin/AdminLevelsPage";
 import { AdminAccessGroupsPage } from "./pages/admin/AdminAccessGroupsPage";
 import { AdminSegmentsPage } from "./pages/admin/AdminSegmentsPage";
 import { AdminTagsPage } from "./pages/admin/AdminTagsPage";
+import { AdminUserEditPage } from "./pages/admin/AdminUserEditPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const AppRoutes = () => {
       <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
       <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
       <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
+      <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

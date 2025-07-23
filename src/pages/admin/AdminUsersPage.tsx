@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { UserEditDialog } from '@/components/admin/UserEditDialog';
 import { useCompanyMembers, CompanyMember } from '@/hooks/useCompanyMembers';
 import { useUserTags } from '@/hooks/useUserTags';
 import { TagIcon } from '@/components/admin/TagIcon';
@@ -17,11 +17,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MoreHorizontal, Edit, Trash2, UserPlus } from 'lucide-react';
 
 export const AdminUsersPage = () => {
+  const navigate = useNavigate();
   const { data: members, isLoading } = useCompanyMembers();
-  const [editingMember, setEditingMember] = useState<CompanyMember | null>(null);
 
   const handleEditMember = (member: CompanyMember) => {
-    setEditingMember(member);
+    navigate(`/admin/users/${member.user_id}/edit`);
   };
 
   const handleDeleteMember = (memberId: string) => {
@@ -215,12 +215,6 @@ export const AdminUsersPage = () => {
             </CardContent>
           </Card>
         )}
-
-        <UserEditDialog
-          open={!!editingMember}
-          onOpenChange={(open) => !open && setEditingMember(null)}
-          member={editingMember}
-        />
       </div>
     </AdminLayout>
   );
