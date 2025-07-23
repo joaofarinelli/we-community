@@ -25,34 +25,47 @@ interface AdminLayoutProps {
   children: React.ReactNode;
 }
 
-const menuItems = [
+const mainMenuItems = [
   {
-    section: 'Gestão de Usuários',
-    items: [
-      { icon: Users, label: 'Gerenciar audiência', path: '/admin/users' },
-      { icon: Shield, label: 'Grupos de acesso', path: '/admin/access-groups' },
-      { icon: Target, label: 'Segmentos', path: '/admin/segments' },
-      { icon: FileText, label: 'Registros em massa', path: '/admin/bulk-records' },
-      { icon: Link, label: 'Links de convite', path: '/admin/invite-links' },
-      { icon: BookOpen, label: 'Onboarding', path: '/admin/onboarding' },
+    icon: Users,
+    label: 'Audiência',
+    key: 'audience',
+    subItems: [
+      { label: 'Gerenciar audiência', path: '/admin/users' },
+      { label: 'Grupos de acesso', path: '/admin/access-groups' },
+      { label: 'Segmentos', path: '/admin/segments' },
+      { label: 'Registros em massa', path: '/admin/bulk-records' },
+      { label: 'Links de convite', path: '/admin/invite-links' },
+      { label: 'Onboarding', path: '/admin/onboarding' },
     ]
   },
   {
-    section: 'Customização',
-    items: [
-      { icon: Tags, label: 'Tags', path: '/admin/tags' },
-      { icon: User, label: 'Campos de perfil', path: '/admin/profile-fields' },
-      { icon: Trophy, label: 'Gamificação', path: '/admin/gamification' },
-      { icon: Activity, label: 'Registros de atividades', path: '/admin/activity-logs' },
+    icon: Tags,
+    label: 'Customização',
+    key: 'customization',
+    subItems: [
+      { label: 'Tags', path: '/admin/tags' },
+      { label: 'Campos de perfil', path: '/admin/profile-fields' },
     ]
   },
   {
-    section: 'Configurações',
-    items: [
-      { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-      { icon: Settings, label: 'Configurações gerais', path: '/admin/settings' },
-      { icon: HelpCircle, label: 'Suporte', path: '/admin/support' },
-      { icon: Code, label: 'Desenvolvedores', path: '/admin/developers' },
+    icon: Trophy,
+    label: 'Gamificação',
+    key: 'gamification',
+    subItems: [
+      { label: 'Níveis', path: '/admin/levels' },
+      { label: 'Registros de atividades', path: '/admin/activity-logs' },
+    ]
+  },
+  {
+    icon: Settings,
+    label: 'Configurações',
+    key: 'settings',
+    subItems: [
+      { label: 'Configurações gerais', path: '/admin/settings' },
+      { label: 'Analytics', path: '/admin/analytics' },
+      { label: 'Suporte', path: '/admin/support' },
+      { label: 'Desenvolvedores', path: '/admin/developers' },
     ]
   }
 ];
@@ -60,46 +73,70 @@ const menuItems = [
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [activeMenu, setActiveMenu] = useState<string | null>(() => {
+    // Determinar menu ativo baseado na rota atual
+    const currentPath = location.pathname;
+    for (const menu of mainMenuItems) {
+      if (menu.subItems.some(item => item.path === currentPath)) {
+        return menu.key;
+      }
+    }
+    return null;
+  });
+
+  const handleMainMenuClick = (menuKey: string) => {
+    if (activeMenu === menuKey) {
+      setActiveMenu(null);
+    } else {
+      setActiveMenu(menuKey);
+      // Navegar para o primeiro item do submenu
+      const menu = mainMenuItems.find(m => m.key === menuKey);
+      if (menu && menu.subItems.length > 0) {
+        navigate(menu.subItems[0].path);
+      }
+    }
+  };
+
+  const activeMenuData = mainMenuItems.find(m => m.key === activeMenu);
 
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
-      <div className="w-16 bg-card border-r border-border flex flex-col">
-        {/* Header */}
-        <div className="p-2 border-b border-border">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/dashboard')}
-                className="text-muted-foreground hover:text-foreground w-full"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              <p>Voltar ao Dashboard</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        {/* Main Menu Sidebar */}
+        <div className="w-16 bg-card border-r border-border flex flex-col">
+          {/* Header */}
+          <div className="p-2 border-b border-border">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/dashboard')}
+                  className="text-muted-foreground hover:text-foreground w-full"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Voltar ao Dashboard</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
 
-        {/* Menu */}
-        <div className="flex-1 overflow-y-auto">
-          {menuItems.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="p-2">
+          {/* Menu Items */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-2">
               <div className="space-y-1">
-                {section.items.map((item) => (
-                  <Tooltip key={item.path}>
+                {mainMenuItems.map((item) => (
+                  <Tooltip key={item.key}>
                     <TooltipTrigger asChild>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => navigate(item.path)}
+                        onClick={() => handleMainMenuClick(item.key)}
                         className={cn(
                           "w-full",
-                          location.pathname === item.path && "bg-muted text-foreground"
+                          activeMenu === item.key && "bg-muted text-foreground"
                         )}
                       >
                         <item.icon className="h-4 w-4" />
@@ -112,16 +149,46 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
                 ))}
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6">
-          {children}
-        </main>
-      </div>
+        {/* Submenu Sidebar */}
+        {activeMenuData && (
+          <div className="w-64 bg-muted/30 border-r border-border flex flex-col">
+            <div className="p-4 border-b border-border">
+              <h2 className="text-lg font-semibold text-foreground">
+                {activeMenuData.label}
+              </h2>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-2">
+                <div className="space-y-1">
+                  {activeMenuData.subItems.map((subItem) => (
+                    <Button
+                      key={subItem.path}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(subItem.path)}
+                      className={cn(
+                        "w-full justify-start text-left",
+                        location.pathname === subItem.path && "bg-background text-foreground shadow-sm"
+                      )}
+                    >
+                      {subItem.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </div>
       </div>
     </TooltipProvider>
   );
