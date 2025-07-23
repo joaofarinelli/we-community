@@ -117,9 +117,20 @@ function SpaceCategorySection({
   } = useSpaces(category.id);
   return <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
+        <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50 group">
           <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
-          {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <div className="flex items-center gap-1">
+            {spaces.length > 0 && (
+              <Plus 
+                className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-primary" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateSpace(category.id);
+                }}
+              />
+            )}
+            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          </div>
         </Button>
       </CollapsibleTrigger>
       
@@ -132,10 +143,12 @@ function SpaceCategorySection({
             </Button>;
       })}
         
-        <Button variant="ghost" className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm" onClick={() => onCreateSpace(category.id)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Criar espaço
-        </Button>
+        {spaces.length === 0 && (
+          <Button variant="ghost" className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm" onClick={() => onCreateSpace(category.id)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Criar espaço
+          </Button>
+        )}
       </CollapsibleContent>
     </Collapsible>;
 }
