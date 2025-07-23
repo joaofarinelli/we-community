@@ -117,21 +117,28 @@ function SpaceCategorySection({
   } = useSpaces(category.id);
   return <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50 group">
-          <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
-          <div className="flex items-center gap-1">
-            {spaces.length > 0 && (
-              <Plus 
-                className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-primary" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCreateSpace(category.id);
-                }}
-              />
-            )}
-            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </div>
-        </Button>
+        <div className="w-full group">
+          <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
+            <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
+            <div className="flex items-center gap-1">
+              {spaces.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Plus clicked for category:', category.id);
+                    onCreateSpace(category.id);
+                  }}
+                >
+                  <Plus className="h-3 w-3" />
+                </Button>
+              )}
+              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </div>
+          </Button>
+        </div>
       </CollapsibleTrigger>
       
       <CollapsibleContent className="space-y-1 ml-3">
