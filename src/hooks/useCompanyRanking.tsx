@@ -43,29 +43,34 @@ export const useUserRankingPosition = () => {
     queryFn: async () => {
       if (!user) return null;
 
-      // Get user's current points first
-      const { data: userPoints } = await supabase
-        .from('user_points')
-        .select('total_points')
+      // Get user's current coins and level
+      const { data: userLevel } = await supabase
+        .from('user_current_level')
+        .select(`
+          current_coins,
+          user_levels(level_name, level_color, level_icon, level_number)
+        `)
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (!userPoints) return { rank: null, total_users: 0, points: 0 };
+      if (!userLevel) return { rank: null, total_users: 0, points: 0, coins: 0, level: null };
 
       // Use a more efficient approach with count aggregation
       const { count: usersAhead } = await supabase
-        .from('user_points')
+        .from('user_current_level')
         .select('*', { count: 'exact', head: true })
-        .gt('total_points', userPoints.total_points);
+        .gt('current_coins', userLevel.current_coins);
 
       const { count: totalUsers } = await supabase
-        .from('user_points')
+        .from('user_current_level')
         .select('*', { count: 'exact', head: true });
 
       return {
         rank: (usersAhead || 0) + 1,
         total_users: totalUsers || 0,
-        points: userPoints.total_points
+        points: userLevel.current_coins, // For backward compatibility
+        coins: userLevel.current_coins,
+        level: userLevel.user_levels
       };
     },
     enabled: !!user,

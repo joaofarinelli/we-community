@@ -1,7 +1,9 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Trophy, Medal, Award } from 'lucide-react';
+import { Trophy, Medal, Award, Coins } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { LucideProps } from 'lucide-react';
 
 interface RankingCardProps {
   rank: number;
@@ -59,14 +61,37 @@ export const RankingCard = ({ rank, user, isCurrentUser = false }: RankingCardPr
               : 'Usuário'
             }
           </div>
-          {isCurrentUser && (
-            <span className="text-xs text-primary font-medium">Você</span>
-          )}
+          <div className="flex items-center gap-2 mt-1">
+            {user.user_levels && (
+              <Badge 
+                variant="outline" 
+                className="text-xs"
+                style={{ 
+                  backgroundColor: `${user.user_levels.level_color}15`,
+                  borderColor: user.user_levels.level_color,
+                  color: user.user_levels.level_color
+                }}
+              >
+                {(() => {
+                  const LevelIcon = (Icons as any)[user.user_levels.level_icon] as React.ComponentType<LucideProps>;
+                  return LevelIcon ? <LevelIcon className="h-3 w-3 mr-1" /> : null;
+                })()}
+                {user.user_levels.level_name}
+              </Badge>
+            )}
+            {isCurrentUser && (
+              <Badge variant="secondary" className="text-xs">Você</Badge>
+            )}
+          </div>
         </div>
         
-        <Badge variant={getRankBadgeVariant(rank)} className="font-semibold">
-          {user.total_points} pts
-        </Badge>
+        <div className="text-right">
+          <div className="flex items-center gap-1 justify-end">
+            <Coins className="h-4 w-4 text-amber-500" />
+            <span className="font-semibold">{user.total_coins || user.current_coins || 0}</span>
+          </div>
+          <p className="text-xs text-muted-foreground">WomanCoins</p>
+        </div>
       </CardContent>
     </Card>
   );

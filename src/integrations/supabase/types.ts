@@ -65,6 +65,7 @@ export type Database = {
       point_transactions: {
         Row: {
           action_type: string
+          coins: number
           company_id: string
           created_at: string
           id: string
@@ -74,6 +75,7 @@ export type Database = {
         }
         Insert: {
           action_type: string
+          coins?: number
           company_id: string
           created_at?: string
           id?: string
@@ -83,6 +85,7 @@ export type Database = {
         }
         Update: {
           action_type?: string
+          coins?: number
           company_id?: string
           created_at?: string
           id?: string
@@ -419,11 +422,118 @@ export type Database = {
           },
         ]
       }
+      user_current_level: {
+        Row: {
+          company_id: string
+          current_coins: number
+          current_level_id: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          current_coins?: number
+          current_level_id?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          current_coins?: number
+          current_level_id?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_current_level_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_current_level_current_level_id_fkey"
+            columns: ["current_level_id"]
+            isOneToOne: false
+            referencedRelation: "user_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_current_level_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_levels: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          level_color: string
+          level_icon: string
+          level_name: string
+          level_number: number
+          max_coins_required: number | null
+          min_coins_required: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          level_color?: string
+          level_icon?: string
+          level_name: string
+          level_number: number
+          max_coins_required?: number | null
+          min_coins_required?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          level_color?: string
+          level_icon?: string
+          level_name?: string
+          level_number?: number
+          max_coins_required?: number | null
+          min_coins_required?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_levels_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_levels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_points: {
         Row: {
           company_id: string
           created_at: string
           id: string
+          total_coins: number
           total_points: number
           updated_at: string
           user_id: string
@@ -432,6 +542,7 @@ export type Database = {
           company_id: string
           created_at?: string
           id?: string
+          total_coins?: number
           total_points?: number
           updated_at?: string
           user_id: string
@@ -440,6 +551,7 @@ export type Database = {
           company_id?: string
           created_at?: string
           id?: string
+          total_coins?: number
           total_points?: number
           updated_at?: string
           user_id?: string
@@ -533,6 +645,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_coins: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_action_type: string
+          p_reference_id?: string
+        }
+        Returns: undefined
+      }
       add_user_points: {
         Args: {
           p_user_id: string
@@ -542,13 +663,25 @@ export type Database = {
         }
         Returns: undefined
       }
+      calculate_coins_for_action: {
+        Args: { action_type: string }
+        Returns: number
+      }
       calculate_points_for_action: {
         Args: { action_type: string }
         Returns: number
       }
+      calculate_user_level: {
+        Args: { p_user_id: string; p_company_id: string; p_coins: number }
+        Returns: string
+      }
       can_user_see_space: {
         Args: { space_id: string; user_id: string }
         Returns: boolean
+      }
+      create_default_levels: {
+        Args: { p_company_id: string; p_created_by: string }
+        Returns: undefined
       }
       get_user_company_id: {
         Args: Record<PropertyKey, never>

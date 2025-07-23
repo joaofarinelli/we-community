@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, TrendingUp, Users } from 'lucide-react';
+import { Trophy, TrendingUp, Users, Coins } from 'lucide-react';
 import { useCompanyRanking, useUserRankingPosition } from '@/hooks/useCompanyRanking';
 import { useAuth } from '@/hooks/useAuth';
 import { RankingCard } from './RankingCard';
@@ -56,11 +56,11 @@ export const RankingTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-500" />
+              <Coins className="h-5 w-5 text-amber-500" />
               <div>
-                <p className="text-sm text-muted-foreground">Seus Pontos</p>
+                <p className="text-sm text-muted-foreground">Suas WomanCoins</p>
                 <p className="text-2xl font-bold">
-                  {userPosition?.points || 0}
+                  {userPosition?.coins || 0}
                 </p>
               </div>
             </div>
@@ -87,7 +87,7 @@ export const RankingTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5" />
-            Ranking da Empresa
+            Ranking WomanCoins
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -102,8 +102,8 @@ export const RankingTab = () => {
             ))
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum usuário com pontos ainda.</p>
+              <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Nenhum usuário com WomanCoins ainda.</p>
               <p className="text-sm">Seja o primeiro a participar!</p>
             </div>
           )}

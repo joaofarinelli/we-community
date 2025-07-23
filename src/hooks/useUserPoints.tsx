@@ -2,16 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-export const useUserPoints = (userId?: string) => {
+export const useUserCoins = (userId?: string) => {
   const { user } = useAuth();
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['userPoints', targetUserId],
+    queryKey: ['userCoins', targetUserId],
     queryFn: async () => {
       if (!targetUserId) return null;
 
-      const { data: userPoints, error } = await supabase
+      const { data: userCoins, error } = await supabase
         .from('user_points')
         .select(`
           *,
@@ -22,19 +22,23 @@ export const useUserPoints = (userId?: string) => {
 
       if (error && error.code !== 'PGRST116') throw error;
       
-      // If no points record exists, return 0 points
-      if (!userPoints) {
+      // If no coins record exists, return 0 coins
+      if (!userCoins) {
         return {
           user_id: targetUserId,
+          total_coins: 0,
           total_points: 0,
           profiles: null
         };
       }
 
-      return userPoints;
+      return userCoins;
     },
     enabled: !!targetUserId,
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: false,
   });
 };
+
+// Keep the old hook for backward compatibility
+export const useUserPoints = useUserCoins;
