@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,18 +30,51 @@ const popularEmojis = [
 ];
 
 export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagDialogProps) => {
-  const [selectedColor, setSelectedColor] = useState(tag?.color || '#3B82F6');
-  const [iconType, setIconType] = useState<'none' | 'emoji' | 'image'>(tag?.icon_type || 'none');
-  const [selectedEmoji, setSelectedEmoji] = useState(tag?.icon_type === 'emoji' ? tag.icon_value : '');
-  const [uploadedImage, setUploadedImage] = useState(tag?.icon_type === 'image' ? tag.icon_value : '');
+  const [selectedColor, setSelectedColor] = useState('#3B82F6');
+  const [iconType, setIconType] = useState<'none' | 'emoji' | 'image'>('none');
+  const [selectedEmoji, setSelectedEmoji] = useState('');
+  const [uploadedImage, setUploadedImage] = useState('');
   
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateTagData>({
-    defaultValues: {
-      name: tag?.name || '',
-      color: tag?.color || '#3B82F6',
-      description: tag?.description || '',
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<CreateTagData>();
+
+  // Atualizar estados quando a tag muda
+  useEffect(() => {
+    if (tag) {
+      // Atualizar estados locais
+      setSelectedColor(tag.color);
+      setIconType(tag.icon_type || 'none');
+      setSelectedEmoji(tag.icon_type === 'emoji' ? tag.icon_value || '' : '');
+      setUploadedImage(tag.icon_type === 'image' ? tag.icon_value || '' : '');
+      
+      // Atualizar valores do formulário
+      setValue('name', tag.name);
+      setValue('color', tag.color);
+      setValue('description', tag.description || '');
+    } else {
+      // Reset para valores padrão quando for criar nova tag
+      setSelectedColor('#3B82F6');
+      setIconType('none');
+      setSelectedEmoji('');
+      setUploadedImage('');
+      
+      setValue('name', '');
+      setValue('color', '#3B82F6');
+      setValue('description', '');
     }
-  });
+  }, [tag, setValue]);
+
+  // Reset form quando o dialog fechar
+  useEffect(() => {
+    if (!open) {
+      reset();
+      if (!tag) {
+        setSelectedColor('#3B82F6');
+        setIconType('none');
+        setSelectedEmoji('');
+        setUploadedImage('');
+      }
+    }
+  }, [open, tag, reset]);
 
   const handleFormSubmit = (data: CreateTagData) => {
     let iconValue = null;
@@ -65,12 +98,6 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
       onSubmit(submitData);
     }
     
-    // Reset form
-    reset();
-    setSelectedColor('#3B82F6');
-    setIconType('none');
-    setSelectedEmoji('');
-    setUploadedImage('');
     onOpenChange(false);
   };
 
