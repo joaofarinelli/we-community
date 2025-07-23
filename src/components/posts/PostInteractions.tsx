@@ -45,25 +45,25 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
   return (
     <div className="space-y-3">
       {/* Estatísticas */}
-      {(likes.length > 0 || comments.length > 0) && (
+      {((likes?.length || 0) > 0 || (comments?.length || 0) > 0) && (
         <div className="flex items-center justify-between text-sm text-muted-foreground border-b pb-3">
           <div className="flex items-center space-x-4">
-            {likes.length > 0 && (
+            {(likes?.length || 0) > 0 && (
               <div className="flex items-center space-x-1">
                 <div className="bg-blue-500 rounded-full p-1">
                   <ThumbsUp className="h-3 w-3 text-white" />
                 </div>
-                <span>{likes.length}</span>
+                <span>{likes?.length || 0}</span>
               </div>
             )}
           </div>
           
-          {comments.length > 0 && (
+          {(comments?.length || 0) > 0 && (
             <button
               onClick={() => setShowComments(!showComments)}
               className="hover:underline"
             >
-              {comments.length} comentário{comments.length !== 1 ? 's' : ''}
+              {comments?.length || 0} comentário{(comments?.length || 0) !== 1 ? 's' : ''}
             </button>
           )}
         </div>
@@ -128,7 +128,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
 
           {/* Lista de comentários */}
           <div className="space-y-3">
-            {comments.map((comment) => {
+            {(comments || []).map((comment) => {
               const authorName = comment.profiles 
                 ? `${comment.profiles.first_name} ${comment.profiles.last_name}`
                 : 'Usuário';
@@ -162,7 +162,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
               );
             })}
             
-            {comments.length === 0 && (
+            {(comments?.length || 0) === 0 && (
               <p className="text-sm text-muted-foreground italic text-center py-4">
                 Nenhum comentário ainda. Seja o primeiro a comentar!
               </p>
