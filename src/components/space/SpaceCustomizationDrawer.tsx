@@ -82,7 +82,7 @@ export const SpaceCustomizationDrawer = ({
         </DrawerHeader>
 
         <div className="px-4 overflow-y-auto">
-          <div className="space-y-6 pb-6">
+          <div className="max-w-[950px] mx-auto space-y-6 pb-6">
             {/* Seção Geral */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-foreground">Geral</h3>
