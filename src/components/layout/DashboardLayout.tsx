@@ -38,11 +38,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <h1 className="text-xl font-semibold text-foreground">
               {company?.name || 'Minha Empresa'}
             </h1>
-            
-            {/* Search - moved to left side with max width */}
-            <div className="max-w-[130px] ml-4">
-              <SearchBar />
-            </div>
           </div>
 
           {/* Center - Navigation */}
@@ -65,6 +60,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
           {/* Right side */}
           <div className="flex items-center space-x-2 flex-1 justify-end">
+            {/* Search Bar - moved to right side */}
+            <div className="max-w-[200px] mr-2">
+              <SearchBar />
+            </div>
             <IconButton icon={Bell} />
             <IconButton icon={MessageCircle} />
             <IconButton icon={Users} />
