@@ -36,7 +36,7 @@ export const useUserPreferences = () => {
         .select('preferences')
         .eq('user_id', user.id)
         .eq('company_id', company.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
         throw error;
