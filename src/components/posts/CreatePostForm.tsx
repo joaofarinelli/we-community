@@ -28,7 +28,7 @@ export const CreatePostForm = ({ spaceId }: CreatePostFormProps) => {
             <div className="flex-1">
               <Textarea
                 placeholder="Criar uma publicação..."
-                className="min-h-[60px] resize-none border-none shadow-none focus-visible:ring-0 p-0 cursor-pointer"
+                className="min-h-[60px] resize-none border-none shadow-none focus-visible:ring-0 p-3 cursor-pointer"
                 readOnly
               />
             </div>
