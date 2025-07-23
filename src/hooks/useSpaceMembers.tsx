@@ -14,7 +14,7 @@ export const useSpaceMembers = (spaceId: string) => {
         .from('space_members')
         .select(`
           *,
-          member_profile:profiles(first_name, last_name)
+          profiles!space_members_user_id_fkey(first_name, last_name)
         `)
         .eq('space_id', spaceId)
         .order('joined_at', { ascending: true });

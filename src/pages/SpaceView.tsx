@@ -188,11 +188,11 @@ export const SpaceView = () => {
                 ) : members && members.length > 0 ? (
                   <div className="p-6 space-y-3">
                     {members.map((member) => {
-                      const memberName = member.member_profile
-                        ? `${member.member_profile.first_name} ${member.member_profile.last_name}`
+                      const memberName = member.profiles
+                        ? `${member.profiles.first_name} ${member.profiles.last_name}`
                         : 'Usuário';
-                      const memberInitials = member.member_profile
-                        ? `${member.member_profile.first_name[0]}${member.member_profile.last_name[0]}`
+                      const memberInitials = member.profiles
+                        ? `${member.profiles.first_name[0]}${member.profiles.last_name[0]}`
                         : 'U';
 
                       return (

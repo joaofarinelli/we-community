@@ -15,7 +15,7 @@ interface Post {
   is_announcement: boolean;
   created_at: string;
   author_id: string;
-  author_profile?: {
+  profiles?: {
     first_name: string;
     last_name: string;
   };
@@ -26,12 +26,12 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post }: PostCardProps) => {
-  const authorName = post.author_profile 
-    ? `${post.author_profile.first_name} ${post.author_profile.last_name}`
+  const authorName = post.profiles 
+    ? `${post.profiles.first_name} ${post.profiles.last_name}`
     : 'Usuário';
 
-  const authorInitials = post.author_profile
-    ? `${post.author_profile.first_name[0]}${post.author_profile.last_name[0]}`
+  const authorInitials = post.profiles
+    ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
     : 'U';
 
   return (

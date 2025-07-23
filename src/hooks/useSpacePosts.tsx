@@ -14,7 +14,7 @@ export const useSpacePosts = (spaceId: string) => {
         .from('posts')
         .select(`
           *,
-          author_profile:profiles(first_name, last_name)
+          profiles!posts_author_id_fkey(first_name, last_name)
         `)
         .eq('space_id', spaceId)
         .order('is_pinned', { ascending: false })
