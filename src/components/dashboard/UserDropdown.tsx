@@ -47,7 +47,7 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 bg-background border border-border shadow-lg"
+        className="w-56 bg-popover border border-border shadow-lg z-50"
         align="end"
         sideOffset={4}
       >
