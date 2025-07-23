@@ -7,11 +7,31 @@ import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { useReorderSpaces } from '@/hooks/useReorderSpaces';
 import { renderSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
 import { CreateCategoryDialog } from './CreateCategoryDialog';
 import { useCreateCategory } from '@/hooks/useCreateCategory';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 interface CircleSidebarProps {
   onClose?: () => void;
 }
@@ -108,6 +128,55 @@ export function CircleSidebar({
       />
     </aside>;
 }
+
+// Component for draggable space item
+interface DraggableSpaceItemProps {
+  space: any;
+  isActive: boolean;
+  onSpaceClick: (spaceId: string) => void;
+}
+
+const DraggableSpaceItem = ({ space, isActive, onSpaceClick }: DraggableSpaceItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: space.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+    >
+      <Button 
+        variant="ghost" 
+        onClick={() => onSpaceClick(space.id)} 
+        className={`w-full justify-start p-2 h-auto text-left text-sm transition-all duration-200 ${
+          isActive 
+            ? 'bg-primary text-primary-foreground shadow-sm' 
+            : 'hover:bg-muted/50'
+        }`}
+      >
+        <div className="h-4 w-4 mr-2 flex items-center justify-center">
+          {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-4 w-4")}
+        </div>
+        <span className={space.is_private && !isActive ? "text-muted-foreground" : ""}>{space.name}</span>
+      </Button>
+    </div>
+  );
+};
+
 interface SpaceCategorySectionProps {
   category: any;
   isExpanded: boolean;
@@ -116,6 +185,7 @@ interface SpaceCategorySectionProps {
   onSpaceClick: (spaceId: string) => void;
   currentPath: string;
 }
+
 function SpaceCategorySection({
   category,
   isExpanded,
@@ -124,10 +194,40 @@ function SpaceCategorySection({
   onSpaceClick,
   currentPath
 }: SpaceCategorySectionProps) {
-  const {
-    data: spaces = []
-  } = useSpaces(category.id);
-  return <Collapsible open={isExpanded} onOpenChange={onToggle}>
+  const { data: spaces = [] } = useSpaces(category.id);
+  const reorderSpacesMutation = useReorderSpaces();
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = spaces.findIndex((space) => space.id === active.id);
+      const newIndex = spaces.findIndex((space) => space.id === over?.id);
+      
+      const reorderedSpaces = arrayMove(spaces, oldIndex, newIndex);
+      
+      // Create updates with new order indices
+      const spaceUpdates = reorderedSpaces.map((space, index) => ({
+        id: space.id,
+        order_index: index,
+      }));
+
+      reorderSpacesMutation.mutate({
+        categoryId: category.id,
+        spaceUpdates,
+      });
+    }
+  };
+
+  return (
+    <Collapsible open={isExpanded} onOpenChange={onToggle}>
       <CollapsibleTrigger asChild>
         <div className="w-full group">
           <Button variant="ghost" className="w-full justify-between p-3 h-auto text-left hover:bg-muted/50">
@@ -154,31 +254,33 @@ function SpaceCategorySection({
       </CollapsibleTrigger>
       
       <CollapsibleContent className="space-y-1 ml-3">
-        {spaces.map(space => {
-        const isActiveSpace = currentPath === `/dashboard/space/${space.id}`;
-        return <Button 
-          key={space.id} 
-          variant="ghost" 
-          onClick={() => onSpaceClick(space.id)} 
-          className={`w-full justify-start p-2 h-auto text-left text-sm transition-all duration-200 ${
-            isActiveSpace 
-              ? 'bg-primary text-primary-foreground shadow-sm' 
-              : 'hover:bg-muted/50'
-          }`}
-        >
-              <div className="h-4 w-4 mr-2 flex items-center justify-center">
-                {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-4 w-4")}
-              </div>
-              <span className={space.is_private && !isActiveSpace ? "text-muted-foreground" : ""}>{space.name}</span>
-            </Button>;
-      })}
-        
-        {spaces.length === 0 && (
+        {spaces.length > 0 ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={spaces.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              {spaces.map(space => {
+                const isActiveSpace = currentPath === `/dashboard/space/${space.id}`;
+                return (
+                  <DraggableSpaceItem
+                    key={space.id}
+                    space={space}
+                    isActive={isActiveSpace}
+                    onSpaceClick={onSpaceClick}
+                  />
+                );
+              })}
+            </SortableContext>
+          </DndContext>
+        ) : (
           <Button variant="ghost" className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm" onClick={() => onCreateSpace(category.id)}>
             <Plus className="h-4 w-4 mr-2" />
             Criar espaço
           </Button>
         )}
       </CollapsibleContent>
-    </Collapsible>;
+    </Collapsible>
+  );
 }
