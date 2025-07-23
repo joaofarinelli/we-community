@@ -43,7 +43,7 @@ export function CircleSidebar({
         <div>
           <Button 
             variant="ghost" 
-            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
+            className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50"
             onClick={() => navigate('/dashboard/setup')}
           >
             📋 Primeiros Passos
@@ -54,7 +54,7 @@ export function CircleSidebar({
         <div>
           <Button 
             variant="ghost" 
-            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
+            className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50"
             onClick={() => navigate('/dashboard')}
           >
             📰 Feed
@@ -64,7 +64,7 @@ export function CircleSidebar({
         {/* Criar Categoria */}
         {categories.length > 0 && (
           <div>
-            <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50 text-muted-foreground">
+            <Button variant="ghost" className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50 text-muted-foreground">
               <Plus className="h-4 w-4 mr-2" />
               Criar categoria
             </Button>
