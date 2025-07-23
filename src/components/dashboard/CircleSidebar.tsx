@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { getSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
@@ -20,7 +21,7 @@ export function CircleSidebar({
   const {
     data: categories = []
   } = useSpaceCategories();
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(() => categories.map(cat => cat.id));
+  const { toggleCategory, isCategoryExpanded, updateExpandedCategories } = useUserPreferences();
   const {
     isTypeSelectionOpen,
     isConfigurationOpen,
@@ -32,9 +33,14 @@ export function CircleSidebar({
     closeAllDialogs,
     createSpace
   } = useCreateSpace();
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategories(prev => prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId]);
-  };
+
+  // Initialize expanded categories when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0) {
+      const allCategoryIds = categories.map(cat => cat.id);
+      updateExpandedCategories(allCategoryIds);
+    }
+  }, [categories, updateExpandedCategories]);
   return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
       
@@ -67,7 +73,7 @@ export function CircleSidebar({
 
         {/* Categories and Spaces Section */}
         <div className="space-y-2">
-          {categories.map(category => <SpaceCategorySection key={category.id} category={category} isExpanded={expandedCategories.includes(category.id)} onToggle={() => toggleCategory(category.id)} onCreateSpace={openTypeSelection} onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} />)}
+          {categories.map(category => <SpaceCategorySection key={category.id} category={category} isExpanded={isCategoryExpanded(category.id)} onToggle={() => toggleCategory(category.id)} onCreateSpace={openTypeSelection} onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} />)}
           
           {categories.length > 0 && <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50 text-muted-foreground">
               <Plus className="h-4 w-4 mr-2" />
