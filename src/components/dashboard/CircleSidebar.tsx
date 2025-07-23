@@ -37,34 +37,14 @@ export function CircleSidebar({
   };
   return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border/50">
-        <h2 className="text-lg font-semibold">Primeiros Passos</h2>
-        <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 hover:bg-muted/70">
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
+      
 
       {/* Content */}
       <div className="flex-1 p-6 space-y-6">
-        {/* Primeiros Passos */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
-            onClick={() => navigate('/dashboard/setup')}
-          >
-            📋 Primeiros Passos
-          </Button>
-        </div>
-
         {/* Feed */}
         <div>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50"
-            onClick={() => navigate('/dashboard')}
-          >
-            📰 Feed
+          <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50">
+            Feed
           </Button>
         </div>
 
