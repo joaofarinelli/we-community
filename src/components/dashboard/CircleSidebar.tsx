@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink, Video, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ export function CircleSidebar({
   const {
     data: categories = []
   } = useSpaceCategories();
-  const { toggleCategory, isCategoryExpanded, updateExpandedCategories } = useUserPreferences();
+  const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading } = useUserPreferences();
   const {
     isTypeSelectionOpen,
     isConfigurationOpen,
@@ -34,13 +33,6 @@ export function CircleSidebar({
     createSpace
   } = useCreateSpace();
 
-  // Initialize expanded categories when categories are loaded
-  useEffect(() => {
-    if (categories.length > 0) {
-      const allCategoryIds = categories.map(cat => cat.id);
-      updateExpandedCategories(allCategoryIds);
-    }
-  }, [categories, updateExpandedCategories]);
   return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
       

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompany } from './useCompany';
+import { useSpaceCategories } from './useSpaceCategories';
 
 interface UserPreferences {
   expanded_categories: string[];
@@ -11,7 +12,7 @@ interface UserPreferences {
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
-  expanded_categories: [],
+  expanded_categories: [], // Iniciará vazio, será populado na primeira vez
   sidebar_collapsed: false,
   theme: 'light',
 };
@@ -19,8 +20,10 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 export const useUserPreferences = () => {
   const { user } = useAuth();
   const { data: company } = useCompany();
+  const { data: categories = [] } = useSpaceCategories();
   const queryClient = useQueryClient();
   const [localPreferences, setLocalPreferences] = useState<UserPreferences>(DEFAULT_PREFERENCES);
+  const [isFirstTime, setIsFirstTime] = useState(false);
 
   // Query to fetch user preferences
   const { data: preferences, isLoading } = useQuery({
@@ -68,8 +71,18 @@ export const useUserPreferences = () => {
   useEffect(() => {
     if (preferences) {
       setLocalPreferences(preferences);
+    } else if (!isLoading && categories.length > 0 && !preferences) {
+      // Se não há preferências salvas e temos categorias, é primeira vez - expandir todas
+      const defaultExpanded = categories.map(cat => cat.id);
+      const newPreferences = {
+        ...DEFAULT_PREFERENCES,
+        expanded_categories: defaultExpanded,
+      };
+      setLocalPreferences(newPreferences);
+      savePreferences(newPreferences);
+      setIsFirstTime(true);
     }
-  }, [preferences]);
+  }, [preferences, isLoading, categories, savePreferences]);
 
   // Function to update expanded categories
   const updateExpandedCategories = useCallback((categories: string[]) => {
