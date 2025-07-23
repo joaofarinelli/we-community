@@ -25,7 +25,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left side */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 flex-1">
             <Button
               variant="ghost"
               size="sm"
@@ -39,32 +39,32 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               {company?.name || 'Minha Empresa'}
             </h1>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-6 ml-8">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-foreground hover:text-primary"
-                onClick={() => navigate('/dashboard')}
-              >
-                Feed
-              </Button>
-              <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
-                Espaços
-              </Button>
-              <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
-                Membros
-              </Button>
-            </nav>
+            {/* Search - moved to left side with max width */}
+            <div className="max-w-[130px] ml-4">
+              <SearchBar />
+            </div>
           </div>
 
-          {/* Center - Search */}
-          <div className="flex-1 max-w-md mx-4">
-            <SearchBar />
-          </div>
+          {/* Center - Navigation */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-foreground hover:text-primary"
+              onClick={() => navigate('/dashboard')}
+            >
+              Feed
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+              Espaços
+            </Button>
+            <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+              Membros
+            </Button>
+          </nav>
 
           {/* Right side */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-1 justify-end">
             <IconButton icon={Bell} />
             <IconButton icon={MessageCircle} />
             <IconButton icon={Users} />
