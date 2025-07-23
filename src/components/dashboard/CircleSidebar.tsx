@@ -78,20 +78,6 @@ export function CircleSidebar({
           {categories.map(category => <SpaceCategorySection key={category.id} category={category} isExpanded={isCategoryExpanded(category.id)} onToggle={() => toggleCategory(category.id)} onCreateSpace={openTypeSelection} onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} />)}
         </div>
 
-        <Separator />
-
-        {/* Links Section */}
-        <div>
-          <h3 className="text-sm font-medium text-muted-foreground mb-3">Links</h3>
-          <div className="space-y-2">
-            
-            
-            <Button variant="ghost" className="w-full justify-start p-3 h-auto text-left hover:bg-muted/50">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar link
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Footer */}
