@@ -140,7 +140,7 @@ export const PostDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-background">
-        <DialogHeader className="flex flex-row items-center justify-between p-4 border-b border-border">
+        <DialogHeader className="flex flex-row items-center justify-between p-4 pb-0 border-b border-border">
           <DialogTitle className="text-lg font-semibold">
             {mode === 'create' ? 'Criar publicação' : 'Editar publicação'}
           </DialogTitle>
@@ -156,7 +156,7 @@ export const PostDialog = ({
 
         <div className="flex flex-col h-full">
           {/* Título opcional */}
-          <div className="p-4 border-b border-border">
+          <div className="px-4 pt-4 pb-4 border-b border-border">
             <Input
               placeholder="Título (opcional)"
               value={title}
