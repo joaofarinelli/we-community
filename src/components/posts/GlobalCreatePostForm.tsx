@@ -3,9 +3,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CreatePostDialog } from './CreatePostDialog';
+import { useAuth } from '@/hooks/useAuth';
 
 export const GlobalCreatePostForm = () => {
+  const { user } = useAuth();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Função para obter as iniciais do nome do usuário
+  const getUserInitials = () => {
+    const firstName = user?.user_metadata?.first_name;
+    const lastName = user?.user_metadata?.last_name;
+    
+    if (firstName && lastName) {
+      return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
+    } else if (firstName) {
+      return firstName.substring(0, 2).toUpperCase();
+    } else if (user?.email) {
+      return user.email.substring(0, 2).toUpperCase();
+    }
+    
+    return 'U';
+  };
 
   return (
     <>
@@ -15,11 +33,11 @@ export const GlobalCreatePostForm = () => {
       >
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                U
-              </AvatarFallback>
-            </Avatar>
+             <Avatar className="h-10 w-10">
+               <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                 {getUserInitials()}
+               </AvatarFallback>
+             </Avatar>
             
             <div className="flex-1">
               <Textarea
