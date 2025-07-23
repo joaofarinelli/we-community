@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Menu, Search, Bell, MessageCircle, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
-import { UserAvatar } from '@/components/dashboard/UserAvatar';
+import { UserDropdown } from '@/components/dashboard/UserDropdown';
 import { IconButton } from '@/components/dashboard/IconButton';
 import { CircleSidebar } from '@/components/dashboard/CircleSidebar';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,10 +67,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <IconButton icon={Bell} />
             <IconButton icon={MessageCircle} />
             <IconButton icon={Users} />
-            <UserAvatar 
-              name={user?.user_metadata?.first_name}
+            <UserDropdown 
+              name={user?.user_metadata?.display_name}
               email={user?.email}
-              size="md"
+              imageUrl={user?.user_metadata?.avatar_url}
             />
           </div>
         </div>
