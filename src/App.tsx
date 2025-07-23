@@ -10,6 +10,9 @@ import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
 import { RankingPage } from "./pages/RankingPage";
 import { SpaceView } from "./pages/SpaceView";
+import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
+import { AdminLevelsPage } from "./pages/admin/AdminLevelsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +35,9 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
       <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
       <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
+      <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
+      <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
+      <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
