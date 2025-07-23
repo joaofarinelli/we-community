@@ -21,6 +21,7 @@ import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { getSpaceTypeInfo } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { useState } from 'react';
 
 export const SpaceView = () => {
@@ -30,6 +31,7 @@ export const SpaceView = () => {
     platform: true,
     mobile: false
   });
+  const [customizationOpen, setCustomizationOpen] = useState(false);
   const {
     spaceId
   } = useParams<{
@@ -122,7 +124,7 @@ export const SpaceView = () => {
                       <CreditCard className="h-4 w-4 mr-2" />
                       Paywalls
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Personalizar')}>
+                    <DropdownMenuItem onClick={() => setCustomizationOpen(true)}>
                       <Palette className="h-4 w-4 mr-2" />
                       Personalizar
                     </DropdownMenuItem>
@@ -299,5 +301,12 @@ export const SpaceView = () => {
           </div>
         </div>
       </div>
+
+      {/* Customization Drawer */}
+      <SpaceCustomizationDrawer
+        open={customizationOpen}
+        onOpenChange={setCustomizationOpen}
+        space={space}
+      />
     </DashboardLayout>;
 };
