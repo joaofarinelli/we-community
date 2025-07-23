@@ -22,7 +22,7 @@ export const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="max-w-4xl p-8">
-        <div className="space-y-8">
+        <div className="space-y-4">
           {/* Welcome Title */}
           <div>
             <h1 className="text-3xl font-bold mb-2">
