@@ -10,6 +10,8 @@ import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { getSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
+import { CreateCategoryDialog } from './CreateCategoryDialog';
+import { useCreateCategory } from '@/hooks/useCreateCategory';
 interface CircleSidebarProps {
   onClose?: () => void;
 }
@@ -33,6 +35,16 @@ export function CircleSidebar({
     closeAllDialogs,
     createSpace
   } = useCreateSpace();
+
+  const {
+    isOpen: isCategoryDialogOpen,
+    setIsOpen: setCategoryDialogOpen,
+    createCategory,
+    isLoading: isCreatingCategory
+  } = useCreateCategory();
+
+  const openCategoryDialog = () => setCategoryDialogOpen(true);
+  const closeCategoryDialog = () => setCategoryDialogOpen(false);
 
   return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Header */}
@@ -59,7 +71,11 @@ export function CircleSidebar({
         {/* Criar Categoria */}
         {categories.length > 0 && (
           <div>
-            <Button variant="ghost" className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50 text-muted-foreground text-[13px] font-medium">
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50 text-muted-foreground text-[13px] font-medium"
+              onClick={openCategoryDialog}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Criar categoria
             </Button>
@@ -82,6 +98,14 @@ export function CircleSidebar({
       <SpaceTypeSelectionDialog open={isTypeSelectionOpen} onClose={closeAllDialogs} onSelectType={selectTypeAndProceed} />
       
       <SpaceConfigurationDialog open={isConfigurationOpen} onClose={closeAllDialogs} onCreateSpace={createSpace} selectedType={selectedType} selectedCategoryId={selectedCategoryId} isCreating={isCreating} />
+
+      {/* Dialog de Criação de Categoria */}
+      <CreateCategoryDialog 
+        isOpen={isCategoryDialogOpen}
+        onClose={closeCategoryDialog}
+        onSubmit={createCategory}
+        isLoading={isCreatingCategory}
+      />
     </aside>;
 }
 interface SpaceCategorySectionProps {
