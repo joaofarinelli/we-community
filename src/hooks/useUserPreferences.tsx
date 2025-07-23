@@ -69,9 +69,9 @@ export const useUserPreferences = () => {
 
   // Update local state when preferences are loaded
   useEffect(() => {
-    if (preferences) {
+    if (preferences && !isLoading) {
       setLocalPreferences(preferences);
-    } else if (!isLoading && categories.length > 0 && !preferences) {
+    } else if (!isLoading && categories.length > 0 && preferences === null) {
       // Se não há preferências salvas e temos categorias, é primeira vez - expandir todas
       const defaultExpanded = categories.map(cat => cat.id);
       const newPreferences = {
