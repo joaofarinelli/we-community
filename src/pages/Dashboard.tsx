@@ -21,69 +21,71 @@ export const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="space-y-6">
-          {/* Welcome Title */}
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
-              Boas-vindas à plataforma, {userName}!
-            </h1>
-            <p className="text-muted-foreground">
-              Veja as últimas atualizações de todos os seus espaços
-            </p>
-          </div>
-
-          {/* Create Post Form */}
-          <GlobalCreatePostForm />
-
-          {/* Sort Controls */}
-          <div className="flex items-center justify-between">
-            <FeedSortControls sortBy={sortBy} onSortChange={setSortBy} />
-          </div>
-
-          {/* Posts Feed */}
+      <div className="h-full overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-8">
           <div className="space-y-6">
-            {postsLoading ? (
-              <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                  <Card key={i}>
-                    <CardContent className="p-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center space-x-3">
-                          <Skeleton className="h-10 w-10 rounded-full" />
+            {/* Welcome Title */}
+            <div>
+              <h1 className="text-3xl font-bold mb-2">
+                Boas-vindas à plataforma, {userName}!
+              </h1>
+              <p className="text-muted-foreground">
+                Veja as últimas atualizações de todos os seus espaços
+              </p>
+            </div>
+
+            {/* Create Post Form */}
+            <GlobalCreatePostForm />
+
+            {/* Sort Controls */}
+            <div className="flex items-center justify-between">
+              <FeedSortControls sortBy={sortBy} onSortChange={setSortBy} />
+            </div>
+
+            {/* Posts Feed */}
+            <div className="space-y-6">
+              {postsLoading ? (
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-6">
+                        <div className="space-y-3">
+                          <div className="flex items-center space-x-3">
+                            <Skeleton className="h-10 w-10 rounded-full" />
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-32" />
+                              <Skeleton className="h-3 w-24" />
+                            </div>
+                          </div>
                           <div className="space-y-2">
-                            <Skeleton className="h-4 w-32" />
-                            <Skeleton className="h-3 w-24" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-3/4" />
                           </div>
                         </div>
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-3/4" />
-                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : posts && posts.length > 0 ? (
+                posts.map(post => (
+                  <FeedPostCard key={post.id} post={post} />
+                ))
+              ) : (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <div className="space-y-3">
+                      <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                        <MessageSquare className="h-8 w-8 text-muted-foreground" />
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : posts && posts.length > 0 ? (
-              posts.map(post => (
-                <FeedPostCard key={post.id} post={post} />
-              ))
-            ) : (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <div className="space-y-3">
-                    <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                      <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                      <h3 className="text-lg font-medium">Nenhum post ainda</h3>
+                      <p className="text-muted-foreground max-w-md mx-auto">
+                        Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
+                      </p>
                     </div>
-                    <h3 className="text-lg font-medium">Nenhum post ainda</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto">
-                      Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </div>
       </div>
