@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { User, Settings, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from './UserAvatar';
+import { UserProfileDialog } from './UserProfileDialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,9 +22,10 @@ interface UserDropdownProps {
 export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdownProps) {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   const handleViewProfile = () => {
-    navigate('/profile');
+    setProfileDialogOpen(true);
   };
 
   const handleEditProfile = () => {
@@ -74,6 +77,11 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
           <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+      
+      <UserProfileDialog 
+        open={profileDialogOpen} 
+        onOpenChange={setProfileDialogOpen} 
+      />
     </DropdownMenu>
   );
 }
