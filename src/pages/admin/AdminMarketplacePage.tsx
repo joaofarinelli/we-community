@@ -6,15 +6,62 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useMarketplaceItems } from '@/hooks/useMarketplaceItems';
-import { Plus, Search, Package, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
+import { useDeleteMarketplaceCategory, useDeleteMarketplaceItem } from '@/hooks/useManageMarketplace';
+import { CreateItemDialog } from '@/components/marketplace/admin/CreateItemDialog';
+import { CreateCategoryDialog } from '@/components/marketplace/admin/CreateCategoryDialog';
+import { Plus, Search, Package, Eye, EyeOff, Edit, Trash2, Coins } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const AdminMarketplacePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showItemDialog, setShowItemDialog] = useState(false);
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
   
   const { data: categories = [] } = useMarketplaceCategories();
   const { data: items = [] } = useMarketplaceItems();
+  const deleteCategory = useDeleteMarketplaceCategory();
+  const deleteItem = useDeleteMarketplaceItem();
+
+  // Count items per category
+  const itemCounts = items.reduce((acc, item) => {
+    acc[item.category_id] = (acc[item.category_id] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const handleEditItem = (item: any) => {
+    setEditingItem(item);
+    setShowItemDialog(true);
+  };
+
+  const handleEditCategory = (category: any) => {
+    setEditingCategory(category);
+    setShowCategoryDialog(true);
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este item?')) {
+      await deleteItem.mutateAsync(id);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir esta categoria?')) {
+      await deleteCategory.mutateAsync(id);
+    }
+  };
+
+  const handleCloseItemDialog = () => {
+    setShowItemDialog(false);
+    setEditingItem(null);
+  };
+
+  const handleCloseCategoryDialog = () => {
+    setShowCategoryDialog(false);
+    setEditingCategory(null);
+  };
 
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -33,11 +80,11 @@ export const AdminMarketplacePage = () => {
           </div>
           
           <div className="flex gap-2">
-            <Button>
+            <Button onClick={() => setShowCategoryDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Nova Categoria
             </Button>
-            <Button>
+            <Button onClick={() => setShowItemDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Produto
             </Button>
@@ -114,25 +161,41 @@ export const AdminMarketplacePage = () => {
                         )}
                         
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{item.price_coins} moedas</span>
+                          <div className="flex items-center gap-1">
+                            <Coins className="h-4 w-4" />
+                            <span>{item.price_coins} moedas</span>
+                          </div>
                           {item.stock_quantity !== null && (
                             <span>Estoque: {item.stock_quantity}</span>
                           )}
+                          <span>Categoria: {categories.find(c => c.id === item.category_id)?.name}</span>
                         </div>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditItem({ ...item, is_active: !item.is_active })}
+                        >
                           {item.is_active ? (
                             <Eye className="h-4 w-4" />
                           ) : (
                             <EyeOff className="h-4 w-4" />
                           )}
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditItem(item)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteItem(item.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -177,10 +240,21 @@ export const AdminMarketplacePage = () => {
                         <Badge variant={category.is_active ? "default" : "secondary"}>
                           {category.is_active ? "Ativa" : "Inativa"}
                         </Badge>
-                        <Button variant="outline" size="sm">
+                        <Badge variant="outline">
+                          {itemCounts[category.id] || 0} itens
+                        </Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditCategory(category)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDeleteCategory(category.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -204,6 +278,19 @@ export const AdminMarketplacePage = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Dialogs */}
+        <CreateItemDialog
+          open={showItemDialog}
+          onOpenChange={handleCloseItemDialog}
+          item={editingItem}
+        />
+
+        <CreateCategoryDialog
+          open={showCategoryDialog}
+          onOpenChange={handleCloseCategoryDialog}
+          category={editingCategory}
+        />
       </div>
     </AdminLayout>
   );
