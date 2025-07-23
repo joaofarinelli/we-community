@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy } from 'lucide-react';
+import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -120,7 +120,8 @@ export function CircleSidebar({
             }`}
             onClick={() => navigate('/dashboard')}
           >
-            📰 Feed
+            <Rss className="h-4 w-4 mr-2" />
+            Feed
           </Button>
         </div>
 
