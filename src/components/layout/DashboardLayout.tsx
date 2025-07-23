@@ -22,7 +22,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left side */}
           <div className="flex items-center space-x-4">
