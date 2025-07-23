@@ -22,6 +22,8 @@ import { CourseDetailPage } from "./pages/CourseDetailPage";
 import { ModuleDetailPage } from "./pages/ModuleDetailPage";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage";
 import { AdminCoursesPage } from "./pages/admin/AdminCoursesPage";
+import { AdminCourseModulesPage } from "./pages/admin/AdminCourseModulesPage";
+import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -56,6 +58,8 @@ const AppRoutes = () => {
       <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
       <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
       <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
+      <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
+      <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

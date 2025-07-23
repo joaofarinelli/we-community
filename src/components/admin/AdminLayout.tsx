@@ -49,6 +49,14 @@ const mainMenuItems = [
     ]
   },
   {
+    icon: BookOpen,
+    label: 'Cursos',
+    key: 'courses',
+    subItems: [
+      { label: 'Gerenciar cursos', path: '/admin/courses' },
+    ]
+  },
+  {
     icon: Trophy,
     label: 'Gamificação',
     key: 'gamification',
