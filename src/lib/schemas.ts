@@ -64,3 +64,17 @@ export type CompanySignupFormData = z.infer<typeof companySignupSchema>;
 export type SpaceTypeSelectionFormData = z.infer<typeof spaceTypeSelectionSchema>;
 export type SpaceConfigurationFormData = z.infer<typeof spaceConfigurationSchema>;
 export type CreateSpaceFormData = z.infer<typeof createSpaceSchema>;
+
+// Schema para criação de categoria
+export const createCategorySchema = z.object({
+  name: z.string().min(2, 'Nome da categoria deve ter pelo menos 2 caracteres'),
+  slug: z.string().optional(),
+  permissions: z.object({
+    can_create_spaces: z.boolean(),
+    can_manage_members: z.boolean(),
+    can_moderate_content: z.boolean(),
+    can_view_analytics: z.boolean(),
+  }),
+});
+
+export type CreateCategoryFormData = z.infer<typeof createCategorySchema>;
