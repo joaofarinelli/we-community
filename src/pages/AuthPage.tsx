@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { CompanySignupForm } from '@/components/auth/CompanySignupForm';
+import { TwoStepSignupForm } from '@/components/auth/TwoStepSignupForm';
 import { Card, CardContent } from '@/components/ui/card';
 
 export const AuthPage = () => {
@@ -14,7 +14,7 @@ export const AuthPage = () => {
             {isLogin ? (
               <LoginForm onSwitchToSignup={() => setIsLogin(false)} />
             ) : (
-              <CompanySignupForm onSwitchToLogin={() => setIsLogin(true)} />
+              <TwoStepSignupForm onSwitchToLogin={() => setIsLogin(true)} />
             )}
           </CardContent>
         </Card>

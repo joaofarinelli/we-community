@@ -27,6 +27,7 @@ export type Database = {
           postal_code: string | null
           state: string | null
           status: string | null
+          subdomain: string | null
           updated_at: string
         }
         Insert: {
@@ -41,6 +42,7 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           status?: string | null
+          subdomain?: string | null
           updated_at?: string
         }
         Update: {
@@ -55,6 +57,7 @@ export type Database = {
           postal_code?: string | null
           state?: string | null
           status?: string | null
+          subdomain?: string | null
           updated_at?: string
         }
         Relationships: []
