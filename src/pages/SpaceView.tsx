@@ -1,15 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, MoreHorizontal, ImagePlus, Link, CreditCard, Palette, Smartphone, UserPlus, Settings as SettingsIcon, Zap, Bell, Mail, CheckSquare, UserMinus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +18,6 @@ import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { useState } from 'react';
-
 export const SpaceView = () => {
   const [notificationSettings, setNotificationSettings] = useState({
     posts: true,
@@ -57,8 +48,12 @@ export const SpaceView = () => {
     data: spaceAccess,
     isLoading: accessLoading
   } = useSpaceAccess(spaceId!);
-  const { data: memberInfo } = useIsSpaceMember(spaceId!);
-  const { leaveSpace } = useManageSpaceMembers();
+  const {
+    data: memberInfo
+  } = useIsSpaceMember(spaceId!);
+  const {
+    leaveSpace
+  } = useManageSpaceMembers();
   if (!spaceId) {
     navigate('/dashboard');
     return null;
@@ -110,7 +105,7 @@ export const SpaceView = () => {
       <div className="min-h-screen bg-background">
         {/* Space Header */}
         <div className="bg-background border-b sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-white">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-4">
                 
@@ -119,12 +114,7 @@ export const SpaceView = () => {
                 
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center justify-center">
-                    {renderSpaceIcon(
-                      space.type, 
-                      space.custom_icon_type, 
-                      space.custom_icon_value, 
-                      "h-6 w-6"
-                    )}
+                    {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-6 w-6")}
                   </div>
                   <div>
                     <h1 className="text-xl font-semibold">{space.name}</h1>
@@ -181,30 +171,24 @@ export const SpaceView = () => {
                     <DropdownMenuSeparator />
                     
                     <DropdownMenuLabel>Notificações das minhas publicações</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem
-                      checked={notificationSettings.email}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => ({ ...prev, email: checked }))
-                      }
-                    >
+                    <DropdownMenuCheckboxItem checked={notificationSettings.email} onCheckedChange={checked => setNotificationSettings(prev => ({
+                    ...prev,
+                    email: checked
+                  }))}>
                       <Mail className="h-4 w-4 mr-2" />
                       Notificações por email
                     </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={notificationSettings.platform}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => ({ ...prev, platform: checked }))
-                      }
-                    >
+                    <DropdownMenuCheckboxItem checked={notificationSettings.platform} onCheckedChange={checked => setNotificationSettings(prev => ({
+                    ...prev,
+                    platform: checked
+                  }))}>
                       <Bell className="h-4 w-4 mr-2" />
                       Notificações na plataforma
                     </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                      checked={notificationSettings.mobile}
-                      onCheckedChange={(checked) => 
-                        setNotificationSettings(prev => ({ ...prev, mobile: checked }))
-                      }
-                    >
+                    <DropdownMenuCheckboxItem checked={notificationSettings.mobile} onCheckedChange={checked => setNotificationSettings(prev => ({
+                    ...prev,
+                    mobile: checked
+                  }))}>
                       <Smartphone className="h-4 w-4 mr-2" />
                       Notificações no celular
                     </DropdownMenuCheckboxItem>
@@ -215,25 +199,17 @@ export const SpaceView = () => {
                       <UserPlus className="h-4 w-4 mr-2" />
                       Convidar membro
                     </DropdownMenuItem>
-                    {memberInfo?.isMember && memberInfo.role !== 'admin' && (
-                      <DropdownMenuItem 
-                        onClick={() => {
-                          if (confirm('Tem certeza que deseja sair deste espaço?')) {
-                            leaveSpace.mutate(spaceId!, {
-                              onSuccess: () => navigate('/dashboard')
-                            });
-                          }
-                        }}
-                        className="text-destructive focus:text-destructive"
-                      >
+                    {memberInfo?.isMember && memberInfo.role !== 'admin' && <DropdownMenuItem onClick={() => {
+                    if (confirm('Tem certeza que deseja sair deste espaço?')) {
+                      leaveSpace.mutate(spaceId!, {
+                        onSuccess: () => navigate('/dashboard')
+                      });
+                    }
+                  }} className="text-destructive focus:text-destructive">
                         <UserMinus className="h-4 w-4 mr-2" />
                         Sair do espaço
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem 
-                      onClick={() => console.log('Excluir espaço')}
-                      className="text-destructive focus:text-destructive"
-                    >
+                      </DropdownMenuItem>}
+                    <DropdownMenuItem onClick={() => console.log('Excluir espaço')} className="text-destructive focus:text-destructive">
                       <Trash2 className="h-4 w-4 mr-2" />
                       Excluir espaço
                     </DropdownMenuItem>
@@ -344,10 +320,6 @@ export const SpaceView = () => {
       </div>
 
       {/* Customization Drawer */}
-      <SpaceCustomizationDrawer
-        open={customizationOpen}
-        onOpenChange={setCustomizationOpen}
-        space={space}
-      />
+      <SpaceCustomizationDrawer open={customizationOpen} onOpenChange={setCustomizationOpen} space={space} />
     </DashboardLayout>;
 };
