@@ -29,5 +29,5 @@ export const useUserRole = () => {
 
 export const useIsAdmin = () => {
   const { data: userRole } = useUserRole();
-  return userRole?.role === 'admin';
+  return userRole?.role === 'admin' || userRole?.role === 'owner';
 };
