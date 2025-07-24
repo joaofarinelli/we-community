@@ -95,7 +95,7 @@ export const LessonPlayerPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-6">
+      <div className="p-4 md:p-6 lg:p-8 space-y-4 md:space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Button
@@ -137,13 +137,14 @@ export const LessonPlayerPage = () => {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar ao Módulo
+            <span className="hidden sm:inline">Voltar ao Módulo</span>
+            <span className="sm:hidden">Voltar</span>
           </Button>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 md:gap-6 lg:grid-cols-3">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 md:space-y-6">
             {/* Video/Content Area */}
             <Card>
               <CardContent className="p-0">
@@ -185,33 +186,38 @@ export const LessonPlayerPage = () => {
             )}
 
             {/* Navigation */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
               <Button
                 variant="outline"
                 onClick={handlePrevLesson}
                 disabled={!prevLesson}
+                className="w-full sm:w-auto"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Aula Anterior
+                  <span className="hidden sm:inline">Aula Anterior</span>
+                  <span className="sm:hidden">Anterior</span>
               </Button>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 {!isCompleted && (
                   <Button
                     onClick={handleCompleteLesson}
                     disabled={isCompleting}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
                   >
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    {isCompleting ? 'Marcando...' : 'Marcar como Concluída'}
+                    <span className="hidden sm:inline">{isCompleting ? 'Marcando...' : 'Marcar como Concluída'}</span>
+                    <span className="sm:hidden">{isCompleting ? 'Marcando...' : 'Concluir'}</span>
                   </Button>
                 )}
 
                 <Button
                   onClick={handleNextLesson}
                   disabled={!nextLesson}
+                  className="w-full sm:w-auto"
                 >
-                  Próxima Aula
+                  <span className="hidden sm:inline">Próxima Aula</span>
+                  <span className="sm:hidden">Próxima</span>
                   <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
                 </Button>
               </div>
@@ -219,37 +225,37 @@ export const LessonPlayerPage = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {/* Lesson Info */}
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="flex items-center gap-2">
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <CardTitle className="flex items-center gap-2 text-lg">
                       {lesson.video_url ? (
                         <Video className="h-5 w-5 text-blue-500" />
                       ) : (
                         <FileText className="h-5 w-5 text-gray-500" />
                       )}
-                      {lesson.title}
+                      <span className="truncate">{lesson.title}</span>
                     </CardTitle>
                     {lesson.description && (
-                      <CardDescription>
+                      <CardDescription className="text-sm">
                         {lesson.description}
                       </CardDescription>
                     )}
                   </div>
                   {isCompleted && (
-                    <Badge variant="default" className="bg-green-100 text-green-700">
+                    <Badge variant="default" className="bg-green-100 text-green-700 flex-shrink-0">
                       <CheckCircle className="mr-1 h-3 w-3" />
                       Concluída
                     </Badge>
                   )}
                 </div>
               </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+              <CardContent className="p-4 md:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     {lesson.duration && lesson.duration > 0 && (
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
@@ -268,11 +274,11 @@ export const LessonPlayerPage = () => {
 
             {/* Module Progress */}
             <Card>
-              <CardHeader>
-                <CardTitle>Progresso do Módulo</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Progresso do Módulo</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+              <CardContent className="p-4">
+                <div className="space-y-2">
                   {lessons?.map((l, index) => {
                     const isLessonCompleted = userProgress?.some(p => p.lesson_id === l.id);
                     const isCurrent = l.id === lessonId;
@@ -286,7 +292,7 @@ export const LessonPlayerPage = () => {
                             : 'hover:bg-muted'
                         }`}
                       >
-                        <div className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${
+                        <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center text-xs ${
                           isLessonCompleted 
                             ? 'bg-green-100 border-green-500 text-green-700' 
                             : isCurrent
@@ -294,7 +300,7 @@ export const LessonPlayerPage = () => {
                             : 'border-muted-foreground'
                         }`}>
                           {isLessonCompleted ? (
-                            <CheckCircle className="h-4 w-4" />
+                            <CheckCircle className="h-3 w-3" />
                           ) : (
                             index + 1
                           )}
@@ -304,7 +310,7 @@ export const LessonPlayerPage = () => {
                             onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${l.id}`)}
                             className="text-left w-full"
                           >
-                            <p className={`text-sm font-medium truncate ${
+                            <p className={`text-xs font-medium truncate ${
                               isCurrent ? 'text-primary' : ''
                             }`}>
                               {l.title}
