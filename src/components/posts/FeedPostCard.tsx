@@ -72,8 +72,12 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   };
 
   const handleUserClick = () => {
+    console.log('Feed user clicked:', post.author_id, 'Current user:', user?.id);
     if (post.author_id !== user?.id) {
+      console.log('Opening feed user profile dialog');
       setShowUserProfile(true);
+    } else {
+      console.log('User clicked on their own profile in feed');
     }
   };
 

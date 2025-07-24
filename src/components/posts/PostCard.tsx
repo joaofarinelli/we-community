@@ -57,8 +57,12 @@ export const PostCard = ({ post }: PostCardProps) => {
   const isAuthor = user?.id === post.author_id;
 
   const handleUserClick = () => {
+    console.log('User clicked:', post.author_id, 'Current user:', user?.id);
     if (post.author_id !== user?.id) {
+      console.log('Opening user profile dialog');
       setShowUserProfile(true);
+    } else {
+      console.log('User clicked on their own profile');
     }
   };
 
