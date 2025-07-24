@@ -12,6 +12,7 @@ import { ArrowLeft, CheckCircle, Play, FileText, Video, Clock } from 'lucide-rea
 import { toast } from 'sonner';
 import { DifficultyBadge } from '@/components/courses/DifficultyBadge';
 import { LessonComments } from '@/components/courses/LessonComments';
+import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -256,6 +257,7 @@ export const LessonPlayerPage = () => {
                     )}
                     <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
                   </div>
+                  <LessonLikeButton lessonId={lessonId!} />
                 </div>
               </CardContent>
             </Card>
