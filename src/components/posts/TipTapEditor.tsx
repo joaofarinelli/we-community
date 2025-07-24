@@ -2,7 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
+import ResizeImage from 'tiptap-extension-resize-image';
 import Mention from '@tiptap/extension-mention';
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
@@ -36,7 +36,7 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({
+      ResizeImage.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
         },
@@ -139,7 +139,10 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     },
     insertImage: (url: string, alt?: string) => {
       if (editor) {
-        editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+        editor.chain().focus().setImage({ 
+          src: url, 
+          alt: alt || ''
+        }).run();
       }
     },
     insertDocument: (url: string, name: string) => {

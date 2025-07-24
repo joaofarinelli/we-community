@@ -111,7 +111,106 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
-  }
+}
+
+/* TipTap Editor Styles */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.ProseMirror img:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ProseMirror img:hover::after {
+  content: "Clique e arraste para redimensionar";
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Image resize handles */
+.ProseMirror .resize-cursor {
+  cursor: nw-resize;
+}
+
+.ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Enhanced resize handles styling */
+.resize-handle {
+  position: absolute;
+  background: hsl(var(--primary));
+  border: 2px solid hsl(var(--background));
+  border-radius: 6px;
+  width: 14px;
+  height: 14px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.ProseMirror img:hover + .resize-handle,
+.ProseMirror img.ProseMirror-selectednode + .resize-handle {
+  opacity: 1;
+}
+
+.resize-handle-nw {
+  top: -7px;
+  left: -7px;
+  cursor: nw-resize;
+}
+
+.resize-handle-ne {
+  top: -7px;
+  right: -7px;
+  cursor: ne-resize;
+}
+
+.resize-handle-sw {
+  bottom: -7px;
+  left: -7px;
+  cursor: sw-resize;
+}
+
+.resize-handle-se {
+  bottom: -7px;
+  right: -7px;
+  cursor: se-resize;
+}
+
+/* Responsive image container */
+.ProseMirror [data-type="resizeImage"] {
+  display: inline-block;
+  position: relative;
+  max-width: 100%;
+}
+
+/* Ensure images maintain aspect ratio */
+.ProseMirror img[style*="width"] {
+  height: auto !important;
+}
 
   .dark {
     /* Backgrounds de páginas: #191b1f */

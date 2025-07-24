@@ -72,6 +72,7 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "tippy.js": "^6.3.7",
+    "tiptap-extension-resize-image": "^1.2.3",
     "vaul": "^0.9.3",
     "zod": "^4.0.5"
   },
