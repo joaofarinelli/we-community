@@ -86,6 +86,7 @@ export const ImageUpload = ({
           />
         </div>
         <Button 
+          type="button"
           variant="outline" 
           size="sm" 
           onClick={handleRemove}
@@ -108,6 +109,7 @@ export const ImageUpload = ({
         className="hidden"
       />
       <Button
+        type="button"
         variant="outline"
         onClick={() => fileInputRef.current?.click()}
         disabled={loading}
