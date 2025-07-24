@@ -161,7 +161,7 @@ export const PostDialog = ({
               placeholder="Título (opcional)"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="border-none bg-transparent font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus:outline-none p-0"
+              className="border-none bg-transparent font-medium placeholder:text-muted-foreground focus-visible:ring-0 focus:outline-none focus:ring-0 focus:border-transparent focus:shadow-none p-0"
               style={{ fontSize: '24px' }}
             />
           </div>
