@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
 import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
+import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -21,6 +22,7 @@ export const AdminSettingsPage = () => {
         </div>
 
         <div className="grid gap-6">
+          <CompanyLogoSection />
           <Card>
             <CardHeader>
               <CardTitle>Informações Gerais</CardTitle>

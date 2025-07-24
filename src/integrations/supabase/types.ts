@@ -243,6 +243,7 @@ export type Database = {
           cnpj: string | null
           created_at: string
           id: string
+          logo_url: string | null
           name: string
           phone: string | null
           plan: string | null
@@ -263,6 +264,7 @@ export type Database = {
           cnpj?: string | null
           created_at?: string
           id?: string
+          logo_url?: string | null
           name: string
           phone?: string | null
           plan?: string | null
@@ -283,6 +285,7 @@ export type Database = {
           cnpj?: string | null
           created_at?: string
           id?: string
+          logo_url?: string | null
           name?: string
           phone?: string | null
           plan?: string | null
