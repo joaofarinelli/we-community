@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { CreateChallengeDialog } from '@/components/admin/CreateChallengeDialog';
+import { EditChallengeDialog } from '@/components/admin/EditChallengeDialog';
 import { useManageChallenges, useDeleteChallenge, useChallengeAnalytics } from '@/hooks/useManageChallenges';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export const AdminChallengesPage = () => {
+  const [editingChallenge, setEditingChallenge] = useState<any>(null);
   const { data: challenges, isLoading } = useManageChallenges();
   const { data: analytics } = useChallengeAnalytics();
   const deleteChallenge = useDeleteChallenge();
@@ -198,6 +201,13 @@ export const AdminChallengesPage = () => {
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => setEditingChallenge(challenge)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => deleteChallenge.mutate(challenge.id)}
                         disabled={deleteChallenge.isPending}
                       >
@@ -274,6 +284,15 @@ export const AdminChallengesPage = () => {
           </Card>
         )}
       </div>
+
+      {/* Edit Challenge Dialog */}
+      {editingChallenge && (
+        <EditChallengeDialog
+          challenge={editingChallenge}
+          open={!!editingChallenge}
+          onClose={() => setEditingChallenge(null)}
+        />
+      )}
     </AdminLayout>
   );
 };
