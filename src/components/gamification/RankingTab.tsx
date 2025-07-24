@@ -10,11 +10,15 @@ export const RankingTab = () => {
   const { data: ranking, isLoading: rankingLoading } = useCompanyRanking(10);
   const { data: userPosition, isLoading: positionLoading } = useUserRankingPosition();
 
-  if (rankingLoading || positionLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
+  const isStatsLoading = positionLoading;
+  const isRankingListLoading = rankingLoading;
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {isStatsLoading ? (
+          [1, 2, 3].map((i) => (
             <Card key={i}>
               <CardContent className="p-6">
                 <Skeleton className="h-8 w-8 rounded-full mb-2" />
@@ -22,64 +26,52 @@ export const RankingTab = () => {
                 <Skeleton className="h-6 w-16" />
               </CardContent>
             </Card>
-          ))}
-        </div>
-        <Card>
-          <CardContent className="p-6 space-y-4">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} className="h-16 w-full" />
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Sua Posição</p>
-                <p className="text-2xl font-bold">
-                  {userPosition?.rank ? `#${userPosition.rank}` : '-'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2">
-              <Coins className="h-5 w-5 text-amber-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Suas WomanCoins</p>
-                <p className="text-2xl font-bold">
-                  {userPosition?.coins || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Total de Usuários</p>
-                <p className="text-2xl font-bold">
-                  {userPosition?.total_users || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          ))
+        ) : (
+          <>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Sua Posição</p>
+                    <p className="text-2xl font-bold">
+                      {userPosition?.rank ? `#${userPosition.rank}` : '-'}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-5 w-5 text-amber-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Suas WomanCoins</p>
+                    <p className="text-2xl font-bold">
+                      {userPosition?.coins || 0}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-blue-500" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total de Usuários</p>
+                    <p className="text-2xl font-bold">
+                      {userPosition?.total_users || 0}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
 
       {/* Ranking List */}
@@ -91,7 +83,11 @@ export const RankingTab = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {ranking && ranking.length > 0 ? (
+          {isRankingListLoading ? (
+            [1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))
+          ) : ranking && ranking.length > 0 ? (
             ranking.map((rankedUser) => (
               <RankingCard
                 key={rankedUser.user_id}

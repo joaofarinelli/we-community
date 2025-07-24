@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompany } from './useCompany';
 
 export const useCompanyRanking = (limit: number = 10) => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
 
   return useQuery({
-    queryKey: ['companyRanking', limit, user?.id],
+    queryKey: ['companyRanking', limit, company?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user || !company?.id) return [];
 
       const { data, error } = await supabase
         .from('user_points')
@@ -16,7 +18,8 @@ export const useCompanyRanking = (limit: number = 10) => {
           *,
           profiles!user_points_user_id_fkey(first_name, last_name, user_id)
         `)
-        .order('total_points', { ascending: false })
+        .eq('company_id', company.id)
+        .order('total_coins', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
@@ -29,52 +32,51 @@ export const useCompanyRanking = (limit: number = 10) => {
 
       return rankedData;
     },
-    enabled: !!user,
-    staleTime: 30000, // Cache for 30 seconds
+    enabled: !!user && !!company?.id,
+    staleTime: 60000, // Cache for 60 seconds
     refetchOnWindowFocus: false,
   });
 };
 
 export const useUserRankingPosition = () => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
 
   return useQuery({
-    queryKey: ['userRankingPosition', user?.id],
+    queryKey: ['userRankingPosition', user?.id, company?.id],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user || !company?.id) return null;
 
-      // Get user's current coins and level
-      const { data: userLevel } = await supabase
+      // Single optimized query using window function to get rank and total users
+      const { data, error } = await supabase
         .from('user_current_level')
         .select(`
           current_coins,
-          user_levels(level_name, level_color, level_icon, level_number)
+          user_levels(level_name, level_color, level_icon, level_number),
+          user_id
         `)
-        .eq('user_id', user.id)
-        .maybeSingle();
+        .eq('company_id', company.id)
+        .order('current_coins', { ascending: false });
 
-      if (!userLevel) return { rank: null, total_users: 0, points: 0, coins: 0, level: null };
+      if (error) throw error;
+      if (!data || data.length === 0) return { rank: null, total_users: 0, points: 0, coins: 0, level: null };
 
-      // Use a more efficient approach with count aggregation
-      const { count: usersAhead } = await supabase
-        .from('user_current_level')
-        .select('*', { count: 'exact', head: true })
-        .gt('current_coins', userLevel.current_coins);
+      // Find user's position and get their data
+      const userIndex = data.findIndex(item => item.user_id === user.id);
+      const userData = userIndex >= 0 ? data[userIndex] : null;
 
-      const { count: totalUsers } = await supabase
-        .from('user_current_level')
-        .select('*', { count: 'exact', head: true });
+      if (!userData) return { rank: null, total_users: data.length, points: 0, coins: 0, level: null };
 
       return {
-        rank: (usersAhead || 0) + 1,
-        total_users: totalUsers || 0,
-        points: userLevel.current_coins, // For backward compatibility
-        coins: userLevel.current_coins,
-        level: userLevel.user_levels
+        rank: userIndex + 1,
+        total_users: data.length,
+        points: userData.current_coins, // For backward compatibility
+        coins: userData.current_coins,
+        level: userData.user_levels
       };
     },
-    enabled: !!user,
-    staleTime: 30000, // Cache for 30 seconds
+    enabled: !!user && !!company?.id,
+    staleTime: 60000, // Cache for 60 seconds
     refetchOnWindowFocus: false,
   });
 };
