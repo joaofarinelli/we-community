@@ -241,6 +241,7 @@ export type Database = {
           button_text_color: string | null
           city: string | null
           cnpj: string | null
+          course_banner_url: string | null
           created_at: string
           id: string
           logo_url: string | null
@@ -262,6 +263,7 @@ export type Database = {
           button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
+          course_banner_url?: string | null
           created_at?: string
           id?: string
           logo_url?: string | null
@@ -283,6 +285,7 @@ export type Database = {
           button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
+          course_banner_url?: string | null
           created_at?: string
           id?: string
           logo_url?: string | null

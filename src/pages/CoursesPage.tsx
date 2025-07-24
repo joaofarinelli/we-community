@@ -3,6 +3,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CourseCard } from '@/components/courses/CourseCard';
+import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
@@ -54,6 +55,9 @@ export const CoursesPage = () => {
             </p>
           </div>
         </div>
+
+        {/* Course Banner */}
+        <CourseBannerSection />
 
         {/* Search */}
         <div className="relative max-w-md">
