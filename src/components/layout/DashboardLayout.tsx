@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { ThemeApplier } from '@/components/ThemeApplier';
+import { CompanyLogo } from '@/components/ui/company-logo';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -45,8 +46,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {isAdmin ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="text-xl font-semibold text-foreground hover:text-primary h-auto p-0">
-                    {company?.name || 'Minha Empresa'}
+                  <Button variant="ghost" className="text-xl font-semibold text-foreground hover:text-primary h-auto p-2">
+                    <CompanyLogo 
+                      fallbackText="Minha Empresa"
+                      textClassName="text-xl font-semibold"
+                      logoClassName="h-8 w-auto object-contain max-w-[120px]"
+                    />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56 bg-popover border-border z-50">
@@ -70,9 +75,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <h1 className="text-xl font-semibold text-foreground">
-                {company?.name || 'Minha Empresa'}
-              </h1>
+              <CompanyLogo 
+                fallbackText="Minha Empresa"
+                textClassName="text-xl font-semibold text-foreground"
+                logoClassName="h-8 w-auto object-contain max-w-[120px]"
+              />
             )}
           </div>
 

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { useCompany } from "@/hooks/useCompany";
+import { CompanyLogo } from "@/components/ui/company-logo";
 
 const mainItems = [
   { title: "Home", url: "/dashboard", icon: Home },
@@ -47,7 +48,11 @@ export function AppSidebar() {
             </div>
             {!collapsed && (
               <div className="animate-fade-in">
-                <h2 className="text-lg font-bold font-heading">{company?.name || "Minha Comunidade"}</h2>
+                <CompanyLogo 
+                  fallbackText="Minha Comunidade"
+                  textClassName="text-lg font-bold font-heading"
+                  logoClassName="h-8 w-auto object-contain max-w-[140px]"
+                />
                 <p className="text-sm text-muted-foreground font-medium">Comunidade Premium</p>
               </div>
             )}
