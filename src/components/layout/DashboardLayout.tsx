@@ -114,7 +114,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
             <UserPointsBadge />
             <IconButton icon={Bell} />
-            <IconButton icon={MessageCircle} />
             <IconButton icon={Users} />
             <UserDropdown 
               name={user?.user_metadata?.display_name}
