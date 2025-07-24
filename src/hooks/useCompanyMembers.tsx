@@ -48,7 +48,7 @@ export const useCompanyMembers = () => {
       const userIds = userRoles.map(role => role.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name, is_active')
+        .select('user_id, first_name, last_name, email, is_active')
         .in('user_id', userIds);
 
       if (profilesError) {
@@ -62,7 +62,7 @@ export const useCompanyMembers = () => {
         return {
           id: userRole.id,
           user_id: userRole.user_id,
-          email: userRole.user_id === user.id ? user.email : 'email@exemplo.com',
+          email: profile?.email || user.email || 'email@exemplo.com',
           display_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Nome não encontrado',
           avatar_url: userRole.user_id === user.id ? user.user_metadata?.avatar_url : null,
           created_at: userRole.created_at,
