@@ -10,6 +10,8 @@ import { useCompany } from '@/hooks/useCompany';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
+import { UserPostItem } from './UserPostItem';
 import { 
   User, 
   Mail, 
@@ -36,6 +38,8 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
   const { data: userPoints } = useUserPoints();
   const { data: userLevel } = useUserLevel();
   const { data: userProfile, isLoading } = useUserProfile();
+  const { data: userPosts = [] } = useUserPosts(user?.id || '');
+  const { data: userStats } = useUserStats(user?.id || '');
 
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
@@ -181,13 +185,13 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="sobre">Sobre</TabsTrigger>
                 <TabsTrigger value="publicacoes">
-                  Publicações {/* You can add count here if available */}
+                  Publicações ({userStats?.postsCount || 0})
                 </TabsTrigger>
                 <TabsTrigger value="comentarios">
-                  Comentários {/* You can add count here if available */}
+                  Comentários ({userStats?.commentsCount || 0})
                 </TabsTrigger>
                 <TabsTrigger value="espacos">
-                  Espaços {/* You can add count here if available */}
+                  Espaços
                 </TabsTrigger>
               </TabsList>
 
@@ -261,10 +265,25 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
               </TabsContent>
 
               <TabsContent value="publicacoes" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  <FileText className="h-12 w-12 mx-auto mb-4" />
-                  <p>Suas publicações aparecerão aqui</p>
-                </div>
+                {userPosts.length > 0 ? (
+                  <div className="space-y-3">
+                    {userPosts.map((post) => (
+                      <UserPostItem 
+                        key={post.id} 
+                        post={post}
+                        onClick={() => {
+                          // Navigate to post or space
+                          window.location.href = `/dashboard/space/${post.space_id}`;
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="h-12 w-12 mx-auto mb-4" />
+                    <p>Você ainda não fez nenhuma publicação</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="comentarios" className="mt-6">
