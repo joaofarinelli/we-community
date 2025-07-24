@@ -46,6 +46,9 @@ export const CoursesPage = () => {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
+        {/* Course Banner */}
+        <CourseBannerSection />
+        
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -55,9 +58,6 @@ export const CoursesPage = () => {
             </p>
           </div>
         </div>
-
-        {/* Course Banner */}
-        <CourseBannerSection />
 
         {/* Search */}
         <div className="relative max-w-md">
