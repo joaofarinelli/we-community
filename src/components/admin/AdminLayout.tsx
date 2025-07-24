@@ -71,6 +71,7 @@ const mainMenuItems = [
     key: 'gamification',
     subItems: [
       { label: 'Níveis', path: '/admin/levels' },
+      { label: 'Desafios', path: '/admin/challenges' },
       { label: 'Registros de atividades', path: '/admin/activity-logs' },
     ]
   },

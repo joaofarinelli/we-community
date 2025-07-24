@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy } from 'lucide-react';
+import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
@@ -62,6 +62,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <DropdownMenuItem onClick={() => navigate('/admin/users')}>
                     <Users className="mr-2 h-4 w-4" />
                     Gerenciar Usuários
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/challenges')}>
+                    <Target className="mr-2 h-4 w-4" />
+                    Gerenciar Desafios
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
