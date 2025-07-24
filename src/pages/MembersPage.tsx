@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
 import { Search, Users, Grid, List, Filter, User, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,6 +15,8 @@ import { cn } from '@/lib/utils';
 export const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [showUserProfile, setShowUserProfile] = useState(false);
   const { data: members, isLoading } = useCompanyMembers();
 
   const filteredMembers = members?.filter(member =>
@@ -52,12 +55,17 @@ export const MembersPage = () => {
     }
   };
 
+  const handleViewProfile = (userId: string) => {
+    setSelectedUserId(userId);
+    setShowUserProfile(true);
+  };
+
   const MemberHoverCard = ({ member, children }: { member: any; children: React.ReactNode }) => (
     <HoverCard>
       <HoverCardTrigger asChild>
         {children}
       </HoverCardTrigger>
-      <HoverCardContent className="w-80 p-4" side="top">
+      <HoverCardContent className="w-80 p-4" side="right" align="start" sideOffset={10}>
         <div className="flex items-start space-x-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={member.avatar_url} alt={member.display_name} />
@@ -85,7 +93,11 @@ export const MembersPage = () => {
               Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
             </div>
             
-            <Button size="sm" className="w-full mt-3">
+            <Button 
+              size="sm" 
+              className="w-full mt-3"
+              onClick={() => handleViewProfile(member.user_id)}
+            >
               <User className="h-4 w-4 mr-2" />
               Ver perfil
             </Button>
@@ -294,6 +306,13 @@ export const MembersPage = () => {
           </div>
         )}
       </div>
+
+      {/* User Profile Dialog */}
+      <OtherUserProfileDialog
+        userId={selectedUserId}
+        open={showUserProfile}
+        onOpenChange={setShowUserProfile}
+      />
     </DashboardLayout>
   );
 };
