@@ -64,6 +64,7 @@ const AppRoutes = () => {
       <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
       <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
       <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
+      <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
       <Route path="/courses/:courseId" element={<AuthGuard><CourseDetailPage /></AuthGuard>} />
       <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
       <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
