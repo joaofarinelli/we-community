@@ -10,6 +10,7 @@ export interface CompanyMember {
   avatar_url: string | null;
   created_at: string;
   role: string;
+  is_active: boolean;
 }
 
 export const useCompanyMembers = () => {
@@ -47,7 +48,7 @@ export const useCompanyMembers = () => {
       const userIds = userRoles.map(role => role.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name')
+        .select('user_id, first_name, last_name, is_active')
         .in('user_id', userIds);
 
       if (profilesError) {
@@ -65,7 +66,8 @@ export const useCompanyMembers = () => {
           display_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Nome não encontrado',
           avatar_url: userRole.user_id === user.id ? user.user_metadata?.avatar_url : null,
           created_at: userRole.created_at,
-          role: userRole.role
+          role: userRole.role,
+          is_active: profile?.is_active ?? true
         };
       }) as CompanyMember[];
     },

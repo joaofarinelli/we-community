@@ -819,6 +819,7 @@ export type Database = {
           email: string | null
           first_name: string
           id: string
+          is_active: boolean
           last_name: string
           phone: string | null
           role: string | null
@@ -831,6 +832,7 @@ export type Database = {
           email?: string | null
           first_name: string
           id?: string
+          is_active?: boolean
           last_name: string
           phone?: string | null
           role?: string | null
@@ -843,6 +845,7 @@ export type Database = {
           email?: string | null
           first_name?: string
           id?: string
+          is_active?: boolean
           last_name?: string
           phone?: string | null
           role?: string | null
@@ -1411,6 +1414,10 @@ export type Database = {
       }
       is_space_member: {
         Args: { space_id: string; user_id: string }
+        Returns: boolean
+      }
+      is_user_active: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       process_challenge_reward: {

@@ -10,18 +10,27 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCompanyMembers, CompanyMember } from '@/hooks/useCompanyMembers';
 import { useUserTags } from '@/hooks/useUserTags';
+import { useManageUserStatus } from '@/hooks/useManageUserStatus';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, Edit, Trash2, UserPlus } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
 
 export const AdminUsersPage = () => {
   const navigate = useNavigate();
   const { data: members, isLoading } = useCompanyMembers();
+  const { toggleUserStatus } = useManageUserStatus();
 
   const handleEditMember = (member: CompanyMember) => {
     navigate(`/admin/users/${member.user_id}/edit`);
+  };
+
+  const handleToggleUserStatus = (member: CompanyMember) => {
+    toggleUserStatus.mutate({ 
+      userId: member.user_id, 
+      isActive: !member.is_active 
+    });
   };
 
   const handleDeleteMember = (memberId: string) => {
@@ -167,8 +176,14 @@ export const AdminUsersPage = () => {
                         {format(new Date(member.created_at), 'dd/MM/yyyy', { locale: ptBR })}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-green-600 border-green-600">
-                          Ativo
+                        <Badge 
+                          variant="outline" 
+                          className={member.is_active 
+                            ? "text-green-600 border-green-600" 
+                            : "text-red-600 border-red-600"
+                          }
+                        >
+                          {member.is_active ? 'Ativo' : 'Inativo'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -182,6 +197,19 @@ export const AdminUsersPage = () => {
                             <DropdownMenuItem onClick={() => handleEditMember(member)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleUserStatus(member)}>
+                              {member.is_active ? (
+                                <>
+                                  <UserX className="h-4 w-4 mr-2" />
+                                  Inativar
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="h-4 w-4 mr-2" />
+                                  Ativar
+                                </>
+                              )}
                             </DropdownMenuItem>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
