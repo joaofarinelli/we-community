@@ -14,6 +14,211 @@ export type Database = {
   }
   public: {
     Tables: {
+      challenge_files: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          mime_type: string | null
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          mime_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_files_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_progress: {
+        Row: {
+          challenge_id: string
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean
+          progress_value: number
+          target_value: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          progress_value?: number
+          target_value: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean
+          progress_value?: number
+          target_value?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_progress_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_rewards: {
+        Row: {
+          challenge_id: string
+          claimed_at: string
+          company_id: string
+          created_at: string
+          id: string
+          reward_details: Json
+          reward_type: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          claimed_at?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          reward_details?: Json
+          reward_type: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          claimed_at?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          reward_details?: Json
+          reward_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_rewards_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenge_rewards_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          challenge_type: Database["public"]["Enums"]["challenge_type"]
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          max_participants: number | null
+          order_index: number
+          requirements: Json
+          reward_type: Database["public"]["Enums"]["reward_type"]
+          reward_value: Json
+          start_date: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          challenge_type: Database["public"]["Enums"]["challenge_type"]
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_participants?: number | null
+          order_index?: number
+          requirements?: Json
+          reward_type: Database["public"]["Enums"]["reward_type"]
+          reward_value?: Json
+          start_date?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          challenge_type?: Database["public"]["Enums"]["challenge_type"]
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_participants?: number | null
+          order_index?: number
+          requirements?: Json
+          reward_type?: Database["public"]["Enums"]["reward_type"]
+          reward_value?: Json
+          start_date?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenges_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string | null
@@ -1192,6 +1397,14 @@ export type Database = {
         Args: { space_id: string; user_id: string }
         Returns: boolean
       }
+      process_challenge_reward: {
+        Args: {
+          p_challenge_id: string
+          p_user_id: string
+          p_company_id: string
+        }
+        Returns: undefined
+      }
       process_marketplace_purchase: {
         Args: {
           p_user_id: string
@@ -1211,9 +1424,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_challenge_progress: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_challenge_type: Database["public"]["Enums"]["challenge_type"]
+          p_increment?: number
+          p_reference_id?: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      challenge_type:
+        | "course_completion"
+        | "post_creation"
+        | "marketplace_purchase"
+        | "custom_action"
+        | "points_accumulation"
+      reward_type:
+        | "coins"
+        | "course_access"
+        | "file_download"
+        | "marketplace_item"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1340,6 +1573,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      challenge_type: [
+        "course_completion",
+        "post_creation",
+        "marketplace_purchase",
+        "custom_action",
+        "points_accumulation",
+      ],
+      reward_type: [
+        "coins",
+        "course_access",
+        "file_download",
+        "marketplace_item",
+      ],
+    },
   },
 } as const
