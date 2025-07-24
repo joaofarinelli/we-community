@@ -32,6 +32,7 @@ import MyItemsPage from "./pages/MyItemsPage";
 import { MembersPage } from "./pages/MembersPage";
 import { AdminChallengesPage } from "./pages/admin/AdminChallengesPage";
 import { ChallengesPage } from "./pages/ChallengesPage";
+import { BankPage } from "./pages/BankPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -75,6 +76,7 @@ const AppRoutes = () => {
       <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
       <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
       <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
+      <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

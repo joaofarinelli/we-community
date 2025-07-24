@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, BookOpen, Calendar, Trophy, Plus, Download, Smartphone, ShoppingBag, Target } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, Trophy, Plus, Download, Smartphone, ShoppingBag, Target, Wallet } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -22,6 +22,7 @@ const mainItems = [
   { title: "Events", url: "/dashboard/events", icon: Calendar },
   { title: "Members", url: "/dashboard/members", icon: Users },
   { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
+  { title: "Banco", url: "/dashboard/bank", icon: Wallet },
   { title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag },
   { title: "Desafios", url: "/dashboard/challenges", icon: Target },
 ];
