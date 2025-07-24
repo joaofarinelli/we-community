@@ -22,8 +22,8 @@ const mainItems = [
   { title: "Events", url: "/dashboard/events", icon: Calendar },
   { title: "Members", url: "/dashboard/members", icon: Users },
   { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
-  { title: "Banco", url: "/dashboard/bank", icon: Wallet },
   { title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag },
+  { title: "Banco", url: "/dashboard/bank", icon: Wallet },
   { title: "Desafios", url: "/dashboard/challenges", icon: Target },
 ];
 
