@@ -35,8 +35,15 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/auth');
+    try {
+      await signOut();
+    } catch (error) {
+      // Even if signOut fails, we still want to redirect to auth page
+      console.error('Logout error:', error);
+    } finally {
+      // Always redirect to auth page regardless of logout success/failure
+      navigate('/auth');
+    }
   };
 
   return (
