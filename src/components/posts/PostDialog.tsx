@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
-import { TipTapEditor } from './TipTapEditor';
+import { TipTapEditor, TipTapEditorRef } from './TipTapEditor';
 import { EditorToolbar } from './EditorToolbar';
+import { EditorEmojiPicker } from './EditorEmojiPicker';
 import { SpaceSelector } from './SpaceSelector';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,6 +36,7 @@ export const PostDialog = ({
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedSpaceId, setSelectedSpaceId] = useState(initialSpaceId || '');
+  const editorRef = useRef<TipTapEditorRef>(null);
   
   const { user } = useAuth();
   const { data: company } = useCompany();
@@ -91,6 +93,10 @@ export const PostDialog = ({
     setTitle('');
     setContent('');
     setSelectedSpaceId(initialSpaceId || '');
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    editorRef.current?.insertEmoji(emoji);
   };
 
   const handleSubmit = () => {
@@ -169,6 +175,7 @@ export const PostDialog = ({
           {/* Editor de conteúdo */}
           <div className="flex-1 min-h-[300px]">
             <TipTapEditor
+              ref={editorRef}
               content={content}
               onChange={setContent}
               placeholder="Escreva algo..."
@@ -176,8 +183,12 @@ export const PostDialog = ({
             />
           </div>
 
-          {/* Barra de ferramentas */}
-          <EditorToolbar />
+          {/* Barra de ferramentas com emoji picker */}
+          <div className="flex items-center justify-between p-2 border-t border-border bg-muted/30">
+            <div className="flex items-center gap-1">
+              <EditorEmojiPicker onEmojiSelect={handleEmojiSelect} />
+            </div>
+          </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between p-4 border-t border-border bg-muted/30">

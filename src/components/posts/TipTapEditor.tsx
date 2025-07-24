@@ -8,7 +8,11 @@ import tippy from 'tippy.js';
 import { cn } from '@/lib/utils';
 import { useCompanyUsers, CompanyUser } from '@/hooks/useCompanyUsers';
 import { MentionSuggestion, MentionSuggestionRef } from './MentionSuggestion';
-import { useState } from 'react';
+import { useState, useImperativeHandle, forwardRef } from 'react';
+
+export interface TipTapEditorRef {
+  insertEmoji: (emoji: string) => void;
+}
 
 interface TipTapEditorProps {
   content: string;
@@ -17,12 +21,12 @@ interface TipTapEditorProps {
   className?: string;
 }
 
-export const TipTapEditor = ({ 
+export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({ 
   content, 
   onChange, 
   placeholder = "Escreva algo...", 
   className 
-}: TipTapEditorProps) => {
+}, ref) => {
   const [mentionQuery, setMentionQuery] = useState('');
   const { data: users = [] } = useCompanyUsers(mentionQuery);
 
@@ -119,6 +123,14 @@ export const TipTapEditor = ({
     },
   });
 
+  useImperativeHandle(ref, () => ({
+    insertEmoji: (emoji: string) => {
+      if (editor) {
+        editor.chain().focus().insertContent(emoji).run();
+      }
+    },
+  }));
+
   return (
     <div className="w-full">
       <EditorContent 
@@ -127,4 +139,4 @@ export const TipTapEditor = ({
       />
     </div>
   );
-};
+});
