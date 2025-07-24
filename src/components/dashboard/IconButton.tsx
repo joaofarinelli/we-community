@@ -14,5 +14,14 @@ export function IconButton({
   size = 'sm',
   className
 }: IconButtonProps) {
-  return;
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      onClick={onClick}
+      className={className}
+    >
+      <Icon className="h-4 w-4" />
+    </Button>
+  );
 }
