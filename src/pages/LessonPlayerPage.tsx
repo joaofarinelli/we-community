@@ -243,7 +243,7 @@ export const LessonPlayerPage = () => {
                   )}
                 </div>
               </CardHeader>
-              {lesson.duration && (
+              {lesson.duration && lesson.duration > 0 && (
                 <CardContent>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Clock className="h-4 w-4" />
@@ -296,7 +296,7 @@ export const LessonPlayerPage = () => {
                             }`}>
                               {l.title}
                             </p>
-                            {l.duration && (
+                            {l.duration && l.duration > 0 && (
                               <p className="text-xs text-muted-foreground">
                                 {formatDuration(l.duration)}
                               </p>
