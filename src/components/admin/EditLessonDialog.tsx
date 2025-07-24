@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { useUpdateLesson } from '@/hooks/useManageCourses';
 
@@ -28,6 +29,7 @@ const lessonSchema = z.object({
   content: z.string().optional(),
   video_url: z.string().url('URL deve ser válida').optional().or(z.literal('')),
   duration: z.number().min(0, 'Duração deve ser positiva').optional(),
+  difficulty_level: z.enum(['beginner', 'intermediate', 'advanced']),
 });
 
 type LessonFormData = z.infer<typeof lessonSchema>;
@@ -50,6 +52,7 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
       content: '',
       video_url: '',
       duration: 0,
+      difficulty_level: 'beginner',
     }
   });
 
@@ -61,6 +64,7 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
         content: lesson.content || '',
         video_url: lesson.video_url || '',
         duration: lesson.duration || 0,
+        difficulty_level: (lesson as any).difficulty_level || 'beginner',
       });
     }
   }, [lesson, form]);
@@ -78,6 +82,7 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
         content: data.content || undefined,
         video_url: data.video_url || undefined,
         duration: data.duration || undefined,
+        difficulty_level: data.difficulty_level,
       });
       onOpenChange(false);
     } catch (error) {
@@ -167,6 +172,29 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
                       onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="difficulty_level"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nível de Dificuldade</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o nível de dificuldade" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="beginner">Iniciante</SelectItem>
+                      <SelectItem value="intermediate">Intermediário</SelectItem>
+                      <SelectItem value="advanced">Avançado</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

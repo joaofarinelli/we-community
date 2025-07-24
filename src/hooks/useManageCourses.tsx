@@ -195,6 +195,7 @@ export const useCreateLesson = () => {
       video_url?: string;
       duration?: number;
       order_index?: number;
+      difficulty_level?: string;
     }) => {
       const { data, error } = await supabase
         .from('course_lessons')
@@ -229,6 +230,7 @@ export const useUpdateLesson = () => {
       video_url?: string;
       duration?: number;
       order_index?: number;
+      difficulty_level?: string;
     }) => {
       const { data, error } = await supabase
         .from('course_lessons')

@@ -309,6 +309,7 @@ export type Database = {
           content: string | null
           created_at: string
           description: string | null
+          difficulty_level: string | null
           duration: number | null
           id: string
           module_id: string
@@ -321,6 +322,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           description?: string | null
+          difficulty_level?: string | null
           duration?: number | null
           id?: string
           module_id: string
@@ -333,6 +335,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           description?: string | null
+          difficulty_level?: string | null
           duration?: number | null
           id?: string
           module_id?: string
@@ -432,6 +435,51 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lesson_id: string
+          parent_comment_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lesson_id: string
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          parent_comment_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_comments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "course_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_comments"
             referencedColumns: ["id"]
           },
         ]

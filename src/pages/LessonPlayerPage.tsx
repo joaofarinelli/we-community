@@ -10,6 +10,8 @@ import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useUserCourseProgress, useMarkLessonComplete } from '@/hooks/useUserCourseProgress';
 import { ArrowLeft, CheckCircle, Play, FileText, Video, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { DifficultyBadge } from '@/components/courses/DifficultyBadge';
+import { LessonComments } from '@/components/courses/LessonComments';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -243,14 +245,19 @@ export const LessonPlayerPage = () => {
                   )}
                 </div>
               </CardHeader>
-              {lesson.duration && lesson.duration > 0 && (
-                <CardContent>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{formatDuration(lesson.duration)}</span>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {lesson.duration && lesson.duration > 0 && (
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>{formatDuration(lesson.duration)}</span>
+                      </div>
+                    )}
+                    <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
                   </div>
-                </CardContent>
-              )}
+                </div>
+              </CardContent>
             </Card>
 
             {/* Module Progress */}
@@ -308,10 +315,15 @@ export const LessonPlayerPage = () => {
                   })}
                 </div>
               </CardContent>
-            </Card>
+              </Card>
+            </div>
+
+            {/* Comments Section */}
+            <div className="mt-8">
+              <LessonComments lessonId={lessonId!} />
+            </div>
           </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
   );
 };
