@@ -18,6 +18,7 @@ import { DeletePostDialog } from './DeletePostDialog';
 import { EditPostDialog } from './EditPostDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { UserTagsDisplay } from './UserTagsDisplay';
+import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 
 interface Post {
   id: string;
@@ -42,6 +43,8 @@ export const PostCard = ({ post }: PostCardProps) => {
   const { user } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showUserProfile, setShowUserProfile] = useState(false);
+  
   const authorName = post.profiles 
     ? `${post.profiles.first_name} ${post.profiles.last_name}`
     : 'Usuário';
@@ -53,13 +56,22 @@ export const PostCard = ({ post }: PostCardProps) => {
   // Only show menu for post author
   const isAuthor = user?.id === post.author_id;
 
+  const handleUserClick = () => {
+    if (post.author_id !== user?.id) {
+      setShowUserProfile(true);
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
         {/* Header do Post */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-10 w-10">
+            <Avatar 
+              className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+              onClick={handleUserClick}
+            >
               <AvatarImage src="" />
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
                 {authorInitials}
@@ -68,7 +80,12 @@ export const PostCard = ({ post }: PostCardProps) => {
             
             <div className="flex-1">
               <div className="flex items-center space-x-2 flex-wrap">
-                <h4 className="font-medium text-foreground">{authorName}</h4>
+                <h4 
+                  className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors" 
+                  onClick={handleUserClick}
+                >
+                  {authorName}
+                </h4>
                 <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
                 {post.is_pinned && (
                   <Pin className="h-4 w-4 text-primary" />
@@ -140,6 +157,12 @@ export const PostCard = ({ post }: PostCardProps) => {
           postId={post.id}
           initialTitle={post.title}
           initialContent={post.content}
+        />
+
+        <OtherUserProfileDialog
+          userId={post.author_id}
+          open={showUserProfile}
+          onOpenChange={setShowUserProfile}
         />
       </CardContent>
     </Card>
