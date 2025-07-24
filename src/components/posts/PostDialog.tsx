@@ -6,6 +6,8 @@ import { X } from 'lucide-react';
 import { TipTapEditor, TipTapEditorRef } from './TipTapEditor';
 import { EditorToolbar } from './EditorToolbar';
 import { EditorEmojiPicker } from './EditorEmojiPicker';
+import { ImageUploadButton } from './ImageUploadButton';
+import { DocumentUploadButton } from './DocumentUploadButton';
 import { SpaceSelector } from './SpaceSelector';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -99,6 +101,14 @@ export const PostDialog = ({
     editorRef.current?.insertEmoji(emoji);
   };
 
+  const handleImageUpload = (url: string) => {
+    editorRef.current?.insertImage(url);
+  };
+
+  const handleDocumentUpload = (url: string, name: string) => {
+    editorRef.current?.insertDocument(url, name);
+  };
+
   const handleSubmit = () => {
     if (!content.trim()) {
       toast.error('O conteúdo é obrigatório');
@@ -183,9 +193,11 @@ export const PostDialog = ({
             />
           </div>
 
-          {/* Barra de ferramentas com emoji picker */}
+          {/* Barra de ferramentas com emoji picker, upload de imagem e documento */}
           <div className="flex items-center justify-between p-2 border-t border-border bg-muted/30">
             <div className="flex items-center gap-1">
+              <DocumentUploadButton onDocumentUpload={handleDocumentUpload} />
+              <ImageUploadButton onImageUpload={handleImageUpload} />
               <EditorEmojiPicker onEmojiSelect={handleEmojiSelect} />
             </div>
           </div>

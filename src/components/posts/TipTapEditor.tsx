@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
 import Mention from '@tiptap/extension-mention';
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
@@ -12,6 +13,8 @@ import { useState, useImperativeHandle, forwardRef } from 'react';
 
 export interface TipTapEditorRef {
   insertEmoji: (emoji: string) => void;
+  insertImage: (url: string, alt?: string) => void;
+  insertDocument: (url: string, name: string) => void;
 }
 
 interface TipTapEditorProps {
@@ -33,6 +36,11 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Image.configure({
+        HTMLAttributes: {
+          class: 'max-w-full h-auto rounded-lg',
+        },
+      }),
       Placeholder.configure({
         placeholder,
       }),
@@ -127,6 +135,19 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     insertEmoji: (emoji: string) => {
       if (editor) {
         editor.chain().focus().insertContent(emoji).run();
+      }
+    },
+    insertImage: (url: string, alt?: string) => {
+      if (editor) {
+        editor.chain().focus().setImage({ src: url, alt: alt || '' }).run();
+      }
+    },
+    insertDocument: (url: string, name: string) => {
+      if (editor) {
+        const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 bg-muted rounded-md text-sm font-medium hover:bg-muted/80 transition-colors">
+          📎 ${name}
+        </a>`;
+        editor.chain().focus().insertContent(linkHtml).run();
       }
     },
   }));
