@@ -167,13 +167,13 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
                       key={emoji}
                       type="button"
                       onClick={() => setSelectedEmoji(emoji)}
-                      className={`p-2 text-lg rounded-md border transition-colors ${
-                        selectedEmoji === emoji 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      {emoji}
+                       className={`p-2 text-lg rounded-md border transition-colors apple-emoji ${
+                         selectedEmoji === emoji 
+                           ? 'border-primary bg-primary/10' 
+                           : 'border-border hover:border-primary/50'
+                       }`}
+                     >
+                       {emoji}
                     </button>
                   ))}
                 </div>
@@ -183,7 +183,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
                     value={selectedEmoji}
                     onChange={(e) => setSelectedEmoji(e.target.value)}
                     placeholder="Digite um emoji..."
-                    className="text-center text-lg"
+                    className="text-center text-lg apple-emoji"
                   />
                 </div>
               </TabsContent>

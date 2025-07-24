@@ -71,7 +71,7 @@ export const renderSpaceIcon = (
   const iconClass = className || "h-5 w-5";
   
   if (customIconType === 'emoji' && customIconValue) {
-    return React.createElement('span', { className: 'text-lg' }, customIconValue);
+    return React.createElement('span', { className: 'text-lg apple-emoji' }, customIconValue);
   }
   
   if (customIconType === 'image' && customIconValue) {
@@ -84,7 +84,7 @@ export const renderSpaceIcon = (
   
   // Default icon - use 🔵 emoji as default
   if (!customIconType || customIconType === 'default') {
-    return React.createElement('span', { className: 'text-lg' }, '🔵');
+    return React.createElement('span', { className: 'text-lg apple-emoji' }, '🔵');
   }
   
   const DefaultIcon = getSpaceIcon(type);

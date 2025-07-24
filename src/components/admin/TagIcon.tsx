@@ -18,7 +18,7 @@ export const TagIcon = ({ tag, size = 'md' }: TagIconProps) => {
 
   if (tag.icon_type === 'emoji') {
     return (
-      <span className={`inline-flex items-center justify-center mr-1 ${sizeClasses[size]}`}>
+      <span className={`inline-flex items-center justify-center mr-1 apple-emoji ${sizeClasses[size]}`}>
         {tag.icon_value}
       </span>
     );

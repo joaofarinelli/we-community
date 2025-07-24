@@ -54,6 +54,7 @@ export const PostContent = ({ content, className }: PostContentProps) => {
           'prose-a:text-primary hover:prose-a:text-primary/80',
           'prose-blockquote:text-muted-foreground prose-blockquote:border-border',
           'prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded',
+          '[&_.apple-emoji]:font-emoji',
           'focus:outline-none',
           className
         ),

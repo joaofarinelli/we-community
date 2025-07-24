@@ -23,7 +23,7 @@ export const EmojiPickerComponent = ({ value, onChange, placeholder = "Seleciona
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-start">
           {value ? (
-            <span className="text-lg mr-2">{value}</span>
+            <span className="text-lg mr-2 apple-emoji">{value}</span>
           ) : (
             <Smile className="h-4 w-4 mr-2" />
           )}

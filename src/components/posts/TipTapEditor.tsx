@@ -134,7 +134,7 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   useImperativeHandle(ref, () => ({
     insertEmoji: (emoji: string) => {
       if (editor) {
-        editor.chain().focus().insertContent(emoji).run();
+        editor.chain().focus().insertContent(`<span class="apple-emoji">${emoji}</span>`).run();
       }
     },
     insertImage: (url: string, alt?: string) => {
@@ -148,7 +148,7 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     insertDocument: (url: string, name: string) => {
       if (editor) {
         const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3 py-2 bg-muted rounded-md text-sm font-medium hover:bg-muted/80 transition-colors">
-          📎 ${name}
+          <span class="apple-emoji">📎</span> ${name}
         </a>`;
         editor.chain().focus().insertContent(linkHtml).run();
       }

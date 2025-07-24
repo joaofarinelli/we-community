@@ -21,6 +21,7 @@ export default {
 			fontFamily: {
 				sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
 				inter: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+				emoji: ["var(--font-emoji)"],
 			},
 			letterSpacing: {
 				tighter: "var(--letter-spacing-tight)",

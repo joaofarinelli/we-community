@@ -9,6 +9,9 @@
     /* Inter Font for Everything */
     --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     
+    /* Apple Emoji Font Stack for Cross-Platform Consistency */
+    --font-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Android Emoji", "EmojiSymbols", "EmojiOne Color", "Twemoji Mozilla", "Segoe UI Symbol", "Noto Emoji", emoji;
+    
     /* Enhanced Spacing */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
@@ -294,6 +297,11 @@
   
   .animate-float {
     animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Apple Emoji Font Class for Platform Consistency */
+  .apple-emoji {
+    font-family: var(--font-emoji);
   }
   
   @keyframes float {
