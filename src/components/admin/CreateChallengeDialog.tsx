@@ -5,7 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { useCreateChallenge } from '@/hooks/useManageChallenges';
+import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { Plus, Coins, BookOpen, Download, Package } from 'lucide-react';
 
 export const CreateChallengeDialog = () => {
@@ -18,8 +21,12 @@ export const CreateChallengeDialog = () => {
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const [maxParticipants, setMaxParticipants] = useState<number | undefined>();
   const [endDate, setEndDate] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [isAvailableForAllLevels, setIsAvailableForAllLevels] = useState<boolean>(true);
+  const [requiredLevelId, setRequiredLevelId] = useState<string>('');
 
   const createChallenge = useCreateChallenge();
+  const { data: levels } = useCompanyLevels();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +41,10 @@ export const CreateChallengeDialog = () => {
       reward_type: rewardType as any,
       reward_value: { amount: rewardAmount },
       max_participants: maxParticipants,
-      end_date: endDate || undefined
+      end_date: endDate || undefined,
+      image_url: imageUrl || undefined,
+      is_available_for_all_levels: isAvailableForAllLevels,
+      required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined
     };
 
     try {
@@ -49,6 +59,9 @@ export const CreateChallengeDialog = () => {
       setRewardAmount(0);
       setMaxParticipants(undefined);
       setEndDate('');
+      setImageUrl('');
+      setIsAvailableForAllLevels(true);
+      setRequiredLevelId('');
     } catch (error) {
       console.error('Error creating challenge:', error);
     }
@@ -207,6 +220,45 @@ export const CreateChallengeDialog = () => {
               />
             </div>
           )}
+
+          <div className="space-y-2">
+            <Label>Imagem do Desafio (opcional)</Label>
+            <ImageUpload
+              value={imageUrl}
+              onChange={setImageUrl}
+              onRemove={() => setImageUrl('')}
+              bucketName="challenge-images"
+            />
+          </div>
+
+          <div className="space-y-4 border rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="allLevels"
+                checked={isAvailableForAllLevels}
+                onCheckedChange={setIsAvailableForAllLevels}
+              />
+              <Label htmlFor="allLevels">Disponível para todos os níveis</Label>
+            </div>
+
+            {!isAvailableForAllLevels && (
+              <div className="space-y-2">
+                <Label>Nível Mínimo Requerido</Label>
+                <Select value={requiredLevelId} onValueChange={setRequiredLevelId} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o nível mínimo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {levels?.map((level) => (
+                      <SelectItem key={level.id} value={level.id}>
+                        {level.level_name} (Nível {level.level_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

@@ -162,6 +162,15 @@ export const AdminChallengesPage = () => {
             
             return (
               <Card key={challenge.id}>
+                {challenge.image_url && (
+                  <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                    <img 
+                      src={challenge.image_url} 
+                      alt={challenge.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
@@ -177,6 +186,11 @@ export const AdminChallengesPage = () => {
                           <Badge variant="outline">
                             {formatChallengeType(challenge.challenge_type)}
                           </Badge>
+                          {!challenge.is_available_for_all_levels && (
+                            <Badge variant="secondary" className="text-xs">
+                              Nível específico
+                            </Badge>
+                          )}
                         </div>
                       </div>
                     </div>

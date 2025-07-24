@@ -148,6 +148,15 @@ export const ChallengesPage = () => {
 
                   return (
                     <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
+                      {challenge.image_url && (
+                        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                          <img 
+                            src={challenge.image_url} 
+                            alt={challenge.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-center space-x-3">
@@ -156,9 +165,16 @@ export const ChallengesPage = () => {
                             </div>
                             <div>
                               <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                              <Badge variant="outline" className="mt-1">
-                                {formatChallengeType(challenge.challenge_type)}
-                              </Badge>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline">
+                                  {formatChallengeType(challenge.challenge_type)}
+                                </Badge>
+                                {!challenge.is_available_for_all_levels && challenge.required_level && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Nível {challenge.required_level.level_number}+
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -220,6 +236,15 @@ export const ChallengesPage = () => {
 
                   return (
                     <Card key={challenge.id} className="border-green-200 bg-green-50/50">
+                      {challenge.image_url && (
+                        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                          <img 
+                            src={challenge.image_url} 
+                            alt={challenge.title}
+                            className="w-full h-full object-cover opacity-75"
+                          />
+                        </div>
+                      )}
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-center space-x-3">
@@ -228,9 +253,16 @@ export const ChallengesPage = () => {
                             </div>
                             <div>
                               <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                              <Badge variant="outline" className="mt-1 border-green-600 text-green-600">
-                                Concluído
-                              </Badge>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="border-green-600 text-green-600">
+                                  Concluído
+                                </Badge>
+                                {!challenge.is_available_for_all_levels && challenge.required_level && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    Nível {challenge.required_level.level_number}+
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center space-x-1">

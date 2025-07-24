@@ -163,9 +163,12 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          image_url: string | null
           is_active: boolean
+          is_available_for_all_levels: boolean
           max_participants: number | null
           order_index: number
+          required_level_id: string | null
           requirements: Json
           reward_type: Database["public"]["Enums"]["reward_type"]
           reward_value: Json
@@ -181,9 +184,12 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          is_available_for_all_levels?: boolean
           max_participants?: number | null
           order_index?: number
+          required_level_id?: string | null
           requirements?: Json
           reward_type: Database["public"]["Enums"]["reward_type"]
           reward_value?: Json
@@ -199,9 +205,12 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          is_available_for_all_levels?: boolean
           max_participants?: number | null
           order_index?: number
+          required_level_id?: string | null
           requirements?: Json
           reward_type?: Database["public"]["Enums"]["reward_type"]
           reward_value?: Json
@@ -215,6 +224,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "challenges_required_level_id_fkey"
+            columns: ["required_level_id"]
+            isOneToOne: false
+            referencedRelation: "user_levels"
             referencedColumns: ["id"]
           },
         ]
