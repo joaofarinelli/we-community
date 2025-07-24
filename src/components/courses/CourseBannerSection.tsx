@@ -10,6 +10,10 @@ export const CourseBannerSection = () => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving } = useCourseBanner();
   const { data: userRole } = useUserRole();
   const isOwner = userRole?.role === 'owner';
+  
+  console.log('CourseBannerSection - userRole:', userRole);
+  console.log('CourseBannerSection - isOwner:', isOwner);
+  console.log('CourseBannerSection - bannerUrl:', bannerUrl);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
