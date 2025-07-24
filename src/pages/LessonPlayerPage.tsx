@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { DifficultyBadge } from '@/components/courses/DifficultyBadge';
 import { LessonComments } from '@/components/courses/LessonComments';
 import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
+import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -257,7 +258,10 @@ export const LessonPlayerPage = () => {
                     )}
                     <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
                   </div>
-                  <LessonLikeButton lessonId={lessonId!} />
+                  <div className="flex items-center gap-2">
+                    <LessonFavoriteButton lessonId={lessonId!} />
+                    <LessonLikeButton lessonId={lessonId!} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
