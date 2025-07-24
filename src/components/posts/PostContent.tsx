@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Mention from '@tiptap/extension-mention';
+import ResizeImage from 'tiptap-extension-resize-image';
 import { cn } from '@/lib/utils';
 
 interface PostContentProps {
@@ -13,6 +14,7 @@ export const PostContent = ({ content, className }: PostContentProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      ResizeImage,
       Link.configure({
         openOnClick: true,
         HTMLAttributes: {
