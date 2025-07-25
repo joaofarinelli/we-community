@@ -3,11 +3,13 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import ResizeImage from 'tiptap-extension-resize-image';
 import Mention from '@tiptap/extension-mention';
+import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
 import { ReactRenderer } from '@tiptap/react';
 import tippy from 'tippy.js';
 import { cn } from '@/lib/utils';
 import { useCompanyUsers, CompanyUser } from '@/hooks/useCompanyUsers';
 import { MentionSuggestion, MentionSuggestionRef } from './MentionSuggestion';
+import { EditorBubbleMenu } from './EditorBubbleMenu';
 import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 
 export interface TipTapEditorRef {
@@ -30,11 +32,13 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   className 
 }, ref) => {
   const [mentionQuery, setMentionQuery] = useState('');
+  const [showBubbleMenu, setShowBubbleMenu] = useState(false);
   const { data: users = [] } = useCompanyUsers(mentionQuery);
 
   const editor = useEditor({
     extensions: [
       StarterKit,
+      BubbleMenuExtension,
       ResizeImage.configure({
         HTMLAttributes: {
           class: 'max-w-full h-auto rounded-lg',
@@ -116,6 +120,9 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
+    onSelectionUpdate: ({ editor }) => {
+      setShowBubbleMenu(!editor.state.selection.empty);
+    },
     editorProps: {
       attributes: {
         class: cn(
@@ -158,7 +165,8 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   }));
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {editor && showBubbleMenu && <EditorBubbleMenu editor={editor} />}
       <EditorContent 
         editor={editor} 
         className="w-full min-h-[200px] border-none outline-none"
