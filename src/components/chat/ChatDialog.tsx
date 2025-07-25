@@ -41,7 +41,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
           </Button>
         )}
       </DrawerTrigger>
-      <DrawerContent className="h-[90vh] max-w-6xl mx-auto p-0">
+      <DrawerContent className="h-[90vh] w-full p-0">
         <div className="flex h-full">
           {/* Sidebar esquerda - Lista de conversas */}
           <div className="w-80 border-r border-border">
