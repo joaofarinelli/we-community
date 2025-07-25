@@ -56,6 +56,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
               conversations={conversations}
               selectedConversationId={selectedConversationId}
               onSelectConversation={(conversationId, userId) => {
+                console.log('🎬 ChatDialog selecting conversation:', { conversationId, userId });
                 setSelectedConversationId(conversationId);
                 setSelectedUserId(userId);
               }}

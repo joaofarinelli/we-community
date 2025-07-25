@@ -64,6 +64,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         <div className="p-4 border-b border-border bg-muted/20">
           <ChatUserSearch 
             onSelectUser={(userId, conversationId) => {
+              console.log('🎯 ChatSidebar received:', { userId, conversationId });
               setShowUserSearch(false);
               onSelectConversation(conversationId, userId);
             }}

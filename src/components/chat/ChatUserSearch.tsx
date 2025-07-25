@@ -20,7 +20,9 @@ export const ChatUserSearch: React.FC<ChatUserSearchProps> = ({ onSelectUser }) 
 
   const handleSelectUser = async (userId: string) => {
     try {
+      console.log('🚀 Creating conversation with user:', userId);
       const conversationId = await createConversation.mutateAsync(userId);
+      console.log('✅ Conversation created with ID:', conversationId);
       onSelectUser(userId, conversationId);
       setSearchTerm('');
       toast({
@@ -28,7 +30,7 @@ export const ChatUserSearch: React.FC<ChatUserSearchProps> = ({ onSelectUser }) 
         description: "Você pode começar a conversar agora.",
       });
     } catch (error) {
-      console.error('Error creating conversation:', error);
+      console.error('❌ Error creating conversation:', error);
       toast({
         title: "Erro",
         description: "Não foi possível iniciar a conversa.",
