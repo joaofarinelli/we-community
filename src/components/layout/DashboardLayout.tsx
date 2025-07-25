@@ -95,7 +95,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             >
               Feed
             </Button>
-            <Button variant="ghost" size="sm" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-foreground hover:text-primary"
+              onClick={() => navigate('/dashboard/spaces')}
+            >
               Espaços
             </Button>
             <Button 
