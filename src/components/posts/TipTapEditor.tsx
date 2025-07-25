@@ -1,7 +1,6 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
 import ResizeImage from 'tiptap-extension-resize-image';
 import Mention from '@tiptap/extension-mention';
 import { ReactRenderer } from '@tiptap/react';
@@ -9,7 +8,7 @@ import tippy from 'tippy.js';
 import { cn } from '@/lib/utils';
 import { useCompanyUsers, CompanyUser } from '@/hooks/useCompanyUsers';
 import { MentionSuggestion, MentionSuggestionRef } from './MentionSuggestion';
-import { useState, useImperativeHandle, forwardRef } from 'react';
+import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 
 export interface TipTapEditorRef {
   insertEmoji: (emoji: string) => void;
@@ -43,9 +42,6 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
       }),
       Placeholder.configure({
         placeholder,
-      }),
-      Link.configure({
-        openOnClick: false,
       }),
       Mention.configure({
         HTMLAttributes: {
@@ -131,6 +127,12 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     },
   });
 
+  // Sync content when prop changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
   useImperativeHandle(ref, () => ({
     insertEmoji: (emoji: string) => {
       if (editor) {
