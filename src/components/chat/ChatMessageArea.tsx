@@ -19,12 +19,24 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   // Enable real-time updates
   useMessagesRealtime(conversationId);
 
-  if (!conversationId || !selectedConversation) {
+  if (!conversationId) {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground">
         <div className="text-center">
           <p className="text-lg">Selecione uma conversa</p>
           <p className="text-sm">Escolha uma conversa para começar a enviar mensagens</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If we have conversationId but no selectedConversation, show loading
+  if (!selectedConversation) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-muted-foreground">
+        <div className="text-center">
+          <p className="text-lg">Carregando conversa...</p>
+          <p className="text-sm">Aguarde um momento</p>
         </div>
       </div>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
@@ -17,12 +17,19 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   
-  const { data: conversations = [] } = useConversations();
+  const { data: conversations = [], refetch: refetchConversations } = useConversations();
   
   // Calculate total unread messages
   const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
 
   const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
+
+  // Refetch conversations when a new conversation is selected to ensure it's in the list
+  useEffect(() => {
+    if (selectedConversationId && !selectedConversation) {
+      refetchConversations();
+    }
+  }, [selectedConversationId, selectedConversation, refetchConversations]);
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
