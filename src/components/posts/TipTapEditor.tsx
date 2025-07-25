@@ -32,7 +32,6 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
   className 
 }, ref) => {
   const [mentionQuery, setMentionQuery] = useState('');
-  const [showBubbleMenu, setShowBubbleMenu] = useState(false);
   const { data: users = [] } = useCompanyUsers(mentionQuery);
 
   const editor = useEditor({
@@ -120,9 +119,6 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
-    onSelectionUpdate: ({ editor }) => {
-      setShowBubbleMenu(!editor.state.selection.empty);
-    },
     editorProps: {
       attributes: {
         class: cn(
@@ -166,7 +162,7 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
 
   return (
     <div className="w-full relative">
-      {editor && showBubbleMenu && <EditorBubbleMenu editor={editor} />}
+      {editor && <EditorBubbleMenu editor={editor} />}
       <EditorContent 
         editor={editor} 
         className="w-full min-h-[200px] border-none outline-none"
