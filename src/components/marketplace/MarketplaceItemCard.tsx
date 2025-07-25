@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Package } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { PurchaseDialog } from './PurchaseDialog';
 
 interface MarketplaceItem {
@@ -23,7 +23,7 @@ interface MarketplaceItemCardProps {
   userCoins: number;
 }
 
-export const MarketplaceItemCard = ({ item, userCoins }: MarketplaceItemCardProps) => {
+export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCardProps) => {
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const canAfford = userCoins >= item.price_coins;
   const isOutOfStock = item.stock_quantity !== null && item.stock_quantity <= 0;
@@ -102,4 +102,4 @@ export const MarketplaceItemCard = ({ item, userCoins }: MarketplaceItemCardProp
       />
     </>
   );
-};
+});

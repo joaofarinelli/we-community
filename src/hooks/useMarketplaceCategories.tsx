@@ -14,5 +14,8 @@ export const useMarketplaceCategories = () => {
       if (error) throw error;
       return data || [];
     },
+    staleTime: 10 * 60 * 1000, // 10 minutes - categories change less frequently
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
   });
 };

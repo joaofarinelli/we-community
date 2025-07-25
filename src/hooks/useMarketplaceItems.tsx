@@ -9,7 +9,7 @@ export const useMarketplaceItems = (categoryId?: string) => {
         .from('marketplace_items')
         .select(`
           *,
-          marketplace_categories!inner(*),
+          marketplace_categories(*),
           profiles!marketplace_items_seller_id_fkey(first_name, last_name)
         `)
         .eq('is_active', true)
@@ -24,5 +24,8 @@ export const useMarketplaceItems = (categoryId?: string) => {
       if (error) throw error;
       return data || [];
     },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
   });
 };

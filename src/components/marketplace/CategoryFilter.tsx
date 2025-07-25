@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { icons } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { memo } from 'react';
 
 interface MarketplaceCategory {
   id: string;
@@ -17,7 +18,7 @@ interface CategoryFilterProps {
   itemCounts?: Record<string, number>;
 }
 
-export const CategoryFilter = ({ 
+export const CategoryFilter = memo(({ 
   categories, 
   selectedCategory, 
   onCategoryChange,
@@ -70,4 +71,4 @@ export const CategoryFilter = ({
       </div>
     </div>
   );
-};
+});

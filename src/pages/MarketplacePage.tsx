@@ -5,6 +5,8 @@ import { useMarketplaceItems } from '@/hooks/useMarketplaceItems';
 import { useUserCoins } from '@/hooks/useUserPoints';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { CategoryFilter } from '@/components/marketplace/CategoryFilter';
+import { MarketplaceItemSkeleton } from '@/components/marketplace/MarketplaceItemSkeleton';
+import { CategoryFilterSkeleton } from '@/components/marketplace/CategoryFilterSkeleton';
 import { UserCoinsBadge } from '@/components/gamification/UserPointsBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,7 +89,9 @@ export const MarketplacePage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-6">
-              {!categoriesLoading && (
+              {categoriesLoading ? (
+                <CategoryFilterSkeleton />
+              ) : (
                 <CategoryFilter
                   categories={categories}
                   selectedCategory={selectedCategory}
@@ -103,7 +107,7 @@ export const MarketplacePage = () => {
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="bg-muted animate-pulse rounded-lg h-80" />
+                  <MarketplaceItemSkeleton key={i} />
                 ))}
               </div>
             ) : filteredItems.length === 0 ? (
