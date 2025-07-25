@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronLeft, Mail, User, Lock } from 'lucide-react';
 import { emailStepSchema, userDetailsStepSchema, EmailStepFormData, UserDetailsStepFormData } from '@/lib/schemas';
+import { generateSubdomain, isValidSubdomain, isReservedSubdomain } from '@/lib/subdomainUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -31,16 +32,20 @@ export const TwoStepSignupForm = ({ onSwitchToLogin }: TwoStepSignupFormProps) =
     defaultValues: { fullName: '', password: '' },
   });
 
-  // Generate subdomain from name
-  const generateSubdomain = (fullName: string): string => {
-    const firstName = fullName.split(' ')[0].toLowerCase();
-    return `${firstName}-comunidade`.replace(/[^a-z0-9-]/g, '');
-  };
-
   // Generate company name from user name
   const generateCompanyName = (fullName: string): string => {
     const firstName = fullName.split(' ')[0];
     return `${firstName}'s Comunidade`;
+  };
+
+  const checkSubdomainAvailability = async (subdomain: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('subdomain', subdomain)
+      .maybeSingle();
+    
+    return !data; // Returns true if subdomain is available
   };
 
   const onEmailSubmit = async (data: EmailStepFormData) => {
@@ -103,8 +108,30 @@ export const TwoStepSignupForm = ({ onSwitchToLogin }: TwoStepSignupFormProps) =
       }
 
       const userId = authData.user.id;
-      const subdomain = generateSubdomain(data.fullName);
       const companyName = generateCompanyName(data.fullName);
+      
+      // Generate and validate subdomain
+      let subdomain = generateSubdomain(companyName);
+      
+      // Check if it's reserved
+      if (isReservedSubdomain(subdomain)) {
+        subdomain = `${subdomain}-comunidade`;
+      }
+      
+      // Ensure it's valid
+      if (!isValidSubdomain(subdomain)) {
+        throw new Error('Nome não é válido para gerar subdomínio');
+      }
+      
+      // Check availability and add counter if needed
+      let isAvailable = await checkSubdomainAvailability(subdomain);
+      let counter = 1;
+      
+      while (!isAvailable) {
+        subdomain = `${generateSubdomain(companyName)}-${counter}`;
+        isAvailable = await checkSubdomainAvailability(subdomain);
+        counter++;
+      }
 
       // 2. Create company with auto-generated name and subdomain
       const { data: companyData, error: companyError } = await supabase
@@ -152,7 +179,7 @@ export const TwoStepSignupForm = ({ onSwitchToLogin }: TwoStepSignupFormProps) =
 
       toast({
         title: "Conta criada com sucesso!",
-        description: `Bem-vindo ao ${companyName}! Verifique seu email para confirmar a conta.`,
+        description: `Bem-vindo ao ${companyName}! Acesse: ${subdomain}.seudominio.com`,
       });
 
     } catch (error: any) {

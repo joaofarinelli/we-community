@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AuthGuard } from "@/components/AuthGuard";
+import { SubdomainGuard } from "@/components/SubdomainGuard";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
@@ -49,38 +50,40 @@ const AppRoutes = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
-      <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
-      <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-      <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
-      <Route path="/dashboard/members" element={<AuthGuard><MembersPage /></AuthGuard>} />
-      <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
-      <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
-      <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
-      <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
-      <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
-      <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
-      <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
-      <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
-      <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
-      <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
-      <Route path="/courses/:courseId" element={<AuthGuard><CourseDetailPage /></AuthGuard>} />
-      <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
-      <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
-      <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
-      <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
-      <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
-      <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
-      <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
-      <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
-      <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
-      <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
-      <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
-      <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <SubdomainGuard>
+      <Routes>
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
+        <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+        <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+        <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
+        <Route path="/dashboard/members" element={<AuthGuard><MembersPage /></AuthGuard>} />
+        <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
+        <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
+        <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
+        <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
+        <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
+        <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
+        <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
+        <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
+        <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
+        <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
+        <Route path="/courses/:courseId" element={<AuthGuard><CourseDetailPage /></AuthGuard>} />
+        <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
+        <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
+        <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
+        <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
+        <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
+        <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
+        <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
+        <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
+        <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
+        <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
+        <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
+        <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </SubdomainGuard>
   );
 };
 

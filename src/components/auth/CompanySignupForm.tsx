@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from '@/hooks/use-toast';
 import { CompanySignupFormData, companySignupSchema } from '@/lib/schemas';
+import { generateSubdomain, isValidSubdomain, isReservedSubdomain } from '@/lib/subdomainUtils';
 import { Loader2, Building, User } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
@@ -34,6 +35,16 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
       userPhone: '',
     },
   });
+
+  const checkSubdomainAvailability = async (subdomain: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('subdomain', subdomain)
+      .maybeSingle();
+    
+    return !data; // Returns true if subdomain is available
+  };
 
   const onSubmit = async (data: CompanySignupFormData) => {
     setIsLoading(true);
@@ -72,12 +83,36 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
         return;
       }
 
-      // 2. Create company
+      // 2. Generate and validate subdomain
+      let subdomain = generateSubdomain(data.companyName);
+      
+      // Check if it's reserved
+      if (isReservedSubdomain(subdomain)) {
+        subdomain = `${subdomain}-empresa`;
+      }
+      
+      // Ensure it's valid
+      if (!isValidSubdomain(subdomain)) {
+        throw new Error('Nome da empresa não é válido para gerar subdomínio');
+      }
+      
+      // Check availability and add counter if needed
+      let isAvailable = await checkSubdomainAvailability(subdomain);
+      let counter = 1;
+      
+      while (!isAvailable) {
+        subdomain = `${generateSubdomain(data.companyName)}-${counter}`;
+        isAvailable = await checkSubdomainAvailability(subdomain);
+        counter++;
+      }
+
+      // 3. Create company
       const { data: companyData, error: companyError } = await supabase
         .from('companies')
         .insert([
           {
             name: data.companyName,
+            subdomain: subdomain,
             cnpj: data.cnpj || null,
             phone: data.companyPhone || null,
             address: data.address || null,
@@ -98,7 +133,7 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
         return;
       }
 
-      // 3. Create profile
+      // 4. Create profile
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
