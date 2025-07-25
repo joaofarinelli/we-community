@@ -19,6 +19,7 @@ import { DeletePostDialog } from './DeletePostDialog';
 import { EditPostDialog } from './EditPostDialog';
 import { getSpaceTypeInfo } from '@/lib/spaceUtils';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useUserRole';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 
@@ -49,6 +50,7 @@ interface FeedPostCardProps {
 
 export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   const { user } = useAuth();
+  const isAdmin = useIsAdmin();
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -81,8 +83,9 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
     }
   };
 
-  // Only show menu for post author
+  // Show menu for post author or admin
   const isAuthor = user?.id === post.author_id;
+  const canEditDelete = isAuthor || isAdmin;
 
   return (
     <Card className="w-full">
@@ -141,8 +144,8 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
             </div>
           </div>
           
-          {/* Menu de Ações - only for author */}
-          {isAuthor && (
+          {/* Menu de Ações - for author or admin */}
+          {canEditDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

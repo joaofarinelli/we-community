@@ -17,6 +17,7 @@ import { PostContent } from './PostContent';
 import { DeletePostDialog } from './DeletePostDialog';
 import { EditPostDialog } from './EditPostDialog';
 import { useAuth } from '@/hooks/useAuth';
+import { useIsAdmin } from '@/hooks/useUserRole';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 
@@ -41,6 +42,7 @@ interface PostCardProps {
 
 export const PostCard = ({ post }: PostCardProps) => {
   const { user } = useAuth();
+  const isAdmin = useIsAdmin();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
@@ -53,8 +55,9 @@ export const PostCard = ({ post }: PostCardProps) => {
     ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
     : 'U';
 
-  // Only show menu for post author
+  // Show menu for post author or admin
   const isAuthor = user?.id === post.author_id;
+  const canEditDelete = isAuthor || isAdmin;
 
   const handleUserClick = () => {
     console.log('User clicked:', post.author_id, 'Current user:', user?.id);
@@ -109,8 +112,8 @@ export const PostCard = ({ post }: PostCardProps) => {
             </div>
           </div>
           
-          {/* Menu de Ações - only for author */}
-          {isAuthor && (
+          {/* Menu de Ações - for author or admin */}
+          {canEditDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
