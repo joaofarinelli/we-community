@@ -10,12 +10,12 @@ export const useUserMemberSpaces = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      // Get spaces where user is a member OR public spaces the user can see
+      // Get all spaces the user can see (relies on RLS policy with can_user_see_space)
       const { data, error } = await supabase
         .from('spaces')
         .select(`
           *,
-          space_members!inner(
+          space_members!left(
             role,
             joined_at
           ),
@@ -24,7 +24,6 @@ export const useUserMemberSpaces = () => {
             name
           )
         `)
-        .eq('space_members.user_id', user.id)
         .order('order_index', { ascending: true });
 
       if (error) {
