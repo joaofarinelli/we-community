@@ -71,6 +71,8 @@ export const LevelForm = ({ level, onSuccess }: LevelFormProps) => {
   const [selectedColor, setSelectedColor] = useState(level?.level_color || LEVEL_COLORS[0]);
   const [selectedIcon, setSelectedIcon] = useState(level?.level_icon || LEVEL_ICONS[0]);
 
+  console.log('LevelForm: Received level data', { level, selectedColor, selectedIcon });
+
   const {
     register,
     handleSubmit,
@@ -88,23 +90,45 @@ export const LevelForm = ({ level, onSuccess }: LevelFormProps) => {
     }
   });
 
-  const onSubmit = async (data: LevelFormData) => {
-    const formData = {
-      ...data,
-      level_color: selectedColor,
-      level_icon: selectedIcon,
-    };
+  console.log('LevelForm: Form default values', {
+    level_name: level?.level_name || '',
+    min_coins_required: level?.min_coins_required || 0,
+    max_coins_required: level?.max_coins_required || undefined,
+    level_color: level?.level_color || LEVEL_COLORS[0],
+    level_icon: level?.level_icon || LEVEL_ICONS[0],
+  });
 
-    if (level) {
-      await updateLevel.mutateAsync({ ...formData, id: level.id });
-    } else {
-      await createLevel.mutateAsync(formData);
-    }
+  const onSubmit = async (data: LevelFormData) => {
+    console.log('LevelForm: onSubmit called', { data, level, selectedColor, selectedIcon });
     
-    onSuccess?.();
+    try {
+      const formData = {
+        ...data,
+        level_color: selectedColor,
+        level_icon: selectedIcon,
+      };
+
+      console.log('LevelForm: Prepared form data', formData);
+
+      if (level) {
+        console.log('LevelForm: Updating level', { formData, levelId: level.id });
+        await updateLevel.mutateAsync({ ...formData, id: level.id });
+      } else {
+        console.log('LevelForm: Creating level', formData);
+        await createLevel.mutateAsync(formData);
+      }
+      
+      console.log('LevelForm: Operation successful');
+      onSuccess?.();
+    } catch (error) {
+      console.error('LevelForm: Error in onSubmit', error);
+      throw error;
+    }
   };
 
-  const SelectedIcon = (Icons as any)[selectedIcon] as React.ComponentType<LucideProps>;
+  const SelectedIcon = selectedIcon ? (Icons as any)[selectedIcon] as React.ComponentType<LucideProps> : null;
+
+  console.log('LevelForm: Selected icon component', { selectedIcon, SelectedIcon });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
