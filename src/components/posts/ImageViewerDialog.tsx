@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X, Download } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 interface ImageViewerDialogProps {
   open: boolean;
@@ -18,6 +19,8 @@ export const ImageViewerDialog = ({
   alt = 'Imagem'
 }: ImageViewerDialogProps) => {
   const [isDownloading, setIsDownloading] = useState(false);
+
+  console.log('ImageViewerDialog render:', { open, imageUrl, alt });
 
   const handleDownload = async () => {
     try {
@@ -66,6 +69,10 @@ export const ImageViewerDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-auto h-auto p-0 bg-black/95 border-none">
+        <VisuallyHidden>
+          <DialogTitle>Visualizar Imagem</DialogTitle>
+          <DialogDescription>Dialog para visualização em tela cheia da imagem selecionada</DialogDescription>
+        </VisuallyHidden>
         {/* Header com botões de ação */}
         <div className="absolute top-4 right-4 z-50 flex gap-2">
           <Button
@@ -90,12 +97,25 @@ export const ImageViewerDialog = ({
 
         {/* Imagem centralizada */}
         <div className="flex items-center justify-center w-full h-full min-h-[50vh] p-8">
-          <img
-            src={imageUrl}
-            alt={alt}
-            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-            style={{ maxHeight: '90vh', maxWidth: '90vw' }}
-          />
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={alt}
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+              style={{ maxHeight: '90vh', maxWidth: '90vw' }}
+              onLoad={() => console.log('Image loaded successfully')}
+              onError={(e) => {
+                console.error('Error loading image:', imageUrl);
+                console.error('Error event:', e);
+              }}
+            />
+          )}
+          {!imageUrl && (
+            <div className="text-white text-center">
+              <p>Nenhuma imagem para exibir</p>
+              <p className="text-sm text-gray-400">URL: {imageUrl}</p>
+            </div>
+          )}
         </div>
 
         {/* Overlay clicável para fechar */}

@@ -74,8 +74,12 @@ export const PostContent = ({ content, className }: PostContentProps) => {
 
     const handleImageClick = (event: Event) => {
       const target = event.target as HTMLElement;
+      console.log('Click detected on:', target.tagName, target);
+      
       if (target.tagName === 'IMG') {
         const img = target as HTMLImageElement;
+        console.log('Image clicked, src:', img.src);
+        console.log('Image alt:', img.alt);
         setSelectedImageUrl(img.src);
         setImageViewerOpen(true);
         event.preventDefault();
