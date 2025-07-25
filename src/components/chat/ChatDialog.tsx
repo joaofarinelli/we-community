@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -25,8 +25,8 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
   const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <DrawerTrigger asChild>
         {children || (
           <Button variant="ghost" size="sm" className="relative">
             <MessageCircle className="h-5 w-5" />
@@ -40,8 +40,8 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
             )}
           </Button>
         )}
-      </SheetTrigger>
-      <SheetContent side="right" className="w-full max-w-6xl p-0 sm:max-w-6xl">
+      </DrawerTrigger>
+      <DrawerContent className="h-[90vh] max-w-6xl mx-auto p-0">
         <div className="flex h-full">
           {/* Sidebar esquerda - Lista de conversas */}
           <div className="w-80 border-r border-border">
@@ -70,7 +70,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
             </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 };
