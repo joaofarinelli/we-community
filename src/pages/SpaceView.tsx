@@ -12,8 +12,11 @@ import { useSpaceMembers } from '@/hooks/useSpaceMembers';
 import { useSpaceAccess } from '@/hooks/useSpaceAccess';
 import { useIsSpaceMember } from '@/hooks/useIsSpaceMember';
 import { useManageSpaceMembers } from '@/hooks/useManageSpaceMembers';
+import { useEvents } from '@/hooks/useEvents';
 import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
+import { EventCard } from '@/components/events/EventCard';
+import { CreateEventDialog } from '@/components/events/CreateEventDialog';
 import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
@@ -40,6 +43,10 @@ export const SpaceView = () => {
     data: posts,
     isLoading: postsLoading
   } = useSpacePosts(spaceId!);
+  const {
+    data: events,
+    isLoading: eventsLoading
+  } = useEvents(spaceId!);
   const {
     data: members,
     isLoading: membersLoading
@@ -232,45 +239,87 @@ export const SpaceView = () => {
                   </CardContent>
                 </Card>}
 
-              {/* Create Post */}
-              <CreatePostForm spaceId={spaceId} />
+              {space.type === 'events' ? (
+                // Events Space Content
+                <>
+                  {memberInfo?.isMember && (
+                    <CreateEventDialog spaceId={spaceId} />
+                  )}
 
-              {/* Posts Feed */}
-              <div className="space-y-4">
-                {postsLoading ? <div className="space-y-4">
-                    {[...Array(3)].map((_, i) => <Card key={i}>
-                        <CardContent className="p-6">
-                          <div className="animate-pulse space-y-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-                              <div className="space-y-2">
-                                <div className="h-4 bg-gray-200 rounded w-32"></div>
-                                <div className="h-3 bg-gray-200 rounded w-24"></div>
-                              </div>
+                  <div className="space-y-4">
+                    {eventsLoading ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Carregando eventos...
+                      </div>
+                    ) : events && events.length === 0 ? (
+                      <Card>
+                        <CardContent className="p-12 text-center">
+                          <div className="space-y-3">
+                            <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                              <SpaceIcon className="h-8 w-8 text-muted-foreground" />
                             </div>
-                            <div className="space-y-2">
-                              <div className="h-4 bg-gray-200 rounded"></div>
-                              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                            </div>
+                            <h3 className="text-lg font-medium">Nenhum evento ainda</h3>
+                            <p className="text-muted-foreground max-w-md mx-auto">
+                              {memberInfo?.isMember 
+                                ? "Este espaço ainda não tem eventos. Que tal criar o primeiro?" 
+                                : "Este espaço ainda não tem eventos."
+                              }
+                            </p>
                           </div>
                         </CardContent>
-                      </Card>)}
-                  </div> : posts && posts.length > 0 ? posts.map(post => <PostCard key={post.id} post={post} />) : <Card>
-                    <CardContent className="p-12 text-center">
-                      <div className="space-y-3">
-                        <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                          <SpaceIcon className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                        <h3 className="text-lg font-medium">Nenhum post ainda</h3>
-                        <p className="text-muted-foreground max-w-md mx-auto">
-                          Este espaço ainda não tem nenhuma publicação. Que tal ser o primeiro a compartilhar algo?
-                        </p>
+                      </Card>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {events?.map((event) => (
+                          <EventCard key={event.id} event={event as any} />
+                        ))}
                       </div>
-                    </CardContent>
-                  </Card>}
-              </div>
-            </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                // Regular Space Content (Posts)
+                <>
+                  {/* Create Post */}
+                  <CreatePostForm spaceId={spaceId} />
 
+                  {/* Posts Feed */}
+                  <div className="space-y-4">
+                    {postsLoading ? <div className="space-y-4">
+                        {[...Array(3)].map((_, i) => <Card key={i}>
+                            <CardContent className="p-6">
+                              <div className="animate-pulse space-y-3">
+                                <div className="flex items-center space-x-3">
+                                  <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                                  <div className="space-y-2">
+                                    <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                    <div className="h-3 bg-gray-200 rounded w-24"></div>
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="h-4 bg-gray-200 rounded"></div>
+                                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>)}
+                      </div> : posts && posts.length > 0 ? posts.map(post => <PostCard key={post.id} post={post} />) : <Card>
+                        <CardContent className="p-12 text-center">
+                          <div className="space-y-3">
+                            <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                              <SpaceIcon className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                            <h3 className="text-lg font-medium">Nenhum post ainda</h3>
+                            <p className="text-muted-foreground max-w-md mx-auto">
+                              Este espaço ainda não tem nenhuma publicação. Que tal ser o primeiro a compartilhar algo?
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>}
+                  </div>
+                </>
+              )}
+            </div>
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <Card>

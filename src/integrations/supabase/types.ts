@@ -513,6 +513,84 @@ export type Database = {
           },
         ]
       }
+      event_participants: {
+        Row: {
+          company_id: string
+          event_id: string
+          id: string
+          joined_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          event_id: string
+          id?: string
+          joined_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          event_id?: string
+          id?: string
+          joined_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      events: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string
+          id: string
+          image_url: string | null
+          location: string | null
+          max_participants: number | null
+          space_id: string
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date: string
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          max_participants?: number | null
+          space_id: string
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          max_participants?: number | null
+          space_id?: string
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_comments: {
         Row: {
           content: string

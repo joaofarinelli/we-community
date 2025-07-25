@@ -25,6 +25,7 @@ const mainItems = [
   { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
   { title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag },
   { title: "Banco", url: "/dashboard/bank", icon: Wallet },
+  { title: "Calendário", url: "/dashboard/calendar", icon: Calendar },
   { title: "Desafios", url: "/dashboard/challenges", icon: Target },
 ];
 

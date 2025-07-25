@@ -35,6 +35,7 @@ import { MembersPage } from "./pages/MembersPage";
 import { AdminChallengesPage } from "./pages/admin/AdminChallengesPage";
 import { ChallengesPage } from "./pages/ChallengesPage";
 import { BankPage } from "./pages/BankPage";
+import { CalendarPage } from "./pages/CalendarPage";
 import { SpacesPage } from "./pages/SpacesPage";
 import NotFound from "./pages/NotFound";
 
@@ -82,6 +83,7 @@ const AppRoutes = () => {
         <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
         <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
         <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
+        <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
