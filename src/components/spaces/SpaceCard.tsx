@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { renderSpaceIcon } from '@/lib/spaceUtils';
-import { Users, Lock, Eye, EyeOff } from 'lucide-react';
+import { Users, Lock, Eye, EyeOff, UserPlus, UserMinus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useManageSpaceMembers } from '@/hooks/useManageSpaceMembers';
 
 interface SpaceCardProps {
   space: {
@@ -19,11 +20,14 @@ interface SpaceCardProps {
   };
   onClick?: () => void;
   className?: string;
+  showJoinLeave?: boolean;
 }
 
-export const SpaceCard = ({ space, onClick, className }: SpaceCardProps) => {
+export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: SpaceCardProps) => {
+  const { joinSpace, leaveSpace } = useManageSpaceMembers();
   const memberCount = space.space_members?.length || 0;
   const userRole = space.space_members?.[0]?.role || 'member';
+  const isMember = space.space_members && space.space_members.length > 0;
   
   const getVisibilityIcon = () => {
     switch (space.visibility) {
@@ -122,20 +126,56 @@ export const SpaceCard = ({ space, onClick, className }: SpaceCardProps) => {
           )}
         </div>
         
-        {/* Member count */}
+        {/* Member count and actions */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Users className="h-4 w-4" />
             <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
           </div>
           
-          <Button 
-            size="sm" 
-            variant="ghost"
-            className="h-8 px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-          >
-            Acessar
-          </Button>
+          <div className="flex items-center gap-2">
+            {showJoinLeave && space.visibility === 'public' && (
+              <>
+                {isMember ? (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      leaveSpace.mutate(space.id);
+                    }}
+                    disabled={leaveSpace.isPending}
+                    className="h-8 px-3 text-xs"
+                  >
+                    <UserMinus className="h-3 w-3 mr-1" />
+                    Sair
+                  </Button>
+                ) : (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      joinSpace.mutate(space.id);
+                    }}
+                    disabled={joinSpace.isPending}
+                    className="h-8 px-3 text-xs"
+                  >
+                    <UserPlus className="h-3 w-3 mr-1" />
+                    Entrar
+                  </Button>
+                )}
+              </>
+            )}
+            
+            <Button 
+              size="sm" 
+              variant="ghost"
+              className="h-8 px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+            >
+              Acessar
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

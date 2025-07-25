@@ -1597,6 +1597,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_existing_users_to_public_spaces: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       add_user_coins: {
         Args: {
           p_user_id: string
@@ -1613,6 +1617,10 @@ export type Database = {
           p_action_type: string
           p_reference_id?: string
         }
+        Returns: undefined
+      }
+      add_user_to_public_spaces: {
+        Args: { p_user_id: string; p_company_id: string }
         Returns: undefined
       }
       calculate_coins_for_action: {

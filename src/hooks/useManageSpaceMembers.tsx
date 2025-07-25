@@ -65,6 +65,42 @@ export const useManageSpaceMembers = () => {
     }
   });
 
+  const joinSpace = useMutation({
+    mutationFn: async (spaceId: string) => {
+      if (!user) throw new Error('Usuário não autenticado');
+      
+      const { data, error } = await supabase
+        .from('space_members')
+        .insert([
+          {
+            space_id: spaceId,
+            user_id: user.id,
+            role: 'member'
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, spaceId) => {
+      queryClient.invalidateQueries({ queryKey: ['spaceMembers', spaceId] });
+      queryClient.invalidateQueries({ queryKey: ['userMemberSpaces'] });
+      queryClient.invalidateQueries({ queryKey: ['userSpaces'] });
+      toast({
+        title: 'Entrou no espaço',
+        description: 'Você entrou no espaço com sucesso.',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Erro ao entrar no espaço',
+        description: 'Não foi possível entrar no espaço.',
+        variant: 'destructive',
+      });
+    }
+  });
+
   const leaveSpace = useMutation({
     mutationFn: async (spaceId: string) => {
       if (!user) throw new Error('Usuário não autenticado');
@@ -79,6 +115,7 @@ export const useManageSpaceMembers = () => {
     },
     onSuccess: (_, spaceId) => {
       queryClient.invalidateQueries({ queryKey: ['spaceMembers', spaceId] });
+      queryClient.invalidateQueries({ queryKey: ['userMemberSpaces'] });
       queryClient.invalidateQueries({ queryKey: ['userSpaces'] });
       toast({
         title: 'Saiu do espaço',
@@ -97,6 +134,7 @@ export const useManageSpaceMembers = () => {
   return {
     addMember,
     removeMember,
+    joinSpace,
     leaveSpace
   };
 };
