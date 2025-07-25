@@ -17,10 +17,16 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
   const { data: userProfile } = useUserProfile();
 
   useEffect(() => {
-    // If we have a subdomain but no company found, redirect to main domain
+    // If we have a subdomain but no company found, redirect to main domain landing page
     if (!subdomainLoading && !companyLoading && subdomain && !company) {
-      const mainDomain = window.location.hostname.split('.').slice(-2).join('.');
-      window.location.href = `${window.location.protocol}//${mainDomain}`;
+      // Remove subdomain and go to main domain landing page
+      const hostname = window.location.hostname;
+      const parts = hostname.split('.');
+      if (parts.length > 2) {
+        // Remove the subdomain part and keep domain.com
+        const mainDomain = parts.slice(1).join('.');
+        window.location.href = `${window.location.protocol}//${mainDomain}`;
+      }
       return;
     }
 
@@ -36,7 +42,9 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
             .single();
           
           if (userCompany?.subdomain) {
-            const baseDomain = window.location.hostname.split('.').slice(-2).join('.');
+            const hostname = window.location.hostname;
+            const parts = hostname.split('.');
+            const baseDomain = parts.slice(1).join('.'); // Get everything after the first part
             window.location.href = `${window.location.protocol}//${userCompany.subdomain}.${baseDomain}${window.location.pathname}`;
           }
         };
@@ -56,13 +64,14 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
     );
   }
 
-  // If we have a subdomain but no company, don't render children (will redirect)
-  if (subdomain && !company) {
+  // If we have a subdomain but no company, show error and redirect
+  if (subdomain && !company && !companyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-destructive mb-2">Empresa não encontrada</h1>
-          <p className="text-muted-foreground">Redirecionando...</p>
+          <p className="text-muted-foreground mb-4">O subdomínio "{subdomain}" não está associado a nenhuma empresa.</p>
+          <p className="text-sm text-muted-foreground">Redirecionando para a página principal...</p>
         </div>
       </div>
     );
