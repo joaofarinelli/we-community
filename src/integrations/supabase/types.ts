@@ -243,6 +243,9 @@ export type Database = {
           cnpj: string | null
           course_banner_url: string | null
           created_at: string
+          custom_domain: string | null
+          custom_domain_status: string | null
+          custom_domain_verified_at: string | null
           id: string
           logo_url: string | null
           name: string
@@ -265,6 +268,9 @@ export type Database = {
           cnpj?: string | null
           course_banner_url?: string | null
           created_at?: string
+          custom_domain?: string | null
+          custom_domain_status?: string | null
+          custom_domain_verified_at?: string | null
           id?: string
           logo_url?: string | null
           name: string
@@ -287,6 +293,9 @@ export type Database = {
           cnpj?: string | null
           course_banner_url?: string | null
           created_at?: string
+          custom_domain?: string | null
+          custom_domain_status?: string | null
+          custom_domain_verified_at?: string | null
           id?: string
           logo_url?: string | null
           name?: string

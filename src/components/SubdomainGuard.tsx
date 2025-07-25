@@ -11,19 +11,22 @@ interface SubdomainGuardProps {
 }
 
 export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
-  const { subdomain, isLoading: subdomainLoading } = useSubdomain();
+  const { subdomain, customDomain, isLoading: subdomainLoading } = useSubdomain();
   const { data: company, isLoading: companyLoading } = useCompany();
   const { user, loading: authLoading } = useAuth();
   const { data: userProfile } = useUserProfile();
 
   useEffect(() => {
-    // If we have a subdomain but no company found, redirect to main domain landing page
-    if (!subdomainLoading && !companyLoading && subdomain && !company) {
-      // Remove subdomain and go to main domain landing page
+    // If we have a subdomain or custom domain but no company found, redirect to main domain
+    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company) {
       const hostname = window.location.hostname;
       const parts = hostname.split('.');
-      if (parts.length > 2) {
-        // Remove the subdomain part and keep domain.com
+      
+      if (customDomain) {
+        // For custom domains, redirect to main SaaS domain
+        window.location.href = `${window.location.protocol}//weplataforma.com.br`;
+      } else if (parts.length > 2) {
+        // For subdomains, remove subdomain and go to main domain
         const mainDomain = parts.slice(1).join('.');
         window.location.href = `${window.location.protocol}//${mainDomain}`;
       }
@@ -53,7 +56,7 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
         return;
       }
     }
-  }, [subdomain, company, user, userProfile, subdomainLoading, companyLoading, authLoading]);
+  }, [subdomain, customDomain, company, user, userProfile, subdomainLoading, companyLoading, authLoading]);
 
   // Show loading while we're checking subdomain and company
   if (subdomainLoading || companyLoading || authLoading) {
@@ -64,13 +67,18 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
     );
   }
 
-  // If we have a subdomain but no company, show error and redirect
-  if (subdomain && !company && !companyLoading) {
+  // If we have a subdomain or custom domain but no company, show error and redirect
+  if ((subdomain || customDomain) && !company && !companyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-destructive mb-2">Empresa não encontrada</h1>
-          <p className="text-muted-foreground mb-4">O subdomínio "{subdomain}" não está associado a nenhuma empresa.</p>
+          <p className="text-muted-foreground mb-4">
+            {subdomain 
+              ? `O subdomínio "${subdomain}" não está associado a nenhuma empresa.`
+              : `O domínio "${customDomain}" não está configurado ou verificado.`
+            }
+          </p>
           <p className="text-sm text-muted-foreground">Redirecionando para a página principal...</p>
         </div>
       </div>

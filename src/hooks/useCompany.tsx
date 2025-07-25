@@ -5,12 +5,24 @@ import { useSubdomain } from './useSubdomain';
 
 export const useCompany = () => {
   const { user } = useAuth();
-  const { subdomain } = useSubdomain();
+  const { subdomain, customDomain } = useSubdomain();
 
   return useQuery({
-    queryKey: ['company', subdomain, user?.id],
+    queryKey: ['company', subdomain, customDomain, user?.id],
     queryFn: async () => {
-      // If we have a subdomain, fetch company by subdomain
+      // Priority 1: If we have a custom domain, fetch company by custom domain
+      if (customDomain) {
+        const { data: company } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('custom_domain', customDomain)
+          .eq('custom_domain_status', 'verified')
+          .single();
+
+        if (company) return company;
+      }
+
+      // Priority 2: If we have a subdomain, fetch company by subdomain
       if (subdomain) {
         const { data: company } = await supabase
           .from('companies')
@@ -40,6 +52,6 @@ export const useCompany = () => {
 
       return company;
     },
-    enabled: !!subdomain || !!user,
+    enabled: !!subdomain || !!customDomain || !!user,
   });
 };
