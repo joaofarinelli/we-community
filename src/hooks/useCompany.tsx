@@ -12,6 +12,7 @@ export const useCompany = () => {
     queryFn: async () => {
       // Priority 1: If we have a custom domain, fetch company by custom domain
       if (customDomain) {
+        // First try with verified status
         const { data: company } = await supabase
           .from('companies')
           .select('*')
@@ -20,6 +21,15 @@ export const useCompany = () => {
           .single();
 
         if (company) return company;
+
+        // Fallback for development/editor: try without verification requirement
+        const { data: unverifiedCompany } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('custom_domain', customDomain)
+          .single();
+
+        if (unverifiedCompany) return unverifiedCompany;
       }
 
       // Priority 2: If we have a subdomain, fetch company by subdomain

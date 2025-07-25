@@ -8,6 +8,14 @@ export const useSubdomain = () => {
   useEffect(() => {
     const hostname = window.location.hostname;
     
+    // Special handling for Lovable editor environment
+    if (hostname === 'lovable.dev' || hostname.endsWith('.lovable.dev')) {
+      setCustomDomain('lovable.dev');
+      setSubdomain(null);
+      setIsLoading(false);
+      return;
+    }
+    
     // Check if this is a custom domain (no subdomain structure)
     const parts = hostname.split('.');
     
