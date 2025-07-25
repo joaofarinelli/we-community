@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAllPosts, SortOption } from '@/hooks/useAllPosts';
 import { FeedSortControls } from '@/components/posts/FeedSortControls';
@@ -13,9 +14,12 @@ import { MessageSquare } from 'lucide-react';
 
 export const Dashboard = () => {
   const { user } = useAuth();
+  const { data: userProfile } = useUserProfile();
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   
-  const userName = user?.user_metadata?.first_name || user?.email?.split('@')[0] || 'Usuário';
+  const userName = userProfile?.first_name 
+    ? `${userProfile.first_name} ${userProfile.last_name || ''}`.trim()
+    : user?.email?.split('@')[0] || 'Usuário';
 
   const { data: posts, isLoading: postsLoading } = useAllPosts(sortBy);
 
