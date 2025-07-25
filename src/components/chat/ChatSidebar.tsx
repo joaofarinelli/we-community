@@ -63,9 +63,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
       {showUserSearch && (
         <div className="p-4 border-b border-border bg-muted/20">
           <ChatUserSearch 
-            onSelectUser={(userId) => {
-              // This will create a new conversation or navigate to existing one
-              // We'll handle this in the ChatUserSearch component
+            onSelectUser={(userId, conversationId) => {
+              setShowUserSearch(false);
+              onSelectConversation(conversationId, userId);
             }}
           />
         </div>

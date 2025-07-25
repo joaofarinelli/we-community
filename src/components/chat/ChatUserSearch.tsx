@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 
 interface ChatUserSearchProps {
-  onSelectUser: (userId: string) => void;
+  onSelectUser: (userId: string, conversationId: string) => void;
 }
 
 export const ChatUserSearch: React.FC<ChatUserSearchProps> = ({ onSelectUser }) => {
@@ -20,8 +20,8 @@ export const ChatUserSearch: React.FC<ChatUserSearchProps> = ({ onSelectUser }) 
 
   const handleSelectUser = async (userId: string) => {
     try {
-      await createConversation.mutateAsync(userId);
-      onSelectUser(userId);
+      const conversationId = await createConversation.mutateAsync(userId);
+      onSelectUser(userId, conversationId);
       setSearchTerm('');
       toast({
         title: "Conversa iniciada",
