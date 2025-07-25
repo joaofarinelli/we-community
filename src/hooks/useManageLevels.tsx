@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
 interface CreateLevelData {
@@ -17,26 +18,21 @@ interface UpdateLevelData extends CreateLevelData {
 
 export const useManageLevels = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   const createLevel = useMutation({
     mutationFn: async (levelData: CreateLevelData) => {
       if (!user) throw new Error('User not authenticated');
+      if (!currentCompanyId) throw new Error('Company context not found');
 
-      // Get user's company_id
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) throw new Error('User company not found');
+      console.log('createLevel: Creating level for company', currentCompanyId, levelData);
 
       // Get the highest level number to set the new one
       const { data: existingLevels } = await supabase
         .from('user_levels')
         .select('level_number')
-        .eq('company_id', profile.company_id)
+        .eq('company_id', currentCompanyId)
         .order('level_number', { ascending: false })
         .limit(1);
 
@@ -47,7 +43,7 @@ export const useManageLevels = () => {
         .insert({
           ...levelData,
           level_number: nextLevelNumber,
-          company_id: profile.company_id,
+          company_id: currentCompanyId,
           created_by: user.id
         })
         .select()
@@ -57,7 +53,7 @@ export const useManageLevels = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companyLevels'] });
+      queryClient.invalidateQueries({ queryKey: ['companyLevels', currentCompanyId] });
       toast.success('Nível criado com sucesso!');
     },
     onError: (error: any) => {
@@ -80,7 +76,7 @@ export const useManageLevels = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companyLevels'] });
+      queryClient.invalidateQueries({ queryKey: ['companyLevels', currentCompanyId] });
       queryClient.invalidateQueries({ queryKey: ['userLevel'] });
       toast.success('Nível atualizado com sucesso!');
     },
@@ -99,7 +95,7 @@ export const useManageLevels = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['companyLevels'] });
+      queryClient.invalidateQueries({ queryKey: ['companyLevels', currentCompanyId] });
       queryClient.invalidateQueries({ queryKey: ['userLevel'] });
       toast.success('Nível removido com sucesso!');
     },

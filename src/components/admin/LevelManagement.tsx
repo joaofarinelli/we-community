@@ -28,10 +28,12 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export const LevelManagement = () => {
-  const { data: levels, isLoading } = useCompanyLevels();
+  const { data: levels, isLoading, error } = useCompanyLevels();
   const { deleteLevel } = useManageLevels();
   const [editingLevel, setEditingLevel] = useState<any>(null);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+
+  console.log('LevelManagement: Render state', { levels, isLoading, error });
 
   if (isLoading) {
     return (
@@ -44,6 +46,23 @@ export const LevelManagement = () => {
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-16 bg-muted rounded animate-pulse" />
             ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    console.error('LevelManagement: Error loading levels', error);
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Gerenciar Níveis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-destructive">
+            <p>Erro ao carregar os níveis.</p>
+            <p className="text-sm">Verifique suas permissões e tente novamente.</p>
           </div>
         </CardContent>
       </Card>
@@ -78,7 +97,12 @@ export const LevelManagement = () => {
           <div className="space-y-4">
             {levels && levels.length > 0 ? (
               levels.map((level) => {
-                const IconComponent = (Icons as any)[level.level_icon] as React.ComponentType<LucideProps>;
+                if (!level) {
+                  console.warn('LevelManagement: Invalid level data', level);
+                  return null;
+                }
+                
+                const IconComponent = level.level_icon ? (Icons as any)[level.level_icon] as React.ComponentType<LucideProps> : null;
                 
                 return (
                   <div
@@ -90,20 +114,20 @@ export const LevelManagement = () => {
                         <span className="text-lg font-bold text-muted-foreground">
                           #{level.level_number}
                         </span>
-                        <Badge 
+                         <Badge 
                           variant="outline"
                           style={{ 
-                            backgroundColor: `${level.level_color}15`,
-                            borderColor: level.level_color,
-                            color: level.level_color
+                            backgroundColor: level.level_color ? `${level.level_color}15` : undefined,
+                            borderColor: level.level_color || undefined,
+                            color: level.level_color || undefined
                           }}
                         >
                           {IconComponent && <IconComponent className="h-4 w-4 mr-1" />}
-                          {level.level_name}
+                          {level.level_name || 'Nome não definido'}
                         </Badge>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {level.min_coins_required} - {level.max_coins_required || '∞'} WomanCoins
+                       <div className="text-sm text-muted-foreground">
+                        {level.min_coins_required || 0} - {level.max_coins_required || '∞'} WomanCoins
                       </div>
                     </div>
                     
