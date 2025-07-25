@@ -13,6 +13,8 @@ import { useCompany } from '@/hooks/useCompany';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
+import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
+import { ChatDialog } from '@/components/chat/ChatDialog';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -113,7 +115,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <SearchBar />
             </div>
             <UserPointsBadge />
-            <IconButton icon={Bell} />
+            <NotificationDropdown />
+            <ChatDialog />
             <IconButton icon={Users} />
             <UserDropdown 
               name={user?.user_metadata?.display_name}

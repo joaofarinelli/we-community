@@ -304,6 +304,71 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_participants: {
+        Row: {
+          company_id: string
+          conversation_id: string
+          id: string
+          joined_at: string
+          last_read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          conversation_id: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          conversation_id?: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          last_message_at: string | null
+          name: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          name?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          name?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_lessons: {
         Row: {
           content: string | null
@@ -717,6 +782,60 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "marketplace_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          company_id: string
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_edited: boolean
+          message_type: string
+          reply_to_id: string | null
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean
+          message_type?: string
+          reply_to_id?: string | null
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_edited?: boolean
+          message_type?: string
+          reply_to_id?: string | null
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -1515,6 +1634,10 @@ export type Database = {
           p_reference_id?: string
         }
         Returns: boolean
+      }
+      find_or_create_direct_conversation: {
+        Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
+        Returns: string
       }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
