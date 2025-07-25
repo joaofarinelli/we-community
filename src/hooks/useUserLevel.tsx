@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const useUserLevel = (userId?: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['userLevel', targetUserId],
+    queryKey: ['userLevel', targetUserId, currentCompanyId],
     queryFn: async () => {
-      if (!targetUserId) return null;
+      if (!targetUserId || !currentCompanyId) return null;
 
       const { data: userLevel, error } = await supabase
         .from('user_current_level')
@@ -26,6 +28,7 @@ export const useUserLevel = (userId?: string) => {
           )
         `)
         .eq('user_id', targetUserId)
+        .eq('company_id', currentCompanyId)
         .maybeSingle();
 
       if (error) throw error;
@@ -62,7 +65,7 @@ export const useUserLevel = (userId?: string) => {
         coins_to_next_level: coinsToNext
       };
     },
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && !!currentCompanyId,
     staleTime: 30000,
     refetchOnWindowFocus: false,
   });

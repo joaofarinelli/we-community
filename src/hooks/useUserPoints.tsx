@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const useUserCoins = (userId?: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['userCoins', targetUserId],
+    queryKey: ['userCoins', targetUserId, currentCompanyId],
     queryFn: async () => {
-      if (!targetUserId) return null;
+      if (!targetUserId || !currentCompanyId) return null;
 
       const { data: userCoins, error } = await supabase
         .from('user_points')
@@ -18,6 +20,7 @@ export const useUserCoins = (userId?: string) => {
           profiles!user_points_user_id_fkey(first_name, last_name)
         `)
         .eq('user_id', targetUserId)
+        .eq('company_id', currentCompanyId)
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
@@ -26,6 +29,7 @@ export const useUserCoins = (userId?: string) => {
       if (!userCoins) {
         return {
           user_id: targetUserId,
+          company_id: currentCompanyId,
           total_coins: 0,
           total_points: 0,
           profiles: null
@@ -34,7 +38,7 @@ export const useUserCoins = (userId?: string) => {
 
       return userCoins;
     },
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && !!currentCompanyId,
     staleTime: 30000, // Cache for 30 seconds
     refetchOnWindowFocus: false,
   });

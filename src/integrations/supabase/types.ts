@@ -1643,6 +1643,17 @@ export type Database = {
         Args: { p_company_id: string; p_created_by: string }
         Returns: undefined
       }
+      create_user_profile_for_company: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_first_name: string
+          p_last_name: string
+          p_email?: string
+          p_role?: string
+        }
+        Returns: string
+      }
       deduct_user_coins: {
         Args: {
           p_user_id: string
@@ -1656,9 +1667,40 @@ export type Database = {
         Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
         Returns: string
       }
+      get_user_companies: {
+        Args: { p_user_id: string }
+        Returns: {
+          company_id: string
+          company_name: string
+          company_subdomain: string
+          company_custom_domain: string
+          user_role: string
+          profile_created_at: string
+        }[]
+      }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_company_id_for_context: {
+        Args: { p_company_id?: string }
+        Returns: string
+      }
+      get_user_profile_for_company: {
+        Args: { p_user_id: string; p_company_id: string }
+        Returns: {
+          id: string
+          user_id: string
+          company_id: string
+          first_name: string
+          last_name: string
+          email: string
+          phone: string
+          role: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }[]
       }
       is_company_owner: {
         Args: Record<PropertyKey, never>

@@ -15,6 +15,7 @@ import {
 
 import { useCompany } from "@/hooks/useCompany";
 import { CompanyLogo } from "@/components/ui/company-logo";
+import { CompanySwitcher } from "./CompanySwitcher";
 
 const mainItems = [
   { title: "Home", url: "/dashboard", icon: Home },
@@ -48,12 +49,15 @@ export function AppSidebar() {
               <Users className="h-6 w-6 text-white" />
             </div>
             {!collapsed && (
-              <div className="animate-fade-in">
-                <CompanyLogo 
-                  fallbackText="Minha Comunidade"
-                  textClassName="text-lg font-bold font-heading"
-                  logoClassName="h-8 w-auto object-contain max-w-[140px]"
-                />
+              <div className="animate-fade-in flex-1">
+                <div className="flex items-center justify-between">
+                  <CompanyLogo 
+                    fallbackText="Minha Comunidade"
+                    textClassName="text-lg font-bold font-heading"
+                    logoClassName="h-8 w-auto object-contain max-w-[120px]"
+                  />
+                  <CompanySwitcher />
+                </div>
                 <p className="text-sm text-muted-foreground font-medium">Comunidade Premium</p>
               </div>
             )}
