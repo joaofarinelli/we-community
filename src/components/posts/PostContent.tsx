@@ -4,6 +4,8 @@ import Link from '@tiptap/extension-link';
 import Mention from '@tiptap/extension-mention';
 import ResizeImage from 'tiptap-extension-resize-image';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { ImageViewerDialog } from './ImageViewerDialog';
 
 interface PostContentProps {
   content: string;
@@ -11,6 +13,9 @@ interface PostContentProps {
 }
 
 export const PostContent = ({ content, className }: PostContentProps) => {
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState('');
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -55,6 +60,7 @@ export const PostContent = ({ content, className }: PostContentProps) => {
           'prose-blockquote:text-muted-foreground prose-blockquote:border-border',
           'prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded',
           '[&_.apple-emoji]:font-emoji',
+          '[&_img]:cursor-pointer [&_img]:rounded-lg [&_img]:transition-all [&_img]:hover:opacity-80',
           'focus:outline-none',
           className
         ),
@@ -62,9 +68,39 @@ export const PostContent = ({ content, className }: PostContentProps) => {
     },
   });
 
+  // Add click handler for images
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleImageClick = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'IMG') {
+        const img = target as HTMLImageElement;
+        setSelectedImageUrl(img.src);
+        setImageViewerOpen(true);
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
+    const editorElement = editor.view.dom;
+    editorElement.addEventListener('click', handleImageClick);
+
+    return () => {
+      editorElement.removeEventListener('click', handleImageClick);
+    };
+  }, [editor]);
+
   return (
     <div className="w-full">
       <EditorContent editor={editor} />
+      
+      <ImageViewerDialog
+        open={imageViewerOpen}
+        onOpenChange={setImageViewerOpen}
+        imageUrl={selectedImageUrl}
+        alt="Imagem do post"
+      />
     </div>
   );
 };
