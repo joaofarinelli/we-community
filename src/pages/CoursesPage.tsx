@@ -42,6 +42,61 @@ export const CoursesPage = () => {
     );
   };
 
+  const CourseSection = ({ course }: { course: any }) => {
+    const { data: modules } = useCourseModules(course.id);
+    
+    return (
+      <div className="space-y-6">
+        {/* Course Header */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+              {course.title}
+            </h2>
+            {course.description && (
+              <p className="text-lg text-muted-foreground max-w-3xl">
+                {course.description}
+              </p>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-6 text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
+              <span className="font-medium">{modules?.length || 0} módulos</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="font-medium">Duração estimada: {(modules?.length || 0) * 2}h</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Modules Horizontal Scroll */}
+        {modules && modules.length > 0 ? (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {modules.map((module) => (
+              <ModuleCardWithData 
+                key={module.id} 
+                module={module} 
+                courseId={course.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-12 text-center border border-dashed border-muted-foreground/25 rounded-lg">
+            <div className="space-y-2">
+              <BookOpen className="h-8 w-8 text-muted-foreground mx-auto" />
+              <p className="text-sm text-muted-foreground">
+                Nenhum módulo disponível neste curso
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -82,59 +137,9 @@ export const CoursesPage = () => {
               ))}
             </div>
           ) : filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => {
-              const { data: modules } = useCourseModules(course.id);
-              return (
-                <div key={course.id} className="space-y-6">
-                  {/* Course Header */}
-                  <div className="space-y-4">
-                    <div>
-                      <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
-                        {course.title}
-                      </h2>
-                      {course.description && (
-                        <p className="text-lg text-muted-foreground max-w-3xl">
-                          {course.description}
-                        </p>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-6 text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <BookOpen className="h-4 w-4" />
-                        <span className="font-medium">{modules?.length || 0} módulos</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span className="font-medium">Duração estimada: {(modules?.length || 0) * 2}h</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Modules Horizontal Scroll */}
-                  {modules && modules.length > 0 ? (
-                    <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-                      {modules.map((module) => (
-                        <ModuleCardWithData 
-                          key={module.id} 
-                          module={module} 
-                          courseId={course.id}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center py-12 text-center border border-dashed border-muted-foreground/25 rounded-lg">
-                      <div className="space-y-2">
-                        <BookOpen className="h-8 w-8 text-muted-foreground mx-auto" />
-                        <p className="text-sm text-muted-foreground">
-                          Nenhum módulo disponível neste curso
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })
+            filteredCourses.map((course) => (
+              <CourseSection key={course.id} course={course} />
+            ))
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="rounded-full bg-muted p-6 mb-4">
