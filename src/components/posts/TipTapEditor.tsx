@@ -40,7 +40,7 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
       BubbleMenuExtension,
       ResizeImage.configure({
         HTMLAttributes: {
-          class: 'max-w-full h-auto rounded-lg',
+          class: 'max-w-full max-h-[60vh] h-auto rounded-lg object-contain',
         },
       }),
       Placeholder.configure({

@@ -145,7 +145,7 @@ export const PostDialog = ({
     }
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-background">
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-background overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between p-4 border-b border-border">
           <DialogTitle className="text-lg font-semibold">
             {mode === 'create' ? 'Criar publicação' : 'Editar publicação'}
@@ -162,7 +162,7 @@ export const PostDialog = ({
           </div>
 
           {/* Editor de conteúdo */}
-          <div className="flex-1 min-h-[300px]">
+          <div className="flex-1 min-h-[300px] overflow-y-auto">
             <TipTapEditor ref={editorRef} content={content} onChange={setContent} placeholder="Escreva algo..." className="min-h-[300px]" />
           </div>
 
