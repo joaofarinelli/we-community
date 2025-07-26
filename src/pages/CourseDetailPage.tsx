@@ -58,101 +58,88 @@ export const CourseDetailPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/courses')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar aos Cursos
-          </Button>
-        </div>
-
-        {/* Course Info */}
-        <div className="space-y-4">
-          <div className="flex flex-col gap-4 lg:flex-row">
-            {/* Course Image */}
-            <div className="aspect-video w-full max-w-md overflow-hidden rounded-lg bg-muted lg:w-80">
-              {course.thumbnail_url ? (
-                <img 
-                  src={course.thumbnail_url} 
-                  alt={course.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  <BookOpen className="h-16 w-16 text-muted-foreground" />
-                </div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-primary/10 via-primary/5 to-background">
+          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
+          <div className="relative px-8 py-12">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/courses')}
+              className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Voltar aos Cursos
+            </Button>
+            
+            <div className="max-w-4xl">
+              <h1 className="text-5xl font-bold tracking-tight mb-4 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                {course.title}
+              </h1>
+              {course.description && (
+                <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl">
+                  {course.description}
+                </p>
               )}
-            </div>
-
-            {/* Course Details */}
-            <div className="flex-1 space-y-4">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">{course.title}</h1>
-                {course.description && (
-                  <p className="mt-2 text-lg text-muted-foreground">
-                    {course.description}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  <span>{modules?.length || 0} módulos</span>
+              
+              <div className="flex items-center gap-8 mt-8 text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  <span className="font-medium">{modules?.length || 0} módulos</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  <span className="font-medium">Duração estimada: {modules?.length * 2 || 0}h</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Progress and Rewards */}
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Modules Section */}
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold">Módulos do Curso</h2>
+        {/* Modules Showcase */}
+        <div className="px-8 py-12">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold mb-2">Módulos do Curso</h2>
+            <p className="text-muted-foreground">Explore o conteúdo organizado por módulos</p>
+          </div>
           
           {modulesLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex gap-6 overflow-x-auto pb-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="space-y-3 rounded-lg border p-4">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
+                <div key={i} className="flex-none w-80 h-48 rounded-xl border bg-card p-6">
+                  <Skeleton className="h-6 w-3/4 mb-4" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-2/3 mb-6" />
                   <Skeleton className="h-10 w-full" />
                 </div>
               ))}
             </div>
           ) : modules && modules.length > 0 ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
               {modules.map((module) => (
                 <ModuleCardWithData key={module.id} module={module} />
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum módulo encontrado</h3>
-              <p className="text-muted-foreground">
-                Este curso ainda não possui módulos criados.
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="rounded-full bg-muted p-6 mb-4">
+                <BookOpen className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Nenhum módulo encontrado</h3>
+              <p className="text-muted-foreground max-w-md">
+                Este curso ainda não possui módulos criados. Volte em breve para ver o conteúdo disponível.
               </p>
             </div>
           )}
-            </div>
-          </div>
+        </div>
 
-          {/* Rewards Sidebar */}
-          <div className="lg:col-span-1">
+        {/* Course Rewards Summary */}
+        <div className="px-8 pb-12">
+          <div className="max-w-md">
             <CourseRewardsSummary 
               courseId={courseId!}
               totalLessons={modules?.reduce((total, module) => {
-                // This would need to be calculated properly
                 return total + 5; // Placeholder
               }, 0) || 0}
               totalModules={modules?.length || 0}
