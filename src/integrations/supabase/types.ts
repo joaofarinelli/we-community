@@ -1815,6 +1815,19 @@ export type Database = {
         Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
         Returns: string
       }
+      get_user_accessible_companies: {
+        Args: { p_user_email: string }
+        Returns: {
+          company_id: string
+          company_name: string
+          company_subdomain: string
+          company_custom_domain: string
+          company_logo_url: string
+          user_role: string
+          profile_created_at: string
+          user_id: string
+        }[]
+      }
       get_user_companies: {
         Args: { p_user_id: string }
         Returns: {

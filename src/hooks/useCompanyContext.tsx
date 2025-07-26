@@ -50,23 +50,42 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   // Fetch user's companies when user changes
   useEffect(() => {
     const fetchUserCompanies = async () => {
-      if (!user?.id) {
+      if (!user?.id || !user?.email) {
         setUserCompanies([]);
         setIsLoading(false);
         return;
       }
 
       try {
-        const { data, error } = await supabase.rpc('get_user_companies', {
+        // First try the regular approach for the current user
+        const { data: regularCompanies, error: regularError } = await supabase.rpc('get_user_companies', {
           p_user_id: user.id
         });
 
-        if (error) {
-          console.error('Error fetching user companies:', error);
-          setUserCompanies([]);
-        } else {
-          setUserCompanies(data || []);
+        if (regularError) {
+          console.error('Error fetching user companies:', regularError);
         }
+
+        // Also try the email-based approach for cross-domain access
+        const { data: emailCompanies, error: emailError } = await supabase.rpc('get_user_accessible_companies', {
+          p_user_email: user.email
+        });
+
+        if (emailError) {
+          console.error('Error fetching companies by email:', emailError);
+        }
+
+        // Combine and deduplicate companies
+        const allCompanies = [...(regularCompanies || []), ...(emailCompanies || [])];
+        const uniqueCompanies = allCompanies.reduce((acc, current) => {
+          const existing = acc.find(item => item.company_id === current.company_id);
+          if (!existing) {
+            acc.push(current);
+          }
+          return acc;
+        }, [] as UserCompany[]);
+
+        setUserCompanies(uniqueCompanies);
       } catch (error) {
         console.error('Error fetching user companies:', error);
         setUserCompanies([]);
