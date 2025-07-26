@@ -28,7 +28,7 @@ export const ModuleCard = ({
     if (isLoading) return;
     
     if (nextLesson) {
-      navigate(`/courses/${module.course_id}/lessons/${nextLesson.id}`);
+      navigate(`/courses/${module.course_id}/modules/${module.id}/lessons/${nextLesson.id}`);
     } else {
       // Fallback to module page if no lessons found
       navigate(`/courses/${module.course_id}/modules/${module.id}`);
