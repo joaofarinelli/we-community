@@ -44,28 +44,6 @@ export const ModuleDetailPage = () => {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/courses')}
-            className="h-auto p-0 hover:bg-transparent"
-          >
-            Cursos
-          </Button>
-          <span>/</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(`/courses`)}
-            className="h-auto p-0 hover:bg-transparent"
-          >
-            {course.title}
-          </Button>
-          <span>/</span>
-          <span className="text-foreground">{module.title}</span>
-        </div>
 
         {/* Back Button */}
         <div className="flex items-center gap-4">
