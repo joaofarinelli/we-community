@@ -85,10 +85,21 @@ export const CrossDomainAuthProvider = ({ children }: { children: React.ReactNod
     const targetDomain = account.company_custom_domain || 
       (account.company_subdomain ? `${account.company_subdomain}.${window.location.hostname.split('.').slice(-2).join('.')}` : window.location.hostname);
     
-    if (targetDomain !== window.location.hostname) {
+    // Don't redirect to lovable.dev or other development domains
+    const isLovableDomain = targetDomain?.includes('lovable.dev') || targetDomain?.includes('lovable.co');
+    const currentDomain = window.location.hostname;
+    
+    if (targetDomain && targetDomain !== currentDomain && !isLovableDomain) {
       window.location.href = `${window.location.protocol}//${targetDomain}/auth?action=cross-domain`;
     } else {
-      // Same domain, just refresh
+      // Same domain or lovable domain - implement local company switching
+      console.log('Switching to company on same domain:', account.company_name);
+      
+      // Store the target company preference
+      localStorage.setItem('preferredCompanyId', account.company_id);
+      localStorage.setItem('preferredUserId', account.user_id);
+      
+      // Reload the page to trigger company context refresh
       window.location.reload();
     }
   };

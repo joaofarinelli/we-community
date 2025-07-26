@@ -8,7 +8,7 @@ export const useCompany = () => {
   const { subdomain, customDomain } = useSubdomain();
 
   return useQuery({
-    queryKey: ['company', subdomain, customDomain, user?.id],
+    queryKey: ['company', subdomain, customDomain, user?.id, localStorage.getItem('preferredCompanyId')],
     queryFn: async () => {
       // Priority 1: If we have a custom domain, fetch company by custom domain
       if (customDomain) {
@@ -51,7 +51,50 @@ export const useCompany = () => {
         p_user_id: user.id
       });
 
-      if (!userCompanies || userCompanies.length === 0) return null;
+      if (!userCompanies || userCompanies.length === 0) {
+        // Try email-based lookup for cross-domain access
+        const { data: emailCompanies } = await supabase.rpc('get_user_accessible_companies', {
+          p_user_email: user.email
+        });
+
+        if (emailCompanies && emailCompanies.length > 0) {
+          // Check for preferred company
+          const preferredCompanyId = localStorage.getItem('preferredCompanyId');
+          const preferredCompany = emailCompanies.find(c => c.company_id === preferredCompanyId);
+          
+          if (preferredCompany) {
+            const { data: company } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('id', preferredCompany.company_id)
+              .single();
+            return company;
+          }
+
+          // Use first available company
+          const { data: company } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', emailCompanies[0].company_id)
+            .single();
+          return company;
+        }
+        return null;
+      }
+
+      // Check for preferred company
+      const preferredCompanyId = localStorage.getItem('preferredCompanyId');
+      if (preferredCompanyId) {
+        const hasAccess = userCompanies.some(uc => uc.company_id === preferredCompanyId);
+        if (hasAccess) {
+          const { data: company } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', preferredCompanyId)
+            .single();
+          return company;
+        }
+      }
 
       // If user has only one company, return it
       if (userCompanies.length === 1) {
