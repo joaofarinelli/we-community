@@ -1717,6 +1717,10 @@ export type Database = {
         Args: { space_id: string; user_id: string }
         Returns: boolean
       }
+      check_module_completion: {
+        Args: { p_user_id: string; p_module_id: string }
+        Returns: boolean
+      }
       create_default_levels: {
         Args: { p_company_id: string; p_created_by: string }
         Returns: undefined
