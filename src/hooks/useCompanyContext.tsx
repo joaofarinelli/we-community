@@ -12,6 +12,7 @@ interface UserCompany {
   company_logo_url: string | null;
   user_role: string;
   profile_created_at: string;
+  user_id?: string; // Optional for extended query results
 }
 
 interface CompanyContextType {
@@ -100,6 +101,16 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   const switchToCompany = (companyId: string) => {
     const company = userCompanies.find(c => c.company_id === companyId);
     if (!company) return;
+
+    // Check if we need to authenticate as a different user for this company
+    const currentUserId = user?.id;
+    const targetUserId = (company as any).user_id; // From our extended query result
+
+    if (targetUserId && currentUserId !== targetUserId) {
+      // For cross-user access, we need to redirect with a special parameter
+      // This would typically require a more sophisticated solution
+      console.log('Cross-user company access detected', { currentUserId, targetUserId });
+    }
 
     // Redirect to the company's domain
     const targetDomain = company.company_custom_domain || 

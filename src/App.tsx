@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/hooks/useCompanyContext";
+import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { AuthGuard } from "@/components/AuthGuard";
 import { MultiCompanyGuard } from "@/components/MultiCompanyGuard";
 import Index from "./pages/Index";
@@ -98,18 +99,20 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <CompanyProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <AppRoutes />
-            </TooltipProvider>
-          </ThemeProvider>
+          <CrossDomainAuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <AppRoutes />
+              </TooltipProvider>
+            </ThemeProvider>
+          </CrossDomainAuthProvider>
         </CompanyProvider>
       </AuthProvider>
     </BrowserRouter>
