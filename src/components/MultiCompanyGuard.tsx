@@ -17,8 +17,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
   const { userCompanies, isLoading: companyContextLoading, currentCompanyId } = useCompanyContext();
 
   useEffect(() => {
-    // If we have a subdomain/custom domain but no company found, redirect to main domain
-    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company) {
+    // Only redirect if we have a subdomain/custom domain but no company found AND user is authenticated
+    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company && user) {
       console.log('No company found for subdomain/domain, redirecting to main domain');
       const baseDomain = window.location.hostname.split('.').slice(-2).join('.');
       const mainDomain = baseDomain.includes('localhost') ? 'localhost:5173' : baseDomain;
@@ -49,8 +49,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
     );
   }
 
-  // If we have a subdomain or custom domain but no company, show error and redirect
-  if ((subdomain || customDomain) && !company && !companyLoading) {
+  // If we have a subdomain or custom domain but no company AND user is authenticated, show error and redirect
+  if ((subdomain || customDomain) && !company && !companyLoading && user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

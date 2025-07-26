@@ -16,9 +16,17 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-community.jpg";
+import { useCompany } from "@/hooks/useCompany";
+import { useSubdomain } from "@/hooks/useSubdomain";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { data: company } = useCompany();
+  const { subdomain, customDomain } = useSubdomain();
+  
+  // Check if we're on a company domain
+  const isCompanyDomain = Boolean(subdomain || customDomain);
+  const companyName = company?.name || "CommunityHub";
   const features = [
     {
       icon: Users,
@@ -68,7 +76,7 @@ const Index = () => {
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Users className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold">CommunityHub</span>
+            <span className="text-xl font-bold">{companyName}</span>
           </div>
           <div className="flex items-center space-x-4">
             <Button variant="ghost" onClick={() => navigate('/auth')}>Login</Button>
@@ -89,15 +97,35 @@ const Index = () => {
                   Plataforma SaaS Completa
                 </Badge>
                 <h1 className="text-5xl lg:text-6xl font-bold leading-tight animate-slide-up">
-                  Gerencie suas{" "}
-                  <span className="bg-gradient-primary bg-clip-text text-transparent">
-                    Comunidades
-                  </span>{" "}
-                  com Inteligência
+                  {isCompanyDomain ? (
+                    <>
+                      Bem-vindo à{" "}
+                      <span className="bg-gradient-primary bg-clip-text text-transparent">
+                        {companyName}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      Gerencie suas{" "}
+                      <span className="bg-gradient-primary bg-clip-text text-transparent">
+                        Comunidades
+                      </span>{" "}
+                      com Inteligência
+                    </>
+                  )}
                 </h1>
                 <p className="text-xl text-muted-foreground leading-relaxed animate-slide-up">
-                  A plataforma completa para criar, gerenciar e fazer crescer comunidades online 
-                  com gamificação, cursos e ferramentas administrativas avançadas.
+                  {isCompanyDomain ? (
+                    <>
+                      Faça login para acessar sua comunidade e aproveitar todos os recursos disponíveis:
+                      gamificação, cursos, marketplace e muito mais.
+                    </>
+                  ) : (
+                    <>
+                      A plataforma completa para criar, gerenciar e fazer crescer comunidades online 
+                      com gamificação, cursos e ferramentas administrativas avançadas.
+                    </>
+                  )}
                 </p>
               </div>
               
@@ -109,11 +137,13 @@ const Index = () => {
                   onClick={() => navigate('/auth')}
                 >
                   <Shield className="h-5 w-5 mr-2" />
-                  Criar Minha Comunidade
+                  {isCompanyDomain ? "Fazer Login" : "Criar Minha Comunidade"}
                 </Button>
-                <Button variant="outline" size="xl">
-                  Ver Demo ao Vivo
-                </Button>
+                {!isCompanyDomain && (
+                  <Button variant="outline" size="xl">
+                    Ver Demo ao Vivo
+                  </Button>
+                )}
               </div>
 
               <div className="flex items-center space-x-6 pt-4">
@@ -292,7 +322,7 @@ const Index = () => {
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
                   <Users className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-lg font-bold">CommunityHub</span>
+                <span className="text-lg font-bold">{companyName}</span>
               </div>
               <p className="text-muted-foreground">
                 A plataforma definitiva para gestão de comunidades online.
