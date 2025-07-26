@@ -95,11 +95,11 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
           size="sm"
           onClick={handleLike}
           className={cn(
-            "flex items-center space-x-2 hover:bg-blue-50 hover:text-blue-600",
-            userLiked && "text-blue-600 bg-blue-50"
+            "flex items-center space-x-2 hover:bg-primary/10 hover:text-primary",
+            userLiked && "bg-primary text-primary-foreground"
           )}
         >
-          <ThumbsUp className={cn("h-4 w-4", userLiked && "fill-current")} />
+          <ThumbsUp className="h-4 w-4" />
           <span>Curtir</span>
         </Button>
 
