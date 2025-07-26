@@ -1,15 +1,11 @@
-import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { CourseCard } from '@/components/courses/CourseCard';
 import { ModuleCard } from '@/components/courses/ModuleCard';
 import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
-import { Search, BookOpen, Clock } from 'lucide-react';
+import { BookOpen, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ModuleCardWithData = ({ module, courseId, userProgress }: { 
@@ -93,14 +89,8 @@ const CourseSection = ({ course, userProgress }: { course: any; userProgress: an
 };
 
 export const CoursesPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const { data: courses, isLoading } = useCourses();
   const { data: userProgress } = useUserCourseProgress();
-
-  const filteredCourses = courses?.filter(course =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.description?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
 
   return (
     <DashboardLayout>
@@ -108,18 +98,6 @@ export const CoursesPage = () => {
         {/* Course Banner */}
         <CourseBannerSection />
         
-        {/* Search Section */}
-        <div className="px-8 py-6 border-b border-border/50">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Buscar cursos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-background/50 backdrop-blur-sm"
-            />
-          </div>
-        </div>
 
         {/* Courses Showcase */}
         <div className="px-8 py-8 space-y-12">
@@ -141,8 +119,8 @@ export const CoursesPage = () => {
                 </div>
               ))}
             </div>
-          ) : filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
+          ) : courses && courses.length > 0 ? (
+            courses.map((course) => (
               <CourseSection key={course.id} course={course} userProgress={userProgress || []} />
             ))
           ) : (
@@ -150,20 +128,10 @@ export const CoursesPage = () => {
               <div className="rounded-full bg-muted p-6 mb-4">
                 <BookOpen className="h-12 w-12 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">
-                {searchTerm ? 'Nenhum curso encontrado' : 'Nenhum curso disponível'}
-              </h3>
+              <h3 className="text-xl font-semibold mb-2">Nenhum curso disponível</h3>
               <p className="text-muted-foreground mb-4 max-w-md">
-                {searchTerm 
-                  ? 'Tente ajustar os termos de busca para encontrar o curso desejado'
-                  : 'Não há cursos disponíveis no momento. Volte em breve para ver novos conteúdos.'
-                }
+                Não há cursos disponíveis no momento. Volte em breve para ver novos conteúdos.
               </p>
-              {searchTerm && (
-                <Button variant="outline" onClick={() => setSearchTerm('')}>
-                  Limpar busca
-                </Button>
-              )}
             </div>
           )}
         </div>
