@@ -1,5 +1,6 @@
 import { Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useModuleNextLesson } from '@/hooks/useModuleNextLesson';
 
 interface ModuleCardProps {
   module: {
@@ -21,12 +22,23 @@ export const ModuleCard = ({
   isCompleted = false 
 }: ModuleCardProps) => {
   const navigate = useNavigate();
-  const progress = lessonCount > 0 ? (completedLessons / lessonCount) * 100 : 0;
+  const { data: nextLesson, isLoading } = useModuleNextLesson(module.id, module.course_id);
+
+  const handleClick = () => {
+    if (isLoading) return;
+    
+    if (nextLesson) {
+      navigate(`/courses/${module.course_id}/lessons/${nextLesson.id}`);
+    } else {
+      // Fallback to module page if no lessons found
+      navigate(`/courses/${module.course_id}/modules/${module.id}`);
+    }
+  };
 
   return (
     <div 
       className="flex-none w-60 h-96 group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
-      onClick={() => navigate(`/courses/${module.course_id}/modules/${module.id}`)}
+      onClick={handleClick}
     >
       {module.thumbnail_url ? (
         <img 
