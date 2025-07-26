@@ -12,39 +12,40 @@ import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { UserPostItem } from './UserPostItem';
-import { 
-  User, 
-  Mail, 
-  MapPin, 
-  Calendar, 
-  Edit3, 
-  Instagram, 
-  MessageSquare, 
-  FileText, 
-  Users,
-  Clock,
-  X,
-  Phone
-} from 'lucide-react';
-
+import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps) => {
-  const { user } = useAuth();
-  const { data: company } = useCompany();
-  const { data: userPoints } = useUserPoints();
-  const { data: userLevel } = useUserLevel();
-  const { data: userProfile, isLoading } = useUserProfile();
-  const { data: userPosts = [] } = useUserPosts(user?.id || '');
-  const { data: userStats } = useUserStats(user?.id || '');
-
+export const UserProfileDialog = ({
+  open,
+  onOpenChange
+}: UserProfileDialogProps) => {
+  const {
+    user
+  } = useAuth();
+  const {
+    data: company
+  } = useCompany();
+  const {
+    data: userPoints
+  } = useUserPoints();
+  const {
+    data: userLevel
+  } = useUserLevel();
+  const {
+    data: userProfile,
+    isLoading
+  } = useUserProfile();
+  const {
+    data: userPosts = []
+  } = useUserPosts(user?.id || '');
+  const {
+    data: userStats
+  } = useUserStats(user?.id || '');
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
-    
     if (firstName && lastName) {
       return `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`;
     } else if (firstName) {
@@ -52,14 +53,11 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
     } else if (userProfile?.email) {
       return userProfile.email.substring(0, 2).toUpperCase();
     }
-    
     return 'U';
   };
-
   const getDisplayName = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
-    
     if (firstName && lastName) {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
@@ -67,10 +65,8 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
     } else if (userProfile?.email) {
       return userProfile.email.split('@')[0];
     }
-    
     return 'Usuário';
   };
-
   const getMemberSince = () => {
     if (userProfile?.created_at) {
       return new Date(userProfile.created_at).toLocaleDateString('pt-BR', {
@@ -81,7 +77,6 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
     }
     return 'Data não disponível';
   };
-
   const getLastSeen = () => {
     if (userProfile?.updated_at) {
       const updatedDate = new Date(userProfile.updated_at);
@@ -89,7 +84,6 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
       const diffMs = now.getTime() - updatedDate.getTime();
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      
       if (diffDays > 0) {
         return `há ${diffDays} dia${diffDays > 1 ? 's' : ''}`;
       } else if (diffHours > 0) {
@@ -100,19 +94,12 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
     }
     return 'não disponível';
   };
-
   if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
+    return <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
           <DialogHeader className="flex flex-row items-center justify-between p-6 border-b">
             <DialogTitle className="text-2xl font-bold">Perfil</DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8"
-            >
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="h-8 w-8">
               <X className="h-4 w-4" />
             </Button>
           </DialogHeader>
@@ -123,23 +110,13 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
             </div>
           </div>
         </DialogContent>
-      </Dialog>
-    );
+      </Dialog>;
   }
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+  return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogHeader className="flex flex-row items-center justify-between p-6 border-b">
           <DialogTitle className="text-2xl font-bold">Perfil</DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          
         </DialogHeader>
 
         <div className="flex flex-col lg:flex-row h-full">
@@ -163,13 +140,9 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                   <Calendar className="h-4 w-4 mr-1" />
                   Membro desde {getMemberSince()}
                 </div>
-                {userProfile?.role && (
-                  <Badge variant="secondary" className="mt-2">
-                    {userProfile.role === 'owner' ? 'Proprietário' : 
-                     userProfile.role === 'admin' ? 'Administrador' :
-                     userProfile.role === 'moderator' ? 'Moderador' : 'Membro'}
-                  </Badge>
-                )}
+                {userProfile?.role && <Badge variant="secondary" className="mt-2">
+                    {userProfile.role === 'owner' ? 'Proprietário' : userProfile.role === 'admin' ? 'Administrador' : userProfile.role === 'moderator' ? 'Moderador' : 'Membro'}
+                  </Badge>}
               </div>
 
               <Button className="w-full" variant="outline">
@@ -200,9 +173,7 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Biografia</h3>
                   <p className="text-muted-foreground">
-                    {userProfile?.first_name && userProfile?.last_name 
-                      ? `${userProfile.first_name} ${userProfile.last_name}` 
-                      : 'Nenhuma biografia adicionada ainda.'}
+                    {userProfile?.first_name && userProfile?.last_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'Nenhuma biografia adicionada ainda.'}
                   </p>
                 </div>
 
@@ -214,18 +185,15 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                       <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
                       <span>{userProfile?.email}</span>
                     </div>
-                    {userProfile?.phone && (
-                      <div className="flex items-center">
+                    {userProfile?.phone && <div className="flex items-center">
                         <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
                         <span>{userProfile.phone}</span>
-                      </div>
-                    )}
+                      </div>}
                   </div>
                 </div>
 
                 {/* Company Info */}
-                {company && (
-                  <div>
+                {company && <div>
                     <h3 className="text-lg font-semibold mb-3">Empresa</h3>
                     <div className="space-y-2">
                       <div className="flex items-center">
@@ -233,12 +201,10 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                         <span>{company.name}</span>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Gamification Stats */}
-                {userPoints && (
-                  <div>
+                {userPoints && <div>
                     <h3 className="text-lg font-semibold mb-3">Estatísticas</h3>
                     <div className="grid grid-cols-2 gap-4">
                       <Card>
@@ -249,41 +215,28 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
                           <div className="text-sm text-muted-foreground">Moedas</div>
                         </CardContent>
                       </Card>
-                      {userLevel && (
-                        <Card>
+                      {userLevel && <Card>
                           <CardContent className="p-4 text-center">
                             <div className="text-2xl font-bold text-primary">
                               {userLevel.user_levels?.level_name}
                             </div>
                             <div className="text-sm text-muted-foreground">Nível Atual</div>
                           </CardContent>
-                        </Card>
-                      )}
+                        </Card>}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </TabsContent>
 
               <TabsContent value="publicacoes" className="mt-6">
-                {userPosts.length > 0 ? (
-                  <div className="space-y-3">
-                    {userPosts.map((post) => (
-                      <UserPostItem 
-                        key={post.id} 
-                        post={post}
-                        onClick={() => {
-                          // Navigate to post or space
-                          window.location.href = `/dashboard/space/${post.space_id}`;
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
+                {userPosts.length > 0 ? <div className="space-y-3">
+                    {userPosts.map(post => <UserPostItem key={post.id} post={post} onClick={() => {
+                  // Navigate to post or space
+                  window.location.href = `/dashboard/space/${post.space_id}`;
+                }} />)}
+                  </div> : <div className="text-center py-12 text-muted-foreground">
                     <FileText className="h-12 w-12 mx-auto mb-4" />
                     <p>Você ainda não fez nenhuma publicação</p>
-                  </div>
-                )}
+                  </div>}
               </TabsContent>
 
               <TabsContent value="comentarios" className="mt-6">
@@ -303,6 +256,5 @@ export const UserProfileDialog = ({ open, onOpenChange }: UserProfileDialogProps
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
