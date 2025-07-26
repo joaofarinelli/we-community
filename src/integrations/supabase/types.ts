@@ -1822,6 +1822,7 @@ export type Database = {
           company_name: string
           company_subdomain: string
           company_custom_domain: string
+          company_logo_url: string
           user_role: string
           profile_created_at: string
         }[]

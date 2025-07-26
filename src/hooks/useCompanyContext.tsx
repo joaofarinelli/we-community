@@ -9,6 +9,7 @@ interface UserCompany {
   company_name: string;
   company_subdomain: string | null;
   company_custom_domain: string | null;
+  company_logo_url: string | null;
   user_role: string;
   profile_created_at: string;
 }

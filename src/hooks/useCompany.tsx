@@ -46,18 +46,31 @@ export const useCompany = () => {
       // Fallback to user-based company lookup for backwards compatibility
       if (!user) return null;
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
+      // Get all user companies and find the best match for current domain
+      const { data: userCompanies } = await supabase.rpc('get_user_companies', {
+        p_user_id: user.id
+      });
 
-      if (!profile?.company_id) return null;
+      if (!userCompanies || userCompanies.length === 0) return null;
 
+      // If user has only one company, return it
+      if (userCompanies.length === 1) {
+        const { data: company } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', userCompanies[0].company_id)
+          .single();
+        return company;
+      }
+
+      // If user has multiple companies, try to find the most appropriate one
+      // Priority: 1. Recent access preference 2. First created profile
+      const selectedCompany = userCompanies[0]; // For now, use the first one (ordered by created_at DESC)
+      
       const { data: company } = await supabase
         .from('companies')
         .select('*')
-        .eq('id', profile.company_id)
+        .eq('id', selectedCompany.company_id)
         .single();
 
       return company;

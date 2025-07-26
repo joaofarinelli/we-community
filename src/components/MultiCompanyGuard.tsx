@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSubdomain } from '@/hooks/useSubdomain';
 import { useCompany } from '@/hooks/useCompany';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { CompanySelectionPage } from '@/pages/CompanySelectionPage';
+import { CompanySelectionDialog } from '@/components/dashboard/CompanySelectionDialog';
 import { Loader2 } from 'lucide-react';
 
 interface MultiCompanyGuardProps {
@@ -14,7 +15,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
   const { subdomain, customDomain, isLoading: subdomainLoading } = useSubdomain();
   const { data: company, isLoading: companyLoading } = useCompany();
   const { user, loading: authLoading } = useAuth();
-  const { userCompanies, isLoading: companyContextLoading, currentCompanyId } = useCompanyContext();
+  const { userCompanies, isLoading: companyContextLoading, currentCompanyId, switchToCompany } = useCompanyContext();
+  const [showCompanySelection, setShowCompanySelection] = useState(false);
 
   useEffect(() => {
     // Only redirect if we have a subdomain/custom domain but no company found AND user is authenticated
@@ -89,5 +91,17 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <CompanySelectionDialog
+        open={showCompanySelection}
+        onClose={() => setShowCompanySelection(false)}
+        onCompanySelect={(companyId) => {
+          switchToCompany(companyId);
+          setShowCompanySelection(false);
+        }}
+      />
+    </>
+  );
 };
