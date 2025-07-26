@@ -48,21 +48,87 @@ export const useMarkLessonComplete = () => {
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      // Check if already completed
+      const { data: existing } = await supabase
+        .from('user_course_progress')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('lesson_id', lessonId)
+        .maybeSingle();
+
+      if (existing) {
+        return { alreadyCompleted: true, rewards: null };
+      }
+
+      // Mark as completed
       const { data, error } = await supabase
         .from('user_course_progress')
-        .upsert({
+        .insert({
           user_id: user.id,
           lesson_id: lessonId,
           module_id: moduleId,
           course_id: courseId
         })
-        .select();
+        .select()
+        .single();
 
       if (error) throw error;
-      return data;
+
+      // Calculate rewards after completion
+      const rewards = await calculateCompletionRewards(user.id, lessonId, moduleId, courseId);
+
+      return { alreadyCompleted: false, rewards, progress: data };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['user-course-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['userCoins'] });
+      
+      if (result.rewards) {
+        // Trigger reward notification
+        queryClient.setQueryData(['lesson-completion-reward'], result.rewards);
+      }
     }
   });
+};
+
+// Helper function to calculate rewards
+const calculateCompletionRewards = async (
+  userId: string, 
+  lessonId: string, 
+  moduleId: string, 
+  courseId: string
+) => {
+  const rewards = {
+    lessonCoins: 15, // From calculate_coins_for_action function
+    moduleComplete: false,
+    moduleCoins: 0,
+    courseComplete: false,
+    courseCoins: 0
+  };
+
+  // Check if module is now completed
+  const { data: moduleCompleted } = await supabase
+    .rpc('check_module_completion', {
+      p_user_id: userId,
+      p_module_id: moduleId
+    });
+
+  if (moduleCompleted) {
+    rewards.moduleComplete = true;
+    rewards.moduleCoins = 50;
+
+    // Check if course is now completed  
+    const { data: courseCompleted } = await supabase
+      .rpc('check_module_completion', {
+        p_user_id: userId,
+        p_module_id: courseId
+      });
+
+    if (courseCompleted) {
+      rewards.courseComplete = true;
+      rewards.courseCoins = 200;
+    }
+  }
+
+  return rewards;
 };

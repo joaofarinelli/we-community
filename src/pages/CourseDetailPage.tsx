@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { ModuleCard } from '@/components/courses/ModuleCard';
+import { CourseRewardsSummary } from '@/components/courses/CourseRewardsSummary';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
@@ -110,9 +111,12 @@ export const CourseDetailPage = () => {
           </div>
         </div>
 
-        {/* Modules Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-semibold">Módulos do Curso</h2>
+        {/* Progress and Rewards */}
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            {/* Modules Section */}
+            <div className="space-y-4">
+              <h2 className="text-2xl font-semibold">Módulos do Curso</h2>
           
           {modulesLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -140,6 +144,20 @@ export const CourseDetailPage = () => {
               </p>
             </div>
           )}
+            </div>
+          </div>
+
+          {/* Rewards Sidebar */}
+          <div className="lg:col-span-1">
+            <CourseRewardsSummary 
+              courseId={courseId!}
+              totalLessons={modules?.reduce((total, module) => {
+                // This would need to be calculated properly
+                return total + 5; // Placeholder
+              }, 0) || 0}
+              totalModules={modules?.length || 0}
+            />
+          </div>
         </div>
       </div>
     </DashboardLayout>

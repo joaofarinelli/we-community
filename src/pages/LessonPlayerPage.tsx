@@ -14,6 +14,7 @@ import { DifficultyBadge } from '@/components/courses/DifficultyBadge';
 import { LessonComments } from '@/components/courses/LessonComments';
 import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
 import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton';
+import { LessonCompletionReward } from '@/components/courses/LessonCompletionReward';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -23,6 +24,8 @@ export const LessonPlayerPage = () => {
   }>();
   const navigate = useNavigate();
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [completionRewards, setCompletionRewards] = useState<any>(null);
   
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
@@ -51,11 +54,22 @@ export const LessonPlayerPage = () => {
     
     setIsCompleting(true);
     try {
-      await markLessonComplete.mutateAsync({
+      const result = await markLessonComplete.mutateAsync({
         lessonId: lesson.id,
         moduleId,
         courseId
       });
+
+      if (result.alreadyCompleted) {
+        toast.info('Você já completou esta lição!');
+        return;
+      }
+
+      if (result.rewards) {
+        setCompletionRewards(result.rewards);
+        setShowRewardModal(true);
+      }
+
       toast.success('Aula marcada como concluída!');
     } catch (error) {
       toast.error('Erro ao marcar aula como concluída');
@@ -336,6 +350,15 @@ export const LessonPlayerPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Completion Reward Modal */}
+        {completionRewards && (
+          <LessonCompletionReward
+            isVisible={showRewardModal}
+            onClose={() => setShowRewardModal(false)}
+            rewards={completionRewards}
+          />
+        )}
       </DashboardLayout>
   );
 };
