@@ -124,7 +124,7 @@ export const LessonPlayerPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(`/courses/${courseId}`)}
+            onClick={() => navigate(`/courses`)}
             className="h-auto p-0 hover:bg-transparent"
           >
             {course.title}

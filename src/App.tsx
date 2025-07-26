@@ -22,7 +22,7 @@ import { AdminSegmentsPage } from "./pages/admin/AdminSegmentsPage";
 import { AdminTagsPage } from "./pages/admin/AdminTagsPage";
 import { AdminUserEditPage } from "./pages/admin/AdminUserEditPage";
 import { CoursesPage } from "./pages/CoursesPage";
-import { CourseDetailPage } from "./pages/CourseDetailPage";
+
 import { ModuleDetailPage } from "./pages/ModuleDetailPage";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage";
 import { AdminCoursesPage } from "./pages/admin/AdminCoursesPage";
@@ -71,7 +71,7 @@ const AppRoutes = () => {
         <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
         <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
         <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
-        <Route path="/courses/:courseId" element={<AuthGuard><CourseDetailPage /></AuthGuard>} />
+        
         <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
         <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
         <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />

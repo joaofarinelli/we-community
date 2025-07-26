@@ -33,7 +33,7 @@ export const ModuleDetailPage = () => {
           <p className="text-muted-foreground mb-4">
             O módulo que você está procurando não existe ou foi removido.
           </p>
-          <Button onClick={() => navigate(`/courses/${courseId}`)}>
+          <Button onClick={() => navigate(`/courses`)}>
             Voltar ao Curso
           </Button>
         </div>
@@ -58,7 +58,7 @@ export const ModuleDetailPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(`/courses/${courseId}`)}
+            onClick={() => navigate(`/courses`)}
             className="h-auto p-0 hover:bg-transparent"
           >
             {course.title}
@@ -72,7 +72,7 @@ export const ModuleDetailPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(`/courses/${courseId}`)}
+            onClick={() => navigate(`/courses`)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
