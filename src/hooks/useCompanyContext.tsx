@@ -19,6 +19,7 @@ interface CompanyContextType {
   currentCompanyId: string | null;
   userCompanies: UserCompany[];
   isLoading: boolean;
+  isSpecificDomain: boolean;
   switchToCompany: (companyId: string) => Promise<void>;
   createProfileForCompany: (companyId: string, firstName: string, lastName: string) => Promise<void>;
 }
@@ -27,6 +28,7 @@ const CompanyContext = createContext<CompanyContextType>({
   currentCompanyId: null,
   userCompanies: [],
   isLoading: true,
+  isSpecificDomain: false,
   switchToCompany: async () => {},
   createProfileForCompany: async () => {},
 });
@@ -40,6 +42,9 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   const [userCompanies, setUserCompanies] = useState<UserCompany[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentCompanyId, setCurrentCompanyId] = useState<string | null>(null);
+  
+  // Check if we're on a specific domain (subdomain or custom domain)
+  const isSpecificDomain = Boolean(subdomain || customDomain);
 
   // Set current company ID based on subdomain/domain context
   useEffect(() => {
@@ -122,8 +127,18 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
           return acc;
         }, [] as UserCompany[]);
 
-        console.log('Found user companies:', uniqueCompanies.map(c => `${c.company_name} (${c.user_id})`));
-        setUserCompanies(uniqueCompanies);
+        // If we're on a specific domain, filter to show only that domain's company
+        let filteredCompanies = uniqueCompanies;
+        if (isSpecificDomain && domainCompany) {
+          filteredCompanies = uniqueCompanies.filter(company => 
+            company.company_id === domainCompany.id
+          );
+          console.log('Filtered companies for domain:', filteredCompanies.map(c => c.company_name));
+        } else {
+          console.log('Found user companies:', uniqueCompanies.map(c => `${c.company_name} (${c.user_id})`));
+        }
+        
+        setUserCompanies(filteredCompanies);
       } catch (error) {
         console.error('Error fetching user companies:', error);
         setUserCompanies([]);
@@ -133,7 +148,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     };
 
     fetchUserCompanies();
-  }, [user]);
+  }, [user, subdomain, customDomain, isSpecificDomain]);
 
   const switchToCompany = async (companyId: string) => {
     const company = userCompanies.find(c => c.company_id === companyId);
@@ -192,6 +207,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       currentCompanyId,
       userCompanies,
       isLoading,
+      isSpecificDomain,
       switchToCompany,
       createProfileForCompany
     }}>

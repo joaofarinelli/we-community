@@ -11,8 +11,24 @@ import { Separator } from '@/components/ui/separator';
 
 export const CompanySwitcher = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { userCompanies, switchToCompany, currentCompanyId } = useCompanyContext();
+  const { userCompanies, switchToCompany, currentCompanyId, isSpecificDomain } = useCompanyContext();
   const { data: currentCompany } = useCompany();
+
+  // Don't show company switcher on specific domains
+  if (isSpecificDomain) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2">
+        <Avatar className="h-6 w-6">
+          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+            {currentCompany?.name?.charAt(0) || 'C'}
+          </AvatarFallback>
+        </Avatar>
+        <span className="truncate text-sm font-medium">
+          {currentCompany?.name || 'Empresa'}
+        </span>
+      </div>
+    );
+  }
 
   const handleSwitchCompany = async (companyId: string) => {
     await switchToCompany(companyId);
