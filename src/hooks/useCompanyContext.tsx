@@ -19,7 +19,7 @@ interface CompanyContextType {
   currentCompanyId: string | null;
   userCompanies: UserCompany[];
   isLoading: boolean;
-  switchToCompany: (companyId: string) => void;
+  switchToCompany: (companyId: string) => Promise<void>;
   createProfileForCompany: (companyId: string, firstName: string, lastName: string) => Promise<void>;
 }
 
@@ -27,7 +27,7 @@ const CompanyContext = createContext<CompanyContextType>({
   currentCompanyId: null,
   userCompanies: [],
   isLoading: true,
-  switchToCompany: () => {},
+  switchToCompany: async () => {},
   createProfileForCompany: async () => {},
 });
 
@@ -92,25 +92,8 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
           }
         }
 
-        // If we have a domain company, check if current user has access to it
-        if (domainCompany) {
-          const { data: domainProfile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', user.email)
-            .eq('company_id', domainCompany.id)
-            .single();
-
-          if (domainProfile && domainProfile.user_id !== user.id) {
-            // Current user_id doesn't match the profile for this domain
-            // We need to switch to the correct user account
-            console.log('Current user_id mismatch. Expected:', domainProfile.user_id, 'Current:', user.id);
-            
-            // Sign out and redirect to login with a message
-            await supabase.auth.signOut();
-            return;
-          }
-        }
+        // Domain-specific user validation is now handled by useDomainAuth hook
+        // This context just fetches companies for the current authenticated user
 
         // First try the regular approach for the current user
         const { data: regularCompanies, error: regularError } = await supabase.rpc('get_user_companies', {
@@ -153,7 +136,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     fetchUserCompanies();
   }, [user]);
 
-  const switchToCompany = (companyId: string) => {
+  const switchToCompany = async (companyId: string) => {
     const company = userCompanies.find(c => c.company_id === companyId);
     if (!company) return;
 
@@ -162,9 +145,13 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     const targetUserId = (company as any).user_id; // From our extended query result
 
     if (targetUserId && currentUserId !== targetUserId) {
-      // For cross-user access, we need to redirect with a special parameter
-      // This would typically require a more sophisticated solution
-      console.log('Cross-user company access detected', { currentUserId, targetUserId });
+      console.log('Cross-user company access detected. Need to logout and redirect.', { currentUserId, targetUserId });
+      
+      // Sign out current user since they need to login with different account
+      await supabase.auth.signOut();
+      
+      // Set a flag to indicate which company they're trying to access
+      sessionStorage.setItem('redirect_to_company', companyId);
     }
 
     // Redirect to the company's domain
@@ -172,7 +159,12 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       (company.company_subdomain ? `${company.company_subdomain}.${window.location.hostname.split('.').slice(-2).join('.')}` : window.location.hostname);
     
     if (targetDomain !== window.location.hostname) {
-      window.location.href = `${window.location.protocol}//${targetDomain}${window.location.pathname}`;
+      window.location.href = `${window.location.protocol}//${targetDomain}/auth`;
+    } else {
+      // Same domain, just redirect to auth if logged out
+      if (targetUserId && currentUserId !== targetUserId) {
+        window.location.href = '/auth';
+      }
     }
   };
 

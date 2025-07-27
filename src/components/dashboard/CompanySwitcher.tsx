@@ -14,8 +14,8 @@ export const CompanySwitcher = () => {
   const { userCompanies, switchToCompany, currentCompanyId } = useCompanyContext();
   const { data: currentCompany } = useCompany();
 
-  const handleSwitchCompany = (companyId: string) => {
-    switchToCompany(companyId);
+  const handleSwitchCompany = async (companyId: string) => {
+    await switchToCompany(companyId);
     setIsOpen(false);
   };
 

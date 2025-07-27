@@ -3,6 +3,7 @@ import { useSubdomain } from '@/hooks/useSubdomain';
 import { useCompany } from '@/hooks/useCompany';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useDomainAuth } from '@/hooks/useDomainAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 
@@ -15,10 +16,17 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
   const { data: company, isLoading: companyLoading } = useCompany();
   const { user, loading: authLoading } = useAuth();
   const { data: userProfile } = useUserProfile();
+  const { shouldRedirectToLogin, isValidating, targetCompany } = useDomainAuth();
 
   useEffect(() => {
+    // If domain auth validation says we should redirect to login, do it
+    if (shouldRedirectToLogin && !isValidating) {
+      window.location.href = '/auth';
+      return;
+    }
+
     // If we have a subdomain or custom domain but no company found, redirect to main domain
-    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company) {
+    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company && !targetCompany) {
       const hostname = window.location.hostname;
       const parts = hostname.split('.');
       
@@ -32,34 +40,19 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
       }
       return;
     }
-
-    // If user is authenticated but doesn't belong to this company, redirect to their company's subdomain
-    if (!authLoading && !subdomainLoading && !companyLoading && user && userProfile && company && subdomain) {
-      if (userProfile.company_id !== company.id) {
-        // Find the user's company and redirect to its subdomain
-        const redirectToUserCompany = async () => {
-          const { data: userCompany } = await supabase
-            .from('companies')
-            .select('subdomain')
-            .eq('id', userProfile.company_id)
-            .single();
-          
-          if (userCompany?.subdomain) {
-            const hostname = window.location.hostname;
-            const parts = hostname.split('.');
-            const baseDomain = parts.slice(1).join('.'); // Get everything after the first part
-            window.location.href = `${window.location.protocol}//${userCompany.subdomain}.${baseDomain}${window.location.pathname}`;
-          }
-        };
-        
-        redirectToUserCompany();
-        return;
-      }
-    }
-  }, [subdomain, customDomain, company, user, userProfile, subdomainLoading, companyLoading, authLoading]);
+  }, [subdomain, customDomain, company, targetCompany, subdomainLoading, companyLoading, shouldRedirectToLogin, isValidating]);
 
   // Show loading while we're checking subdomain and company
-  if (subdomainLoading || companyLoading || authLoading) {
+  if (subdomainLoading || companyLoading || authLoading || isValidating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If domain auth says we should redirect to login, show loading
+  if (shouldRedirectToLogin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -68,7 +61,7 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
   }
 
   // If we have a subdomain or custom domain but no company, show error and redirect
-  if ((subdomain || customDomain) && !company && !companyLoading) {
+  if ((subdomain || customDomain) && !company && !targetCompany && !companyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

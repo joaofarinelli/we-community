@@ -18,8 +18,8 @@ export const CompanySelectionPage = () => {
   const { userCompanies, switchToCompany, createProfileForCompany } = useCompanyContext();
   const { toast } = useToast();
 
-  const handleSwitchCompany = (companyId: string) => {
-    switchToCompany(companyId);
+  const handleSwitchCompany = async (companyId: string) => {
+    await switchToCompany(companyId);
   };
 
   const handleCreateProfile = async (companyId: string) => {

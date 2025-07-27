@@ -97,8 +97,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
       <CompanySelectionDialog
         open={showCompanySelection}
         onClose={() => setShowCompanySelection(false)}
-        onCompanySelect={(companyId) => {
-          switchToCompany(companyId);
+        onCompanySelect={async (companyId) => {
+          await switchToCompany(companyId);
           setShowCompanySelection(false);
         }}
       />

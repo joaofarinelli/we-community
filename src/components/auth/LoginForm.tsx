@@ -28,47 +28,74 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
     
     try {
-      // First, check if this domain has an associated company
       const hostname = window.location.hostname;
       let targetCompany = null;
 
       console.log('Login attempt from domain:', hostname);
 
-      // Try to find company by custom domain first
-      const { data: customDomainCompany } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('custom_domain', hostname)
-        .single();
+      // Determine if we're on a company-specific domain
+      const parts = hostname.split('.');
+      const isCustomDomain = !hostname.includes('weplataforma.com.br') && !hostname.includes('lovable.dev');
+      const isSubdomain = parts.length > 2 && (hostname.includes('weplataforma.com.br') || hostname.includes('lovable.dev'));
 
-      if (customDomainCompany) {
+      if (isCustomDomain) {
+        // Try to find company by custom domain
+        const { data: customDomainCompany } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('custom_domain', hostname)
+          .single();
         targetCompany = customDomainCompany;
-        console.log('Found target company by custom domain:', targetCompany.name);
-      } else {
+        console.log('Custom domain check:', targetCompany?.name || 'not found');
+      } else if (isSubdomain) {
         // Try by subdomain
-        const parts = hostname.split('.');
-        if (parts.length > 2) {
-          const subdomain = parts[0];
-          const { data: subdomainCompany } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('subdomain', subdomain)
-            .single();
-          
-          if (subdomainCompany) {
-            targetCompany = subdomainCompany;
-            console.log('Found target company by subdomain:', targetCompany.name);
-          }
+        const subdomain = parts[0];
+        const { data: subdomainCompany } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('subdomain', subdomain)
+          .single();
+        targetCompany = subdomainCompany;
+        console.log('Subdomain check:', subdomain, '->', targetCompany?.name || 'not found');
+      }
+
+      // If we're on a company domain, validate access BEFORE login
+      if (targetCompany) {
+        console.log('Pre-validating access to company:', targetCompany.name);
+        
+        // Check which user_id this email should use for this company
+        const { data: targetProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', data.email)
+          .eq('company_id', targetCompany.id)
+          .single();
+
+        if (!targetProfile) {
+          toast({
+            variant: "destructive",
+            title: "Acesso negado",
+            description: `Você não tem acesso à ${targetCompany.name}. Entre em contato com um administrador.`,
+          });
+          return;
         }
+
+        console.log('Target profile found. Required user_id:', targetProfile.user_id);
+        
+        // Store the target user_id for validation after login
+        sessionStorage.setItem('expected_user_id', targetProfile.user_id);
+        sessionStorage.setItem('expected_company_id', targetCompany.id);
       }
 
       // Perform login
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
       if (error) {
+        sessionStorage.removeItem('expected_user_id');
+        sessionStorage.removeItem('expected_company_id');
         toast({
           variant: "destructive",
           title: "Erro no login",
@@ -79,30 +106,31 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
         return;
       }
 
-      // If we found a target company, verify user has access to it
-      if (targetCompany) {
-        console.log('Checking user access to company:', targetCompany.name);
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', data.email)
-          .eq('company_id', targetCompany.id)
-          .single();
-
-        if (!profile) {
-          // User doesn't have access to this company's domain
-          console.log('User does not have access to company:', targetCompany.name);
-          await supabase.auth.signOut();
-          toast({
-            variant: "destructive",
-            title: "Acesso negado",
-            description: `Você não tem acesso à ${targetCompany.name}. Entre em contato com um administrador.`,
-          });
-          return;
-        }
+      // Validate the logged-in user matches the expected user_id for this domain
+      const expectedUserId = sessionStorage.getItem('expected_user_id');
+      const expectedCompanyId = sessionStorage.getItem('expected_company_id');
+      
+      if (expectedUserId && authData.user && authData.user.id !== expectedUserId) {
+        console.log('User ID mismatch after login. Expected:', expectedUserId, 'Got:', authData.user.id);
         
-        console.log('User has access to company. Profile user_id:', profile.user_id);
+        // Sign out the wrong user
+        await supabase.auth.signOut();
+        
+        // Clear session storage
+        sessionStorage.removeItem('expected_user_id');
+        sessionStorage.removeItem('expected_company_id');
+        
+        toast({
+          variant: "destructive",
+          title: "Conta incorreta",
+          description: `Esta conta não tem acesso à ${targetCompany?.name}. Use a conta correta para esta empresa.`,
+        });
+        return;
       }
+
+      // Clear session storage after successful validation
+      sessionStorage.removeItem('expected_user_id');
+      sessionStorage.removeItem('expected_company_id');
 
       toast({
         title: "Login realizado!",
@@ -110,6 +138,8 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       });
     } catch (error) {
       console.error('Login error:', error);
+      sessionStorage.removeItem('expected_user_id');
+      sessionStorage.removeItem('expected_company_id');
       toast({
         variant: "destructive",
         title: "Erro inesperado",
