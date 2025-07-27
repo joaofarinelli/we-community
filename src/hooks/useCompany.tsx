@@ -12,6 +12,8 @@ export const useCompany = () => {
     queryFn: async () => {
       // Priority 1: If we have a custom domain, fetch company by custom domain
       if (customDomain) {
+        console.log('Searching for company with custom domain:', customDomain);
+        
         // First try with verified status
         const { data: company } = await supabase
           .from('companies')
@@ -20,7 +22,10 @@ export const useCompany = () => {
           .eq('custom_domain_status', 'verified')
           .single();
 
-        if (company) return company;
+        if (company) {
+          console.log('Found verified company:', company.name);
+          return company;
+        }
 
         // Fallback for development/editor: try without verification requirement
         const { data: unverifiedCompany } = await supabase
@@ -29,7 +34,32 @@ export const useCompany = () => {
           .eq('custom_domain', customDomain)
           .single();
 
-        if (unverifiedCompany) return unverifiedCompany;
+        if (unverifiedCompany) {
+          console.log('Found unverified company:', unverifiedCompany.name);
+          return unverifiedCompany;
+        }
+
+        // If no custom domain match, try as subdomain (extract prefix)
+        const knownBaseDomains = ['weplataforma.com.br', 'yourplatform.com'];
+        const matchingBaseDomain = knownBaseDomains.find(baseDomain => customDomain.endsWith(baseDomain));
+        
+        if (matchingBaseDomain && customDomain !== matchingBaseDomain) {
+          const prefix = customDomain.replace('.' + matchingBaseDomain, '').replace(matchingBaseDomain, '');
+          
+          if (prefix && !prefix.includes('.')) {
+            console.log('Trying as subdomain:', prefix);
+            const { data: subdomainCompany } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('subdomain', prefix)
+              .single();
+
+            if (subdomainCompany) {
+              console.log('Found company by subdomain:', subdomainCompany.name);
+              return subdomainCompany;
+            }
+          }
+        }
       }
 
       // Priority 2: If we have a subdomain, fetch company by subdomain

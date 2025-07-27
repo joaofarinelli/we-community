@@ -29,20 +29,11 @@ export const useSubdomain = () => {
     const matchingBaseDomain = knownBaseDomains.find(baseDomain => hostname.endsWith(baseDomain));
     
     if (matchingBaseDomain && hostname !== matchingBaseDomain) {
-      // This is using a known platform domain, check if it's a subdomain or custom domain
-      const prefix = hostname.replace('.' + matchingBaseDomain, '').replace(matchingBaseDomain, '');
-      
-      if (prefix && !prefix.includes('.')) {
-        // Simple prefix without dots = subdomain (e.g., empresa1.weplataforma.com.br)
-        console.log('Setting as subdomain:', prefix);
-        setSubdomain(prefix);
-        setCustomDomain(null);
-      } else {
-        // Complex prefix with dots = custom domain (e.g., cae-club.weplataforma.com.br)
-        console.log('Setting as custom domain:', hostname);
-        setCustomDomain(hostname);
-        setSubdomain(null);
-      }
+      // For known platform domains, always treat as custom domain first
+      // The database will determine if it's actually a custom domain or subdomain
+      console.log('Setting as custom domain:', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
     } else if (parts.length === 2) {
       // This could be a custom domain (e.g., empresa1.com.br)
       console.log('Setting as custom domain:', hostname);
