@@ -15,7 +15,7 @@ import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
 import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
 import { ChatDialog } from '@/components/chat/ChatDialog';
-import { CompanyNavigationSidebar } from '@/components/dashboard/CompanyNavigationSidebar';
+
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -135,10 +135,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
       {/* Layout with sidebar */}
       <div className="flex flex-1 min-h-0">
-        {/* Company Navigation Sidebar - only on desktop */}
-        <div className="hidden lg:block">
-          <CompanyNavigationSidebar />
-        </div>
         
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
