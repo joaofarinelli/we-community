@@ -19,21 +19,40 @@ export const useSubdomain = () => {
       return;
     }
     
-    // Check if this is a custom domain (no subdomain structure)
-    const parts = hostname.split('.');
+    // Known base domains that indicate subdomain structure
+    const knownBaseDomains = ['weplataforma.com.br', 'yourplatform.com'];
     
+    const parts = hostname.split('.');
     console.log('Hostname parts:', parts);
     
-    if (parts.length === 2) {
+    // Check if hostname ends with any known base domain
+    const matchingBaseDomain = knownBaseDomains.find(baseDomain => hostname.endsWith(baseDomain));
+    
+    if (matchingBaseDomain && hostname !== matchingBaseDomain) {
+      // This is using a known platform domain, check if it's a subdomain or custom domain
+      const prefix = hostname.replace('.' + matchingBaseDomain, '').replace(matchingBaseDomain, '');
+      
+      if (prefix && !prefix.includes('.')) {
+        // Simple prefix without dots = subdomain (e.g., empresa1.weplataforma.com.br)
+        console.log('Setting as subdomain:', prefix);
+        setSubdomain(prefix);
+        setCustomDomain(null);
+      } else {
+        // Complex prefix with dots = custom domain (e.g., cae-club.weplataforma.com.br)
+        console.log('Setting as custom domain:', hostname);
+        setCustomDomain(hostname);
+        setSubdomain(null);
+      }
+    } else if (parts.length === 2) {
       // This could be a custom domain (e.g., empresa1.com.br)
       console.log('Setting as custom domain:', hostname);
       setCustomDomain(hostname);
       setSubdomain(null);
     } else if (parts.length > 2) {
-      // This is a subdomain (e.g., empresa1.weplataforma.com.br)
-      console.log('Setting as subdomain:', parts[0]);
-      setSubdomain(parts[0]);
-      setCustomDomain(null);
+      // Fallback: treat as custom domain if no known base domain matches
+      console.log('Setting as custom domain (fallback):', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
     } else {
       // Single domain or localhost
       console.log('No subdomain or custom domain detected');
