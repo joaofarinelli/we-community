@@ -8,6 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
+import { useSubdomain } from '@/hooks/useSubdomain';
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;
@@ -15,6 +16,7 @@ interface LoginFormProps {
 
 export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { subdomain, customDomain } = useSubdomain();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -24,37 +26,63 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     },
   });
 
+  // Aggressive session cleanup function
+  const forceSessionCleanup = async () => {
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Clear all storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear specific Supabase keys if they still exist
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('supabase') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      console.log('Forced session cleanup completed');
+    } catch (error) {
+      console.error('Error during forced cleanup:', error);
+    }
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     
     try {
-      const hostname = window.location.hostname;
       let targetCompany = null;
 
-      console.log('Login attempt from domain:', hostname);
+      console.log('Login attempt - subdomain:', subdomain, 'customDomain:', customDomain);
 
-      // Determine if we're on a company-specific domain
-      const parts = hostname.split('.');
-      const isCustomDomain = !hostname.includes('weplataforma.com.br') && !hostname.includes('lovable.dev');
-      const isSubdomain = parts.length > 2 && (hostname.includes('weplataforma.com.br') || hostname.includes('lovable.dev'));
-
-      if (isCustomDomain) {
-        // Try to find company by custom domain
-        const { data: customDomainCompany } = await supabase
+      // Use the domain detection from useSubdomain hook
+      if (customDomain) {
+        console.log('Looking for company with custom_domain:', customDomain);
+        const { data: customDomainCompany, error } = await supabase
           .from('companies')
           .select('*')
-          .eq('custom_domain', hostname)
+          .eq('custom_domain', customDomain)
           .single();
+        
+        if (error) {
+          console.log('Custom domain query error:', error);
+        }
         targetCompany = customDomainCompany;
         console.log('Custom domain check:', targetCompany?.name || 'not found');
-      } else if (isSubdomain) {
-        // Try by subdomain
-        const subdomain = parts[0];
-        const { data: subdomainCompany } = await supabase
+      } else if (subdomain) {
+        console.log('Looking for company with subdomain:', subdomain);
+        const { data: subdomainCompany, error } = await supabase
           .from('companies')
           .select('*')
           .eq('subdomain', subdomain)
           .single();
+        
+        if (error) {
+          console.log('Subdomain query error:', error);
+        }
         targetCompany = subdomainCompany;
         console.log('Subdomain check:', subdomain, '->', targetCompany?.name || 'not found');
       }
@@ -113,12 +141,8 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       if (expectedUserId && authData.user && authData.user.id !== expectedUserId) {
         console.log('User ID mismatch after login. Expected:', expectedUserId, 'Got:', authData.user.id);
         
-        // Sign out the wrong user
-        await supabase.auth.signOut();
-        
-        // Clear session storage
-        sessionStorage.removeItem('expected_user_id');
-        sessionStorage.removeItem('expected_company_id');
+        // Force aggressive session cleanup
+        await forceSessionCleanup();
         
         toast({
           variant: "destructive",

@@ -45,7 +45,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
+      // Sign out from Supabase
       await supabase.auth.signOut();
+      
+      // Aggressive cleanup
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear specific Supabase keys if they still exist
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('supabase') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      console.log('Complete signOut with aggressive cleanup');
     } catch (error) {
       console.error('Error during sign out:', error);
     }

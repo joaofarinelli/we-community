@@ -19,6 +19,30 @@ export const useDomainAuth = (): DomainAuthData => {
   const [targetCompany, setTargetCompany] = useState<any>(null);
   const [requiredUserId, setRequiredUserId] = useState<string | null>(null);
 
+  // Aggressive session cleanup function
+  const forceSessionCleanup = async () => {
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Clear all storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear specific Supabase keys if they still exist
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('supabase') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      console.log('Forced session cleanup completed');
+    } catch (error) {
+      console.error('Error during forced cleanup:', error);
+    }
+  };
+
   useEffect(() => {
     const validateDomainAccess = async () => {
       if (authLoading || subdomainLoading) return;
@@ -81,7 +105,10 @@ export const useDomainAuth = (): DomainAuthData => {
           if (!userProfiles || userProfiles.length === 0) {
             // User doesn't have access to this company
             console.log('User does not have access to domain company');
-            await supabase.auth.signOut();
+            
+            // Force aggressive session cleanup
+            await forceSessionCleanup();
+            
             toast({
               variant: "destructive",
               title: "Acesso negado",
@@ -99,8 +126,9 @@ export const useDomainAuth = (): DomainAuthData => {
           if (user.id !== correctProfile.user_id) {
             console.log('User ID mismatch for domain. Required:', correctProfile.user_id, 'Current:', user.id);
             
-            // Sign out and force re-login with correct user_id
-            await supabase.auth.signOut();
+            // Force aggressive session cleanup
+            await forceSessionCleanup();
+            
             toast({
               variant: "destructive",
               title: "Sessão incorreta",
@@ -115,7 +143,7 @@ export const useDomainAuth = (): DomainAuthData => {
         } else if (user && (subdomain || customDomain)) {
           // We have a subdomain/custom domain but no company found
           console.log('Domain has no associated company, signing out');
-          await supabase.auth.signOut();
+          await forceSessionCleanup();
           setShouldRedirectToLogin(true);
           setIsValidating(false);
           return;
