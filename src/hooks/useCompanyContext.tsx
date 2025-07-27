@@ -61,34 +61,33 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
         console.log('Fetching companies for user:', user.email, 'user_id:', user.id);
         
         // Check if we're on a specific domain that should determine the company
-        const hostname = window.location.hostname;
+        // Use the domain from useSubdomain hook instead of raw hostname
         let domainCompany = null;
 
-        // Try to find company by custom domain first
-        const { data: customDomainCompany } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('custom_domain', hostname)
-          .single();
-
-        if (customDomainCompany) {
+        // Try to find company by custom domain first if we have one
+        if (customDomain) {
+          console.log('Looking for company with custom_domain:', customDomain);
+          const { data: customDomainCompany } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('custom_domain', customDomain)
+            .single();
           domainCompany = customDomainCompany;
+        }
+
+        if (domainCompany) {
           console.log('Found domain company by custom domain:', domainCompany.name);
-        } else {
+        } else if (subdomain) {
           // Try by subdomain
-          const parts = hostname.split('.');
-          if (parts.length > 2) {
-            const subdomain = parts[0];
-            const { data: subdomainCompany } = await supabase
-              .from('companies')
-              .select('*')
-              .eq('subdomain', subdomain)
-              .single();
-            
-            if (subdomainCompany) {
-              domainCompany = subdomainCompany;
-              console.log('Found domain company by subdomain:', domainCompany.name);
-            }
+          const { data: subdomainCompany } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('subdomain', subdomain)
+            .single();
+          
+          if (subdomainCompany) {
+            domainCompany = subdomainCompany;
+            console.log('Found domain company by subdomain:', domainCompany.name);
           }
         }
 

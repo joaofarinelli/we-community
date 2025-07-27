@@ -33,11 +33,16 @@ export const useDomainAuth = (): DomainAuthData => {
         if (subdomain || customDomain) {
           // Try to find company by custom domain first
           if (customDomain) {
-            const { data: customDomainCompany } = await supabase
+            console.log('Looking for company with custom_domain:', customDomain);
+            const { data: customDomainCompany, error } = await supabase
               .from('companies')
               .select('*')
-              .eq('custom_domain', hostname)
+              .eq('custom_domain', customDomain)
               .single();
+            
+            if (error) {
+              console.log('Custom domain query error:', error);
+            }
             domainCompany = customDomainCompany;
           }
 
