@@ -1437,6 +1437,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_course_access: {
+        Row: {
+          company_id: string
+          course_id: string
+          granted_at: string
+          granted_by: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          course_id: string
+          granted_at?: string
+          granted_by: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          course_id?: string
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_access_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_course_access_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_course_progress: {
         Row: {
           completed_at: string
@@ -1532,6 +1574,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_invites: {
+        Row: {
+          accepted_at: string | null
+          company_id: string
+          course_access: Json | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string
+          role: string
+          status: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          company_id: string
+          course_access?: Json | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          invited_by: string
+          role: string
+          status?: string
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          company_id?: string
+          course_access?: Json | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          role?: string
+          status?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_invites_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1815,6 +1907,10 @@ export type Database = {
         Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
         Returns: string
       }
+      generate_invite_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string }
         Returns: {
@@ -1884,6 +1980,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      process_invite_acceptance: {
+        Args: {
+          p_token: string
+          p_user_id: string
+          p_first_name: string
+          p_last_name: string
+        }
+        Returns: Json
+      }
       process_marketplace_purchase: {
         Args: {
           p_user_id: string
@@ -1912,6 +2017,10 @@ export type Database = {
           p_reference_id?: string
         }
         Returns: undefined
+      }
+      user_has_course_access: {
+        Args: { p_user_id: string; p_course_id: string }
+        Returns: boolean
       }
     }
     Enums: {

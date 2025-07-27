@@ -23,6 +23,7 @@ import { AdminSegmentsPage } from "./pages/admin/AdminSegmentsPage";
 import { AdminTagsPage } from "./pages/admin/AdminTagsPage";
 import { AdminUserEditPage } from "./pages/admin/AdminUserEditPage";
 import { CoursesPage } from "./pages/CoursesPage";
+import { InviteAcceptPage } from "./pages/InviteAcceptPage";
 
 import { ModuleDetailPage } from "./pages/ModuleDetailPage";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage";
@@ -87,6 +88,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
         <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
+        <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

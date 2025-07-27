@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/AdminLayout';
+import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
+import { InvitesManagement } from '@/components/admin/InvitesManagement';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -8,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCompanyMembers, CompanyMember } from '@/hooks/useCompanyMembers';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
@@ -15,7 +18,7 @@ import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, Edit, Trash2, UserPlus, UserCheck, UserX } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Users, Mail, UserCheck, UserX } from 'lucide-react';
 
 export const AdminUsersPage = () => {
   const navigate = useNavigate();
@@ -106,11 +109,22 @@ export const AdminUsersPage = () => {
               Gerencie os membros da sua comunidade ({members?.length || 0} membros)
             </p>
           </div>
-          <Button>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Convidar membro
-          </Button>
+          <InviteUserDialog />
         </div>
+
+        <Tabs defaultValue="members" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="members" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Membros
+            </TabsTrigger>
+            <TabsTrigger value="invites" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Convites
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="members" className="space-y-4">
 
         {!members || members.length === 0 ? (
           <Card>
@@ -243,6 +257,12 @@ export const AdminUsersPage = () => {
             </CardContent>
           </Card>
         )}
+          </TabsContent>
+
+          <TabsContent value="invites">
+            <InvitesManagement />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
