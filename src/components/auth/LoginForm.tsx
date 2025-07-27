@@ -28,6 +28,41 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
     
     try {
+      // First, check if this domain has an associated company
+      const hostname = window.location.hostname;
+      let targetCompany = null;
+
+      console.log('Login attempt from domain:', hostname);
+
+      // Try to find company by custom domain first
+      const { data: customDomainCompany } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('custom_domain', hostname)
+        .single();
+
+      if (customDomainCompany) {
+        targetCompany = customDomainCompany;
+        console.log('Found target company by custom domain:', targetCompany.name);
+      } else {
+        // Try by subdomain
+        const parts = hostname.split('.');
+        if (parts.length > 2) {
+          const subdomain = parts[0];
+          const { data: subdomainCompany } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('subdomain', subdomain)
+            .single();
+          
+          if (subdomainCompany) {
+            targetCompany = subdomainCompany;
+            console.log('Found target company by subdomain:', targetCompany.name);
+          }
+        }
+      }
+
+      // Perform login
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -41,13 +76,40 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
             ? 'Email ou senha incorretos' 
             : error.message,
         });
-      } else {
-        toast({
-          title: "Login realizado!",
-          description: "Bem-vindo de volta ao CommunityHub",
-        });
+        return;
       }
+
+      // If we found a target company, verify user has access to it
+      if (targetCompany) {
+        console.log('Checking user access to company:', targetCompany.name);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', data.email)
+          .eq('company_id', targetCompany.id)
+          .single();
+
+        if (!profile) {
+          // User doesn't have access to this company's domain
+          console.log('User does not have access to company:', targetCompany.name);
+          await supabase.auth.signOut();
+          toast({
+            variant: "destructive",
+            title: "Acesso negado",
+            description: `Você não tem acesso à ${targetCompany.name}. Entre em contato com um administrador.`,
+          });
+          return;
+        }
+        
+        console.log('User has access to company. Profile user_id:', profile.user_id);
+      }
+
+      toast({
+        title: "Login realizado!",
+        description: "Bem-vindo de volta ao CommunityHub",
+      });
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         variant: "destructive",
         title: "Erro inesperado",

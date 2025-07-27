@@ -58,6 +58,60 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       try {
+        console.log('Fetching companies for user:', user.email, 'user_id:', user.id);
+        
+        // Check if we're on a specific domain that should determine the company
+        const hostname = window.location.hostname;
+        let domainCompany = null;
+
+        // Try to find company by custom domain first
+        const { data: customDomainCompany } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('custom_domain', hostname)
+          .single();
+
+        if (customDomainCompany) {
+          domainCompany = customDomainCompany;
+          console.log('Found domain company by custom domain:', domainCompany.name);
+        } else {
+          // Try by subdomain
+          const parts = hostname.split('.');
+          if (parts.length > 2) {
+            const subdomain = parts[0];
+            const { data: subdomainCompany } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('subdomain', subdomain)
+              .single();
+            
+            if (subdomainCompany) {
+              domainCompany = subdomainCompany;
+              console.log('Found domain company by subdomain:', domainCompany.name);
+            }
+          }
+        }
+
+        // If we have a domain company, check if current user has access to it
+        if (domainCompany) {
+          const { data: domainProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', user.email)
+            .eq('company_id', domainCompany.id)
+            .single();
+
+          if (domainProfile && domainProfile.user_id !== user.id) {
+            // Current user_id doesn't match the profile for this domain
+            // We need to switch to the correct user account
+            console.log('Current user_id mismatch. Expected:', domainProfile.user_id, 'Current:', user.id);
+            
+            // Sign out and redirect to login with a message
+            await supabase.auth.signOut();
+            return;
+          }
+        }
+
         // First try the regular approach for the current user
         const { data: regularCompanies, error: regularError } = await supabase.rpc('get_user_companies', {
           p_user_id: user.id
@@ -86,6 +140,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
           return acc;
         }, [] as UserCompany[]);
 
+        console.log('Found user companies:', uniqueCompanies.map(c => `${c.company_name} (${c.user_id})`));
         setUserCompanies(uniqueCompanies);
       } catch (error) {
         console.error('Error fetching user companies:', error);
