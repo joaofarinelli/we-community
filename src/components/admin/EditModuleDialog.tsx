@@ -20,11 +20,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { useUpdateModule } from '@/hooks/useManageCourses';
 
 const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
+  thumbnail_url: z.string().optional(),
 });
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
@@ -44,6 +46,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
     defaultValues: {
       title: '',
       description: '',
+      thumbnail_url: '',
     }
   });
 
@@ -52,6 +55,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
       form.reset({
         title: module.title || '',
         description: module.description || '',
+        thumbnail_url: module.thumbnail_url || '',
       });
     }
   }, [module, form]);
@@ -66,6 +70,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         course_id: module.course_id,
         title: data.title,
         description: data.description || undefined,
+        thumbnail_url: data.thumbnail_url || undefined,
       });
       onOpenChange(false);
     } catch (error) {
@@ -115,6 +120,26 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
                       placeholder="Descreva o conteúdo e objetivos do módulo"
                       rows={3}
                       {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="thumbnail_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Capa do Módulo</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      onRemove={() => field.onChange('')}
+                      bucketName="module-thumbnails"
+                      maxSizeKB={2048}
                     />
                   </FormControl>
                   <FormMessage />

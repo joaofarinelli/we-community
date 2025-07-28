@@ -20,11 +20,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { useCreateModule } from '@/hooks/useManageCourses';
 
 const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
+  thumbnail_url: z.string().optional(),
 });
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
@@ -44,6 +46,7 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
     defaultValues: {
       title: '',
       description: '',
+      thumbnail_url: '',
     }
   });
 
@@ -54,6 +57,7 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
         course_id: courseId,
         title: data.title,
         description: data.description || undefined,
+        thumbnail_url: data.thumbnail_url || undefined,
       });
       form.reset();
       onOpenChange(false);
@@ -104,6 +108,26 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
                       placeholder="Descreva o conteúdo e objetivos do módulo"
                       rows={3}
                       {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="thumbnail_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Capa do Módulo</FormLabel>
+                  <FormControl>
+                    <ImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      onRemove={() => field.onChange('')}
+                      bucketName="module-thumbnails"
+                      maxSizeKB={2048}
                     />
                   </FormControl>
                   <FormMessage />

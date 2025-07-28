@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react';
+import { Clock, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleNextLesson } from '@/hooks/useModuleNextLesson';
 
@@ -37,25 +37,68 @@ export const ModuleCard = ({
 
   return (
     <div 
-      className="flex-none w-60 h-96 group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+      className="flex-none w-60 h-96 group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
       onClick={handleClick}
     >
       {module.thumbnail_url ? (
-        <img 
-          src={module.thumbnail_url} 
-          alt={module.title}
-          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+        <div className="relative h-full w-full">
+          <img 
+            src={module.thumbnail_url} 
+            alt={module.title}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          {/* Overlay with module info */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+            <h3 className="font-semibold text-lg mb-1 line-clamp-2">{module.title}</h3>
+            {module.description && (
+              <p className="text-sm text-white/80 line-clamp-2">{module.description}</p>
+            )}
+            <div className="flex items-center gap-2 mt-2 text-xs text-white/60">
+              <BookOpen className="h-3 w-3" />
+              <span>{lessonCount} aulas</span>
+              {completedLessons > 0 && (
+                <>
+                  <span>•</span>
+                  <span>{completedLessons}/{lessonCount} concluídas</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       ) : (
-        <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex items-center justify-center">
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center mx-auto">
-              <Clock className="h-8 w-8 text-primary" />
+        <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex flex-col justify-between p-4">
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/30 flex items-center justify-center mx-auto">
+                <BookOpen className="h-8 w-8 text-primary" />
+              </div>
             </div>
-            <div className="space-y-1">
-              <div className="h-4 bg-primary/20 rounded w-32 mx-auto"></div>
-              <div className="h-3 bg-primary/10 rounded w-24 mx-auto"></div>
+          </div>
+          <div className="text-center space-y-2">
+            <h3 className="font-semibold text-lg text-foreground line-clamp-2">{module.title}</h3>
+            {module.description && (
+              <p className="text-sm text-muted-foreground line-clamp-2">{module.description}</p>
+            )}
+            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <Clock className="h-3 w-3" />
+              <span>{lessonCount} aulas</span>
+              {completedLessons > 0 && (
+                <>
+                  <span>•</span>
+                  <span>{completedLessons}/{lessonCount} concluídas</span>
+                </>
+              )}
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Progress indicator */}
+      {lessonCount > 0 && (
+        <div className="absolute top-2 right-2">
+          <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+            {Math.round((completedLessons / lessonCount) * 100)}%
           </div>
         </div>
       )}
