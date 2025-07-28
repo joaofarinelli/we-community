@@ -26,14 +26,49 @@ export const useSuperAdminCompanyActions = () => {
 
   const createCompany = useMutation({
     mutationFn: async (data: CreateCompanyData) => {
-      const { data: result, error } = await supabase
+      // First create the company
+      const { data: companyResult, error: companyError } = await supabase
         .from('companies')
-        .insert([data])
+        .insert([{
+          name: data.name,
+          subdomain: data.subdomain || null,
+          custom_domain: data.custom_domain || null,
+          plan: data.plan,
+          status: data.status,
+          phone: data.phone || null,
+          address: data.address || null,
+          city: data.city || null,
+          state: data.state || null,
+          postal_code: data.postal_code || null,
+          cnpj: data.cnpj || null,
+        }])
         .select()
         .single();
       
-      if (error) throw error;
-      return result;
+      if (companyError) throw companyError;
+      
+      // Then create the owner profile
+      const { data: userInfo } = await supabase.auth.getUser();
+      if (userInfo.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: userInfo.user.id,
+            company_id: companyResult.id,
+            email: userInfo.user.email,
+            role: 'owner',
+            first_name: 'Super',
+            last_name: 'Admin',
+            is_active: true
+          });
+        
+        if (profileError) {
+          console.warn("Profile creation failed:", profileError);
+          // Don't throw here as company was created successfully
+        }
+      }
+      
+      return companyResult;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["super-admin-companies"] });
@@ -44,6 +79,7 @@ export const useSuperAdminCompanyActions = () => {
       });
     },
     onError: (error: Error) => {
+      console.error("Error creating company:", error);
       toast({
         title: "Erro ao criar empresa",
         description: error.message,

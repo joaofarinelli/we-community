@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 interface GlobalMetrics {
   total_companies: number;
@@ -37,7 +38,7 @@ export const useSuperAdmin = () => {
 };
 
 export const useSuperAdminCompanies = () => {
-  return useQuery<CompanyData[]>({
+  const query = useQuery<CompanyData[]>({
     queryKey: ["super-admin-companies"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_all_companies_for_super_admin");
@@ -46,10 +47,49 @@ export const useSuperAdminCompanies = () => {
     },
     enabled: false, // Only enable when super admin is confirmed
   });
+
+  // Set up realtime subscription for companies
+  useEffect(() => {
+    if (!query.data) return;
+
+    const channel = supabase
+      .channel('companies-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'companies'
+        },
+        () => {
+          // Refetch data when companies table changes
+          query.refetch();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          // Refetch data when profiles table changes (affects user counts)
+          query.refetch();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [query]);
+
+  return query;
 };
 
 export const useSuperAdminMetrics = () => {
-  return useQuery<GlobalMetrics>({
+  const query = useQuery<GlobalMetrics>({
     queryKey: ["super-admin-metrics"],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("get_global_metrics_for_super_admin");
@@ -57,5 +97,8 @@ export const useSuperAdminMetrics = () => {
       return data as unknown as GlobalMetrics;
     },
     enabled: false, // Only enable when super admin is confirmed
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time metrics
   });
+
+  return query;
 };

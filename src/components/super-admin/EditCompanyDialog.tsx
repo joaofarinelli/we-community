@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -75,8 +76,8 @@ export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDi
     },
   });
 
-  // Update form when company changes
-  React.useEffect(() => {
+  // Update form when company changes and set up realtime updates
+  useEffect(() => {
     if (company) {
       form.reset({
         name: company.name,
@@ -91,6 +92,43 @@ export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDi
         postal_code: company.postal_code || "",
         cnpj: company.cnpj || "",
       });
+
+      // Set up realtime subscription for this company
+      const channel = supabase
+        .channel(`company-${company.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'companies',
+            filter: `id=eq.${company.id}`
+          },
+          (payload) => {
+            console.log('Company updated in real-time:', payload.new);
+            // Update form with new data
+            if (payload.new) {
+              form.reset({
+                name: payload.new.name || "",
+                subdomain: payload.new.subdomain || "",
+                custom_domain: payload.new.custom_domain || "",
+                plan: payload.new.plan || "free",
+                status: payload.new.status || "active",
+                phone: payload.new.phone || "",
+                address: payload.new.address || "",
+                city: payload.new.city || "",
+                state: payload.new.state || "",
+                postal_code: payload.new.postal_code || "",
+                cnpj: payload.new.cnpj || "",
+              });
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [company, form]);
 
