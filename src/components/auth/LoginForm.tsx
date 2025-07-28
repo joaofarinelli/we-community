@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { toast } from '@/hooks/use-toast';
 import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
-import { useSubdomain } from '@/hooks/useSubdomain';
+import { useCompanyByDomain } from '@/hooks/useCompanyByDomain';
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;
@@ -16,7 +16,7 @@ interface LoginFormProps {
 
 export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { subdomain, customDomain } = useSubdomain();
+  const { data: targetCompany, isLoading: companyLoading } = useCompanyByDomain();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -54,52 +54,32 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     setIsLoading(true);
     
     try {
-      let targetCompany = null;
-
-      console.log('Login attempt - subdomain:', subdomain, 'customDomain:', customDomain);
-
-      // Use the domain detection from useSubdomain hook
-      if (customDomain) {
-        console.log('Looking for company with custom_domain:', customDomain);
-        const { data: customDomainCompany, error } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('custom_domain', customDomain)
-          .single();
-        
-        if (error) {
-          console.log('Custom domain query error:', error);
-        }
-        targetCompany = customDomainCompany;
-        console.log('Custom domain check:', targetCompany?.name || 'not found');
-      } else if (subdomain) {
-        console.log('Looking for company with subdomain:', subdomain);
-        const { data: subdomainCompany, error } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('subdomain', subdomain)
-          .single();
-        
-        if (error) {
-          console.log('Subdomain query error:', error);
-        }
-        targetCompany = subdomainCompany;
-        console.log('Subdomain check:', subdomain, '->', targetCompany?.name || 'not found');
-      }
+      console.log('🚀 Login attempt started for:', data.email);
+      console.log('🏢 Target company from domain:', targetCompany?.name, 'ID:', targetCompany?.id);
 
       // If we're on a company domain, validate access BEFORE login
       if (targetCompany) {
-        console.log('Pre-validating access to company:', targetCompany.name);
+        console.log('🔍 Pre-validating access to company:', targetCompany.name);
         
-        // Check which user_id this email should use for this company
-        const { data: targetProfile } = await supabase
+        // Check for profiles with this email in this company
+        const { data: profiles, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('email', data.email)
-          .eq('company_id', targetCompany.id)
-          .single();
+          .eq('company_id', targetCompany.id);
 
-        if (!targetProfile) {
+        if (error) {
+          console.error('❌ Error checking profiles:', error);
+          toast({
+            variant: "destructive",
+            title: "Erro de validação",
+            description: "Erro ao verificar acesso. Tente novamente.",
+          });
+          return;
+        }
+
+        if (!profiles || profiles.length === 0) {
+          console.log('❌ No profile found for email in company');
           toast({
             variant: "destructive",
             title: "Acesso negado",
@@ -108,7 +88,17 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           return;
         }
 
-        console.log('Target profile found. Required user_id:', targetProfile.user_id);
+        // Handle multiple profiles - use the most recent active one
+        let targetProfile = profiles[0];
+        if (profiles.length > 1) {
+          console.log('⚠️ Multiple profiles found:', profiles.length, 'selecting most recent active one');
+          targetProfile = profiles
+            .filter(p => p.is_active)
+            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] 
+            || profiles[0];
+        }
+
+        console.log('✅ Target profile selected. User ID:', targetProfile.user_id, 'Role:', targetProfile.role);
         
         // Store the target user_id for validation after login
         sessionStorage.setItem('expected_user_id', targetProfile.user_id);
