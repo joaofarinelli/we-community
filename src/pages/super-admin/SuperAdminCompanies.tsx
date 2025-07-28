@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { SuperAdminLayout } from "@/components/super-admin/SuperAdminLayout";
 import { useSuperAdminCompanies } from "@/hooks/useSuperAdmin";
+import { CreateCompanyDialog } from "@/components/super-admin/CreateCompanyDialog";
+import { EditCompanyDialog } from "@/components/super-admin/EditCompanyDialog";
+import { CompanyStatusDialog } from "@/components/super-admin/CompanyStatusDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,9 +22,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { Search, MoreHorizontal, Plus, Filter } from "lucide-react";
+import { Search, MoreHorizontal, Plus, Filter, Edit, Power } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+interface CompanyData {
+  id: string;
+  name: string;
+  subdomain: string | null;
+  custom_domain: string | null;
+  status: string;
+  plan: string;
+  created_at: string;
+  total_users: number;
+  total_spaces: number;
+  total_posts: number;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
+  cnpj?: string;
+}
 
 export const SuperAdminCompanies = () => {
   const { 
@@ -32,6 +54,10 @@ export const SuperAdminCompanies = () => {
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null);
 
   // Enable query when component mounts
   useEffect(() => {
@@ -47,6 +73,16 @@ export const SuperAdminCompanies = () => {
     
     return matchesSearch && matchesStatus;
   }) || [];
+
+  const handleEditCompany = (company: CompanyData) => {
+    setSelectedCompany(company);
+    setEditDialogOpen(true);
+  };
+
+  const handleToggleStatus = (company: CompanyData) => {
+    setSelectedCompany(company);
+    setStatusDialogOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -77,7 +113,7 @@ export const SuperAdminCompanies = () => {
               Gerencie todas as empresas cadastradas no sistema
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4" />
             Nova Empresa
           </Button>
@@ -182,10 +218,17 @@ export const SuperAdminCompanies = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>Editar</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditCompany(company)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </DropdownMenuItem>
                           <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
                           <DropdownMenuItem>Relatório</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            onClick={() => handleToggleStatus(company)}
+                            className={company.status === 'active' ? "text-destructive" : "text-green-600"}
+                          >
+                            <Power className="h-4 w-4 mr-2" />
                             {company.status === 'active' ? 'Desativar' : 'Ativar'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -197,6 +240,24 @@ export const SuperAdminCompanies = () => {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Dialogs */}
+        <CreateCompanyDialog 
+          open={createDialogOpen} 
+          onOpenChange={setCreateDialogOpen} 
+        />
+        
+        <EditCompanyDialog 
+          open={editDialogOpen} 
+          onOpenChange={setEditDialogOpen} 
+          company={selectedCompany}
+        />
+        
+        <CompanyStatusDialog 
+          open={statusDialogOpen} 
+          onOpenChange={setStatusDialogOpen} 
+          company={selectedCompany}
+        />
       </div>
     </SuperAdminLayout>
   );
