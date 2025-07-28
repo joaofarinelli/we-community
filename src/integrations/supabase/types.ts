@@ -1404,6 +1404,36 @@ export type Database = {
           },
         ]
       }
+      super_admins: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           color: string
@@ -1917,6 +1947,25 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_all_companies_for_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          subdomain: string
+          custom_domain: string
+          status: string
+          plan: string
+          created_at: string
+          total_users: number
+          total_spaces: number
+          total_posts: number
+        }[]
+      }
+      get_global_metrics_for_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string }
         Returns: {
@@ -1972,6 +2021,10 @@ export type Database = {
       }
       is_space_member: {
         Args: { space_id: string; user_id: string }
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       is_user_active: {
