@@ -130,8 +130,10 @@ export const useCreateConversation = () => {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🔄 Invalidating conversations queries after conversation creation');
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      return data;
     },
   });
 };

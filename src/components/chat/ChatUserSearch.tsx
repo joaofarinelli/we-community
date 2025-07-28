@@ -23,7 +23,12 @@ export const ChatUserSearch: React.FC<ChatUserSearchProps> = ({ onSelectUser }) 
       console.log('🚀 Creating conversation with user:', userId);
       const conversationId = await createConversation.mutateAsync(userId);
       console.log('✅ Conversation created with ID:', conversationId);
-      onSelectUser(userId, conversationId);
+      
+      // Wait a bit for the query to invalidate and refetch
+      setTimeout(() => {
+        onSelectUser(userId, conversationId);
+      }, 100);
+      
       setSearchTerm('');
       toast({
         title: "Conversa iniciada",

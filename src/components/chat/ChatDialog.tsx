@@ -27,6 +27,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
   // Refetch conversations when a new conversation is selected to ensure it's in the list
   useEffect(() => {
     if (selectedConversationId && !selectedConversation) {
+      console.log('🔄 Refetching conversations for missing conversation:', selectedConversationId);
       refetchConversations();
     }
   }, [selectedConversationId, selectedConversation, refetchConversations]);
