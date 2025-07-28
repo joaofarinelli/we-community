@@ -42,10 +42,10 @@ const menuItems = [
     path: "/super-admin/reports"
   },
   {
-    key: "users",
+    key: "management",
     label: "Super Admins",
     icon: Users,
-    path: "/super-admin/users"
+    path: "/super-admin/management"
   }
 ];
 

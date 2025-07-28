@@ -45,6 +45,7 @@ import { SuperAdminDashboard } from "./pages/super-admin/SuperAdminDashboard";
 import { SuperAdminCompanies } from "./pages/super-admin/SuperAdminCompanies";
 import { SuperAdminMetrics } from "./pages/super-admin/SuperAdminMetrics";
 import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
+import SuperAdminManagement from "./pages/super-admin/SuperAdminManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -97,6 +98,7 @@ const AppRoutes = () => {
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
+        <Route path="/super-admin/management" element={<AuthGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthGuard>} />
         <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
