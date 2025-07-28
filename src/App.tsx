@@ -43,6 +43,7 @@ import { SpacesPage } from "./pages/SpacesPage";
 import { SuperAdminGuard } from "@/components/super-admin/SuperAdminGuard";
 import { SuperAdminDashboard } from "./pages/super-admin/SuperAdminDashboard";
 import { SuperAdminCompanies } from "./pages/super-admin/SuperAdminCompanies";
+import { SuperAdminMetrics } from "./pages/super-admin/SuperAdminMetrics";
 import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
 import NotFound from "./pages/NotFound";
 
@@ -94,6 +95,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
+        <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
         <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
