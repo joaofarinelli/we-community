@@ -2,9 +2,13 @@ import { useEffect } from "react";
 import { SuperAdminLayout } from "@/components/super-admin/SuperAdminLayout";
 import { CompanyReportCard } from "@/components/super-admin/CompanyReportCard";
 import { useSuperAdminCompanies } from "@/hooks/useSuperAdmin";
+import { useGeneratedReports, useCreateReport } from "@/hooks/useGeneratedReports";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { 
   FileText, 
   Download, 
@@ -12,7 +16,8 @@ import {
   BarChart3, 
   Users, 
   Building2,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from "lucide-react";
 
 export const SuperAdminReports = () => {
@@ -22,10 +27,60 @@ export const SuperAdminReports = () => {
     refetch 
   } = useSuperAdminCompanies();
 
+  const { 
+    data: generatedReports, 
+    isLoading: reportsLoading, 
+    refetch: refetchReports 
+  } = useGeneratedReports();
+
+  const { createReport } = useCreateReport();
+  const { toast } = useToast();
+
   // Enable the query when component mounts
   useEffect(() => {
     refetch();
-  }, [refetch]);
+    refetchReports();
+  }, [refetch, refetchReports]);
+
+  const handleGenerateReport = async (reportType: string, title: string) => {
+    try {
+      await createReport({
+        name: title,
+        type: reportType,
+        description: `Relatório gerado automaticamente em ${format(new Date(), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`
+      });
+
+      toast({
+        title: "Relatório sendo gerado",
+        description: "O relatório será processado e estará disponível em breve.",
+      });
+
+      // Refetch reports to show the new generating report
+      refetchReports();
+    } catch (error) {
+      toast({
+        title: "Erro ao gerar relatório",
+        description: "Houve um problema ao iniciar a geração do relatório.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatFileSize = (bytes: number | null) => {
+    if (!bytes) return "N/A";
+    const mb = bytes / (1024 * 1024);
+    return `${mb.toFixed(1)} MB`;
+  };
+
+  const getReportTypeLabel = (type: string) => {
+    const typeMap: { [key: string]: string } = {
+      'global-activity': 'Atividades Globais',
+      'companies-growth': 'Crescimento',
+      'user-engagement': 'Engajamento',
+      'financial-summary': 'Financeiro'
+    };
+    return typeMap[type] || type;
+  };
   const reportTypes = [
     {
       id: "global-activity",
@@ -57,26 +112,6 @@ export const SuperAdminReports = () => {
     }
   ];
 
-  const recentReports = [
-    {
-      name: "Relatório Mensal - Janeiro 2025",
-      date: "28/01/2025",
-      type: "Atividades Globais",
-      size: "2.4 MB"
-    },
-    {
-      name: "Crescimento Q4 2024",
-      date: "15/01/2025",
-      type: "Crescimento",
-      size: "1.8 MB"
-    },
-    {
-      name: "Engajamento Dezembro",
-      date: "05/01/2025",
-      type: "Engajamento",
-      size: "3.1 MB"
-    }
-  ];
 
   return (
     <SuperAdminLayout>
@@ -88,7 +123,7 @@ export const SuperAdminReports = () => {
               Relatórios em tempo real de todas as empresas do sistema
             </p>
           </div>
-          <Button onClick={() => refetch()} className="gap-2">
+          <Button onClick={() => { refetch(); refetchReports(); }} className="gap-2">
             <RefreshCw className="h-4 w-4" />
             Atualizar Todos
           </Button>
@@ -174,6 +209,7 @@ export const SuperAdminReports = () => {
                   <Button 
                     className="w-full gap-2" 
                     disabled={report.status !== 'available'}
+                    onClick={() => handleGenerateReport(report.id, report.title)}
                   >
                     <FileText className="h-4 w-4" />
                     Gerar Relatório
@@ -190,30 +226,74 @@ export const SuperAdminReports = () => {
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
               Relatórios Recentes
+              {reportsLoading && <Loader2 className="h-4 w-4 animate-spin" />}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentReports.map((report, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-muted rounded-lg">
-                      <FileText className="h-4 w-4" />
+            {reportsLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 border rounded-lg animate-pulse">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        <div className="h-4 w-4 bg-muted-foreground/20 rounded"></div>
+                      </div>
+                      <div>
+                        <div className="h-4 bg-muted rounded w-48 mb-2"></div>
+                        <div className="h-3 bg-muted rounded w-64"></div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium">{report.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {report.type} • {report.size} • Gerado em {report.date}
-                      </p>
-                    </div>
+                    <div className="h-8 w-20 bg-muted rounded"></div>
                   </div>
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <Download className="h-4 w-4" />
-                    Baixar
-                  </Button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : generatedReports && generatedReports.length > 0 ? (
+              <div className="space-y-4">
+                {generatedReports.map((report) => (
+                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-muted rounded-lg">
+                        {report.status === 'generating' ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <FileText className="h-4 w-4" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{report.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {getReportTypeLabel(report.type)} • {formatFileSize(report.file_size)} • 
+                          Gerado em {format(new Date(report.generated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                        </p>
+                        {report.status === 'generating' && (
+                          <Badge variant="secondary" className="mt-1">Processando...</Badge>
+                        )}
+                        {report.status === 'failed' && (
+                          <Badge variant="destructive" className="mt-1">Falha na geração</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-2"
+                      disabled={report.status !== 'generated'}
+                    >
+                      <Download className="h-4 w-4" />
+                      Baixar
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">Nenhum relatório encontrado</h3>
+                <p className="text-muted-foreground">
+                  Gere um relatório para visualizá-lo aqui.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

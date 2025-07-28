@@ -600,6 +600,54 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_reports: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          description: string | null
+          expires_at: string | null
+          file_path: string | null
+          file_size: number | null
+          generated_at: string
+          generated_by: string
+          id: string
+          name: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          generated_at?: string
+          generated_by: string
+          id?: string
+          name: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          description?: string | null
+          expires_at?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          generated_at?: string
+          generated_by?: string
+          id?: string
+          name?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lesson_comments: {
         Row: {
           content: string
