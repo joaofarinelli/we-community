@@ -12,17 +12,26 @@ export const useSubdomain = () => {
     
     // Domain mapping for Lovable environment
     const getDomainForLovable = () => {
-      const urlParams = new URLSearchParams(window.location.search);
+      const fullUrl = window.location.href;
       const hash = window.location.hash;
+      
+      console.log('Full URL:', fullUrl);
+      console.log('Hash:', hash);
       
       // Extract domain from URL if it's in the format we expect
       if (hostname.includes('lovable') || hostname === 'lovable.dev') {
-        // Map based on project or known patterns
-        if (window.location.href.includes('cae-club') || hash.includes('cae-club')) {
+        // Map based on project or known patterns - check multiple ways
+        if (fullUrl.includes('cae-club') || 
+            hash.includes('cae-club') || 
+            fullUrl.includes('CAE') ||
+            document.title.includes('CAE')) {
+          console.log('Detected CAE Club project, mapping to custom domain');
           return 'cae-club.weplataforma.com.br';
         }
-        // Add more mappings as needed
-        return null; // Use main domain logic
+        
+        // For development, always try to map to a company domain
+        console.log('Lovable environment detected but no specific mapping found');
+        return 'development-fallback'; // Special marker for development
       }
       return null;
     };
@@ -30,15 +39,21 @@ export const useSubdomain = () => {
     // Special handling for Lovable editor environment
     if (hostname === 'lovable.dev' || hostname.endsWith('.lovable.dev') || hostname.includes('lovable')) {
       const mappedDomain = getDomainForLovable();
-      if (mappedDomain) {
+      if (mappedDomain && mappedDomain !== 'development-fallback') {
         console.log('Detected Lovable environment, mapping to:', mappedDomain);
         setCustomDomain(mappedDomain);
         setSubdomain(null);
         setIsLoading(false);
         return;
+      } else if (mappedDomain === 'development-fallback') {
+        console.log('Detected Lovable environment, using development fallback');
+        setCustomDomain('development-fallback');
+        setSubdomain(null);
+        setIsLoading(false);
+        return;
       } else {
-        console.log('Detected Lovable environment but no domain mapping, using default');
-        setCustomDomain(null);
+        console.log('Detected Lovable environment but no domain mapping, using development fallback');
+        setCustomDomain('development-fallback');
         setSubdomain(null);
         setIsLoading(false);
         return;
