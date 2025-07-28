@@ -16,17 +16,10 @@ export const useMessages = (conversationId: string | null) => {
 
       console.log('📨 Fetching messages for conversation:', conversationId);
 
-      const { data, error } = await supabase
+      // First get the messages
+      const { data: messages, error } = await supabase
         .from('messages')
-        .select(`
-          *,
-          profiles!messages_sender_id_fkey(
-            user_id,
-            first_name,
-            last_name,
-            email
-          )
-        `)
+        .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
@@ -34,9 +27,35 @@ export const useMessages = (conversationId: string | null) => {
         console.error('❌ Error fetching messages:', error);
         throw error;
       }
+
+      if (!messages || messages.length === 0) {
+        console.log('✅ No messages found');
+        return [];
+      }
+
+      // Get unique sender IDs
+      const senderIds = [...new Set(messages.map(m => m.sender_id))];
       
-      console.log('✅ Messages fetched:', data?.length || 0);
-      return data || [];
+      // Fetch profiles for all senders
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .in('user_id', senderIds);
+
+      if (profilesError) {
+        console.error('❌ Error fetching profiles:', profilesError);
+        // Return messages without profile data if profiles fetch fails
+        return messages;
+      }
+
+      // Map profiles to messages
+      const messagesWithProfiles = messages.map(message => ({
+        ...message,
+        profiles: profiles?.find(p => p.user_id === message.sender_id) || null
+      }));
+      
+      console.log('✅ Messages with profiles fetched:', messagesWithProfiles.length);
+      return messagesWithProfiles;
     },
     enabled: !!conversationId && !!user?.id,
   });
