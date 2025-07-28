@@ -8,7 +8,10 @@ export const useConversations = () => {
   return useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id) {
+        console.log('❌ No user ID, returning empty conversations');
+        return [];
+      }
 
       console.log('🔍 Fetching conversations for user:', user.id);
 

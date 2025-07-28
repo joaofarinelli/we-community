@@ -9,7 +9,12 @@ export const useMessages = (conversationId: string | null) => {
   return useQuery({
     queryKey: ['messages', conversationId],
     queryFn: async () => {
-      if (!conversationId || !user?.id) return [];
+      if (!conversationId || !user?.id) {
+        console.log('❌ useMessages: Missing conversationId or user:', { conversationId, userId: user?.id });
+        return [];
+      }
+
+      console.log('📨 Fetching messages for conversation:', conversationId);
 
       const { data, error } = await supabase
         .from('messages')
@@ -25,7 +30,12 @@ export const useMessages = (conversationId: string | null) => {
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error fetching messages:', error);
+        throw error;
+      }
+      
+      console.log('✅ Messages fetched:', data?.length || 0);
       return data || [];
     },
     enabled: !!conversationId && !!user?.id,
