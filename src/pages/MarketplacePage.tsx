@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Search, ShoppingBag, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CreateUserItemDialog } from '@/components/marketplace/CreateUserItemDialog';
+import { useCoinName } from '@/hooks/useCoinName';
 
 export const MarketplacePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -22,6 +23,7 @@ export const MarketplacePage = () => {
   const { data: categories = [], isLoading: categoriesLoading } = useMarketplaceCategories();
   const { data: items = [], isLoading: itemsLoading } = useMarketplaceItems(selectedCategory || undefined);
   const { data: userCoins } = useUserCoins();
+  const { data: coinName = 'WomanCoins' } = useCoinName();
 
   const filteredItems = items.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,7 +46,7 @@ export const MarketplacePage = () => {
           <div>
             <h1 className="text-2xl font-bold">Marketplace</h1>
             <p className="text-muted-foreground">
-              Use suas WomanCoins para adquirir produtos e benefícios exclusivos
+              Use suas {coinName} para adquirir produtos e benefícios exclusivos
             </p>
           </div>
           

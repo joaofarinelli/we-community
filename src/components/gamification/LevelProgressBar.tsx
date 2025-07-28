@@ -1,5 +1,6 @@
 import { Progress } from '@/components/ui/progress';
 import { useUserLevel } from '@/hooks/useUserLevel';
+import { useCoinName } from '@/hooks/useCoinName';
 import * as Icons from 'lucide-react';
 import { LucideProps } from 'lucide-react';
 
@@ -10,6 +11,7 @@ interface LevelProgressBarProps {
 
 export const LevelProgressBar = ({ userId, showLabels = true }: LevelProgressBarProps) => {
   const { data: userLevel, isLoading } = useUserLevel(userId);
+  const { data: coinName = 'WomanCoins' } = useCoinName();
 
   if (isLoading || !userLevel?.user_levels) {
     return (
@@ -61,7 +63,7 @@ export const LevelProgressBar = ({ userId, showLabels = true }: LevelProgressBar
 
       {showLabels && (
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>{userLevel.current_coins} WomanCoins</span>
+          <span>{userLevel.current_coins} {coinName}</span>
           {nextLevel && (
             <span>
               {userLevel.coins_to_next_level} restantes para próximo nível

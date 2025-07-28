@@ -4,11 +4,13 @@ import { Coins, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { useUserCoins } from '@/hooks/useUserPoints';
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { useAccountStats } from '@/hooks/useAccountStats';
+import { useCoinName } from '@/hooks/useCoinName';
 
 export const BankHeader = () => {
   const { data: userCoins, isLoading: coinsLoading } = useUserCoins();
   const { data: userLevel, isLoading: levelLoading } = useUserLevel();
   const { data: stats, isLoading: statsLoading } = useAccountStats();
+  const { data: coinName = 'WomanCoins' } = useCoinName();
 
   if (coinsLoading || levelLoading || statsLoading) {
     return (
@@ -30,7 +32,7 @@ export const BankHeader = () => {
     <div className="mb-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          WomanCoins Bank
+          {coinName} Bank
         </h1>
         <p className="text-muted-foreground">Gerencie suas moedas e faça transferências</p>
       </div>

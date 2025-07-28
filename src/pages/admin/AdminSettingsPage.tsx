@@ -10,6 +10,7 @@ import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
 import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
 import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
 import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
+import { CoinNameSection } from '@/components/admin/CoinNameSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -29,6 +30,7 @@ export const AdminSettingsPage = () => {
           <FeedBannerSection />
           <LoginBannerSection />
           <CustomDomainSection />
+          <CoinNameSection />
           <Card>
             <CardHeader>
               <CardTitle>Informações Gerais</CardTitle>

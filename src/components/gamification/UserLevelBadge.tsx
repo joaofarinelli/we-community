@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUserLevel } from '@/hooks/useUserLevel';
+import { useCoinName } from '@/hooks/useCoinName';
 import * as Icons from 'lucide-react';
 import { LucideProps } from 'lucide-react';
 
@@ -11,6 +12,7 @@ interface UserLevelBadgeProps {
 
 export const UserLevelBadge = ({ userId, showProgress = false }: UserLevelBadgeProps) => {
   const { data: userLevel, isLoading } = useUserLevel(userId);
+  const { data: coinName = 'WomanCoins' } = useCoinName();
 
   if (isLoading) {
     return (
@@ -52,7 +54,7 @@ export const UserLevelBadge = ({ userId, showProgress = false }: UserLevelBadgeP
           <div className="text-center">
             <p className="font-semibold">{level.level_name}</p>
             <p className="text-sm text-muted-foreground">
-              {userLevel.current_coins} WomanCoins
+              {userLevel.current_coins} {coinName}
             </p>
             {showProgress && userLevel.next_level && (
               <div className="mt-2">

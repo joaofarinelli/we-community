@@ -241,6 +241,7 @@ export type Database = {
           button_text_color: string | null
           city: string | null
           cnpj: string | null
+          coin_name: string | null
           course_banner_url: string | null
           created_at: string
           custom_domain: string | null
@@ -268,6 +269,7 @@ export type Database = {
           button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
+          coin_name?: string | null
           course_banner_url?: string | null
           created_at?: string
           custom_domain?: string | null
@@ -295,6 +297,7 @@ export type Database = {
           button_text_color?: string | null
           city?: string | null
           cnpj?: string | null
+          coin_name?: string | null
           course_banner_url?: string | null
           created_at?: string
           custom_domain?: string | null

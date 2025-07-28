@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, TrendingUp, Users, Coins } from 'lucide-react';
 import { useCompanyRanking, useUserRankingPosition } from '@/hooks/useCompanyRanking';
 import { useAuth } from '@/hooks/useAuth';
+import { useCoinName } from '@/hooks/useCoinName';
 import { RankingCard } from './RankingCard';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -9,6 +10,7 @@ export const RankingTab = () => {
   const { user } = useAuth();
   const { data: ranking, isLoading: rankingLoading } = useCompanyRanking(10);
   const { data: userPosition, isLoading: positionLoading } = useUserRankingPosition();
+  const { data: coinName = 'WomanCoins' } = useCoinName();
 
   const isStatsLoading = positionLoading;
   const isRankingListLoading = rankingLoading;
@@ -48,7 +50,7 @@ export const RankingTab = () => {
                 <div className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-amber-500" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Suas WomanCoins</p>
+                    <p className="text-sm text-muted-foreground">Suas {coinName}</p>
                     <p className="text-2xl font-bold">
                       {userPosition?.coins || 0}
                     </p>
@@ -79,7 +81,7 @@ export const RankingTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-5 w-5" />
-            Ranking WomanCoins
+            Ranking {coinName}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -99,7 +101,7 @@ export const RankingTab = () => {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhum usuário com WomanCoins ainda.</p>
+              <p>Nenhum usuário com {coinName} ainda.</p>
               <p className="text-sm">Seja o primeiro a participar!</p>
             </div>
           )}
