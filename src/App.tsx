@@ -40,6 +40,10 @@ import { ChallengesPage } from "./pages/ChallengesPage";
 import { BankPage } from "./pages/BankPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { SpacesPage } from "./pages/SpacesPage";
+import { SuperAdminGuard } from "@/components/super-admin/SuperAdminGuard";
+import { SuperAdminDashboard } from "./pages/super-admin/SuperAdminDashboard";
+import { SuperAdminCompanies } from "./pages/super-admin/SuperAdminCompanies";
+import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,6 +92,9 @@ const AppRoutes = () => {
         <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
         <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
+        <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
+        <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
+        <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
         <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
