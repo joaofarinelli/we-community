@@ -74,19 +74,19 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
       )}
       onClick={onClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4 md:p-6">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
             <div className="flex-shrink-0">
               {renderSpaceIcon(
                 space.type,
                 space.custom_icon_type,
                 space.custom_icon_value,
-                "h-8 w-8"
+                "h-6 w-6 sm:h-8 sm:w-8"
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+              <CardTitle className="text-sm sm:text-base md:text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {space.name}
               </CardTitle>
               {space.space_categories && (
@@ -99,15 +99,15 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 space-y-4">
+      <CardContent className="pt-0 space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6">
         {space.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
             {space.description}
           </p>
         )}
         
         {/* Badges */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 sm:gap-2">
           <Badge 
             variant="secondary" 
             className={cn("text-xs", getVisibilityColor())}
@@ -127,13 +127,13 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         </div>
         
         {/* Member count and actions */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <Users className="h-4 w-4" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+            <Users className="h-3 w-3 sm:h-4 sm:w-4" />
             <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {showJoinLeave && space.visibility === 'public' && (
               <>
                 {isMember ? (
@@ -145,10 +145,10 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                       leaveSpace.mutate(space.id);
                     }}
                     disabled={leaveSpace.isPending}
-                    className="h-8 px-3 text-xs"
+                    className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
                   >
                     <UserMinus className="h-3 w-3 mr-1" />
-                    Sair
+                    <span className="hidden sm:inline">Sair</span>
                   </Button>
                 ) : (
                   <Button 
@@ -159,10 +159,10 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                       joinSpace.mutate(space.id);
                     }}
                     disabled={joinSpace.isPending}
-                    className="h-8 px-3 text-xs"
+                    className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
                   >
                     <UserPlus className="h-3 w-3 mr-1" />
-                    Entrar
+                    <span className="hidden sm:inline">Entrar</span>
                   </Button>
                 )}
               </>
@@ -171,7 +171,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
             <Button 
               size="sm" 
               variant="ghost"
-              className="h-8 px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+              className="h-7 sm:h-8 px-2 sm:px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
             >
               Acessar
             </Button>

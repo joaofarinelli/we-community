@@ -89,31 +89,46 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
 
   return (
     <Card className="w-full">
-      <CardContent className="p-6">
+      <CardContent className="p-3 sm:p-4 md:p-6">
         {/* Header do Post */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-start space-x-3">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
+          <div className="flex items-start space-x-2 sm:space-x-3 min-w-0 flex-1">
             <Avatar 
-              className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+              className="h-8 w-8 sm:h-10 sm:w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all flex-shrink-0" 
               onClick={handleUserClick}
             >
               <AvatarImage src="" />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
+              <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs sm:text-sm">
                 {authorInitials}
               </AvatarFallback>
             </Avatar>
             
-            <div className="flex-1">
-              <div className="flex items-center space-x-2 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 sm:flex-wrap">
                 <h4 
-                  className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors" 
+                  className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate" 
                   onClick={handleUserClick}
                 >
                   {authorName}
                 </h4>
-                <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                <div className="hidden sm:flex items-center space-x-2">
+                  <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                  {post.is_pinned && (
+                    <Pin className="h-4 w-4 text-primary" />
+                  )}
+                  {post.is_announcement && (
+                    <Badge variant="secondary" className="text-xs">
+                      Anúncio
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              {/* Mobile badges */}
+              <div className="sm:hidden flex items-center space-x-2 mt-1">
+                <UserTagsDisplay userId={post.author_id} maxTags={1} size="sm" />
                 {post.is_pinned && (
-                  <Pin className="h-4 w-4 text-primary" />
+                  <Pin className="h-3 w-3 text-primary" />
                 )}
                 {post.is_announcement && (
                   <Badge variant="secondary" className="text-xs">
@@ -121,23 +136,24 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-0">
                 <span>
                   {formatDistanceToNow(new Date(post.created_at), {
                     addSuffix: true,
                     locale: ptBR,
                   })}
                 </span>
-                <span>•</span>
+                <span className="hidden sm:inline">•</span>
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 text-muted-foreground hover:text-primary"
+                  className="h-auto p-0 text-muted-foreground hover:text-primary justify-start"
                   onClick={handleSpaceClick}
                 >
                   <div className="flex items-center gap-1">
                     <SpaceIcon className="h-3 w-3" />
-                    <span>{spaceName}</span>
+                    <span className="truncate max-w-32 sm:max-w-none">{spaceName}</span>
                   </div>
                 </Button>
               </div>
@@ -148,11 +164,11 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
           {canEditDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
+                <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0 flex-shrink-0">
+                  <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
@@ -170,9 +186,9 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
         </div>
 
         {/* Conteúdo do Post */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           {post.title && (
-            <h3 className="text-lg font-semibold mb-2 text-foreground">
+            <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
               {post.title}
             </h3>
           )}

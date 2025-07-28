@@ -8,12 +8,12 @@ export function SearchBar() {
 
   return (
     <>
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
+        <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder="Buscar..."
-          className="pl-9 pr-4 bg-muted/50 border-border/50 rounded-lg h-9 text-sm focus:bg-background transition-colors cursor-pointer"
+          className="pl-7 sm:pl-9 pr-3 sm:pr-4 bg-muted/50 border-border/50 rounded-lg h-8 sm:h-9 text-xs sm:text-sm focus:bg-background transition-colors cursor-pointer w-full"
           onClick={() => setDialogOpen(true)}
           readOnly
         />
