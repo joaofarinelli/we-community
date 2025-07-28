@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useCompany } from './useCompany';
+import { useCompanyContext } from './useCompanyContext';
 
 export interface CompanyUser {
   user_id: string;
@@ -12,17 +12,17 @@ export interface CompanyUser {
 
 export const useCompanyUsers = (searchQuery?: string) => {
   const { user } = useAuth();
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['company-users', company?.id, searchQuery],
+    queryKey: ['company-users', currentCompanyId, searchQuery],
     queryFn: async () => {
-      if (!company?.id) return [];
+      if (!currentCompanyId) return [];
 
       let query = supabase
         .from('profiles')
         .select('user_id, first_name, last_name')
-        .eq('company_id', company.id);
+        .eq('company_id', currentCompanyId);
 
       if (searchQuery && searchQuery.length > 0) {
         const searchTerm = `%${searchQuery}%`;
@@ -38,6 +38,6 @@ export const useCompanyUsers = (searchQuery?: string) => {
 
       return data || [];
     },
-    enabled: !!company?.id,
+    enabled: !!currentCompanyId,
   });
 };
