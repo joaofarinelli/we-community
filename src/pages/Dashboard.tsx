@@ -10,6 +10,7 @@ import { GlobalCreatePostForm } from '@/components/posts/GlobalCreatePostForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from 'lucide-react';
+import { FeedBanner } from '@/components/feed/FeedBanner';
 
 
 export const Dashboard = () => {
@@ -28,6 +29,9 @@ export const Dashboard = () => {
       <div className="h-full overflow-y-auto">
         <div className="max-w-4xl mx-auto p-8">
           <div className="space-y-6">
+            {/* Feed Banner */}
+            <FeedBanner />
+
             {/* Welcome Title */}
             <div>
               <h1 className="text-3xl font-bold mb-2">

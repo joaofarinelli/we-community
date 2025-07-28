@@ -8,6 +8,7 @@ import { useCompany } from '@/hooks/useCompany';
 import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
 import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
 import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
+import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -24,6 +25,7 @@ export const AdminSettingsPage = () => {
 
         <div className="grid gap-6">
           <CompanyLogoSection />
+          <FeedBannerSection />
           <CustomDomainSection />
           <Card>
             <CardHeader>
