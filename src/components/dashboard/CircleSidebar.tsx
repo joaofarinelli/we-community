@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss, BookOpen, ShoppingBag, Target, Wallet } from 'lucide-react';
+import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss, BookOpen, ShoppingBag, Target, Wallet, MoreHorizontal, Edit2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useUserSpaces } from '@/hooks/useUserSpaces';
 import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { useReorderSpaces } from '@/hooks/useReorderSpaces';
 import { useReorderCategories } from '@/hooks/useReorderCategories';
+import { useCreateCategory } from '@/hooks/useCreateCategory';
+import { useEditCategory } from '@/hooks/useEditCategory';
+import { useDeleteCategory } from '@/hooks/useDeleteCategory';
 import { renderSpaceIcon } from '@/lib/spaceUtils';
 import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
 import { CreateCategoryDialog } from './CreateCategoryDialog';
-import { useCreateCategory } from '@/hooks/useCreateCategory';
+import { EditCategoryDialog } from './EditCategoryDialog';
 import {
   DndContext,
   closestCenter,
@@ -33,9 +39,11 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
 interface CircleSidebarProps {
   onClose?: () => void;
 }
+
 export function CircleSidebar({
   onClose
 }: CircleSidebarProps) {
@@ -58,6 +66,7 @@ export function CircleSidebar({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
   const {
     isTypeSelectionOpen,
     isConfigurationOpen,
@@ -76,6 +85,10 @@ export function CircleSidebar({
     createCategory,
     isLoading: isCreatingCategory
   } = useCreateCategory();
+
+  const { editingCategory, setEditingCategory } = useEditCategory();
+  const { deleteCategory } = useDeleteCategory();
+  const [deletingCategory, setDeletingCategory] = useState<any>(null);
 
   const openCategoryDialog = () => setCategoryDialogOpen(true);
   const closeCategoryDialog = () => setCategoryDialogOpen(false);
@@ -102,13 +115,10 @@ export function CircleSidebar({
     reorderCategories.mutate({ categoryUpdates });
   };
 
-  return <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
-      {/* Header */}
-      
-
+  return (
+    <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Content */}
       <div className="flex-1 p-6 space-y-1">
-
         {/* Feed */}
         <div>
           <Button 
@@ -240,17 +250,15 @@ export function CircleSidebar({
                   onToggle={() => toggleCategory(category.id)} 
                   onCreateSpace={openTypeSelection} 
                   onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} 
+                  onEditCategory={setEditingCategory}
+                  onDeleteCategory={setDeletingCategory}
                   currentPath={location.pathname} 
                 />
               ))}
             </SortableContext>
           </DndContext>
         </div>
-
       </div>
-
-      {/* Footer */}
-      
 
       {/* Dialogs de Criação de Espaço */}
       <SpaceTypeSelectionDialog open={isTypeSelectionOpen} onClose={closeAllDialogs} onSelectType={selectTypeAndProceed} />
@@ -264,7 +272,39 @@ export function CircleSidebar({
         onSubmit={createCategory}
         isLoading={isCreatingCategory}
       />
-    </aside>;
+
+      <EditCategoryDialog
+        category={editingCategory}
+        open={!!editingCategory}
+        onOpenChange={(open) => !open && setEditingCategory(null)}
+      />
+
+      <AlertDialog open={!!deletingCategory} onOpenChange={(open) => !open && setDeletingCategory(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deletar categoria</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja deletar a categoria "{deletingCategory?.name}"? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (deletingCategory) {
+                  deleteCategory(deletingCategory.id);
+                  setDeletingCategory(null);
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </aside>
+  );
 }
 
 // Component for draggable space item
@@ -318,6 +358,8 @@ interface DraggableCategorySectionProps {
   onToggle: () => void;
   onCreateSpace: (categoryId: string) => void;
   onSpaceClick: (spaceId: string) => void;
+  onEditCategory: (category: any) => void;
+  onDeleteCategory: (category: any) => void;
   currentPath: string;
 }
 
@@ -327,6 +369,8 @@ const DraggableCategorySection = ({
   onToggle, 
   onCreateSpace, 
   onSpaceClick, 
+  onEditCategory,
+  onDeleteCategory,
   currentPath 
 }: DraggableCategorySectionProps) => {
   const {
@@ -352,6 +396,8 @@ const DraggableCategorySection = ({
         onToggle={onToggle}
         onCreateSpace={onCreateSpace}
         onSpaceClick={onSpaceClick}
+        onEditCategory={onEditCategory}
+        onDeleteCategory={onDeleteCategory}
         currentPath={currentPath}
         dragHandleProps={{ ...attributes, ...listeners }}
       />
@@ -365,6 +411,8 @@ interface SpaceCategorySectionProps {
   onToggle: () => void;
   onCreateSpace: (categoryId: string) => void;
   onSpaceClick: (spaceId: string) => void;
+  onEditCategory: (category: any) => void;
+  onDeleteCategory: (category: any) => void;
   currentPath: string;
   dragHandleProps?: any;
 }
@@ -375,6 +423,8 @@ function SpaceCategorySection({
   onToggle,
   onCreateSpace,
   onSpaceClick,
+  onEditCategory,
+  onDeleteCategory,
   currentPath,
   dragHandleProps
 }: SpaceCategorySectionProps) {
@@ -439,6 +489,31 @@ function SpaceCategorySection({
                 <Plus className="h-3 w-3" />
               </Button>
             )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => onEditCategory(category)}>
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Editar categoria
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => onDeleteCategory(category)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Deletar categoria
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </div>
         </Button>
