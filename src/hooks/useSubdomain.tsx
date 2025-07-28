@@ -36,8 +36,9 @@ export const useSubdomain = () => {
       return null;
     };
     
-    // Special handling for Lovable editor environment
-    if (hostname === 'lovable.dev' || hostname.endsWith('.lovable.dev') || hostname.includes('lovable')) {
+    // Special handling for Lovable editor environment ONLY
+    if ((hostname === 'lovable.dev' || hostname.endsWith('.lovable.dev') || hostname.includes('lovable')) && 
+        !hostname.includes('weplataforma.com.br')) {
       const mappedDomain = getDomainForLovable();
       if (mappedDomain && mappedDomain !== 'development-fallback') {
         console.log('Detected Lovable environment, mapping to:', mappedDomain);

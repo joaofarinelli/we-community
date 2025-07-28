@@ -13,16 +13,32 @@ export const useCompanyByDomain = () => {
       // If we have a custom domain and it's not the development fallback, look for that first
       if (customDomain && customDomain !== 'development-fallback') {
         console.log('Searching by custom domain:', customDomain);
+        
+        // First try verified custom domains
         const { data, error } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('custom_domain', customDomain)
+          .eq('custom_domain_status', 'verified')
+          .single();
+        
+        if (!error && data) {
+          console.log('Found company by verified custom domain:', data.name);
+          return data;
+        }
+        
+        // If no verified domain found, try unverified
+        const { data: unverifiedData, error: unverifiedError } = await supabase
           .from('companies')
           .select('*')
           .eq('custom_domain', customDomain)
           .single();
         
-        if (!error && data) {
-          console.log('Found company by custom domain:', data.name);
-          return data;
+        if (!unverifiedError && unverifiedData) {
+          console.log('Found company by custom domain (unverified):', unverifiedData.name);
+          return unverifiedData;
         }
+        
         console.log('No company found by custom domain, error:', error?.message);
       }
       
@@ -42,7 +58,7 @@ export const useCompanyByDomain = () => {
         console.log('No company found by subdomain, error:', error?.message);
       }
       
-      // Development fallback: get the first active company
+      // Development fallback: get the first active company (ONLY for development)
       if (customDomain === 'development-fallback') {
         console.log('Using development fallback - searching for first company');
         const { data, error } = await supabase
