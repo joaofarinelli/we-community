@@ -9,6 +9,7 @@ import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
 import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
 import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
 import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
+import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -26,6 +27,7 @@ export const AdminSettingsPage = () => {
         <div className="grid gap-6">
           <CompanyLogoSection />
           <FeedBannerSection />
+          <LoginBannerSection />
           <CustomDomainSection />
           <Card>
             <CardHeader>

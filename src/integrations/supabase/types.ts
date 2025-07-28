@@ -248,6 +248,7 @@ export type Database = {
           custom_domain_verified_at: string | null
           feed_banner_url: string | null
           id: string
+          login_banner_url: string | null
           logo_url: string | null
           name: string
           phone: string | null
@@ -274,6 +275,7 @@ export type Database = {
           custom_domain_verified_at?: string | null
           feed_banner_url?: string | null
           id?: string
+          login_banner_url?: string | null
           logo_url?: string | null
           name: string
           phone?: string | null
@@ -300,6 +302,7 @@ export type Database = {
           custom_domain_verified_at?: string | null
           feed_banner_url?: string | null
           id?: string
+          login_banner_url?: string | null
           logo_url?: string | null
           name?: string
           phone?: string | null
