@@ -24,12 +24,6 @@ export const useCreateEvent = () => {
     mutationFn: async (data: CreateEventData) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
-      console.log('Creating event with data:', { 
-        ...data, 
-        companyId: currentCompanyId, 
-        userId: user.id 
-      });
-
       const { data: event, error } = await supabase
         .from('events')
         .insert({
@@ -47,8 +41,6 @@ export const useCreateEvent = () => {
         })
         .select()
         .single();
-
-      console.log('Event creation result:', { event, error });
 
       if (error) throw error;
       return event;

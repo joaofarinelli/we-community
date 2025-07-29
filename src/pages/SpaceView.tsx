@@ -48,15 +48,6 @@ export const SpaceView = () => {
     isLoading: eventsLoading,
     error: eventsError
   } = useEvents(spaceId!);
-  
-  // Debug logs
-  console.log('SpaceView: Current space ID:', spaceId);
-  console.log('SpaceView: Events query result:', {
-    data: events,
-    isLoading: eventsLoading,
-    error: eventsError,
-    count: events?.length || 0
-  });
   const {
     data: members,
     isLoading: membersLoading
