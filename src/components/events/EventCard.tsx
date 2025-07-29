@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useAuth } from '@/hooks/useAuth';
+import { useCanEditEvent } from '@/hooks/useCanEditEvent';
+import { useDeleteEvent } from '@/hooks/useDeleteEvent';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EditEventDialog } from './EditEventDialog';
@@ -22,6 +24,8 @@ interface EventCardProps {
     max_participants?: number;
     image_url?: string;
     status: 'draft' | 'active';
+    space_id: string;
+    created_by: string;
     event_participants?: any[];
   };
   onEventClick?: (eventId: string) => void;
@@ -31,6 +35,8 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by });
+  const deleteEvent = useDeleteEvent();
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
@@ -47,6 +53,13 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
       leaveEvent.mutate();
     } else {
       joinEvent.mutate();
+    }
+  };
+
+  const handleDeleteEvent = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Tem certeza que deseja excluir este evento?')) {
+      deleteEvent.mutate(event.id);
     }
   };
 
@@ -76,24 +89,34 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                     Hoje
                   </Badge>
                 )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar evento
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>Compartilhar</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Excluir
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {event.status === 'draft' && (
+                  <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                    Rascunho
+                  </Badge>
+                )}
+                {canEdit && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Editar evento
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Compartilhar</DropdownMenuItem>
+                      <DropdownMenuItem 
+                        className="text-destructive"
+                        onClick={handleDeleteEvent}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Excluir
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </div>
             
