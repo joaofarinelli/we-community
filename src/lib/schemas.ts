@@ -5,6 +5,10 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Email inválido'),
+});
+
 // Schemas para o novo cadastro em 2 etapas
 export const emailStepSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -59,6 +63,7 @@ export const spaceConfigurationSchema = z.object({
 export const createSpaceSchema = spaceTypeSelectionSchema.merge(spaceConfigurationSchema);
 
 export type LoginFormData = z.infer<typeof loginSchema>;
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type EmailStepFormData = z.infer<typeof emailStepSchema>;
 export type UserDetailsStepFormData = z.infer<typeof userDetailsStepSchema>;
 export type TwoStepSignupFormData = z.infer<typeof twoStepSignupSchema>;

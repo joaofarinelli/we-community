@@ -11,9 +11,11 @@ import { Loader2 } from 'lucide-react';
 import { useCompanyByDomain } from '@/hooks/useCompanyByDomain';
 interface LoginFormProps {
   onSwitchToSignup: () => void;
+  onSwitchToForgotPassword: () => void;
 }
 export const LoginForm = ({
-  onSwitchToSignup
+  onSwitchToSignup,
+  onSwitchToForgotPassword
 }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -191,8 +193,15 @@ export const LoginForm = ({
         </form>
       </Form>
 
-      <div className="text-center">
-        
+      <div className="text-center space-y-3">
+        <button
+          type="button"
+          onClick={onSwitchToForgotPassword}
+          className="text-sm text-primary hover:underline"
+          disabled={isLoading}
+        >
+          Esqueci minha senha
+        </button>
       </div>
     </div>;
 };
