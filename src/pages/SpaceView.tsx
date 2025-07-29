@@ -15,7 +15,7 @@ import { useManageSpaceMembers } from '@/hooks/useManageSpaceMembers';
 import { useEvents } from '@/hooks/useEvents';
 import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
-import { EventCard } from '@/components/events/EventCard';
+import { EventsList } from '@/components/events/EventsList';
 import { CreateEventDialog } from '@/components/events/CreateEventDialog';
 import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -111,8 +111,8 @@ export const SpaceView = () => {
   return <DashboardLayout>
       <div className="min-h-screen bg-background">
         {/* Space Header */}
-        <div className="bg-background border-b sticky top-0 z-10">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-card">
+        <div className="bg-card border-b sticky top-0 z-10">
+          <div className="w-full px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-4">
                 
@@ -246,36 +246,20 @@ export const SpaceView = () => {
                     <CreateEventDialog spaceId={spaceId} />
                   )}
 
-                  <div className="space-y-4">
-                    {eventsLoading ? (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Carregando eventos...
-                      </div>
-                    ) : events && events.length === 0 ? (
-                      <Card>
-                        <CardContent className="p-12 text-center">
-                          <div className="space-y-3">
-                            <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                              <SpaceIcon className="h-8 w-8 text-muted-foreground" />
-                            </div>
-                            <h3 className="text-lg font-medium">Nenhum evento ainda</h3>
-                            <p className="text-muted-foreground max-w-md mx-auto">
-                              {memberInfo?.isMember 
-                                ? "Este espaço ainda não tem eventos. Que tal criar o primeiro?" 
-                                : "Este espaço ainda não tem eventos."
-                              }
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div className="grid gap-4 md:grid-cols-2">
-                        {events?.map((event) => (
-                          <EventCard key={event.id} event={event as any} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {eventsLoading ? (
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-32 bg-muted rounded-lg animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (
+                    <EventsList
+                      events={events || []}
+                      onEventClick={(eventId) => {
+                        // Handle event click
+                      }}
+                    />
+                  )}
                 </>
               ) : (
                 // Regular Space Content (Posts)

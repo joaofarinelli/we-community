@@ -9,7 +9,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-interface EventCardProps {
+interface FeaturedEventCardProps {
   event: {
     id: string;
     title: string;
@@ -24,7 +24,7 @@ interface EventCardProps {
   onEventClick?: (eventId: string) => void;
 }
 
-export const EventCard = ({ event, onEventClick }: EventCardProps) => {
+export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
   
@@ -34,8 +34,6 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
-  const isToday = format(startDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
-  const isSameDay = format(startDate, 'yyyy-MM-dd') === format(endDate, 'yyyy-MM-dd');
 
   const handleParticipationToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -48,105 +46,98 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
 
   return (
     <Card 
-      className="cursor-pointer hover:shadow-md transition-shadow"
+      className="cursor-pointer hover:shadow-md transition-shadow border-2 border-primary/20"
       onClick={() => onEventClick?.(event.id)}
     >
-      <CardContent className="p-4">
-        <div className="flex gap-4">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <Badge variant="secondary" className="bg-primary/10 text-primary">
+            Próximo Evento
+          </Badge>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Editar evento</DropdownMenuItem>
+              <DropdownMenuItem>Compartilhar</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="flex gap-6">
           {event.image_url && (
             <div className="flex-shrink-0">
               <img 
                 src={event.image_url} 
                 alt={event.title}
-                className="w-20 h-20 object-cover rounded-lg"
+                className="w-24 h-24 object-cover rounded-lg"
               />
             </div>
           )}
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-lg font-semibold truncate">{event.title}</h3>
-              <div className="flex items-center gap-2 ml-2">
-                {isToday && (
-                  <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
-                    Hoje
-                  </Badge>
-                )}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Editar evento</DropdownMenuItem>
-                    <DropdownMenuItem>Compartilhar</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
+            <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
             
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
               <div className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                <span>
-                  {format(startDate, "d 'de' MMMM", { locale: ptBR })}
-                  {!isSameDay && ` - ${format(endDate, "d 'de' MMMM", { locale: ptBR })}`}
-                </span>
+                <Calendar className="h-4 w-4" />
+                <span>{format(startDate, "d 'de' MMMM", { locale: ptBR })}</span>
               </div>
               
               <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
+                <Clock className="h-4 w-4" />
                 <span>{format(startDate, 'HH:mm')} - {format(endDate, 'HH:mm')}</span>
               </div>
 
               {event.location && (
                 <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
+                  <MapPin className="h-4 w-4" />
                   <span className="truncate">{event.location}</span>
                 </div>
               )}
             </div>
 
             {event.description && (
-              <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                 {event.description}
               </p>
             )}
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <Users className="h-3 w-3 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    {participantCount}{event.max_participants && `/${event.max_participants}`}
+                    {participantCount} participante{participantCount !== 1 ? 's' : ''}
+                    {event.max_participants && ` / ${event.max_participants}`}
                   </span>
                 </div>
                 
-                <div className="flex -space-x-1">
-                  {participants.slice(0, 3).map((participant, index) => (
-                    <Avatar key={participant.id} className="h-6 w-6 border-2 border-background">
+                <div className="flex -space-x-2">
+                  {participants.slice(0, 4).map((participant, index) => (
+                    <Avatar key={participant.id} className="h-8 w-8 border-2 border-background">
                       <AvatarFallback className="text-xs">
                         {(participant as any).profiles?.first_name?.[0] || 'U'}
                         {(participant as any).profiles?.last_name?.[0] || ''}
                       </AvatarFallback>
                     </Avatar>
                   ))}
-                  {participants.length > 3 && (
-                    <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">+{participants.length - 3}</span>
+                  {participants.length > 4 && (
+                    <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                      <span className="text-xs text-muted-foreground">+{participants.length - 4}</span>
                     </div>
                   )}
                 </div>
               </div>
 
               <Button
-                size="sm"
                 variant={isParticipant ? "outline" : "default"}
                 onClick={handleParticipationToggle}
                 disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants)}
-                className="text-xs"
               >
                 {isJoining || isLeaving
                   ? "..."
@@ -154,7 +145,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                   ? "Confirmado"
                   : hasMaxParticipants
                   ? "Lotado"
-                  : "Confirmar"
+                  : "Confirmar presença"
                 }
               </Button>
             </div>
