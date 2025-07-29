@@ -40,6 +40,7 @@ import { ChallengesPage } from "./pages/ChallengesPage";
 import { BankPage } from "./pages/BankPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { SpacesPage } from "./pages/SpacesPage";
+import EventDetailPage from "./pages/EventDetailPage";
 import { SuperAdminGuard } from "@/components/super-admin/SuperAdminGuard";
 import { SuperAdminDashboard } from "./pages/super-admin/SuperAdminDashboard";
 import { SuperAdminCompanies } from "./pages/super-admin/SuperAdminCompanies";
@@ -94,6 +95,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
         <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
+        <Route path="/dashboard/events/:eventId" element={<AuthGuard><EventDetailPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />

@@ -525,6 +525,30 @@ export type Database = {
           },
         ]
       }
+      event_likes: {
+        Row: {
+          company_id: string
+          created_at: string
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       event_participants: {
         Row: {
           company_id: string

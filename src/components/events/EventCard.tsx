@@ -69,7 +69,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   return (
     <Card 
       className="cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => onEventClick?.(event.id)}
+      onClick={() => window.location.href = `/dashboard/events/${event.id}`}
     >
       <CardContent className="p-4">
         <div className="flex gap-4">
