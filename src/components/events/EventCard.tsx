@@ -1,4 +1,5 @@
-import { Calendar, MapPin, Users, Clock, MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +9,7 @@ import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { EditEventDialog } from './EditEventDialog';
 
 interface EventCardProps {
   event: {
@@ -19,6 +21,7 @@ interface EventCardProps {
     location?: string;
     max_participants?: number;
     image_url?: string;
+    status: 'draft' | 'active';
     event_participants?: any[];
   };
   onEventClick?: (eventId: string) => void;
@@ -27,6 +30,7 @@ interface EventCardProps {
 export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
@@ -79,9 +83,15 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Editar evento</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar evento
+                    </DropdownMenuItem>
                     <DropdownMenuItem>Compartilhar</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive">
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Excluir
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -161,6 +171,12 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
           </div>
         </div>
       </CardContent>
+      
+      <EditEventDialog 
+        event={event}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </Card>
   );
 };

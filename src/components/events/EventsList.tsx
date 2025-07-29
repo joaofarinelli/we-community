@@ -110,7 +110,7 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
             .map((event) => (
               <EventCard
                 key={event.id}
-                event={event}
+                event={event as any}
                 onEventClick={onEventClick}
               />
             ))}

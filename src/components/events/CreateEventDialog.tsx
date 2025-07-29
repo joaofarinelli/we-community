@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { CalendarIcon, Plus, ChevronDown } from 'lucide-react';
+import { EditEventDialog } from './EditEventDialog';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -60,8 +61,22 @@ interface CreateEventDialogProps {
   spaceId: string;
 }
 
+interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  location?: string;
+  max_participants?: number;
+  status: 'draft' | 'active';
+  [key: string]: any; // Allow additional properties from database
+}
+
 export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
   const [open, setOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
   const createEvent = useCreateEvent();
 
   const form = useForm<EventFormData>({
@@ -79,7 +94,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
     const startDateTime = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
     const endDateTime = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
 
-    await createEvent.mutateAsync({
+    const event = await createEvent.mutateAsync({
       spaceId,
       title: data.title,
       description: `Apresentador: ${data.presenter}`,
@@ -90,6 +105,10 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
 
     setOpen(false);
     form.reset();
+    
+    // Open edit dialog with created event
+    setCreatedEvent(event as Event);
+    setEditDialogOpen(true);
   };
 
   return (
@@ -101,12 +120,13 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <SheetHeader className="text-left">
-          <SheetTitle>Criar evento</SheetTitle>
-        </SheetHeader>
+        <div className="max-w-[650px] mx-auto">
+          <SheetHeader className="text-left">
+            <SheetTitle>Criar evento</SheetTitle>
+          </SheetHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
             {/* Qual é o evento? */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Qual é o evento?</h3>
@@ -343,21 +363,28 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={createEvent.isPending}>
-                {createEvent.isPending ? 'Criando...' : 'Criar Evento'}
-              </Button>
-            </div>
-          </form>
-        </Form>
+              <div className="flex justify-end gap-3 pt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={createEvent.isPending}>
+                  {createEvent.isPending ? 'Salvando...' : 'Salvar Rascunho'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </SheetContent>
+      
+      <EditEventDialog 
+        event={createdEvent}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </Sheet>
   );
 };

@@ -21,7 +21,7 @@ export const useEvents = (spaceId: string) => {
           )
         `)
         .eq('space_id', spaceId)
-        .eq('status', 'active')
+        .in('status', ['active', 'draft'])
         .order('start_date', { ascending: true });
 
       if (error) throw error;

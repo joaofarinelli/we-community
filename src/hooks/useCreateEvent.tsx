@@ -24,7 +24,7 @@ export const useCreateEvent = () => {
     mutationFn: async (data: CreateEventData) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
-      const { error } = await supabase
+      const { data: event, error } = await supabase
         .from('events')
         .insert({
           space_id: data.spaceId,
@@ -37,9 +37,13 @@ export const useCreateEvent = () => {
           max_participants: data.maxParticipants,
           image_url: data.imageUrl,
           created_by: user.id,
-        });
+          status: 'draft',
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+      return event;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['events', variables.spaceId] });
