@@ -3,15 +3,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Plus } from 'lucide-react';
+import { CalendarIcon, Plus, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import {
   Form,
   FormControl,
@@ -20,8 +20,14 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -33,13 +39,12 @@ import { cn } from '@/lib/utils';
 
 const eventSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
-  description: z.string().optional(),
+  presenter: z.string().min(1, 'Apresentador é obrigatório'),
   startDate: z.date({ message: 'Data de início é obrigatória' }),
   endDate: z.date({ message: 'Data de fim é obrigatória' }),
   startTime: z.string().min(1, 'Horário de início é obrigatório'),
   endTime: z.string().min(1, 'Horário de fim é obrigatório'),
-  location: z.string().optional(),
-  maxParticipants: z.string().optional(),
+  location: z.string().min(1, 'Local é obrigatório'),
 }).refine((data) => {
   const start = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
   const end = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
@@ -63,10 +68,9 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: '',
-      description: '',
+      presenter: '',
       location: '',
-      maxParticipants: '',
-      startTime: '09:00',
+      startTime: '17:00',
       endTime: '18:00',
     },
   });
@@ -78,11 +82,10 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
     await createEvent.mutateAsync({
       spaceId,
       title: data.title,
-      description: data.description,
+      description: `Apresentador: ${data.presenter}`,
       startDate: startDateTime,
       endDate: endDateTime,
       location: data.location,
-      maxParticipants: data.maxParticipants ? parseInt(data.maxParticipants) : undefined,
     });
 
     setOpen(false);
@@ -90,153 +93,249 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
           Criar Evento
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Criar Novo Evento</DialogTitle>
-        </DialogHeader>
+      </SheetTrigger>
+      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+        <SheetHeader className="text-left">
+          <SheetTitle>Criar evento</SheetTitle>
+        </SheetHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Nome do evento" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Descrição do evento..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
+            {/* Qual é o evento? */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Qual é o evento?</h3>
+              
               <FormField
                 control={form.control}
-                name="startDate"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Data de Início</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecionar data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data de Fim</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
-                            ) : (
-                              <span>Selecionar data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="startTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Horário de Início</FormLabel>
+                    <FormLabel>Título</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        placeholder="Exemplo: Sexta-feira de Perguntas & Respostas" 
+                        className="bg-muted/50"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
+              <div className="grid grid-cols-2 gap-4">
+                <FormItem>
+                  <FormLabel>Espaço</FormLabel>
+                  <Select defaultValue="events">
+                    <SelectTrigger className="bg-muted/50">
+                      <SelectValue>
+                        <div className="flex items-center gap-2">
+                          <span>➡️</span>
+                          <span>Eventos</span>
+                        </div>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="events">
+                        <div className="flex items-center gap-2">
+                          <span>➡️</span>
+                          <span>Eventos</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+
+                <FormField
+                  control={form.control}
+                  name="presenter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Apresentador/Palestrante</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nome do apresentador"
+                          className="bg-muted/50"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Quando será o evento? */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Quando será o evento?</h3>
+              
+              <div className="space-y-3">
+                <FormLabel>Data e hora</FormLabel>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-[140px] justify-between bg-muted/50",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "MMM dd, yyyy")
+                                ) : (
+                                  <span>Data</span>
+                                )}
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date < new Date()}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="startTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="w-[100px] bg-muted/50">
+                              <SelectValue />
+                              <ChevronDown className="h-4 w-4" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => {
+                              const hour = i.toString().padStart(2, '0');
+                              return (
+                                <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
+                                  {hour}:00
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <span className="text-muted-foreground">até</span>
+
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-[140px] justify-between bg-muted/50",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "MMM dd, yyyy")
+                                ) : (
+                                  <span>Data</span>
+                                )}
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date < new Date()}
+                              initialFocus
+                              className="p-3 pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <FormControl>
+                            <SelectTrigger className="w-[100px] bg-muted/50">
+                              <SelectValue />
+                              <ChevronDown className="h-4 w-4" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Array.from({ length: 24 }, (_, i) => {
+                              const hour = i.toString().padStart(2, '0');
+                              return (
+                                <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
+                                  {hour}:00
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Onde será o evento? */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Onde será o evento?</h3>
+              
               <FormField
                 control={form.control}
-                name="endTime"
+                name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Horário de Fim</FormLabel>
+                    <FormLabel>Local</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        placeholder="Selecione o local" 
+                        className="bg-muted/50"
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -244,39 +343,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Local</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Local do evento" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="maxParticipants"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Máximo de Participantes (opcional)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      placeholder="Número máximo de participantes" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-3 pt-6">
               <Button
                 type="button"
                 variant="outline"
@@ -290,7 +357,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
             </div>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
