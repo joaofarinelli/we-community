@@ -104,11 +104,14 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        Editar evento
-                      </DropdownMenuItem>
+                     <DropdownMenuContent align="end">
+                       <DropdownMenuItem onClick={(e) => {
+                         e.stopPropagation();
+                         setEditDialogOpen(true);
+                       }}>
+                         <Edit className="mr-2 h-4 w-4" />
+                         Editar evento
+                       </DropdownMenuItem>
                       <DropdownMenuItem>Compartilhar</DropdownMenuItem>
                       <DropdownMenuItem 
                         className="text-destructive"
