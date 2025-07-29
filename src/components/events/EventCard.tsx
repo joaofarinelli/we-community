@@ -38,7 +38,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by });
+  const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by, status: event.status });
   const deleteEvent = useDeleteEvent();
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
