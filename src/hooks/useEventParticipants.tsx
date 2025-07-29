@@ -33,13 +33,16 @@ export const useEventParticipants = (eventId: string) => {
     mutationFn: async () => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
+      // Use upsert to handle duplicate entries gracefully
       const { error } = await supabase
         .from('event_participants')
-        .insert({
+        .upsert({
           event_id: eventId,
           user_id: user.id,
           company_id: currentCompanyId,
           status: 'confirmed'
+        }, {
+          onConflict: 'event_id,user_id'
         });
 
       if (error) throw error;
@@ -50,7 +53,8 @@ export const useEventParticipants = (eventId: string) => {
       queryClient.invalidateQueries({ queryKey: ['allUserEvents'] });
       toast.success('Você se inscreveu no evento!');
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error joining event:', error);
       toast.error('Erro ao se inscrever no evento');
     },
   });
