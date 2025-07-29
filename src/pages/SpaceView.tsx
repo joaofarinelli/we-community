@@ -113,7 +113,7 @@ export const SpaceView = () => {
       <div className="min-h-screen bg-background">
         {/* Space Header */}
         <div className="bg-card border-b sticky top-0 z-10">
-          <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-6">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-4">
                 
