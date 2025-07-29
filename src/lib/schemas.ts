@@ -85,3 +85,43 @@ export const createCategorySchema = z.object({
 });
 
 export type CreateCategoryFormData = z.infer<typeof createCategorySchema>;
+
+// Event schemas
+export const eventSchema = z.object({
+  title: z.string().min(1, "Título é obrigatório"),
+  description: z.string().optional(),
+  presenter: z.string().optional(),
+  startDate: z.date(),
+  startTime: z.string(),
+  endDate: z.date(),
+  endTime: z.string(),
+  locationType: z.enum(['presencial', 'online', 'indefinido']),
+  locationAddress: z.string().optional(),
+  onlineLink: z.string().url().optional().or(z.literal('')),
+  imageUrl: z.string().optional(),
+}).refine((data) => {
+  const startDateTime = new Date(`${data.startDate.toDateString()} ${data.startTime}`);
+  const endDateTime = new Date(`${data.endDate.toDateString()} ${data.endTime}`);
+  return endDateTime > startDateTime;
+}, {
+  message: "Data e hora de fim devem ser posteriores à data e hora de início",
+  path: ["endTime"],
+}).refine((data) => {
+  if (data.locationType === 'presencial') {
+    return data.locationAddress && data.locationAddress.length > 0;
+  }
+  return true;
+}, {
+  message: "Endereço é obrigatório para eventos presenciais",
+  path: ["locationAddress"],
+}).refine((data) => {
+  if (data.locationType === 'online') {
+    return data.onlineLink && data.onlineLink.length > 0;
+  }
+  return true;
+}, {
+  message: "Link da reunião é obrigatório para eventos online",
+  path: ["onlineLink"],
+});
+
+export type EventFormData = z.infer<typeof eventSchema>;

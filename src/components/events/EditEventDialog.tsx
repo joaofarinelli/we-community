@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, ChevronDown, Globe, Users, Info, MoreHorizontal } from 'lucide-react';
+import { CalendarIcon, ChevronDown, Globe, Users, Info, MoreHorizontal, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -38,28 +37,9 @@ import {
 } from '@/components/ui/popover';
 import { useUpdateEvent } from '@/hooks/useUpdateEvent';
 import { cn } from '@/lib/utils';
-
-const eventSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
-  description: z.string().optional(),
-  presenter: z.string().min(1, 'Apresentador é obrigatório'),
-  startDate: z.date({ message: 'Data de início é obrigatória' }),
-  endDate: z.date({ message: 'Data de fim é obrigatória' }),
-  startTime: z.string().min(1, 'Horário de início é obrigatório'),
-  endTime: z.string().min(1, 'Horário de fim é obrigatório'),
-  location: z.string().min(1, 'Local é obrigatório'),
-  maxParticipants: z.number().optional(),
-  isFree: z.boolean().optional().default(true),
-}).refine((data) => {
-  const start = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
-  const end = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
-  return end > start;
-}, {
-  message: "Data e hora de fim deve ser posterior ao início",
-  path: ["endDate"],
-});
-
-type EventFormData = z.infer<typeof eventSchema>;
+import { eventSchema, type EventFormData } from '@/lib/schemas';
+import { EventLocationSelector } from './EventLocationSelector';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface Event {
   id: string;
@@ -68,31 +48,37 @@ interface Event {
   start_date: string;
   end_date: string;
   location?: string;
-  max_participants?: number;
+  image_url?: string;
+  location_type?: string;
+  location_address?: string;
+  online_link?: string;
   status: 'draft' | 'active';
 }
 
 interface EditEventDialogProps {
-  event: Event | null;
+  event: Event;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogProps) => {
-  const updateEvent = useUpdateEvent();
   const [activeTab, setActiveTab] = useState('overview');
+  const updateEvent = useUpdateEvent();
 
-  const form = useForm({
+  const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: '',
-      description: '',
-      presenter: '',
-      location: '',
-      startTime: '17:00',
-      endTime: '18:00',
-      maxParticipants: 0,
-      isFree: true,
+      title: "",
+      description: "",
+      presenter: "",
+      startDate: new Date(),
+      startTime: "09:00",
+      endDate: new Date(),
+      endTime: "10:00",
+      locationType: "indefinido" as const,
+      locationAddress: "",
+      onlineLink: "",
+      imageUrl: "",
     },
   });
 
@@ -100,100 +86,222 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
     if (event) {
       const startDate = new Date(event.start_date);
       const endDate = new Date(event.end_date);
+      const startTime = format(startDate, 'HH:mm');
+      const endTime = format(endDate, 'HH:mm');
       
-      // Extract presenter from description (temporary)
-      const presenterMatch = event.description?.match(/Apresentador: (.+)/);
-      const presenter = presenterMatch ? presenterMatch[1] : '';
-
+      // Extract presenter from description if it exists
+      const presenter = event.description?.startsWith('Apresentador: ') 
+        ? event.description.replace('Apresentador: ', '') 
+        : '';
+      
       form.reset({
         title: event.title,
-        description: event.description || '',
+        description: event.description || "",
         presenter,
-        startDate,
-        endDate,
-        startTime: format(startDate, 'HH:mm'),
-        endTime: format(endDate, 'HH:mm'),
-        location: event.location || '',
-        maxParticipants: event.max_participants || undefined,
-        isFree: true,
+        startDate: startDate,
+        startTime,
+        endDate: endDate,
+        endTime,
+        locationType: (event.location_type as 'presencial' | 'online' | 'indefinido') || 'indefinido',
+        locationAddress: event.location_address || "",
+        onlineLink: event.online_link || "",
+        imageUrl: event.image_url || "",
       });
     }
   }, [event, form]);
 
-  const onSubmit = async (data: any) => {
-    if (!event) return;
-
-    const startDateTime = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
-    const endDateTime = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
+  const onSubmit = async (values: EventFormData) => {
+    const startDateTime = new Date(`${values.startDate.toDateString()} ${values.startTime}`);
+    const endDateTime = new Date(`${values.endDate.toDateString()} ${values.endTime}`);
+    
+    const description = values.presenter ? `Apresentador: ${values.presenter}` : values.description;
 
     await updateEvent.mutateAsync({
       id: event.id,
-      title: data.title,
-      description: `Apresentador: ${data.presenter}${data.description ? `\n\n${data.description}` : ''}`,
+      title: values.title,
+      description,
       startDate: startDateTime,
       endDate: endDateTime,
-      location: data.location,
-      maxParticipants: data.maxParticipants || undefined,
+      imageUrl: values.imageUrl,
+      locationType: values.locationType,
+      locationAddress: values.locationAddress,
+      onlineLink: values.onlineLink,
     });
 
     onOpenChange(false);
   };
 
   const handlePublish = async () => {
-    if (!event) return;
-
+    const newStatus = event.status === 'draft' ? 'active' : 'draft';
     await updateEvent.mutateAsync({
       id: event.id,
-      status: event.status === 'draft' ? 'active' : 'draft',
+      status: newStatus,
     });
   };
 
-  if (!event) return null;
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        times.push(timeString);
+      }
+    }
+    return times;
+  };
+
+  const timeOptions = generateTimeOptions();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <div className="max-w-[650px] mx-auto">
-          <SheetHeader className="text-left mb-6">
-            <SheetTitle>Editar evento</SheetTitle>
-          </SheetHeader>
+      <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
+        <SheetHeader className="space-y-4">
+          <SheetTitle className="text-xl font-semibold flex items-center justify-between">
+            Editar Evento
+            {event.status === 'draft' && (
+              <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md font-normal">
+                Rascunho
+              </span>
+            )}
+          </SheetTitle>
+        </SheetHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview" className="gap-2">
-                <Globe className="h-4 w-4" />
-                Visão geral
-              </TabsTrigger>
-              <TabsTrigger value="people" className="gap-2">
-                <Users className="h-4 w-4" />
-                Pessoas
-              </TabsTrigger>
-              <TabsTrigger value="basics" className="gap-2">
-                <Info className="h-4 w-4" />
-                Infos. Básicas
-              </TabsTrigger>
-              <TabsTrigger value="details" className="gap-2">
-                <MoreHorizontal className="h-4 w-4" />
-                Detalhes
-              </TabsTrigger>
-            </TabsList>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  Visão Geral
+                </TabsTrigger>
+                <TabsTrigger value="banner" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Banner
+                </TabsTrigger>
+                <TabsTrigger value="people" className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Pessoas
+                </TabsTrigger>
+                <TabsTrigger value="basics" className="flex items-center gap-2">
+                  <Info className="h-4 w-4" />
+                  Infos. Básicas
+                </TabsTrigger>
+              </TabsList>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="mt-6">
-                <TabsContent value="overview" className="space-y-6">
+              <TabsContent value="overview" className="space-y-6 mt-6">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Título do evento</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite o título do evento" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Digite a descrição do evento" 
+                          className="min-h-[100px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <EventLocationSelector 
+                  control={form.control}
+                  locationType={form.watch('locationType')}
+                />
+              </TabsContent>
+
+              <TabsContent value="banner" className="space-y-6 mt-6">
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Banner do Evento</FormLabel>
+                      <FormControl>
+                        <ImageUpload
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onRemove={() => field.onChange("")}
+                          bucketName="event-banners"
+                          maxSizeKB={5000}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+
+              <TabsContent value="people" className="space-y-6 mt-6">
+                <FormField
+                  control={form.control}
+                  name="presenter"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Apresentador</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite o nome do apresentador" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </TabsContent>
+
+              <TabsContent value="basics" className="space-y-6 mt-6">
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="title"
+                    name="startDate"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Título do evento</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Título do evento" 
-                            className="bg-muted/50"
-                            {...field} 
-                          />
-                        </FormControl>
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Data de início</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "dd/MM/yyyy")
+                                ) : (
+                                  <span>Selecionar data</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -201,276 +309,130 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
 
                   <FormField
                     control={form.control}
-                    name="description"
+                    name="startTime"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Descrição</FormLabel>
-                        <FormControl>
-                          <Textarea 
-                            placeholder="Descrição do evento..."
-                            className="bg-muted/50 min-h-[120px]"
-                            {...field} 
-                          />
-                        </FormControl>
+                        <FormLabel>Horário de início</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecionar horário" />
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {timeOptions.map((time) => (
+                              <SelectItem key={time} value={time}>
+                                {time}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </TabsContent>
-
-                <TabsContent value="people" className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="presenter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Apresentador/Palestrante</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Nome do apresentador"
-                            className="bg-muted/50"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="maxParticipants"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Máximo de participantes</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number"
-                            placeholder="0 = ilimitado"
-                            className="bg-muted/50"
-                            value={field.value || ''}
-                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-
-                <TabsContent value="basics" className="space-y-6">
-                  <div className="space-y-3">
-                    <FormLabel>Data e hora</FormLabel>
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <FormField
-                        control={form.control}
-                        name="startDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={cn(
-                                      "w-[140px] justify-between bg-muted/50",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "MMM dd, yyyy")
-                                    ) : (
-                                      <span>Data</span>
-                                    )}
-                                    <ChevronDown className="h-4 w-4" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) => date < new Date()}
-                                  initialFocus
-                                  className="p-3"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="startTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <FormControl>
-                                <SelectTrigger className="w-[100px] bg-muted/50">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 24 }, (_, i) => {
-                                  const hour = i.toString().padStart(2, '0');
-                                  return (
-                                    <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
-                                      {hour}:00
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <span className="text-muted-foreground">até</span>
-
-                      <FormField
-                        control={form.control}
-                        name="endDate"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Popover>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button
-                                    variant="outline"
-                                    className={cn(
-                                      "w-[140px] justify-between bg-muted/50",
-                                      !field.value && "text-muted-foreground"
-                                    )}
-                                  >
-                                    {field.value ? (
-                                      format(field.value, "MMM dd, yyyy")
-                                    ) : (
-                                      <span>Data</span>
-                                    )}
-                                    <ChevronDown className="h-4 w-4" />
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={field.value}
-                                  onSelect={field.onChange}
-                                  disabled={(date) => date < new Date()}
-                                  initialFocus
-                                  className="p-3"
-                                />
-                              </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="endTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <FormControl>
-                                <SelectTrigger className="w-[100px] bg-muted/50">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Array.from({ length: 24 }, (_, i) => {
-                                  const hour = i.toString().padStart(2, '0');
-                                  return (
-                                    <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
-                                      {hour}:00
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Local</FormLabel>
-                        <FormControl>
-                          <Input 
-                            placeholder="Local do evento" 
-                            className="bg-muted/50"
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-
-                <TabsContent value="details" className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="isFree"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Evento gratuito
-                          </FormLabel>
-                          <div className="text-sm text-muted-foreground">
-                            Este evento é gratuito para todos os participantes
-                          </div>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-
-                <div className="flex justify-between items-center pt-6 border-t">
-                  <Button
-                    type="button"
-                    variant={event.status === 'draft' ? 'default' : 'outline'}
-                    onClick={handlePublish}
-                    disabled={updateEvent.isPending}
-                  >
-                    {event.status === 'draft' ? 'Publicar' : 'Despublicar'}
-                  </Button>
-
-                  <div className="flex gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button type="submit" disabled={updateEvent.isPending}>
-                      {updateEvent.isPending ? 'Salvando...' : 'Salvar'}
-                    </Button>
-                  </div>
                 </div>
-              </form>
-            </Form>
-          </Tabs>
-        </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Data de fim</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant="outline"
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "dd/MM/yyyy")
+                                ) : (
+                                  <span>Selecionar data</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              initialFocus
+                              className="pointer-events-auto"
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="endTime"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Horário de fim</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecionar horário" />
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {timeOptions.map((time) => (
+                              <SelectItem key={time} value={time}>
+                                {time}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="flex justify-between items-center pt-6 border-t">
+              <Button
+                type="button"
+                variant={event.status === 'draft' ? 'default' : 'outline'}
+                onClick={handlePublish}
+                disabled={updateEvent.isPending}
+              >
+                {event.status === 'draft' ? 'Publicar' : 'Despublicar'}
+              </Button>
+              
+              <div className="flex space-x-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => onOpenChange(false)}
+                  disabled={updateEvent.isPending}
+                >
+                  Cancelar
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={updateEvent.isPending}
+                >
+                  {updateEvent.isPending ? "Salvando..." : "Salvar"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Form>
       </SheetContent>
     </Sheet>
   );

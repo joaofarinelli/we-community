@@ -14,6 +14,10 @@ interface UpdateEventData {
   maxParticipants?: number;
   imageUrl?: string;
   status?: 'draft' | 'active';
+  locationType?: string;
+  locationAddress?: string;
+  onlineLink?: string;
+  locationCoordinates?: string;
 }
 
 export const useUpdateEvent = () => {
@@ -35,6 +39,10 @@ export const useUpdateEvent = () => {
       if (data.maxParticipants !== undefined) updateData.max_participants = data.maxParticipants;
       if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
       if (data.status !== undefined) updateData.status = data.status;
+      if (data.locationType !== undefined) updateData.location_type = data.locationType;
+      if (data.locationAddress !== undefined) updateData.location_address = data.locationAddress;
+      if (data.onlineLink !== undefined) updateData.online_link = data.onlineLink;
+      if (data.locationCoordinates !== undefined) updateData.location_coordinates = data.locationCoordinates;
 
       const { data: event, error } = await supabase
         .from('events')

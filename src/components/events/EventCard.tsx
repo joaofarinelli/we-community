@@ -20,7 +20,10 @@ interface EventCardProps {
     description?: string;
     start_date: string;
     end_date: string;
-    location?: string;
+  location?: string;
+  location_type?: string;
+  location_address?: string;
+  online_link?: string;
     max_participants?: number;
     image_url?: string;
     status: 'draft' | 'active';

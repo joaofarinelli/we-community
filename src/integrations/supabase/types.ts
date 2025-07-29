@@ -570,7 +570,11 @@ export type Database = {
           id: string
           image_url: string | null
           location: string | null
+          location_address: string | null
+          location_coordinates: string | null
+          location_type: string | null
           max_participants: number | null
+          online_link: string | null
           space_id: string
           start_date: string
           status: string
@@ -586,7 +590,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           location?: string | null
+          location_address?: string | null
+          location_coordinates?: string | null
+          location_type?: string | null
           max_participants?: number | null
+          online_link?: string | null
           space_id: string
           start_date: string
           status?: string
@@ -602,7 +610,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           location?: string | null
+          location_address?: string | null
+          location_coordinates?: string | null
+          location_type?: string | null
           max_participants?: number | null
+          online_link?: string | null
           space_id?: string
           start_date?: string
           status?: string

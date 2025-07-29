@@ -13,6 +13,10 @@ interface CreateEventData {
   location?: string;
   maxParticipants?: number;
   imageUrl?: string;
+  locationType?: string;
+  locationAddress?: string;
+  onlineLink?: string;
+  locationCoordinates?: string;
 }
 
 export const useCreateEvent = () => {
@@ -36,6 +40,10 @@ export const useCreateEvent = () => {
           location: data.location,
           max_participants: data.maxParticipants,
           image_url: data.imageUrl,
+          location_type: data.locationType || 'indefinido',
+          location_address: data.locationAddress,
+          online_link: data.onlineLink,
+          location_coordinates: data.locationCoordinates,
           created_by: user.id,
           status: 'draft',
         })

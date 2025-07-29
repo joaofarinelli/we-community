@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { format } from 'date-fns';
 import { CalendarIcon, Plus, ChevronDown } from 'lucide-react';
 import { EditEventDialog } from './EditEventDialog';
@@ -37,29 +36,9 @@ import {
 } from '@/components/ui/popover';
 import { useCreateEvent } from '@/hooks/useCreateEvent';
 import { cn } from '@/lib/utils';
-
-const eventSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
-  presenter: z.string().min(1, 'Apresentador é obrigatório'),
-  startDate: z.date({ message: 'Data de início é obrigatória' }),
-  endDate: z.date({ message: 'Data de fim é obrigatória' }),
-  startTime: z.string().min(1, 'Horário de início é obrigatório'),
-  endTime: z.string().min(1, 'Horário de fim é obrigatório'),
-  location: z.string().min(1, 'Local é obrigatório'),
-}).refine((data) => {
-  const start = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
-  const end = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
-  return end > start;
-}, {
-  message: "Data e hora de fim deve ser posterior ao início",
-  path: ["endDate"],
-});
-
-type EventFormData = z.infer<typeof eventSchema>;
-
-interface CreateEventDialogProps {
-  spaceId: string;
-}
+import { eventSchema, type EventFormData } from '@/lib/schemas';
+import { EventLocationSelector } from './EventLocationSelector';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface Event {
   id: string;
@@ -68,9 +47,15 @@ interface Event {
   start_date: string;
   end_date: string;
   location?: string;
-  max_participants?: number;
+  image_url?: string;
+  location_type?: string;
+  location_address?: string;
+  online_link?: string;
   status: 'draft' | 'active';
-  [key: string]: any; // Allow additional properties from database
+}
+
+interface CreateEventDialogProps {
+  spaceId: string;
 }
 
 export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
@@ -82,158 +67,89 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: '',
-      presenter: '',
-      location: '',
-      startTime: '17:00',
-      endTime: '18:00',
+      title: "",
+      presenter: "",
+      startDate: new Date(),
+      startTime: "09:00",
+      endDate: new Date(),
+      endTime: "10:00",
+      locationType: "indefinido" as const,
+      locationAddress: "",
+      onlineLink: "",
+      imageUrl: "",
     },
   });
 
-  const onSubmit = async (data: EventFormData) => {
-    const startDateTime = new Date(`${format(data.startDate, 'yyyy-MM-dd')}T${data.startTime}`);
-    const endDateTime = new Date(`${format(data.endDate, 'yyyy-MM-dd')}T${data.endTime}`);
-
-    const event = await createEvent.mutateAsync({
-      spaceId,
-      title: data.title,
-      description: `Apresentador: ${data.presenter}`,
-      startDate: startDateTime,
-      endDate: endDateTime,
-      location: data.location,
-    });
-
-    setOpen(false);
-    form.reset();
+  const onSubmit = async (values: EventFormData) => {
+    const startDateTime = new Date(`${values.startDate.toDateString()} ${values.startTime}`);
+    const endDateTime = new Date(`${values.endDate.toDateString()} ${values.endTime}`);
     
-    // Open edit dialog with created event
-    setCreatedEvent(event as Event);
-    setEditDialogOpen(true);
+    const description = values.presenter ? `Apresentador: ${values.presenter}` : values.description;
+    
+    try {
+      const event = await createEvent.mutateAsync({
+        spaceId,
+        title: values.title,
+        description,
+        startDate: startDateTime,
+        endDate: endDateTime,
+        imageUrl: values.imageUrl,
+        locationType: values.locationType,
+        locationAddress: values.locationAddress,
+        onlineLink: values.onlineLink,
+      });
+      
+      setCreatedEvent(event as Event);
+      form.reset();
+      setOpen(false);
+      setEditDialogOpen(true);
+    } catch (error) {
+      console.error('Error creating event:', error);
+    }
   };
 
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        times.push(timeString);
+      }
+    }
+    return times;
+  };
+
+  const timeOptions = generateTimeOptions();
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Criar Evento
-        </Button>
-      </SheetTrigger>
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <div className="max-w-[650px] mx-auto">
-          <SheetHeader className="text-left">
-            <SheetTitle>Criar evento</SheetTitle>
+    <>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="sm" className="h-8 gap-2">
+            <Plus className="h-4 w-4" />
+            Criar Evento
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto">
+          <SheetHeader className="space-y-4">
+            <SheetTitle className="text-xl font-semibold">Criar Novo Evento</SheetTitle>
           </SheetHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-6">
-            {/* Qual é o evento? */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Qual é o evento?</h3>
-              
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Título</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Exemplo: Sexta-feira de Perguntas & Respostas" 
-                        className="bg-muted/50"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4">
-                <FormItem>
-                  <FormLabel>Espaço</FormLabel>
-                  <Select defaultValue="events">
-                    <SelectTrigger className="bg-muted/50">
-                      <SelectValue>
-                        <div className="flex items-center gap-2">
-                          <span>➡️</span>
-                          <span>Eventos</span>
-                        </div>
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="events">
-                        <div className="flex items-center gap-2">
-                          <span>➡️</span>
-                          <span>Eventos</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-
-                <FormField
-                  control={form.control}
-                  name="presenter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Apresentador/Palestrante</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Nome do apresentador"
-                          className="bg-muted/50"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Quando será o evento? */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Quando será o evento?</h3>
-              
-              <div className="space-y-3">
-                <FormLabel>Data e hora</FormLabel>
-                <div className="flex items-center gap-3 flex-wrap">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 py-6">
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-foreground">Qual é o evento?</h3>
+                  
                   <FormField
                     control={form.control}
-                    name="startDate"
+                    name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-[140px] justify-between bg-muted/50",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "MMM dd, yyyy")
-                                ) : (
-                                  <span>Data</span>
-                                )}
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date()}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormLabel>Título do evento *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Digite o título do evento" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -241,69 +157,13 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
 
                   <FormField
                     control={form.control}
-                    name="startTime"
+                    name="presenter"
                     render={({ field }) => (
                       <FormItem>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger className="w-[100px] bg-muted/50">
-                              <SelectValue />
-                              <ChevronDown className="h-4 w-4" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({ length: 24 }, (_, i) => {
-                              const hour = i.toString().padStart(2, '0');
-                              return (
-                                <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
-                                  {hour}:00
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <span className="text-muted-foreground">até</span>
-
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-[140px] justify-between bg-muted/50",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, "MMM dd, yyyy")
-                                ) : (
-                                  <span>Data</span>
-                                )}
-                                <ChevronDown className="h-4 w-4" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date()}
-                              initialFocus
-                              className="p-3 pointer-events-auto"
-                            />
-                          </PopoverContent>
-                        </Popover>
+                        <FormLabel>Apresentador</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Digite o nome do apresentador" {...field} />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -311,80 +171,205 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
 
                   <FormField
                     control={form.control}
-                    name="endTime"
+                    name="imageUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <Select value={field.value} onValueChange={field.onChange}>
-                          <FormControl>
-                            <SelectTrigger className="w-[100px] bg-muted/50">
-                              <SelectValue />
-                              <ChevronDown className="h-4 w-4" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {Array.from({ length: 24 }, (_, i) => {
-                              const hour = i.toString().padStart(2, '0');
-                              return (
-                                <SelectItem key={`${hour}:00`} value={`${hour}:00`}>
-                                  {hour}:00
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>Banner do Evento</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value || ""}
+                            onChange={field.onChange}
+                            onRemove={() => field.onChange("")}
+                            bucketName="event-banners"
+                            maxSizeKB={5000}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-foreground">Quando será o evento?</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="startDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data de início *</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "dd/MM/yyyy")
+                                  ) : (
+                                    <span>Selecionar data</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="startTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Horário de início *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecionar horário" />
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {timeOptions.map((time) => (
+                                <SelectItem key={time} value={time}>
+                                  {time}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="endDate"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Data de fim *</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full pl-3 text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, "dd/MM/yyyy")
+                                  ) : (
+                                    <span>Selecionar data</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date()}
+                                initialFocus
+                                className="pointer-events-auto"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Horário de fim *</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecionar horário" />
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {timeOptions.map((time) => (
+                                <SelectItem key={time} value={time}>
+                                  {time}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-foreground">Onde será o evento?</h3>
+                  
+                  <EventLocationSelector 
+                    control={form.control}
+                    locationType={form.watch('locationType')}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Onde será o evento? */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Onde será o evento?</h3>
-              
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Local</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Selecione o local" 
-                        className="bg-muted/50"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-              <div className="flex justify-end gap-3 pt-6">
-                <Button
-                  type="button"
-                  variant="outline"
+              <div className="flex justify-end space-x-2 pt-6 border-t">
+                <Button 
+                  type="button" 
+                  variant="outline" 
                   onClick={() => setOpen(false)}
+                  disabled={createEvent.isPending}
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={createEvent.isPending}>
-                  {createEvent.isPending ? 'Salvando...' : 'Salvar Rascunho'}
+                <Button 
+                  type="submit" 
+                  disabled={createEvent.isPending}
+                >
+                  {createEvent.isPending ? "Salvando..." : "Salvar Rascunho"}
                 </Button>
               </div>
             </form>
           </Form>
-        </div>
-      </SheetContent>
-      
-      <EditEventDialog 
-        event={createdEvent}
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-      />
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+
+      {createdEvent && (
+        <EditEventDialog
+          event={createdEvent}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+        />
+      )}
+    </>
   );
 };
