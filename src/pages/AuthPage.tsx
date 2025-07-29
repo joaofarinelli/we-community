@@ -19,29 +19,35 @@ export const AuthPage = () => {
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex">
         {/* Left Banner */}
         <div className="hidden md:flex md:w-full md:max-w-[400px] lg:max-w-[500px] relative">
-          <div className="w-full min-h-screen max-h-screen overflow-hidden">
-            <img
-              src={company.login_banner_url}
-              alt="Banner da empresa"
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                // Hide banner if image fails to load
-                const parent = e.currentTarget.parentElement?.parentElement;
-                if (parent) {
-                  parent.style.display = 'none';
-                }
-              }}
-            />
+          <div className="w-full h-screen overflow-hidden relative">
+            <div className="absolute inset-0 overflow-hidden">
+              <img
+                src={company.login_banner_url}
+                alt="Banner da empresa"
+                className="w-full min-h-full object-cover object-center"
+                style={{ 
+                  minHeight: '100vh',
+                  height: 'auto'
+                }}
+                onError={(e) => {
+                  // Hide banner if image fails to load
+                  const parent = e.currentTarget.parentElement?.parentElement?.parentElement;
+                  if (parent) {
+                    parent.style.display = 'none';
+                  }
+                }}
+              />
+            </div>
             {/* Gradient overlay for better branding integration */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/20 z-10" />
           </div>
         </div>
 
         {/* Right Content */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8 min-h-screen">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center p-4 lg:p-8 min-h-screen overflow-y-auto">
+          <div className="w-full max-w-md my-auto">
             <Card className="shadow-elegant border-0 bg-background/95 backdrop-blur-sm">
-              <CardContent className="p-8">
+              <CardContent className="p-6 md:p-8">
                 {authView === 'login' ? (
                   <LoginForm 
                     onSwitchToSignup={() => setAuthView('signup')} 
