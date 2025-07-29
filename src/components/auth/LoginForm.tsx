@@ -9,21 +9,23 @@ import { toast } from '@/hooks/use-toast';
 import { LoginFormData, loginSchema } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
 import { useCompanyByDomain } from '@/hooks/useCompanyByDomain';
-
 interface LoginFormProps {
   onSwitchToSignup: () => void;
 }
-
-export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
+export const LoginForm = ({
+  onSwitchToSignup
+}: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { data: targetCompany, isLoading: companyLoading } = useCompanyByDomain();
-
+  const {
+    data: targetCompany,
+    isLoading: companyLoading
+  } = useCompanyByDomain();
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: '',
-    },
+      password: ''
+    }
   });
 
   // Aggressive session cleanup function
@@ -31,11 +33,11 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
     try {
       // Sign out from Supabase
       await supabase.auth.signOut();
-      
+
       // Clear all storage
       localStorage.clear();
       sessionStorage.clear();
-      
+
       // Clear specific Supabase keys if they still exist
       const keys = Object.keys(localStorage);
       keys.forEach(key => {
@@ -43,16 +45,13 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
           localStorage.removeItem(key);
         }
       });
-      
       console.log('Forced session cleanup completed');
     } catch (error) {
       console.error('Error during forced cleanup:', error);
     }
   };
-
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    
     try {
       console.log('🚀 Login attempt started for:', data.email);
       console.log('🏢 Target company from domain:', targetCompany?.name, 'ID:', targetCompany?.id);
@@ -60,30 +59,27 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       // If we're on a company domain, validate access BEFORE login
       if (targetCompany) {
         console.log('🔍 Pre-validating access to company:', targetCompany.name);
-        
-        // Check for profiles with this email in this company
-        const { data: profiles, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', data.email)
-          .eq('company_id', targetCompany.id);
 
+        // Check for profiles with this email in this company
+        const {
+          data: profiles,
+          error
+        } = await supabase.from('profiles').select('*').eq('email', data.email).eq('company_id', targetCompany.id);
         if (error) {
           console.error('❌ Error checking profiles:', error);
           toast({
             variant: "destructive",
             title: "Erro de validação",
-            description: "Erro ao verificar acesso. Tente novamente.",
+            description: "Erro ao verificar acesso. Tente novamente."
           });
           return;
         }
-
         if (!profiles || profiles.length === 0) {
           console.log('❌ No profile found for email in company');
           toast({
             variant: "destructive",
             title: "Acesso negado",
-            description: `Você não tem acesso à ${targetCompany.name}. Entre em contato com um administrador.`,
+            description: `Você não tem acesso à ${targetCompany.name}. Entre em contato com um administrador.`
           });
           return;
         }
@@ -92,34 +88,30 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
         let targetProfile = profiles[0];
         if (profiles.length > 1) {
           console.log('⚠️ Multiple profiles found:', profiles.length, 'selecting most recent active one');
-          targetProfile = profiles
-            .filter(p => p.is_active)
-            .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] 
-            || profiles[0];
+          targetProfile = profiles.filter(p => p.is_active).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] || profiles[0];
         }
-
         console.log('✅ Target profile selected. User ID:', targetProfile.user_id, 'Role:', targetProfile.role);
-        
+
         // Store the target user_id for validation after login
         sessionStorage.setItem('expected_user_id', targetProfile.user_id);
         sessionStorage.setItem('expected_company_id', targetCompany.id);
       }
 
       // Perform login
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
+      const {
+        data: authData,
+        error
+      } = await supabase.auth.signInWithPassword({
         email: data.email,
-        password: data.password,
+        password: data.password
       });
-
       if (error) {
         sessionStorage.removeItem('expected_user_id');
         sessionStorage.removeItem('expected_company_id');
         toast({
           variant: "destructive",
           title: "Erro no login",
-          description: error.message === 'Invalid login credentials' 
-            ? 'Email ou senha incorretos' 
-            : error.message,
+          description: error.message === 'Invalid login credentials' ? 'Email ou senha incorretos' : error.message
         });
         return;
       }
@@ -127,17 +119,15 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       // Validate the logged-in user matches the expected user_id for this domain
       const expectedUserId = sessionStorage.getItem('expected_user_id');
       const expectedCompanyId = sessionStorage.getItem('expected_company_id');
-      
       if (expectedUserId && authData.user && authData.user.id !== expectedUserId) {
         console.log('User ID mismatch after login. Expected:', expectedUserId, 'Got:', authData.user.id);
-        
+
         // Force aggressive session cleanup
         await forceSessionCleanup();
-        
         toast({
           variant: "destructive",
           title: "Conta incorreta",
-          description: `Esta conta não tem acesso à ${targetCompany?.name}. Use a conta correta para esta empresa.`,
+          description: `Esta conta não tem acesso à ${targetCompany?.name}. Use a conta correta para esta empresa.`
         });
         return;
       }
@@ -145,10 +135,9 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       // Clear session storage after successful validation
       sessionStorage.removeItem('expected_user_id');
       sessionStorage.removeItem('expected_company_id');
-
       toast({
         title: "Login realizado!",
-        description: "Bem-vindo de volta ao CommunityHub",
+        description: "Bem-vindo de volta ao CommunityHub"
       });
     } catch (error) {
       console.error('Login error:', error);
@@ -157,15 +146,13 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
       toast({
         variant: "destructive",
         title: "Erro inesperado",
-        description: "Tente novamente em alguns instantes",
+        description: "Tente novamente em alguns instantes"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-foreground">Fazer Login</h2>
         <p className="text-muted-foreground">
@@ -175,58 +162,37 @@ export const LoginForm = ({ onSwitchToSignup }: LoginFormProps) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
+          <FormField control={form.control} name="email" render={({
+          field
+        }) => <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input placeholder="seu@email.com" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+              </FormItem>} />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
+          <FormField control={form.control} name="password" render={({
+          field
+        }) => <FormItem>
                 <FormLabel>Senha</FormLabel>
                 <FormControl>
                   <Input type="password" placeholder="Sua senha" {...field} />
                 </FormControl>
                 <FormMessage />
-              </FormItem>
-            )}
-          />
+              </FormItem>} />
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
+            {isLoading ? <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Entrando...
-              </>
-            ) : (
-              'Entrar'
-            )}
+              </> : 'Entrar'}
           </Button>
         </form>
       </Form>
 
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">
-          Não tem uma conta?{' '}
-          <button
-            onClick={onSwitchToSignup}
-            className="text-primary hover:underline font-medium"
-          >
-            Cadastre sua empresa
-          </button>
-        </p>
+        
       </div>
-    </div>
-  );
+    </div>;
 };
