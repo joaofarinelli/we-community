@@ -82,9 +82,9 @@ export const renderSpaceIcon = (
     });
   }
   
-  // Default icon - use 🔵 emoji as default
+  // Default icon - use ➡️ emoji as default
   if (!customIconType || customIconType === 'default') {
-    return React.createElement('span', { className: 'text-lg apple-emoji' }, '🔵');
+    return React.createElement('span', { className: 'text-lg apple-emoji' }, '➡️');
   }
   
   const DefaultIcon = getSpaceIcon(type);
