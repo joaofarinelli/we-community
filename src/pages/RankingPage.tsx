@@ -1,9 +1,13 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { RankingTab } from '@/components/gamification/RankingTab';
+import { StreakDialog } from '@/components/gamification/StreakDialog';
+import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { useCoinName } from '@/hooks/useCoinName';
+import { useCompanyStreakLeaderboard } from '@/hooks/useUserStreak';
 
 export const RankingPage = () => {
   const { data: coinName = 'WomanCoins' } = useCoinName();
+  const { data: streakLeaderboard } = useCompanyStreakLeaderboard(10);
 
   return (
     <DashboardLayout>
@@ -16,6 +20,13 @@ export const RankingPage = () => {
             <p className="text-muted-foreground">
               Acompanhe os níveis e {coinName} dos usuários mais ativos da sua empresa
             </p>
+            <div className="flex items-center gap-4">
+              <StreakDialog>
+                <div className="cursor-pointer">
+                  <StreakBadge variant="detailed" />
+                </div>
+              </StreakDialog>
+            </div>
           </div>
 
           <RankingTab />

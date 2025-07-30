@@ -1946,6 +1946,45 @@ export type Database = {
           },
         ]
       }
+      user_streaks: {
+        Row: {
+          company_id: string
+          created_at: string
+          current_streak: number
+          id: string
+          is_active: boolean
+          last_activity_date: string | null
+          longest_streak: number
+          streak_start_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          current_streak?: number
+          id?: string
+          is_active?: boolean
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_start_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          current_streak?: number
+          id?: string
+          is_active?: boolean
+          last_activity_date?: string | null
+          longest_streak?: number
+          streak_start_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_tags: {
         Row: {
           assigned_at: string
@@ -2174,6 +2213,14 @@ export type Database = {
         }
         Returns: Json
       }
+      process_streak_rewards: {
+        Args: { p_user_id: string; p_company_id: string; p_streak_days: number }
+        Returns: undefined
+      }
+      reset_broken_streaks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       transfer_user_coins: {
         Args: {
           p_from_user_id: string
@@ -2192,6 +2239,10 @@ export type Database = {
           p_increment?: number
           p_reference_id?: string
         }
+        Returns: undefined
+      }
+      update_user_streak: {
+        Args: { p_user_id: string; p_company_id: string }
         Returns: undefined
       }
       user_has_course_access: {

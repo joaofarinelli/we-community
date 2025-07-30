@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,9 @@ import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
 import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
 import { ChatDialog } from '@/components/chat/ChatDialog';
+import { StreakBadge } from '@/components/gamification/StreakBadge';
+import { StreakDialog } from '@/components/gamification/StreakDialog';
+import { useUserStreak } from '@/hooks/useUserStreak';
 
 
 interface DashboardLayoutProps {
@@ -26,8 +29,16 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user } = useAuth();
   const { data: company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { checkInToday } = useUserStreak();
   
   const isAdmin = useIsAdmin();
+
+  // Auto check-in when layout loads (indicates user login)
+  React.useEffect(() => {
+    if (user) {
+      checkInToday();
+    }
+  }, [user, checkInToday]);
 
   return (
     <div className="h-screen bg-background flex flex-col">
@@ -127,7 +138,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="hidden md:block">
               <ChatDialog />
             </div>
-            <UserDropdown 
+            <div className="hidden md:block">
+              <StreakDialog>
+                <div className="cursor-pointer">
+                  <StreakBadge variant="compact" />
+                </div>
+              </StreakDialog>
+            </div>
+            <UserDropdown
               name={user?.user_metadata?.display_name}
               email={user?.email}
               imageUrl={user?.user_metadata?.avatar_url}
