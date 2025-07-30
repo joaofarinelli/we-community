@@ -44,6 +44,57 @@ export const useTrails = () => {
   });
 };
 
+export const useAvailableTrails = () => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useQuery({
+    queryKey: ['available-trails', currentCompanyId],
+    queryFn: async () => {
+      if (!user || !currentCompanyId) return [];
+
+      // Get all trails created by admins/owners that are available for users
+      const { data, error } = await supabase
+        .from('trails')
+        .select(`
+          *,
+          profiles!trails_created_by_fkey(first_name, last_name, role)
+        `)
+        .eq('company_id', currentCompanyId)
+        .neq('user_id', user.id) // Exclude user's own trails
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user && !!currentCompanyId,
+  });
+};
+
+export const useUserTrailParticipations = () => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useQuery({
+    queryKey: ['user-trail-participations', currentCompanyId, user?.id],
+    queryFn: async () => {
+      if (!user || !currentCompanyId) return [];
+
+      // Get trails where user is participating (not created by them)
+      const { data, error } = await supabase
+        .from('trails')
+        .select('*')
+        .eq('company_id', currentCompanyId)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user && !!currentCompanyId,
+  });
+};
+
 export const useAllTrails = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
@@ -93,7 +144,7 @@ export const useCreateTrail = () => {
       description?: string;
       life_area?: string;
       template_id?: string;
-      user_id?: string;
+      user_id?: string; // For admin creating trails for users
     }) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
@@ -114,10 +165,52 @@ export const useCreateTrail = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trails'] });
       queryClient.invalidateQueries({ queryKey: ['all-trails'] });
+      queryClient.invalidateQueries({ queryKey: ['available-trails'] });
+      queryClient.invalidateQueries({ queryKey: ['user-trail-participations'] });
       toast.success('Trilha criada com sucesso!');
     },
     onError: (error: any) => {
       toast.error('Erro ao criar trilha: ' + error.message);
+    },
+  });
+};
+
+export const useJoinTrail = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useMutation({
+    mutationFn: async (trailData: {
+      template_trail_id: string; // ID of the trail template/original trail
+      name: string;
+      description?: string;
+      life_area?: string;
+    }) => {
+      if (!user || !currentCompanyId) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('trails')
+        .insert({
+          ...trailData,
+          company_id: currentCompanyId,
+          user_id: user.id,
+          created_by: user.id,
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trails'] });
+      queryClient.invalidateQueries({ queryKey: ['user-trail-participations'] });
+      toast.success('Você iniciou a trilha com sucesso!');
+    },
+    onError: (error: any) => {
+      toast.error('Erro ao iniciar trilha: ' + error.message);
     },
   });
 };

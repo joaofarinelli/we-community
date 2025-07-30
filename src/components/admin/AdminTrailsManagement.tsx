@@ -7,12 +7,14 @@ import { TrailTemplatesTab } from './trails/TrailTemplatesTab';
 import { UserTrailsTab } from './trails/UserTrailsTab';
 import { TrailBadgesTab } from './trails/TrailBadgesTab';
 import { CreateTrailTemplateDialog } from './trails/CreateTrailTemplateDialog';
+import { CreateTrailForUserDialog } from './trails/CreateTrailForUserDialog';
 import { useAllTrails } from '@/hooks/useTrails';
 import { useTrailTemplates } from '@/hooks/useTrailTemplates';
 import { useTrailBadges } from '@/hooks/useTrailProgress';
 
 export const AdminTrailsManagement = () => {
   const [showCreateTemplateDialog, setShowCreateTemplateDialog] = useState(false);
+  const [showCreateTrailDialog, setShowCreateTrailDialog] = useState(false);
   const { data: trails } = useAllTrails();
   const { data: templates } = useTrailTemplates();
   const { data: badges } = useTrailBadges();
@@ -77,10 +79,19 @@ export const AdminTrailsManagement = () => {
             <TabsTrigger value="badges">Selos</TabsTrigger>
           </TabsList>
 
-          <Button onClick={() => setShowCreateTemplateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Template
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => setShowCreateTrailDialog(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Criar Trilha
+            </Button>
+            <Button onClick={() => setShowCreateTemplateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Template
+            </Button>
+          </div>
         </div>
 
         <TabsContent value="templates">
@@ -99,6 +110,11 @@ export const AdminTrailsManagement = () => {
       <CreateTrailTemplateDialog 
         open={showCreateTemplateDialog} 
         onOpenChange={setShowCreateTemplateDialog} 
+      />
+      
+      <CreateTrailForUserDialog 
+        open={showCreateTrailDialog} 
+        onOpenChange={setShowCreateTrailDialog} 
       />
     </div>
   );
