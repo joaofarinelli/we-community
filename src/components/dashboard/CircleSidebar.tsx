@@ -347,7 +347,7 @@ const DraggableSpaceItem = ({ space, isActive, onSpaceClick }: DraggableSpaceIte
       <div className="h-4 w-4 mr-2 flex items-center justify-center">
         {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-4 w-4")}
       </div>
-      <span className={space.is_private && !isActive ? "text-muted-foreground" : ""}>{space.name}</span>
+      <span className={`truncate ${space.is_private && !isActive ? "text-muted-foreground" : ""}`}>{space.name}</span>
     </Button>
   );
 };

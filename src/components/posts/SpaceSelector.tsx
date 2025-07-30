@@ -15,15 +15,15 @@ export const SpaceSelector = ({ selectedSpaceId, onSpaceChange }: SpaceSelectorP
     <div className="flex items-center gap-2 text-sm text-muted-foreground">
       <span>Publicando em:</span>
       <Select value={selectedSpaceId} onValueChange={onSpaceChange}>
-        <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto font-medium text-foreground hover:text-primary">
+        <SelectTrigger className="w-auto border-none bg-transparent p-0 h-auto font-medium text-foreground hover:text-primary max-w-48">
           <SelectValue placeholder="Selecione um espaço">
-            {selectedSpace?.name}
+            <span className="truncate">{selectedSpace?.name}</span>
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {allSpaces?.map((space) => (
             <SelectItem key={space.id} value={space.id}>
-              {space.name}
+              <span className="truncate">{space.name}</span>
             </SelectItem>
           ))}
         </SelectContent>
