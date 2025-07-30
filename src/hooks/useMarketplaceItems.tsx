@@ -9,8 +9,8 @@ export const useMarketplaceItems = (categoryId?: string) => {
         .from('marketplace_items')
         .select(`
           *,
-          marketplace_categories(*),
-          profiles!marketplace_items_seller_id_fkey(first_name, last_name)
+          marketplace_categories(id, name, description, color),
+          profiles:seller_id(first_name, last_name)
         `)
         .eq('is_active', true)
         .eq('store_type', 'marketplace')

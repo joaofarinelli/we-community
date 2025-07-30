@@ -5,31 +5,32 @@ export const useStoreCategories = () => {
   return useQuery({
     queryKey: ['storeCategories'],
     queryFn: async () => {
-      // Get categories that have store items
-      const { data, error } = await supabase
+      // First, get all active categories
+      const { data: categories, error: categoriesError } = await supabase
         .from('marketplace_categories')
-        .select(`
-          *,
-          marketplace_items!inner(id)
-        `)
+        .select('*')
         .eq('is_active', true)
-        .eq('marketplace_items.store_type', 'store')
-        .eq('marketplace_items.is_active', true)
         .order('order_index');
 
-      if (error) throw error;
-      
-      // Remove duplicates and return unique categories
-      const uniqueCategories = data?.reduce((acc, item) => {
-        const existingCategory = acc.find(cat => cat.id === item.id);
-        if (!existingCategory) {
-          const { marketplace_items, ...category } = item;
-          acc.push(category);
+      if (categoriesError) throw categoriesError;
+
+      // Then check which ones have store items
+      const categoriesWithItems = [];
+      for (const category of categories || []) {
+        const { data: items, error: itemsError } = await supabase
+          .from('marketplace_items')
+          .select('id')
+          .eq('category_id', category.id)
+          .eq('store_type', 'store')
+          .eq('is_active', true)
+          .limit(1);
+
+        if (!itemsError && items && items.length > 0) {
+          categoriesWithItems.push(category);
         }
-        return acc;
-      }, [] as any[]) || [];
+      }
       
-      return uniqueCategories;
+      return categoriesWithItems;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes - categories change less frequently
     gcTime: 15 * 60 * 1000, // 15 minutes

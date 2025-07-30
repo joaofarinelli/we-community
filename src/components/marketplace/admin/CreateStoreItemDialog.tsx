@@ -126,6 +126,9 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
             <Store className="h-5 w-5" />
             {item ? 'Editar Produto da Loja' : 'Novo Produto da Loja'}
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            {item ? 'Edite as informações do produto da loja.' : 'Adicione um novo produto à loja oficial para venda com moedas.'}
+          </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
