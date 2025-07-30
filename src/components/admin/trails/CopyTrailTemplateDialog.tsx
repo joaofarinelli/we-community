@@ -46,7 +46,7 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
     defaultValues: {
       name: '',
       description: '',
-      life_area: '',
+      life_area: 'none',
     },
   });
 
@@ -55,7 +55,7 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
       form.reset({
         name: `Cópia de ${template.name}`,
         description: template.description || '',
-        life_area: template.life_area || '',
+        life_area: template.life_area || 'none',
       });
     }
   }, [template, open, form]);
@@ -63,7 +63,11 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
   const onSubmit = async (data: CopyTemplateFormData) => {
     setIsSubmitting(true);
     try {
-      await createTemplate.mutateAsync(data);
+      const createData = { ...data };
+      if (createData.life_area === 'none') {
+        createData.life_area = null;
+      }
+      await createTemplate.mutateAsync(createData);
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -130,7 +134,7 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {lifeAreas.map((area) => (
                         <SelectItem key={area} value={area}>
                           {area}

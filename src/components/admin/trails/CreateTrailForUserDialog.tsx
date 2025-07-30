@@ -49,15 +49,22 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
     defaultValues: {
       name: '',
       description: '',
-      life_area: '',
-      user_id: '',
+      life_area: 'none',
+      user_id: 'all',
     },
   });
 
   const onSubmit = async (data: CreateTrailFormData) => {
     setIsSubmitting(true);
     try {
-      await createTrail.mutateAsync(data);
+      const createData = { ...data };
+      if (createData.life_area === 'none') {
+        createData.life_area = null;
+      }
+      if (createData.user_id === 'all') {
+        createData.user_id = null;
+      }
+      await createTrail.mutateAsync(createData);
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -129,7 +136,7 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {lifeAreas.map((area) => (
                         <SelectItem key={area} value={area}>
                           {area}
@@ -155,7 +162,7 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Disponível para todas</SelectItem>
+                      <SelectItem value="all">Disponível para todas</SelectItem>
                       {regularMembers.map((member) => (
                         <SelectItem key={member.user_id} value={member.user_id}>
                           {member.display_name || member.email}

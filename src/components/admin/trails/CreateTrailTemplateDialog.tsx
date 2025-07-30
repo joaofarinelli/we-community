@@ -45,14 +45,18 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
     defaultValues: {
       name: '',
       description: '',
-      life_area: '',
+      life_area: 'none',
     },
   });
 
   const onSubmit = async (data: CreateTemplateFormData) => {
     setIsSubmitting(true);
     try {
-      await createTemplate.mutateAsync(data);
+      const createData = { ...data };
+      if (createData.life_area === 'none') {
+        createData.life_area = null;
+      }
+      await createTemplate.mutateAsync(createData);
       form.reset();
       onOpenChange(false);
     } catch (error) {
@@ -119,6 +123,7 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {lifeAreas.map((area) => (
                         <SelectItem key={area} value={area}>
                           {area}
