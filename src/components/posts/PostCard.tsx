@@ -96,31 +96,40 @@ export const PostCard = ({ post }: PostCardProps) => {
         {/* Header do Post */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start space-x-3">
-            <Avatar 
-              className={`h-10 w-10 transition-all ${post.hide_author ? '' : 'cursor-pointer hover:ring-2 hover:ring-primary/50'}`} 
-              onClick={handleUserClick}
-            >
-              <AvatarImage src="" />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                {authorInitials}
-              </AvatarFallback>
-            </Avatar>
+            {!post.hide_author && (
+              <Avatar 
+                className="h-10 w-10 transition-all cursor-pointer hover:ring-2 hover:ring-primary/50" 
+                onClick={handleUserClick}
+              >
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-primary/10 text-primary font-medium">
+                  {authorInitials}
+                </AvatarFallback>
+              </Avatar>
+            )}
             
             <div className="flex-1">
               <div className="flex items-center space-x-2 flex-wrap">
-                <h4 
-                  className={`font-medium text-foreground transition-colors ${post.hide_author ? '' : 'cursor-pointer hover:text-primary'}`}
-                  onClick={handleUserClick}
-                >
-                  {authorName}
+                <h4 className="font-medium text-foreground">
+                  {post.hide_author ? (post.title || 'Post sem título') : authorName}
                 </h4>
                 {!post.hide_author && (
-                  <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                  <>
+                    <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                    {post.is_pinned && (
+                      <Pin className="h-4 w-4 text-primary" />
+                    )}
+                    {post.is_announcement && (
+                      <Badge variant="secondary" className="text-xs">
+                        Anúncio
+                      </Badge>
+                    )}
+                  </>
                 )}
-                {post.is_pinned && (
+                {post.hide_author && post.is_pinned && (
                   <Pin className="h-4 w-4 text-primary" />
                 )}
-                {post.is_announcement && (
+                {post.hide_author && post.is_announcement && (
                   <Badge variant="secondary" className="text-xs">
                     Anúncio
                   </Badge>
@@ -177,7 +186,7 @@ export const PostCard = ({ post }: PostCardProps) => {
 
         {/* Conteúdo do Post */}
         <div className="mb-4">
-          {post.title && (
+          {post.title && !post.hide_author && (
             <h3 className="text-lg font-semibold mb-2 text-foreground">
               {post.title}
             </h3>

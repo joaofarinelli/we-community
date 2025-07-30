@@ -114,23 +114,22 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
         {/* Header do Post */}
         <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex items-start space-x-2 sm:space-x-3 min-w-0 flex-1">
-            <Avatar 
-              className={`h-8 w-8 sm:h-10 sm:w-10 transition-all flex-shrink-0 ${post.hide_author ? '' : 'cursor-pointer hover:ring-2 hover:ring-primary/50'}`}
-              onClick={handleUserClick}
-            >
-              <AvatarImage src="" />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs sm:text-sm">
-                {authorInitials}
-              </AvatarFallback>
-            </Avatar>
+            {!post.hide_author && (
+              <Avatar 
+                className="h-8 w-8 sm:h-10 sm:w-10 transition-all flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary/50"
+                onClick={handleUserClick}
+              >
+                <AvatarImage src="" />
+                <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs sm:text-sm">
+                  {authorInitials}
+                </AvatarFallback>
+              </Avatar>
+            )}
             
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 sm:flex-wrap">
-                <h4 
-                  className={`font-medium text-foreground transition-colors text-sm sm:text-base truncate ${post.hide_author ? '' : 'cursor-pointer hover:text-primary'}`}
-                  onClick={handleUserClick}
-                >
-                  {authorName}
+                <h4 className="font-medium text-foreground text-sm sm:text-base truncate">
+                  {post.hide_author ? (post.title || 'Post sem título') : authorName}
                 </h4>
                 <div className="hidden sm:flex items-center space-x-2">
                   {!post.hide_author && (
@@ -227,7 +226,7 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
 
         {/* Conteúdo do Post */}
         <div className="mb-3 sm:mb-4">
-          {post.title && (
+          {post.title && !post.hide_author && (
             <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
               {post.title}
             </h3>
