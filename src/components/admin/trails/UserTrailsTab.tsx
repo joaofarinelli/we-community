@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, MessageCircle, Copy, Calendar, User, TrendingUp } from 'lucide-react';
+import { Eye, MessageCircle, Copy, Calendar, User, TrendingUp, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,13 +7,21 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAllTrails } from '@/hooks/useTrails';
+import { EditTrailDialog } from './EditTrailDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const UserTrailsTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedTrail, setSelectedTrail] = useState<any>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const { data: trails, isLoading } = useAllTrails();
+
+  const handleEditTrail = (trail: any) => {
+    setSelectedTrail(trail);
+    setShowEditDialog(true);
+  };
 
   const filteredTrails = trails?.filter(trail => {
     const matchesSearch = trail.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,12 +170,17 @@ export const UserTrailsTab = () => {
 
                 {/* Actions */}
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="h-4 w-4 mr-1" />
-                    Ver
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleEditTrail(trail)}
+                  >
+                    <Edit className="h-4 w-4 mr-1" />
+                    Editar
                   </Button>
                   <Button variant="outline" size="sm">
-                    <MessageCircle className="h-4 w-4" />
+                    <Eye className="h-4 w-4" />
                   </Button>
                   <Button variant="outline" size="sm">
                     <Copy className="h-4 w-4" />
@@ -188,6 +201,12 @@ export const UserTrailsTab = () => {
           </CardContent>
         </Card>
       )}
+
+      <EditTrailDialog 
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        trail={selectedTrail}
+      />
     </div>
   );
 };
