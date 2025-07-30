@@ -2396,12 +2396,25 @@ export type Database = {
         Args: { p_user_id: string; p_company_id: string }
         Returns: undefined
       }
+      award_trail_badge: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_trail_id: string
+          p_badge_type: string
+        }
+        Returns: undefined
+      }
       calculate_coins_for_action: {
         Args: { action_type: string }
         Returns: number
       }
       calculate_points_for_action: {
         Args: { action_type: string }
+        Returns: number
+      }
+      calculate_trail_progress: {
+        Args: { p_trail_id: string }
         Returns: number
       }
       calculate_user_level: {
