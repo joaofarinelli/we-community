@@ -61,7 +61,7 @@ export const AutoStreakCheckIn = () => {
 
   return (
     <StreakDialog open={dialogOpen} onOpenChange={handleDialogClose}>
-      <div /> {/* Empty trigger since we're controlling it programmatically */}
+      <></>
     </StreakDialog>
   );
 };
