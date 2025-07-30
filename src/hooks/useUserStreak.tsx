@@ -45,22 +45,32 @@ export const useUserStreak = () => {
 
   const updateStreakMutation = useMutation({
     mutationFn: async () => {
-      if (!user?.id || !currentCompanyId) throw new Error('User or company not found');
+      console.log('updateStreakMutation called - user:', user?.id, 'company:', currentCompanyId);
+      if (!user?.id || !currentCompanyId) {
+        console.error('Missing user or company ID', { userId: user?.id, companyId: currentCompanyId });
+        throw new Error('User or company not found');
+      }
 
+      console.log('Calling update_user_streak RPC with params:', { p_user_id: user.id, p_company_id: currentCompanyId });
       const { error } = await supabase.rpc('update_user_streak', {
         p_user_id: user.id,
         p_company_id: currentCompanyId
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC update_user_streak error:', error);
+        throw error;
+      }
+      console.log('update_user_streak completed successfully');
     },
     onSuccess: () => {
+      console.log('updateStreakMutation onSuccess - invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['userStreak'] });
       queryClient.invalidateQueries({ queryKey: ['userCoins'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
     onError: (error) => {
-      console.error('Error updating streak:', error);
+      console.error('updateStreakMutation onError:', error);
       toast({
         title: 'Erro ao atualizar ofensiva',
         description: 'Não foi possível atualizar sua ofensiva.',
