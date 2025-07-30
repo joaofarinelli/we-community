@@ -30,6 +30,7 @@ interface FeedPost {
   type: string;
   is_pinned: boolean;
   is_announcement: boolean;
+  hide_author?: boolean;
   created_at: string;
   author_id: string;
   space_id: string;
@@ -56,13 +57,17 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   
-  const authorName = post.profiles 
-    ? `${post.profiles.first_name} ${post.profiles.last_name}`
-    : 'Usuário';
+  const authorName = post.hide_author 
+    ? 'Autor Oculto'
+    : post.profiles 
+      ? `${post.profiles.first_name} ${post.profiles.last_name}`
+      : 'Usuário';
 
-  const authorInitials = post.profiles
-    ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
-    : 'U';
+  const authorInitials = post.hide_author
+    ? 'AO'
+    : post.profiles
+      ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
+      : 'U';
 
   const spaceName = post.spaces?.name || 'Espaço';
   const spaceType = post.spaces?.type || 'text';
@@ -74,6 +79,9 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   };
 
   const handleUserClick = () => {
+    // Don't allow clicking on hidden authors
+    if (post.hide_author) return;
+    
     console.log('Feed user clicked:', post.author_id, 'Current user:', user?.id);
     if (post.author_id !== user?.id) {
       console.log('Opening feed user profile dialog');
@@ -94,7 +102,7 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
         <div className="flex items-start justify-between mb-3 sm:mb-4">
           <div className="flex items-start space-x-2 sm:space-x-3 min-w-0 flex-1">
             <Avatar 
-              className="h-8 w-8 sm:h-10 sm:w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all flex-shrink-0" 
+              className={`h-8 w-8 sm:h-10 sm:w-10 transition-all flex-shrink-0 ${post.hide_author ? '' : 'cursor-pointer hover:ring-2 hover:ring-primary/50'}`}
               onClick={handleUserClick}
             >
               <AvatarImage src="" />
@@ -106,13 +114,15 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 sm:flex-wrap">
                 <h4 
-                  className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors text-sm sm:text-base truncate" 
+                  className={`font-medium text-foreground transition-colors text-sm sm:text-base truncate ${post.hide_author ? '' : 'cursor-pointer hover:text-primary'}`}
                   onClick={handleUserClick}
                 >
                   {authorName}
                 </h4>
                 <div className="hidden sm:flex items-center space-x-2">
-                  <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                  {!post.hide_author && (
+                    <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                  )}
                   {post.is_pinned && (
                     <Pin className="h-4 w-4 text-primary" />
                   )}
@@ -126,7 +136,9 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
               
               {/* Mobile badges */}
               <div className="sm:hidden flex items-center space-x-2 mt-1">
-                <UserTagsDisplay userId={post.author_id} maxTags={1} size="sm" />
+                {!post.hide_author && (
+                  <UserTagsDisplay userId={post.author_id} maxTags={1} size="sm" />
+                )}
                 {post.is_pinned && (
                   <Pin className="h-3 w-3 text-primary" />
                 )}

@@ -28,6 +28,7 @@ interface Post {
   type: string;
   is_pinned: boolean;
   is_announcement: boolean;
+  hide_author?: boolean;
   created_at: string;
   author_id: string;
   profiles?: {
@@ -47,19 +48,26 @@ export const PostCard = ({ post }: PostCardProps) => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   
-  const authorName = post.profiles 
-    ? `${post.profiles.first_name} ${post.profiles.last_name}`
-    : 'Usuário';
+  const authorName = post.hide_author 
+    ? 'Autor Oculto'
+    : post.profiles 
+      ? `${post.profiles.first_name} ${post.profiles.last_name}`
+      : 'Usuário';
 
-  const authorInitials = post.profiles
-    ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
-    : 'U';
+  const authorInitials = post.hide_author
+    ? 'AO'
+    : post.profiles
+      ? `${post.profiles.first_name[0]}${post.profiles.last_name[0]}`
+      : 'U';
 
   // Show menu for post author or admin
   const isAuthor = user?.id === post.author_id;
   const canEditDelete = isAuthor || isAdmin;
 
   const handleUserClick = () => {
+    // Don't allow clicking on hidden authors
+    if (post.hide_author) return;
+    
     console.log('User clicked:', post.author_id, 'Current user:', user?.id);
     if (post.author_id !== user?.id) {
       console.log('Opening user profile dialog');
@@ -76,7 +84,7 @@ export const PostCard = ({ post }: PostCardProps) => {
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start space-x-3">
             <Avatar 
-              className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all" 
+              className={`h-10 w-10 transition-all ${post.hide_author ? '' : 'cursor-pointer hover:ring-2 hover:ring-primary/50'}`} 
               onClick={handleUserClick}
             >
               <AvatarImage src="" />
@@ -88,12 +96,14 @@ export const PostCard = ({ post }: PostCardProps) => {
             <div className="flex-1">
               <div className="flex items-center space-x-2 flex-wrap">
                 <h4 
-                  className="font-medium text-foreground cursor-pointer hover:text-primary transition-colors" 
+                  className={`font-medium text-foreground transition-colors ${post.hide_author ? '' : 'cursor-pointer hover:text-primary'}`}
                   onClick={handleUserClick}
                 >
                   {authorName}
                 </h4>
-                <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                {!post.hide_author && (
+                  <UserTagsDisplay userId={post.author_id} maxTags={2} size="sm" />
+                )}
                 {post.is_pinned && (
                   <Pin className="h-4 w-4 text-primary" />
                 )}
