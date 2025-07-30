@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
 import { useCreateTrail } from '@/hooks/useTrails';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
 
@@ -17,6 +18,7 @@ const createTrailSchema = z.object({
   life_area: z.string().optional(),
   user_id: z.string().optional(), // For assigning to specific user
   template_id: z.string().optional(),
+  is_template: z.boolean().optional(),
 });
 
 type CreateTrailFormData = z.infer<typeof createTrailSchema>;
@@ -51,6 +53,7 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
       description: '',
       life_area: 'none',
       user_id: 'all',
+      is_template: false,
     },
   });
 
@@ -174,6 +177,31 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
                 </FormItem>
               )}
             />
+
+            <div className="flex items-center space-x-2">
+              <FormField
+                control={form.control}
+                name="is_template"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>
+                        Usar como modelo base
+                      </FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Esta trilha poderá ser replicada futuramente
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button
