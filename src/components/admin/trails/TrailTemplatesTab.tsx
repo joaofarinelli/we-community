@@ -3,18 +3,41 @@ import { Edit, Trash2, Copy, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useTrailTemplates, useDeleteTrailTemplate } from '@/hooks/useTrailTemplates';
+import { useTrailTemplates, useDeleteTrailTemplate, TrailTemplate } from '@/hooks/useTrailTemplates';
+import { ViewTrailTemplateDialog } from './ViewTrailTemplateDialog';
+import { EditTrailTemplateDialog } from './EditTrailTemplateDialog';
+import { CopyTrailTemplateDialog } from './CopyTrailTemplateDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const TrailTemplatesTab = () => {
   const { data: templates, isLoading } = useTrailTemplates();
   const deleteTemplate = useDeleteTrailTemplate();
+  
+  const [selectedTemplate, setSelectedTemplate] = useState<TrailTemplate | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja desativar este template?')) {
       await deleteTemplate.mutateAsync(id);
     }
+  };
+
+  const handleView = (template: TrailTemplate) => {
+    setSelectedTemplate(template);
+    setViewDialogOpen(true);
+  };
+
+  const handleEdit = (template: TrailTemplate) => {
+    setSelectedTemplate(template);
+    setEditDialogOpen(true);
+  };
+
+  const handleCopy = (template: TrailTemplate) => {
+    setSelectedTemplate(template);
+    setCopyDialogOpen(true);
   };
 
   if (isLoading) {
@@ -82,14 +105,27 @@ export const TrailTemplatesTab = () => {
 
             {/* Actions */}
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex-1">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1"
+                onClick={() => handleView(template)}
+              >
                 <Eye className="h-4 w-4 mr-1" />
                 Ver
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleEdit(template)}
+              >
                 <Edit className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => handleCopy(template)}
+              >
                 <Copy className="h-4 w-4" />
               </Button>
               <Button 
@@ -104,6 +140,25 @@ export const TrailTemplatesTab = () => {
           </CardContent>
         </Card>
       ))}
+
+      {/* Dialogs */}
+      <ViewTrailTemplateDialog
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+        template={selectedTemplate}
+      />
+
+      <EditTrailTemplateDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        template={selectedTemplate}
+      />
+
+      <CopyTrailTemplateDialog
+        open={copyDialogOpen}
+        onOpenChange={setCopyDialogOpen}
+        template={selectedTemplate}
+      />
     </div>
   );
 };
