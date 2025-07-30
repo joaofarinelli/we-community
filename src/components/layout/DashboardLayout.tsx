@@ -127,9 +127,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="hidden md:block">
               <ChatDialog />
             </div>
-            <div className="hidden lg:block">
-              <IconButton icon={Users} />
-            </div>
             <UserDropdown 
               name={user?.user_metadata?.display_name}
               email={user?.email}
