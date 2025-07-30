@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar, MapPin, PlayCircle, CheckCircle, PauseCircle } from 'lucide-react';
@@ -6,12 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Trail } from '@/hooks/useTrails';
+import { TrailDetailDialog } from './TrailDetailDialog';
 
 interface TrailCardProps {
   trail: Trail;
 }
 
 export const TrailCard = ({ trail }: TrailCardProps) => {
+  const navigate = useNavigate();
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'active':
@@ -49,6 +54,14 @@ export const TrailCard = ({ trail }: TrailCardProps) => {
       default:
         return status;
     }
+  };
+
+  const handleContinueTrail = () => {
+    navigate(`/dashboard/trails/${trail.id}/stages`);
+  };
+
+  const handleViewDetails = () => {
+    setShowDetailDialog(true);
   };
 
   return (
@@ -104,16 +117,32 @@ export const TrailCard = ({ trail }: TrailCardProps) => {
 
         {/* Actions */}
         <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={handleViewDetails}
+          >
             Ver Detalhes
           </Button>
           {trail.status === 'active' && (
-            <Button size="sm" className="flex-1">
+            <Button 
+              size="sm" 
+              className="flex-1"
+              onClick={handleContinueTrail}
+            >
               Continuar
             </Button>
           )}
         </div>
       </CardContent>
+
+      <TrailDetailDialog
+        open={showDetailDialog}
+        onOpenChange={setShowDetailDialog}
+        trail={trail}
+        onContinue={handleContinueTrail}
+      />
     </Card>
   );
 };

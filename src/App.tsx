@@ -52,6 +52,7 @@ import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
 import SuperAdminManagement from "./pages/super-admin/SuperAdminManagement";
 import { TrailsPage } from "./pages/TrailsPage";
 import { AdminTrailsPage } from "./pages/admin/AdminTrailsPage";
+import { TrailStagesPage } from "./pages/TrailStagesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -105,6 +106,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
         <Route path="/dashboard/events/:eventId" element={<AuthGuard><EventDetailPage /></AuthGuard>} />
         <Route path="/dashboard/trails" element={<AuthGuard><TrailsPage /></AuthGuard>} />
+        <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
         <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
