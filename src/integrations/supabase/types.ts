@@ -1602,6 +1602,309 @@ export type Database = {
         }
         Relationships: []
       }
+      trail_badges: {
+        Row: {
+          badge_type: string
+          coins_reward: number | null
+          color: string
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          icon_name: string
+          id: string
+          is_active: boolean | null
+          life_area: string | null
+          name: string
+        }
+        Insert: {
+          badge_type: string
+          coins_reward?: number | null
+          color: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          icon_name: string
+          id?: string
+          is_active?: boolean | null
+          life_area?: string | null
+          name: string
+        }
+        Update: {
+          badge_type?: string
+          coins_reward?: number | null
+          color?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          icon_name?: string
+          id?: string
+          is_active?: boolean | null
+          life_area?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      trail_fields: {
+        Row: {
+          created_at: string
+          field_description: string | null
+          field_label: string
+          field_name: string
+          field_options: Json | null
+          field_type: Database["public"]["Enums"]["field_type"]
+          gamification_points: number | null
+          id: string
+          is_required: boolean | null
+          order_index: number
+          stage_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          field_description?: string | null
+          field_label: string
+          field_name: string
+          field_options?: Json | null
+          field_type: Database["public"]["Enums"]["field_type"]
+          gamification_points?: number | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number
+          stage_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          field_description?: string | null
+          field_label?: string
+          field_name?: string
+          field_options?: Json | null
+          field_type?: Database["public"]["Enums"]["field_type"]
+          gamification_points?: number | null
+          id?: string
+          is_required?: boolean | null
+          order_index?: number
+          stage_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trail_progress: {
+        Row: {
+          badges_earned: string[] | null
+          coins_earned: number | null
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          is_completed: boolean | null
+          stage_id: string
+          trail_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          badges_earned?: string[] | null
+          coins_earned?: number | null
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          stage_id: string
+          trail_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          badges_earned?: string[] | null
+          coins_earned?: number | null
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          is_completed?: boolean | null
+          stage_id?: string
+          trail_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trail_responses: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          field_id: string
+          file_url: string | null
+          id: string
+          response_value: Json | null
+          stage_id: string
+          status: Database["public"]["Enums"]["response_status"] | null
+          trail_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          field_id: string
+          file_url?: string | null
+          id?: string
+          response_value?: Json | null
+          stage_id: string
+          status?: Database["public"]["Enums"]["response_status"] | null
+          trail_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          field_id?: string
+          file_url?: string | null
+          id?: string
+          response_value?: Json | null
+          stage_id?: string
+          status?: Database["public"]["Enums"]["response_status"] | null
+          trail_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trail_stages: {
+        Row: {
+          created_at: string
+          description: string | null
+          guidance_text: string | null
+          id: string
+          is_required: boolean | null
+          name: string
+          order_index: number
+          template_id: string | null
+          trail_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          guidance_text?: string | null
+          id?: string
+          is_required?: boolean | null
+          name: string
+          order_index?: number
+          template_id?: string | null
+          trail_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          guidance_text?: string | null
+          id?: string
+          is_required?: boolean | null
+          name?: string
+          order_index?: number
+          template_id?: string | null
+          trail_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trail_templates: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          life_area: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          life_area?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          life_area?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trails: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          life_area: string | null
+          name: string
+          progress_percentage: number | null
+          started_at: string | null
+          status: Database["public"]["Enums"]["trail_status"]
+          template_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          life_area?: string | null
+          name: string
+          progress_percentage?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["trail_status"]
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          life_area?: string | null
+          name?: string
+          progress_percentage?: number | null
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["trail_status"]
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_course_access: {
         Row: {
           company_id: string
@@ -2032,6 +2335,36 @@ export type Database = {
           },
         ]
       }
+      user_trail_badges: {
+        Row: {
+          badge_id: string
+          company_id: string
+          created_at: string
+          earned_at: string | null
+          id: string
+          trail_id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          company_id: string
+          created_at?: string
+          earned_at?: string | null
+          id?: string
+          trail_id: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          company_id?: string
+          created_at?: string
+          earned_at?: string | null
+          id?: string
+          trail_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -2269,11 +2602,21 @@ export type Database = {
         | "marketplace_purchase"
         | "custom_action"
         | "points_accumulation"
+      field_type:
+        | "text"
+        | "textarea"
+        | "multiple_choice"
+        | "scale"
+        | "date"
+        | "file_upload"
+        | "task_status"
+      response_status: "pending" | "completed" | "skipped"
       reward_type:
         | "coins"
         | "course_access"
         | "file_download"
         | "marketplace_item"
+      trail_status: "active" | "paused" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2408,12 +2751,23 @@ export const Constants = {
         "custom_action",
         "points_accumulation",
       ],
+      field_type: [
+        "text",
+        "textarea",
+        "multiple_choice",
+        "scale",
+        "date",
+        "file_upload",
+        "task_status",
+      ],
+      response_status: ["pending", "completed", "skipped"],
       reward_type: [
         "coins",
         "course_access",
         "file_download",
         "marketplace_item",
       ],
+      trail_status: ["active", "paused", "completed"],
     },
   },
 } as const
