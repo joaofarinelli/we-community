@@ -60,11 +60,12 @@ const mainMenuItems = [
   },
   {
     icon: ShoppingBag,
-    label: 'Marketplace',
+    label: 'Marketplace & Loja',
     key: 'marketplace',
     subItems: [
       { label: 'Gerenciar marketplace', path: '/admin/marketplace' },
       { label: 'Gerenciar loja', path: '/admin/store' },
+      { label: 'Categorias da loja', path: '/admin/store/categories' },
     ]
   },
   {
