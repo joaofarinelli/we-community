@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Pin, MessageCircle, MapPin, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Pin, MessageCircle, MapPin, MoreHorizontal, Edit, Trash2, EyeOff, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -20,6 +20,7 @@ import { EditPostDialog } from './EditPostDialog';
 import { getSpaceTypeInfo } from '@/lib/spaceUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useUserRole';
+import { useUpdatePost } from '@/hooks/useUpdatePost';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 
@@ -52,10 +53,22 @@ interface FeedPostCardProps {
 export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
+  const updatePost = useUpdatePost();
   const navigate = useNavigate();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
+
+  const handleToggleAuthorVisibility = async () => {
+    try {
+      await updatePost.mutateAsync({
+        postId: post.id,
+        data: { hide_author: !post.hide_author }
+      });
+    } catch (error) {
+      console.error('Error toggling author visibility:', error);
+    }
+  };
   
   const authorName = post.hide_author 
     ? 'Autor Oculto'
@@ -185,6 +198,21 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
+                    {post.hide_author ? (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Mostrar Autor
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Ocultar Autor
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem 
                   onClick={() => setShowDeleteDialog(true)}
                   className="text-destructive focus:text-destructive"

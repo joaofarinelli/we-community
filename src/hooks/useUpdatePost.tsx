@@ -4,7 +4,8 @@ import { useToast } from '@/hooks/use-toast';
 
 interface UpdatePostData {
   title?: string;
-  content: string;
+  content?: string;
+  hide_author?: boolean;
 }
 
 export const useUpdatePost = () => {
@@ -13,13 +14,17 @@ export const useUpdatePost = () => {
 
   return useMutation({
     mutationFn: async ({ postId, data }: { postId: string; data: UpdatePostData }) => {
+      const updateData: any = {
+        updated_at: new Date().toISOString(),
+      };
+      
+      if (data.title !== undefined) updateData.title = data.title;
+      if (data.content !== undefined) updateData.content = data.content;
+      if (data.hide_author !== undefined) updateData.hide_author = data.hide_author;
+
       const { error } = await supabase
         .from('posts')
-        .update({
-          title: data.title,
-          content: data.content,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', postId);
 
       if (error) throw error;
