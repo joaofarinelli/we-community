@@ -180,12 +180,12 @@ export const AdminUsersPage = () => {
                       <TableCell>{member.email}</TableCell>
                       <TableCell>
                         <Badge variant={
-                          member.role === 'admin' ? 'default' : 
                           member.role === 'owner' ? 'destructive' : 
+                          member.role === 'admin' ? 'default' : 
                           'secondary'
                         }>
-                          {member.role === 'admin' ? 'Administrador' : 
-                           member.role === 'owner' ? 'Proprietário' : 
+                          {member.role === 'owner' ? 'Proprietário' : 
+                           member.role === 'admin' ? 'Administrador' : 
                            'Membro'}
                         </Badge>
                       </TableCell>

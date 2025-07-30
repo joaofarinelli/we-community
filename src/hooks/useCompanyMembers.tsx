@@ -33,43 +33,41 @@ export const useCompanyMembers = () => {
         return [];
       }
 
-      // Buscar todos os user_roles da empresa
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('id, user_id, role, created_at')
-        .eq('company_id', userProfile.company_id);
-
-      if (rolesError || !userRoles) {
-        console.error('Error fetching user roles:', rolesError);
-        return [];
-      }
-
-      // Buscar os profiles correspondentes
-      const userIds = userRoles.map(role => role.user_id);
+      // Buscar todos os profiles da empresa
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name, email, is_active')
-        .in('user_id', userIds);
+        .select('id, user_id, first_name, last_name, email, role, is_active, created_at')
+        .eq('company_id', userProfile.company_id);
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
         return [];
       }
 
-      // Combinar os dados
-      return userRoles.map((userRole: any) => {
-        const profile = profiles?.find(p => p.user_id === userRole.user_id);
+      // Buscar user_roles para complementar informações (se existir)
+      const userIds = profiles?.map(p => p.user_id) || [];
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, role, created_at')
+        .eq('company_id', userProfile.company_id)
+        .in('user_id', userIds);
+
+      // Combinar os dados, priorizando o role da tabela profiles
+      return profiles?.map((profile: any) => {
+        const userRole = userRoles?.find(ur => ur.user_id === profile.user_id);
         return {
-          id: userRole.id,
-          user_id: userRole.user_id,
-          email: profile?.email || user.email || 'email@exemplo.com',
-          display_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : 'Nome não encontrado',
-          avatar_url: userRole.user_id === user.id ? user.user_metadata?.avatar_url : null,
-          created_at: userRole.created_at,
-          role: userRole.role,
-          is_active: profile?.is_active ?? true
+          id: profile.id,
+          user_id: profile.user_id,
+          email: profile.email || 'email@exemplo.com',
+          display_name: profile.first_name && profile.last_name 
+            ? `${profile.first_name} ${profile.last_name}`.trim() 
+            : profile.first_name || 'Nome não encontrado',
+          avatar_url: profile.user_id === user.id ? user.user_metadata?.avatar_url : null,
+          created_at: userRole?.created_at || profile.created_at,
+          role: profile.role || userRole?.role || 'member', // Prioriza role da tabela profiles
+          is_active: profile.is_active ?? true
         };
-      }) as CompanyMember[];
+      }) as CompanyMember[] || [];
     },
     enabled: !!user?.id,
   });
