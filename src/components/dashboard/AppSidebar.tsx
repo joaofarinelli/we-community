@@ -15,20 +15,8 @@ import {
 
 import { useCompany } from "@/hooks/useCompany";
 import { CompanyLogo } from "@/components/ui/company-logo";
+import { useIsFeatureEnabled } from "@/hooks/useCompanyFeatures";
 
-
-const mainItems = [
-  { title: "Home", url: "/dashboard", icon: Home },
-  { title: "Courses", url: "/dashboard/courses", icon: BookOpen },
-  { title: "Events", url: "/dashboard/events", icon: Calendar },
-  { title: "Members", url: "/dashboard/members", icon: Users },
-  { title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy },
-  { title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag },
-  { title: "Loja", url: "/dashboard/store", icon: Store },
-  { title: "Banco", url: "/dashboard/bank", icon: Wallet },
-  { title: "Calendário", url: "/dashboard/calendar", icon: Calendar },
-  { title: "Desafios", url: "/dashboard/challenges", icon: Target },
-];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -36,6 +24,27 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const { data: company } = useCompany();
   const collapsed = state === "collapsed";
+  
+  // Feature flags
+  const isRankingEnabled = useIsFeatureEnabled('ranking');
+  const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
+  const isStoreEnabled = useIsFeatureEnabled('store');
+  const isBankEnabled = useIsFeatureEnabled('bank');
+  const isChallengesEnabled = useIsFeatureEnabled('challenges');
+  
+  // Dynamic main items based on enabled features
+  const mainItems = [
+    { title: "Home", url: "/dashboard", icon: Home },
+    { title: "Courses", url: "/dashboard/courses", icon: BookOpen },
+    { title: "Events", url: "/dashboard/events", icon: Calendar },
+    { title: "Members", url: "/dashboard/members", icon: Users },
+    ...(isRankingEnabled ? [{ title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy }] : []),
+    ...(isMarketplaceEnabled ? [{ title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag }] : []),
+    ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
+    ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
+    { title: "Calendário", url: "/dashboard/calendar", icon: Calendar },
+    ...(isChallengesEnabled ? [{ title: "Desafios", url: "/dashboard/challenges", icon: Target }] : []),
+  ];
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>

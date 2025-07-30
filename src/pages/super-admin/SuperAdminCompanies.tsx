@@ -4,6 +4,8 @@ import { useSuperAdminCompanies } from "@/hooks/useSuperAdmin";
 import { CreateCompanyDialog } from "@/components/super-admin/CreateCompanyDialog";
 import { EditCompanyDialog } from "@/components/super-admin/EditCompanyDialog";
 import { CompanyStatusDialog } from "@/components/super-admin/CompanyStatusDialog";
+import { CompanyFeaturesDialog } from "@/components/super-admin/CompanyFeaturesDialog";
+import { useSuperAdminCompanyActions } from "@/hooks/useSuperAdminCompanyActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { Search, MoreHorizontal, Plus, Filter, Edit, Power } from "lucide-react";
+import { Search, MoreHorizontal, Plus, Filter, Edit, Power, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -57,7 +59,10 @@ export const SuperAdminCompanies = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  const [featuresDialogOpen, setFeaturesDialogOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null);
+  
+  const { updateCompanyFeatures } = useSuperAdminCompanyActions();
 
   // Enable query when component mounts
   useEffect(() => {
@@ -82,6 +87,11 @@ export const SuperAdminCompanies = () => {
   const handleToggleStatus = (company: CompanyData) => {
     setSelectedCompany(company);
     setStatusDialogOpen(true);
+  };
+
+  const handleManageFeatures = (company: CompanyData) => {
+    setSelectedCompany(company);
+    setFeaturesDialogOpen(true);
   };
 
   if (isLoading) {
@@ -222,6 +232,10 @@ export const SuperAdminCompanies = () => {
                             <Edit className="h-4 w-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleManageFeatures(company)}>
+                            <Settings className="h-4 w-4 mr-2" />
+                            Gerenciar Funcionalidades
+                          </DropdownMenuItem>
                           <DropdownMenuItem>Ver Detalhes</DropdownMenuItem>
                           <DropdownMenuItem>Relatório</DropdownMenuItem>
                           <DropdownMenuItem 
@@ -257,6 +271,17 @@ export const SuperAdminCompanies = () => {
           open={statusDialogOpen} 
           onOpenChange={setStatusDialogOpen} 
           company={selectedCompany}
+        />
+        
+        <CompanyFeaturesDialog
+          open={featuresDialogOpen}
+          onOpenChange={setFeaturesDialogOpen}
+          company={selectedCompany}
+          onUpdateFeatures={(companyId, features) => {
+            updateCompanyFeatures.mutate({ id: companyId, features });
+            setFeaturesDialogOpen(false);
+          }}
+          isLoading={updateCompanyFeatures.isPending}
         />
       </div>
     </SuperAdminLayout>

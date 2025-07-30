@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { CompanyFeatures } from "./useCompanyFeatures";
 
 export interface CreateCompanyData {
   name: string;
@@ -173,10 +174,40 @@ export const useSuperAdminCompanyActions = () => {
     },
   });
 
+  const updateCompanyFeatures = useMutation({
+    mutationFn: async ({ id, features }: { id: string; features: CompanyFeatures }) => {
+      const { data: result, error } = await supabase
+        .from('companies')
+        .update({ enabled_features: features as any })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["super-admin-companies"] });
+      queryClient.invalidateQueries({ queryKey: ["company-features"] });
+      toast({
+        title: "Funcionalidades atualizadas",
+        description: "As funcionalidades da empresa foram atualizadas com sucesso.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Erro ao atualizar funcionalidades",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     createCompany,
     updateCompany,
     toggleCompanyStatus,
     deleteCompany,
+    updateCompanyFeatures,
   };
 };

@@ -20,6 +20,7 @@ import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
 import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
 import { CreateCategoryDialog } from './CreateCategoryDialog';
 import { EditCategoryDialog } from './EditCategoryDialog';
+import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 import {
   DndContext,
   closestCenter,
@@ -54,6 +55,13 @@ export function CircleSidebar({
   } = useSpaceCategories();
   const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading } = useUserPreferences();
   const reorderCategories = useReorderCategories();
+  
+  // Feature flags
+  const isRankingEnabled = useIsFeatureEnabled('ranking');
+  const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
+  const isStoreEnabled = useIsFeatureEnabled('store');
+  const isBankEnabled = useIsFeatureEnabled('bank');
+  const isChallengesEnabled = useIsFeatureEnabled('challenges');
 
   const categorySensors = useSensors(
     useSensor(PointerSensor, {
@@ -136,20 +144,22 @@ export function CircleSidebar({
         </div>
 
         {/* Ranking */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
-              location.pathname === '/dashboard/ranking' 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/ranking')}
-          >
-            <Trophy className="h-4 w-4 mr-2" />
-            Ranking
-          </Button>
-        </div>
+        {isRankingEnabled && (
+          <div>
+            <Button 
+              variant="ghost" 
+              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+                location.pathname === '/dashboard/ranking' 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => navigate('/dashboard/ranking')}
+            >
+              <Trophy className="h-4 w-4 mr-2" />
+              Ranking
+            </Button>
+          </div>
+        )}
 
         {/* Cursos */}
         <div>
@@ -168,68 +178,76 @@ export function CircleSidebar({
         </div>
 
         {/* Marketplace */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/marketplace') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/marketplace')}
-          >
-            <ShoppingBag className="h-4 w-4 mr-2" />
-            Marketplace
-          </Button>
-        </div>
+        {isMarketplaceEnabled && (
+          <div>
+            <Button 
+              variant="ghost" 
+              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+                location.pathname.startsWith('/dashboard/marketplace') 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => navigate('/dashboard/marketplace')}
+            >
+              <ShoppingBag className="h-4 w-4 mr-2" />
+              Marketplace
+            </Button>
+          </div>
+        )}
 
         {/* Loja */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/store') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/store')}
-          >
-            <Store className="h-4 w-4 mr-2" />
-            Loja
-          </Button>
-        </div>
+        {isStoreEnabled && (
+          <div>
+            <Button 
+              variant="ghost" 
+              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+                location.pathname.startsWith('/dashboard/store') 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => navigate('/dashboard/store')}
+            >
+              <Store className="h-4 w-4 mr-2" />
+              Loja
+            </Button>
+          </div>
+        )}
 
         {/* Banco */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/bank') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/bank')}
-          >
-            <Wallet className="h-4 w-4 mr-2" />
-            Banco
-          </Button>
-        </div>
+        {isBankEnabled && (
+          <div>
+            <Button 
+              variant="ghost" 
+              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+                location.pathname.startsWith('/dashboard/bank') 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => navigate('/dashboard/bank')}
+            >
+              <Wallet className="h-4 w-4 mr-2" />
+              Banco
+            </Button>
+          </div>
+        )}
 
         {/* Desafios */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/challenges') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/challenges')}
-          >
-            <Target className="h-4 w-4 mr-2" />
-            Desafios
-          </Button>
-        </div>
+        {isChallengesEnabled && (
+          <div>
+            <Button 
+              variant="ghost" 
+              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+                location.pathname.startsWith('/dashboard/challenges') 
+                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                  : 'hover:bg-muted/50'
+              }`}
+              onClick={() => navigate('/dashboard/challenges')}
+            >
+              <Target className="h-4 w-4 mr-2" />
+              Desafios
+            </Button>
+          </div>
+        )}
 
         {/* Criar Categoria */}
         {categories.length > 0 && (

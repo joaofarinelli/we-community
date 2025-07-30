@@ -247,6 +247,7 @@ export type Database = {
           custom_domain: string | null
           custom_domain_status: string | null
           custom_domain_verified_at: string | null
+          enabled_features: Json | null
           feed_banner_url: string | null
           id: string
           login_banner_url: string | null
@@ -275,6 +276,7 @@ export type Database = {
           custom_domain?: string | null
           custom_domain_status?: string | null
           custom_domain_verified_at?: string | null
+          enabled_features?: Json | null
           feed_banner_url?: string | null
           id?: string
           login_banner_url?: string | null
@@ -303,6 +305,7 @@ export type Database = {
           custom_domain?: string | null
           custom_domain_status?: string | null
           custom_domain_verified_at?: string | null
+          enabled_features?: Json | null
           feed_banner_url?: string | null
           id?: string
           login_banner_url?: string | null
