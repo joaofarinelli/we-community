@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserEditDialog } from '@/components/admin/UserEditDialog';
 import { useCompanyMembers, CompanyMember } from '@/hooks/useCompanyMembers';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
@@ -21,12 +22,12 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MoreHorizontal, Edit, Trash2, Users, Mail, UserCheck, UserX } from 'lucide-react';
 
 export const AdminUsersPage = () => {
-  const navigate = useNavigate();
+  const [editingMember, setEditingMember] = useState<CompanyMember | null>(null);
   const { data: members, isLoading } = useCompanyMembers();
   const { toggleUserStatus } = useManageUserStatus();
 
   const handleEditMember = (member: CompanyMember) => {
-    navigate(`/admin/users/${member.user_id}/edit`);
+    setEditingMember(member);
   };
 
   const handleToggleUserStatus = (member: CompanyMember) => {
@@ -269,6 +270,12 @@ export const AdminUsersPage = () => {
             <InvitesManagement />
           </TabsContent>
         </Tabs>
+
+        <UserEditDialog
+          open={!!editingMember}
+          onOpenChange={(open) => !open && setEditingMember(null)}
+          member={editingMember}
+        />
       </div>
     </AdminLayout>
   );

@@ -11,8 +11,14 @@ import { toast } from 'sonner';
 import { CompanyMember } from '@/hooks/useCompanyMembers';
 import { useTags } from '@/hooks/useTags';
 import { useUserTags, useAssignTag, useRemoveTag } from '@/hooks/useUserTags';
+import { useCourses } from '@/hooks/useCourses';
+import { useUserPoints } from '@/hooks/useUserPoints';
 import { TagIcon } from '@/components/admin/TagIcon';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, BookOpen, Coins } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
 
 interface UserEditDialogProps {
   open: boolean;
@@ -28,9 +34,15 @@ interface UserFormData {
 
 export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogProps) => {
   const [selectedTagId, setSelectedTagId] = useState<string>('');
+  const [newCoinAmount, setNewCoinAmount] = useState<string>('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const queryClient = useQueryClient();
+  const { currentCompanyId } = useCompanyContext();
   
   const { data: tags = [] } = useTags();
   const { data: userTags = [] } = useUserTags(member?.user_id || '');
+  const { data: courses = [] } = useCourses();
+  const { data: userPoints } = useUserPoints(member?.user_id || '');
   const assignTag = useAssignTag();
   const removeTag = useRemoveTag();
 
@@ -47,6 +59,74 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
     console.log('Update user data:', data);
     toast.success('Dados do usuário atualizados!');
     onOpenChange(false);
+  };
+
+  const handleUpdateCoins = async () => {
+    if (!member || !newCoinAmount) return;
+    
+    setIsUpdating(true);
+    try {
+      const newAmount = parseInt(newCoinAmount);
+      
+      // Atualizar moedas do usuário
+      const { error } = await supabase
+        .from('user_points')
+        .upsert({
+          user_id: member.user_id,
+          company_id: currentCompanyId,
+          total_coins: newAmount
+        });
+
+      if (error) throw error;
+
+      // Invalidar query para atualizar dados
+      queryClient.invalidateQueries({ queryKey: ['user-points', member.user_id] });
+      
+      toast.success('Moedas atualizadas com sucesso!');
+      setNewCoinAmount('');
+    } catch (error) {
+      console.error('Error updating coins:', error);
+      toast.error('Erro ao atualizar moedas');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleCourseAccessToggle = async (courseId: string, hasAccess: boolean) => {
+    if (!member) return;
+
+    try {
+      if (hasAccess) {
+        // Remover acesso
+        const { error } = await supabase
+          .from('user_course_access')
+          .delete()
+          .eq('user_id', member.user_id)
+          .eq('course_id', courseId);
+
+        if (error) throw error;
+      } else {
+        // Adicionar acesso
+        const { error } = await supabase
+          .from('user_course_access')
+          .insert({
+            user_id: member.user_id,
+            course_id: courseId,
+            company_id: currentCompanyId,
+            granted_by: member.user_id // Será substituído por admin atual
+          });
+
+        if (error) throw error;
+      }
+
+      // Invalidar queries relacionadas
+      queryClient.invalidateQueries({ queryKey: ['user-course-access'] });
+      
+      toast.success(hasAccess ? 'Acesso removido!' : 'Acesso concedido!');
+    } catch (error) {
+      console.error('Error updating course access:', error);
+      toast.error('Erro ao atualizar acesso ao curso');
+    }
   };
 
   const handleAssignTag = () => {
@@ -70,7 +150,7 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Usuário</DialogTitle>
           <DialogDescription>
@@ -182,6 +262,76 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
                 </div>
               </div>
             )}
+          </div>
+
+          <Separator />
+
+          {/* Gerenciamento de Moedas */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Coins className="h-5 w-5 text-yellow-500" />
+              <h4 className="font-medium">Moedas do usuário</h4>
+            </div>
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-muted-foreground">Saldo atual:</span>
+                <Badge variant="outline" className="font-mono">
+                  {userPoints?.total_coins || 0} moedas
+                </Badge>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Nova quantidade"
+                  value={newCoinAmount}
+                  onChange={(e) => setNewCoinAmount(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleUpdateCoins}
+                  disabled={!newCoinAmount || isUpdating}
+                  size="sm"
+                >
+                  {isUpdating ? 'Atualizando...' : 'Atualizar'}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Gerenciamento de Acesso a Cursos */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-blue-500" />
+              <h4 className="font-medium">Acesso a cursos</h4>
+            </div>
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {courses.length > 0 ? (
+                courses.map((course) => (
+                  <div key={course.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <h5 className="font-medium text-sm">{course.title}</h5>
+                      {course.description && (
+                        <p className="text-xs text-muted-foreground truncate">
+                          {course.description}
+                        </p>
+                      )}
+                    </div>
+                    <Checkbox
+                      checked={false} // TODO: Implementar verificação de acesso
+                      onCheckedChange={(checked) => 
+                        handleCourseAccessToggle(course.id, !checked)
+                      }
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  Nenhum curso disponível
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
