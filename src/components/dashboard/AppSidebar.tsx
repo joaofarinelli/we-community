@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, BookOpen, Calendar, Trophy, Plus, Download, Smartphone, ShoppingBag, Target, Wallet, Store } from "lucide-react";
+import { Home, Users, BookOpen, Calendar, Trophy, Plus, Download, Smartphone, ShoppingBag, Target, Wallet, Store, MapPin } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -36,6 +36,7 @@ export function AppSidebar() {
   const mainItems = [
     { title: "Home", url: "/dashboard", icon: Home },
     { title: "Courses", url: "/dashboard/courses", icon: BookOpen },
+    { title: "Trilhas", url: "/dashboard/trails", icon: MapPin },
     { title: "Events", url: "/dashboard/events", icon: Calendar },
     { title: "Members", url: "/dashboard/members", icon: Users },
     ...(isRankingEnabled ? [{ title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy }] : []),

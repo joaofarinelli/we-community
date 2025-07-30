@@ -19,7 +19,8 @@ import {
   Code,
   ArrowLeft,
   ShoppingBag,
-  Store
+  Store,
+  MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +57,14 @@ const mainMenuItems = [
     key: 'courses',
     subItems: [
       { label: 'Gerenciar cursos', path: '/admin/courses' },
+    ]
+  },
+  {
+    icon: MapPin,
+    label: 'Trilhas',
+    key: 'trails',
+    subItems: [
+      { label: 'Gerenciar trilhas', path: '/admin/trails' },
     ]
   },
   {
