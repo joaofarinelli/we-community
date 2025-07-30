@@ -6,9 +6,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
-import { useCreateMarketplaceItem, useUpdateMarketplaceItem } from '@/hooks/useManageMarketplace';
-import { Store } from 'lucide-react';
+import { useCreateStoreItem, useUpdateStoreItem } from '@/hooks/useManageStore';
+import { useTags } from '@/hooks/useTags';
+import { ImageUploader } from '@/components/ui/image-uploader';
+import { Store, X } from 'lucide-react';
 
 interface MarketplaceItem {
   id?: string;
@@ -19,6 +22,7 @@ interface MarketplaceItem {
   price_coins: number;
   stock_quantity: number | null;
   is_featured: boolean;
+  access_tags?: string[];
 }
 
 interface CreateStoreItemDialogProps {
@@ -26,13 +30,6 @@ interface CreateStoreItemDialogProps {
   onOpenChange: (open: boolean) => void;
   item?: MarketplaceItem | null;
 }
-
-const placeholderImages = [
-  'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=300&fit=crop',
-  'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
-];
 
 export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreItemDialogProps) => {
   const [formData, setFormData] = useState({
@@ -43,11 +40,13 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     price_coins: 0,
     stock_quantity: null as number | null,
     is_featured: false,
+    access_tags: [] as string[],
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
-  const createItem = useCreateMarketplaceItem();
-  const updateItem = useUpdateMarketplaceItem();
+  const { data: tags = [] } = useTags();
+  const createItem = useCreateStoreItem();
+  const updateItem = useUpdateStoreItem();
 
   const isLoading = createItem.isPending || updateItem.isPending;
 
@@ -61,6 +60,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
         price_coins: item.price_coins,
         stock_quantity: item.stock_quantity,
         is_featured: item.is_featured,
+        access_tags: item.access_tags || [],
       });
     } else {
       setFormData({
@@ -71,6 +71,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
         price_coins: 0,
         stock_quantity: null,
         is_featured: false,
+        access_tags: [],
       });
     }
   }, [item, open]);
@@ -85,8 +86,8 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     try {
       const itemData = {
         ...formData,
-        store_type: 'store' as const, // Force store type for store items
-        seller_type: 'company' as const, // Store items are always sold by company
+        store_type: 'store' as const,
+        seller_type: 'company' as const,
       };
 
       if (item?.id) {
@@ -99,6 +100,22 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     } catch (error) {
       console.error('Error saving store item:', error);
     }
+  };
+
+  const addTag = (tagName: string) => {
+    if (!formData.access_tags.includes(tagName)) {
+      setFormData(prev => ({
+        ...prev,
+        access_tags: [...prev.access_tags, tagName]
+      }));
+    }
+  };
+
+  const removeTag = (tagName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      access_tags: prev.access_tags.filter(tag => tag !== tagName)
+    }));
   };
 
   return (
@@ -181,40 +198,45 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
             />
           </div>
 
+          <ImageUploader
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
+          />
+
           <div>
-            <Label>Imagem do Produto</Label>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                {placeholderImages.map((img, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, image_url: img })}
-                    className={`relative aspect-video rounded-lg border-2 transition-all ${
-                      formData.image_url === img 
-                        ? 'border-primary ring-2 ring-primary/20' 
-                        : 'border-dashed border-muted-foreground/25 hover:border-muted-foreground/50'
-                    }`}
-                  >
-                    <img 
-                      src={img} 
-                      alt={`Opção ${index + 1}`}
-                      className="w-full h-full object-cover rounded-lg"
+            <Label>Tags de Acesso (opcional)</Label>
+            <p className="text-sm text-muted-foreground mb-2">
+              Selecione tags para restringir quem pode comprar este produto. Deixe vazio para permitir a todos.
+            </p>
+            
+            {formData.access_tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {formData.access_tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X 
+                      className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                      onClick={() => removeTag(tag)}
                     />
-                  </button>
+                  </Badge>
                 ))}
               </div>
-              
-              <div>
-                <Label htmlFor="custom-image">Ou insira uma URL personalizada:</Label>
-                <Input
-                  id="custom-image"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://exemplo.com/imagem.jpg"
-                />
-              </div>
-            </div>
+            )}
+            
+            <Select onValueChange={addTag}>
+              <SelectTrigger>
+                <SelectValue placeholder="Adicionar tag de acesso" />
+              </SelectTrigger>
+              <SelectContent>
+                {tags
+                  .filter(tag => !formData.access_tags.includes(tag.name))
+                  .map((tag) => (
+                    <SelectItem key={tag.id} value={tag.name}>
+                      {tag.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center space-x-2">

@@ -20,6 +20,7 @@ interface CreateItemData {
   is_featured?: boolean;
   store_type?: string;
   seller_type?: string;
+  access_tags?: string[];
 }
 
 export const useCreateMarketplaceCategory = () => {

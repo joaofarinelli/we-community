@@ -938,6 +938,7 @@ export type Database = {
       }
       marketplace_items: {
         Row: {
+          access_tags: string[] | null
           category_id: string
           company_id: string
           created_at: string
@@ -957,6 +958,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_tags?: string[] | null
           category_id: string
           company_id: string
           created_at?: string
@@ -976,6 +978,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_tags?: string[] | null
           category_id?: string
           company_id?: string
           created_at?: string

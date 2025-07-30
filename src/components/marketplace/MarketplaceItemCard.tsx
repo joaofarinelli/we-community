@@ -1,9 +1,10 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Package } from 'lucide-react';
+import { Coins, Package, Lock } from 'lucide-react';
 import { useState, memo } from 'react';
 import { PurchaseDialog } from './PurchaseDialog';
+import { useCheckProductAccess } from '@/hooks/useCheckProductAccess';
 
 interface MarketplaceItem {
   id: string;
@@ -16,6 +17,7 @@ interface MarketplaceItem {
   seller_type: string;
   seller_id?: string;
   profiles?: any;
+  access_tags?: string[];
 }
 
 interface MarketplaceItemCardProps {
@@ -25,8 +27,12 @@ interface MarketplaceItemCardProps {
 
 export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCardProps) => {
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const { data: hasAccess = true, isLoading: checkingAccess } = useCheckProductAccess(item.id);
+  
   const canAfford = userCoins >= item.price_coins;
   const isOutOfStock = item.stock_quantity !== null && item.stock_quantity <= 0;
+  const hasRequiredTags = hasAccess;
+  const canPurchase = canAfford && !isOutOfStock && hasRequiredTags;
 
   return (
     <>
@@ -79,6 +85,13 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
                 </Badge>
               )}
             </div>
+            
+            {item.access_tags && item.access_tags.length > 0 && !hasRequiredTags && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Lock className="h-3 w-3" />
+                <span>Acesso restrito</span>
+              </div>
+            )}
           </div>
         </CardContent>
         
@@ -86,10 +99,13 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
           <Button 
             className="w-full" 
             onClick={() => setShowPurchaseDialog(true)}
-            disabled={!canAfford || isOutOfStock}
-            variant={!canAfford ? "outline" : "default"}
+            disabled={!canPurchase || checkingAccess}
+            variant={!canPurchase ? "outline" : "default"}
           >
-            {isOutOfStock ? 'Esgotado' : !canAfford ? 'Moedas insuficientes' : 'Comprar'}
+            {checkingAccess ? 'Verificando...' :
+             isOutOfStock ? 'Esgotado' : 
+             !hasRequiredTags ? 'Acesso restrito' :
+             !canAfford ? 'Moedas insuficientes' : 'Comprar'}
           </Button>
         </CardFooter>
       </Card>

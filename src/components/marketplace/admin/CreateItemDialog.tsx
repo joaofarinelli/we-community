@@ -12,10 +12,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateMarketplaceItem, useUpdateMarketplaceItem } from '@/hooks/useManageMarketplace';
+import { useTags } from '@/hooks/useTags';
 import { Switch } from '@/components/ui/switch';
-import { Image } from 'lucide-react';
+import { ImageUploader } from '@/components/ui/image-uploader';
+import { X } from 'lucide-react';
 
 interface MarketplaceItem {
   id?: string;
@@ -26,6 +29,7 @@ interface MarketplaceItem {
   price_coins: number;
   stock_quantity?: number;
   is_featured?: boolean;
+  access_tags?: string[];
 }
 
 interface CreateItemDialogProps {
@@ -33,19 +37,6 @@ interface CreateItemDialogProps {
   onOpenChange: (open: boolean) => void;
   item?: MarketplaceItem;
 }
-
-const placeholderImages = [
-  { id: 'photo-1649972904349-6e44c42644a7', name: 'Mulher trabalhando no laptop' },
-  { id: 'photo-1488590528505-98d2b5aba04b', name: 'Laptop cinza ligado' },
-  { id: 'photo-1518770660439-4636190af475', name: 'Placa de circuito' },
-  { id: 'photo-1461749280684-dccba630e2f6', name: 'Monitor com código Java' },
-  { id: 'photo-1486312338219-ce68d2c6f44d', name: 'Pessoa usando MacBook Pro' },
-  { id: 'photo-1581091226825-a6a2a5aee158', name: 'Mulher de blusa branca usando laptop' },
-  { id: 'photo-1485827404703-89b55fcc595e', name: 'Robô branco' },
-  { id: 'photo-1526374965328-7f61d4dc18c5', name: 'Matrix' },
-  { id: 'photo-1487058792275-0ad4aaf24ca7', name: 'Código colorido no monitor' },
-  { id: 'photo-1473091534298-04dcbce3278c', name: 'Caneta stylus' },
-];
 
 export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogProps) => {
   const [formData, setFormData] = useState<Partial<MarketplaceItem>>({
@@ -56,9 +47,11 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
     price_coins: item?.price_coins || 0,
     stock_quantity: item?.stock_quantity || undefined,
     is_featured: item?.is_featured || false,
+    access_tags: item?.access_tags || [],
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
+  const { data: tags = [] } = useTags();
   const createItem = useCreateMarketplaceItem();
   const updateItem = useUpdateMarketplaceItem();
 
@@ -85,6 +78,22 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
     } catch (error) {
       // Error is handled by the mutation
     }
+  };
+
+  const addTag = (tagName: string) => {
+    if (!formData.access_tags?.includes(tagName)) {
+      setFormData(prev => ({
+        ...prev,
+        access_tags: [...(prev.access_tags || []), tagName]
+      }));
+    }
+  };
+
+  const removeTag = (tagName: string) => {
+    setFormData(prev => ({
+      ...prev,
+      access_tags: prev.access_tags?.filter(tag => tag !== tagName) || []
+    }));
   };
 
   const isLoading = createItem.isPending || updateItem.isPending;
@@ -178,46 +187,45 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
             </div>
           </div>
 
+          <ImageUploader
+            value={formData.image_url}
+            onChange={(url) => setFormData(prev => ({ ...prev, image_url: url || '' }))}
+          />
+
           <div className="space-y-2">
-            <Label>Imagem do Item</Label>
-            <div className="space-y-3">
-              <Input
-                value={formData.image_url || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                placeholder="URL da imagem ou selecione uma imagem de exemplo abaixo"
-              />
-              
-              <div className="grid grid-cols-5 gap-2 max-h-32 overflow-y-auto">
-                {placeholderImages.map((img) => {
-                  const imageUrl = `https://images.unsplash.com/${img.id}?w=200&h=150&fit=crop`;
-                  return (
-                    <button
-                      key={img.id}
-                      type="button"
-                      className={`aspect-square rounded border-2 overflow-hidden ${
-                        formData.image_url === imageUrl 
-                          ? 'border-primary ring-2 ring-primary/20' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                      onClick={() => setFormData(prev => ({ ...prev, image_url: imageUrl }))}
-                    >
-                      <img 
-                        src={imageUrl} 
-                        alt={img.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  );
-                })}
+            <Label>Tags de Acesso (opcional)</Label>
+            <p className="text-sm text-muted-foreground">
+              Selecione tags para restringir quem pode comprar este produto. Deixe vazio para permitir a todos.
+            </p>
+            
+            {formData.access_tags && formData.access_tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3">
+                {formData.access_tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X 
+                      className="h-3 w-3 cursor-pointer hover:text-destructive" 
+                      onClick={() => removeTag(tag)}
+                    />
+                  </Badge>
+                ))}
               </div>
-              
-              {formData.image_url && (
-                <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                  <Image className="h-4 w-4" />
-                  <span className="text-sm">Imagem selecionada</span>
-                </div>
-              )}
-            </div>
+            )}
+            
+            <Select onValueChange={addTag}>
+              <SelectTrigger>
+                <SelectValue placeholder="Adicionar tag de acesso" />
+              </SelectTrigger>
+              <SelectContent>
+                {tags
+                  .filter(tag => !(formData.access_tags || []).includes(tag.name))
+                  .map((tag) => (
+                    <SelectItem key={tag.id} value={tag.name}>
+                      {tag.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex items-center space-x-2">
