@@ -33,6 +33,8 @@ import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
 import { MarketplacePurchasesPage } from "./pages/MarketplacePurchasesPage";
 import { AdminMarketplacePage } from "./pages/admin/AdminMarketplacePage";
+import { StorePage } from "./pages/StorePage";
+import { AdminStorePage } from "./pages/admin/AdminStorePage";
 import MyItemsPage from "./pages/MyItemsPage";
 import { MembersPage } from "./pages/MembersPage";
 import { AdminChallengesPage } from "./pages/admin/AdminChallengesPage";
@@ -87,9 +89,11 @@ const AppRoutes = () => {
         <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
         <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
         <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
+        <Route path="/dashboard/store" element={<AuthGuard><StorePage /></AuthGuard>} />
         <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
         <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
         <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
+        <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
         <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
         <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
         <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />

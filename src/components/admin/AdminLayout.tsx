@@ -18,7 +18,8 @@ import {
   HelpCircle,
   Code,
   ArrowLeft,
-  ShoppingBag
+  ShoppingBag,
+  Store
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -63,6 +64,7 @@ const mainMenuItems = [
     key: 'marketplace',
     subItems: [
       { label: 'Gerenciar marketplace', path: '/admin/marketplace' },
+      { label: 'Gerenciar loja', path: '/admin/store' },
     ]
   },
   {

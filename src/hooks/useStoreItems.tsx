@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useMarketplaceItems = (categoryId?: string) => {
+export const useStoreItems = (categoryId?: string) => {
   return useQuery({
-    queryKey: ['marketplaceItems', categoryId],
+    queryKey: ['storeItems', categoryId],
     queryFn: async () => {
       let query = supabase
         .from('marketplace_items')
@@ -13,7 +13,7 @@ export const useMarketplaceItems = (categoryId?: string) => {
           profiles!marketplace_items_seller_id_fkey(first_name, last_name)
         `)
         .eq('is_active', true)
-        .eq('store_type', 'marketplace')
+        .eq('store_type', 'store')
         .order('order_index');
 
       if (categoryId) {

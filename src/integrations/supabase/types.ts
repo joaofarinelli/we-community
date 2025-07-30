@@ -953,6 +953,7 @@ export type Database = {
           seller_id: string | null
           seller_type: string
           stock_quantity: number | null
+          store_type: string
           updated_at: string
         }
         Insert: {
@@ -971,6 +972,7 @@ export type Database = {
           seller_id?: string | null
           seller_type?: string
           stock_quantity?: number | null
+          store_type?: string
           updated_at?: string
         }
         Update: {
@@ -989,6 +991,7 @@ export type Database = {
           seller_id?: string | null
           seller_type?: string
           stock_quantity?: number | null
+          store_type?: string
           updated_at?: string
         }
         Relationships: [
@@ -1261,6 +1264,7 @@ export type Database = {
           company_id: string
           content: string
           created_at: string
+          hide_author: boolean
           id: string
           is_announcement: boolean
           is_pinned: boolean
@@ -1274,6 +1278,7 @@ export type Database = {
           company_id: string
           content: string
           created_at?: string
+          hide_author?: boolean
           id?: string
           is_announcement?: boolean
           is_pinned?: boolean
@@ -1287,6 +1292,7 @@ export type Database = {
           company_id?: string
           content?: string
           created_at?: string
+          hide_author?: boolean
           id?: string
           is_announcement?: boolean
           is_pinned?: boolean

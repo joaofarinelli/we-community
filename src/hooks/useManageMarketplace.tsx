@@ -18,6 +18,8 @@ interface CreateItemData {
   price_coins: number;
   stock_quantity?: number;
   is_featured?: boolean;
+  store_type?: string;
+  seller_type?: string;
 }
 
 export const useCreateMarketplaceCategory = () => {
@@ -140,6 +142,7 @@ export const useCreateMarketplaceItem = () => {
     onSuccess: () => {
       toast.success('Item criado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['marketplaceItems'] });
+      queryClient.invalidateQueries({ queryKey: ['storeItems'] });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao criar item');
@@ -165,6 +168,7 @@ export const useUpdateMarketplaceItem = () => {
     onSuccess: () => {
       toast.success('Item atualizado com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['marketplaceItems'] });
+      queryClient.invalidateQueries({ queryKey: ['storeItems'] });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao atualizar item');
@@ -187,6 +191,7 @@ export const useDeleteMarketplaceItem = () => {
     onSuccess: () => {
       toast.success('Item excluído com sucesso!');
       queryClient.invalidateQueries({ queryKey: ['marketplaceItems'] });
+      queryClient.invalidateQueries({ queryKey: ['storeItems'] });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao excluir item');
