@@ -46,7 +46,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
     defaultValues: {
       name: '',
       description: '',
-      life_area: '',
+      life_area: 'none',
     },
   });
 
@@ -55,7 +55,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
       form.reset({
         name: template.name,
         description: template.description || '',
-        life_area: template.life_area || '',
+        life_area: template.life_area || 'none',
       });
     }
   }, [template, open, form]);
@@ -65,9 +65,13 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
     
     setIsSubmitting(true);
     try {
+      const updateData = { ...data };
+      if (updateData.life_area === 'none') {
+        updateData.life_area = null;
+      }
       await updateTemplate.mutateAsync({
         id: template.id,
-        ...data,
+        ...updateData,
       });
       onOpenChange(false);
     } catch (error) {
@@ -134,7 +138,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {lifeAreas.map((area) => (
                         <SelectItem key={area} value={area}>
                           {area}

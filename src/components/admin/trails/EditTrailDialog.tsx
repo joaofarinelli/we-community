@@ -61,7 +61,7 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
       name: '',
       description: '',
       status: 'active',
-      life_area: '',
+      life_area: 'none',
     },
   });
 
@@ -71,7 +71,7 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
         name: trail.name,
         description: trail.description || '',
         status: trail.status as 'active' | 'paused' | 'completed',
-        life_area: trail.life_area || '',
+        life_area: trail.life_area || 'none',
       });
     }
   }, [trail, open, form]);
@@ -81,9 +81,13 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
     
     setIsSubmitting(true);
     try {
+      const updateData = { ...data };
+      if (updateData.life_area === 'none') {
+        updateData.life_area = null;
+      }
       await updateTrail.mutateAsync({
         id: trail.id,
-        ...data,
+        ...updateData,
       });
       onOpenChange(false);
     } catch (error) {
@@ -173,7 +177,7 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {lifeAreas.map((area) => (
                         <SelectItem key={area} value={area}>
                           {area}
