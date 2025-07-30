@@ -83,12 +83,24 @@ export const useUserStreak = () => {
     updateStreakMutation.mutate();
   };
 
+  const needsCheckInToday = () => {
+    if (!streakQuery.data) return false;
+    
+    const today = new Date().toDateString();
+    const lastActivity = streakQuery.data.last_activity_date 
+      ? new Date(streakQuery.data.last_activity_date).toDateString()
+      : null;
+    
+    return lastActivity !== today;
+  };
+
   return {
     streak: streakQuery.data,
     isLoading: streakQuery.isLoading,
     error: streakQuery.error,
     checkInToday,
     isUpdating: updateStreakMutation.isPending,
+    needsCheckInToday,
   };
 };
 

@@ -12,10 +12,12 @@ import { ptBR } from 'date-fns/locale';
 
 interface StreakDialogProps {
   children: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const StreakDialog = ({ children }: StreakDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const StreakDialog = ({ children, open, onOpenChange }: StreakDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const { streak, isLoading, checkInToday, isUpdating } = useUserStreak();
   const { data: leaderboard } = useCompanyStreakLeaderboard(10);
   const { data: pointsHistory } = usePointsHistory(undefined, 50);
@@ -66,8 +68,12 @@ export const StreakDialog = ({ children }: StreakDialogProps) => {
   const milestones = getStreakMilestones();
   const canCheckInToday = streak?.last_activity_date !== new Date().toISOString().split('T')[0];
 
+  // Use controlled or uncontrolled mode
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>

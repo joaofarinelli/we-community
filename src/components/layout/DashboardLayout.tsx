@@ -17,7 +17,7 @@ import { NotificationDropdown } from '@/components/dashboard/NotificationDropdow
 import { ChatDialog } from '@/components/chat/ChatDialog';
 import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
-import { useUserStreak } from '@/hooks/useUserStreak';
+import { AutoStreakCheckIn } from '@/components/gamification/AutoStreakCheckIn';
 
 
 interface DashboardLayoutProps {
@@ -29,20 +29,13 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user } = useAuth();
   const { data: company } = useCompany();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { checkInToday } = useUserStreak();
   
   const isAdmin = useIsAdmin();
-
-  // Auto check-in when layout loads (indicates user login)
-  React.useEffect(() => {
-    if (user) {
-      checkInToday();
-    }
-  }, [user, checkInToday]);
 
   return (
     <div className="h-screen bg-background flex flex-col">
       <ThemeApplier />
+      <AutoStreakCheckIn />
       {/* Header */}
       <header className="shrink-0 bg-card border-b border-border z-10">
         <div className="flex items-center justify-between px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
