@@ -106,7 +106,7 @@ export const AdminUsersPage = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Gerenciar Audiência</h1>
             <p className="text-muted-foreground">
-              Gerencie os membros da sua comunidade ({members?.length || 0} membros)
+              Gerencie todos os usuários da sua comunidade - membros e administradores ({members?.length || 0} usuários)
             </p>
           </div>
           <InviteUserDialog />
@@ -143,9 +143,9 @@ export const AdminUsersPage = () => {
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>Membros da Comunidade</CardTitle>
+              <CardTitle>Usuários da Comunidade</CardTitle>
               <CardDescription>
-                Lista de todos os membros ativos na sua comunidade
+                Lista de todos os usuários (membros e administradores) na sua comunidade
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -179,8 +179,14 @@ export const AdminUsersPage = () => {
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
                       <TableCell>
-                        <Badge variant={member.role === 'admin' ? 'default' : 'secondary'}>
-                          {member.role === 'admin' ? 'Administrador' : 'Membro'}
+                        <Badge variant={
+                          member.role === 'admin' ? 'default' : 
+                          member.role === 'owner' ? 'destructive' : 
+                          'secondary'
+                        }>
+                          {member.role === 'admin' ? 'Administrador' : 
+                           member.role === 'owner' ? 'Proprietário' : 
+                           'Membro'}
                         </Badge>
                       </TableCell>
                       <TableCell>
