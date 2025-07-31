@@ -12,7 +12,6 @@ import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { UserPostItem } from './UserPostItem';
-import { EditProfileDialog } from './EditProfileDialog';
 import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
@@ -22,7 +21,6 @@ export const UserProfileDialog = ({
   open,
   onOpenChange
 }: UserProfileDialogProps) => {
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const {
     user
   } = useAuth();
@@ -126,7 +124,7 @@ export const UserProfileDialog = ({
           <div className="lg:w-1/3 p-6 border-r bg-muted/30">
             <div className="flex flex-col items-center text-center space-y-4">
               <Avatar className="h-32 w-32">
-                <AvatarImage src={userProfile?.avatar_url || user?.user_metadata?.avatar_url} alt={getDisplayName()} />
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt={getDisplayName()} />
                 <AvatarFallback className="text-3xl">
                   {getUserInitials()}
                 </AvatarFallback>
@@ -147,11 +145,7 @@ export const UserProfileDialog = ({
                   </Badge>}
               </div>
 
-              <Button 
-                className="w-full" 
-                variant="outline"
-                onClick={() => setEditDialogOpen(true)}
-              >
+              <Button className="w-full" variant="outline">
                 <Edit3 className="h-4 w-4 mr-2" />
                 Editar
               </Button>
@@ -179,7 +173,7 @@ export const UserProfileDialog = ({
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Biografia</h3>
                   <p className="text-muted-foreground">
-                    {userProfile?.bio || 'Nenhuma biografia adicionada ainda.'}
+                    {userProfile?.first_name && userProfile?.last_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'Nenhuma biografia adicionada ainda.'}
                   </p>
                 </div>
 
@@ -197,17 +191,6 @@ export const UserProfileDialog = ({
                       </div>}
                   </div>
                 </div>
-
-                {/* Company Info */}
-                {company && <div>
-                    <h3 className="text-lg font-semibold mb-3">Empresa</h3>
-                    <div className="space-y-2">
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>{company.name}</span>
-                      </div>
-                    </div>
-                  </div>}
 
                 {/* Gamification Stats */}
                 {userPoints && <div>
@@ -262,10 +245,5 @@ export const UserProfileDialog = ({
           </div>
         </div>
       </DialogContent>
-
-      <EditProfileDialog 
-        open={editDialogOpen} 
-        onOpenChange={setEditDialogOpen} 
-      />
     </Dialog>;
 };
