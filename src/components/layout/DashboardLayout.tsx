@@ -33,7 +33,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isAdmin = useIsAdmin();
 
   return (
-    <div className="h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <ThemeApplier />
       <AutoStreakCheckIn />
       {/* Header */}
@@ -143,7 +143,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1">
           <div className="p-3 sm:p-4 md:p-6 lg:p-8">
             {children}
           </div>
