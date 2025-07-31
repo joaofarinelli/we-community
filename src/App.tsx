@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/hooks/useCompanyContext";
 import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
+import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { AuthGuard } from "@/components/AuthGuard";
 import { MultiCompanyGuard } from "@/components/MultiCompanyGuard";
 import Index from "./pages/Index";
@@ -61,6 +62,7 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
+  useDynamicTitle();
 
   if (loading) {
     return (
