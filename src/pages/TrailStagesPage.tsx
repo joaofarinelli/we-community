@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useTrails } from '@/hooks/useTrails';
 import { useTrailStages } from '@/hooks/useTrailStages';
-import { useTrailProgress } from '@/hooks/useTrailProgress';
+import { useTrailProgress, useCompleteTrailStage } from '@/hooks/useTrailProgress';
 
 export const TrailStagesPage = () => {
   const { trailId } = useParams<{ trailId: string }>();
@@ -16,6 +16,13 @@ export const TrailStagesPage = () => {
   const { data: trails } = useTrails();
   const { data: stages } = useTrailStages(trailId);
   const { data: progress } = useTrailProgress(trailId);
+  const completeStage = useCompleteTrailStage();
+
+  const handleStartStage = (stageId: string) => {
+    if (trailId) {
+      completeStage.mutate({ trailId, stageId });
+    }
+  };
   
   const trail = trails?.find(t => t.id === trailId);
   
@@ -150,8 +157,12 @@ export const TrailStagesPage = () => {
                             </Badge>
                           )}
                           {isNext && (
-                            <Button size="sm">
-                              Iniciar Etapa
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleStartStage(stage.id)}
+                              disabled={completeStage.isPending}
+                            >
+                              {completeStage.isPending ? 'Processando...' : 'Iniciar Etapa'}
                             </Button>
                           )}
                         </div>
