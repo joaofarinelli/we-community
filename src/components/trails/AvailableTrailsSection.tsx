@@ -25,7 +25,7 @@ const JoinTrailDialog = ({ open, onOpenChange, trail }: JoinTrailDialogProps) =>
     setIsJoining(true);
     try {
       await joinTrail.mutateAsync({
-        template_trail_id: trail.id,
+        template_id: trail.id,
         name: trail.name,
         description: trail.description,
         life_area: trail.life_area,

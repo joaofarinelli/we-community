@@ -182,7 +182,7 @@ export const useJoinTrail = () => {
 
   return useMutation({
     mutationFn: async (trailData: {
-      template_trail_id: string; // ID of the trail template/original trail
+      template_id: string; // ID of the trail template/original trail
       name: string;
       description?: string;
       life_area?: string;

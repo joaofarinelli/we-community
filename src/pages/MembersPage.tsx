@@ -84,10 +84,11 @@ export const MembersPage = () => {
               </p>
             </div>
             
-            <Badge variant="secondary" className={getRoleColor(member.role)}>
-              {getRoleLabel(member.role)}
-            </Badge>
-            
+            {member.role !== 'member' && (
+              <Badge variant="secondary" className={getRoleColor(member.role)}>
+                {getRoleLabel(member.role)}
+              </Badge>
+            )}
             <div className="flex items-center text-xs text-muted-foreground">
               <Calendar className="h-3 w-3 mr-1" />
               Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
@@ -125,11 +126,13 @@ export const MembersPage = () => {
               </h3>
               <p className="text-sm text-muted-foreground">
                 {member.email}
-              </p>
-              <Badge variant="secondary" className={getRoleColor(member.role)}>
-                {getRoleLabel(member.role)}
-              </Badge>
-            </div>
+               </p>
+               {member.role !== 'member' && (
+                 <Badge variant="secondary" className={getRoleColor(member.role)}>
+                   {getRoleLabel(member.role)}
+                 </Badge>
+               )}
+             </div>
 
             <div className="text-xs text-muted-foreground">
               Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
@@ -163,11 +166,13 @@ export const MembersPage = () => {
                   </p>
                 </div>
                 
-                <div className="flex items-center space-x-2 ml-4">
-                  <Badge variant="secondary" className={getRoleColor(member.role)}>
-                    {getRoleLabel(member.role)}
-                  </Badge>
-                  <div className="text-xs text-muted-foreground whitespace-nowrap">
+                 <div className="flex items-center space-x-2 ml-4">
+                   {member.role !== 'member' && (
+                     <Badge variant="secondary" className={getRoleColor(member.role)}>
+                       {getRoleLabel(member.role)}
+                     </Badge>
+                   )}
+                   <div className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(member.created_at).toLocaleDateString('pt-BR')}
                   </div>
                 </div>
