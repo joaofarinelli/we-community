@@ -1354,6 +1354,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           company_id: string
           created_at: string
           email: string | null
@@ -1363,10 +1365,14 @@ export type Database = {
           last_name: string
           phone: string | null
           role: string | null
+          show_coins_to_others: boolean | null
+          show_email_to_others: boolean | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           company_id: string
           created_at?: string
           email?: string | null
@@ -1376,10 +1382,14 @@ export type Database = {
           last_name: string
           phone?: string | null
           role?: string | null
+          show_coins_to_others?: boolean | null
+          show_email_to_others?: boolean | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           company_id?: string
           created_at?: string
           email?: string | null
@@ -1389,6 +1399,8 @@ export type Database = {
           last_name?: string
           phone?: string | null
           role?: string | null
+          show_coins_to_others?: boolean | null
+          show_email_to_others?: boolean | null
           updated_at?: string
           user_id?: string
         }
