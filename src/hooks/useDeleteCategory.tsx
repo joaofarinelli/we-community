@@ -9,24 +9,44 @@ export const useDeleteCategory = () => {
 
   const deleteCategoryMutation = useMutation({
     mutationFn: async (categoryId: string) => {
-      if (!user) throw new Error('Usuário não autenticado');
+      console.log('Tentando deletar categoria:', categoryId);
+      
+      if (!user) {
+        console.error('Usuário não autenticado');
+        throw new Error('Usuário não autenticado');
+      }
 
+      console.log('Verificando se categoria tem espaços...');
       // First check if category has spaces
-      const { data: spaces } = await supabase
+      const { data: spaces, error: spacesError } = await supabase
         .from('spaces')
         .select('id')
         .eq('category_id', categoryId);
 
+      if (spacesError) {
+        console.error('Erro ao verificar espaços:', spacesError);
+        throw new Error('Erro ao verificar espaços vinculados');
+      }
+
+      console.log('Espaços encontrados:', spaces);
+
       if (spaces && spaces.length > 0) {
+        console.error('Categoria tem espaços vinculados');
         throw new Error('Não é possível deletar uma categoria que contém espaços');
       }
 
+      console.log('Deletando categoria...');
       const { error } = await supabase
         .from('space_categories')
         .delete()
         .eq('id', categoryId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao deletar categoria:', error);
+        throw error;
+      }
+      
+      console.log('Categoria deletada com sucesso');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
