@@ -11,6 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Switch } from '@/components/ui/switch';
 import { useCreateTrail } from '@/hooks/useTrails';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
+import { useTrailBadges } from '@/hooks/useTrailProgress';
 
 const createTrailSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -19,6 +20,8 @@ const createTrailSchema = z.object({
   user_id: z.string().optional(), // For assigning to specific user
   template_id: z.string().optional(),
   is_template: z.boolean().optional(),
+  completion_badge_id: z.string().optional(),
+  auto_complete: z.boolean().optional(),
 });
 
 type CreateTrailFormData = z.infer<typeof createTrailSchema>;
@@ -45,6 +48,7 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createTrail = useCreateTrail();
   const { data: members } = useCompanyMembers();
+  const { data: badges } = useTrailBadges();
 
   const form = useForm<CreateTrailFormData>({
     resolver: zodResolver(createTrailSchema),
@@ -54,6 +58,8 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
       life_area: 'none',
       user_id: 'all',
       is_template: false,
+      completion_badge_id: 'none',
+      auto_complete: true,
     },
   });
 
@@ -66,6 +72,9 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
       }
       if (createData.user_id === 'all') {
         createData.user_id = null;
+      }
+      if (createData.completion_badge_id === 'none') {
+        createData.completion_badge_id = null;
       }
       await createTrail.mutateAsync(createData);
       form.reset();
@@ -174,6 +183,53 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
                     </SelectContent>
                   </Select>
                   <FormMessage />
+                </FormItem>
+              )}
+             />
+
+            <FormField
+              control={form.control}
+              name="completion_badge_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Selo de Conclusão</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um selo para conclusão" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum selo</SelectItem>
+                      {badges?.map((badge) => (
+                        <SelectItem key={badge.id} value={badge.id}>
+                          {badge.name} {badge.coins_reward > 0 && `(${badge.coins_reward} moedas)`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="auto_complete"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Conclusão Automática</FormLabel>
+                    <div className="text-sm text-muted-foreground">
+                      Concluir automaticamente a trilha quando todas as etapas forem finalizadas
+                    </div>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
