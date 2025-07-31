@@ -262,6 +262,7 @@ export type Database = {
           postal_code: string | null
           primary_color: string | null
           ranking_banner_url: string | null
+          spaces_banner_url: string | null
           state: string | null
           status: string | null
           store_banner_url: string | null
@@ -298,6 +299,7 @@ export type Database = {
           postal_code?: string | null
           primary_color?: string | null
           ranking_banner_url?: string | null
+          spaces_banner_url?: string | null
           state?: string | null
           status?: string | null
           store_banner_url?: string | null
@@ -334,6 +336,7 @@ export type Database = {
           postal_code?: string | null
           primary_color?: string | null
           ranking_banner_url?: string | null
+          spaces_banner_url?: string | null
           state?: string | null
           status?: string | null
           store_banner_url?: string | null
