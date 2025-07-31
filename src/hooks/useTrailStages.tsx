@@ -88,10 +88,29 @@ export const useCreateTrailStage = () => {
       order_index: number;
       guidance_text?: string;
       is_required?: boolean;
+      video_url?: string;
+      document_url?: string;
+      question?: string;
+      requires_response?: boolean;
+      response_type?: ResponseType;
+      response_options?: any;
+      allow_multiple_files?: boolean;
+      max_file_size_mb?: number;
+      allowed_file_types?: string[];
     }) => {
+      // Prepare the data for submission
+      const submitData = {
+        ...stageData,
+        response_type: stageData.response_type || 'text',
+        response_options: stageData.response_options || [],
+        allow_multiple_files: stageData.allow_multiple_files || false,
+        max_file_size_mb: stageData.max_file_size_mb || 10,
+        allowed_file_types: stageData.allowed_file_types || [],
+      };
+
       const { data, error } = await supabase
         .from('trail_stages')
-        .insert(stageData)
+        .insert(submitData)
         .select()
         .single();
 
