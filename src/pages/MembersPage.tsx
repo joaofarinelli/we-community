@@ -37,24 +37,6 @@ export const MembersPage = () => {
     return 'U';
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'owner': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
-      case 'admin': return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300';
-      case 'moderator': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
-    }
-  };
-
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'owner': return 'Proprietário';
-      case 'admin': return 'Administrador';
-      case 'moderator': return 'Moderador';
-      default: return 'Membro';
-    }
-  };
-
   const handleViewProfile = (userId: string) => {
     setSelectedUserId(userId);
     setShowUserProfile(true);
@@ -84,11 +66,6 @@ export const MembersPage = () => {
               </p>
             </div>
             
-            {member.role !== 'member' && (
-              <Badge variant="secondary" className={getRoleColor(member.role)}>
-                {getRoleLabel(member.role)}
-              </Badge>
-            )}
             <div className="flex items-center text-xs text-muted-foreground">
               <Calendar className="h-3 w-3 mr-1" />
               Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
@@ -165,8 +142,16 @@ export const MembersPage = () => {
                     {member.email}
                   </p>
                 </div>
-                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(member.created_at).toLocaleDateString('pt-BR')}
+                
+                 <div className="flex items-center space-x-2 ml-4">
+                   {member.role !== 'member' && (
+                     <Badge variant="secondary" className={getRoleColor(member.role)}>
+                       {getRoleLabel(member.role)}
+                     </Badge>
+                   )}
+                   <div className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(member.created_at).toLocaleDateString('pt-BR')}
+                  </div>
                 </div>
               </div>
             </div>
