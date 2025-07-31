@@ -58,7 +58,7 @@ export const TrailStagePlayerPage = () => {
 
     try {
       await completeStage.mutateAsync({ trailId, stageId: stage.id });
-      navigate(`/dashboard/trails/${trailId}`);
+      navigate(`/dashboard/trails/${trailId}/stages`);
     } catch (error) {
       console.error('Error completing stage:', error);
     }
@@ -69,7 +69,7 @@ export const TrailStagePlayerPage = () => {
       <DashboardLayout>
         <div className="space-y-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/trails/${trailId}`)}>
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/trails/${trailId}/stages`)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar
             </Button>
@@ -92,7 +92,7 @@ export const TrailStagePlayerPage = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/trails/${trailId}`)}>
+            <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/trails/${trailId}/stages`)}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar à Trilha
             </Button>
