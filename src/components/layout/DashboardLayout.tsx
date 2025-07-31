@@ -99,7 +99,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="hidden sm:block">
               <UserPointsBadge />
             </div>
-            <NotificationDropdown />
             <div className="hidden md:block">
               <ChatDialog />
             </div>

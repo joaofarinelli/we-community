@@ -48,7 +48,6 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
 
   return (
     <div className="flex items-center gap-2">
-      <NotificationDropdown />
       <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="cursor-pointer">
