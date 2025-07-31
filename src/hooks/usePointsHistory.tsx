@@ -31,7 +31,12 @@ export const getActionTypeLabel = (actionType: string): string => {
     'like_post': 'Curtiu um post',
     'comment_post': 'Comentou em um post',
     'receive_like': 'Recebeu uma curtida',
-    'receive_comment': 'Recebeu um comentário'
+    'receive_comment': 'Recebeu um comentário',
+    'undo_create_post': 'Desfez criação de post',
+    'undo_like_post': 'Removeu curtida de post',
+    'undo_comment_post': 'Removeu comentário de post',
+    'undo_receive_like': 'Perdeu uma curtida',
+    'undo_receive_comment': 'Perdeu um comentário'
   };
   
   return labels[actionType] || actionType;
@@ -43,7 +48,12 @@ export const getActionTypeIcon = (actionType: string): string => {
     'like_post': '👍',
     'comment_post': '💬',
     'receive_like': '❤️',
-    'receive_comment': '💭'
+    'receive_comment': '💭',
+    'undo_create_post': '🗑️',
+    'undo_like_post': '👎',
+    'undo_comment_post': '💬',
+    'undo_receive_like': '💔',
+    'undo_receive_comment': '😞'
   };
   
   return icons[actionType] || '⭐';

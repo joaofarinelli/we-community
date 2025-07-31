@@ -70,9 +70,35 @@ export const usePostInteractions = (postId: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['postInteractions', postId] });
+      queryClient.invalidateQueries({ queryKey: ['userCoins'] });
+      queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
     },
     onError: (error) => {
       toast.error('Erro ao remover interação');
+      console.error(error);
+    },
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: async (commentId: string) => {
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('post_interactions')
+        .delete()
+        .eq('id', commentId)
+        .eq('user_id', user.id)
+        .eq('type', 'comment');
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['postInteractions', postId] });
+      queryClient.invalidateQueries({ queryKey: ['userCoins'] });
+      queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
+    },
+    onError: (error) => {
+      toast.error('Erro ao deletar comentário');
       console.error(error);
     },
   });
@@ -100,5 +126,6 @@ export const usePostInteractions = (postId: string) => {
     isLoading,
     addInteraction,
     removeInteraction,
+    deleteComment,
   };
 };

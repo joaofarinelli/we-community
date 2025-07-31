@@ -21,6 +21,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
     userLiked,
     addInteraction,
     removeInteraction,
+    deleteComment,
   } = usePostInteractions(postId);
 
   const [showComments, setShowComments] = useState(false);
@@ -153,6 +154,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
                 comment={comment}
                 replies={comment.replies}
                 onReply={handleReply}
+                onDeleteComment={(commentId) => deleteComment.mutate(commentId)}
                 onStartReply={handleStartReply}
                 onCancelReply={handleCancelReply}
                 isReplying={!!replyingTo}

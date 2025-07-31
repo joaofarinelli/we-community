@@ -19,6 +19,8 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['allPosts'] });
       queryClient.invalidateQueries({ queryKey: ['spacePosts'] });
+      queryClient.invalidateQueries({ queryKey: ['userCoins'] });
+      queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
       toast({
         title: "Post deletado",
         description: "O post foi deletado com sucesso.",

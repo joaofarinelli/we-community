@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Reply, Send } from 'lucide-react';
+import { Reply, Send, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAuth } from '@/hooks/useAuth';
 
 interface CommentItemProps {
   comment: {
@@ -20,6 +21,7 @@ interface CommentItemProps {
   };
   replies?: CommentItemProps['comment'][];
   onReply: (parentId: string, text: string) => void;
+  onDeleteComment?: (commentId: string) => void;
   isReplying?: boolean;
   onStartReply?: (commentId: string) => void;
   onCancelReply?: () => void;
@@ -30,7 +32,8 @@ interface CommentItemProps {
 export const CommentItem = ({ 
   comment, 
   replies = [], 
-  onReply, 
+  onReply,
+  onDeleteComment,
   isReplying = false,
   onStartReply,
   onCancelReply,
@@ -38,6 +41,7 @@ export const CommentItem = ({
   level = 0
 }: CommentItemProps) => {
   const [replyText, setReplyText] = useState('');
+  const { user } = useAuth();
 
   const authorName = comment.profiles 
     ? `${comment.profiles.first_name} ${comment.profiles.last_name}`
@@ -81,17 +85,31 @@ export const CommentItem = ({
           
           <p className="text-sm">{comment.comment_text}</p>
           
-          {level < maxLevel && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => onStartReply?.(comment.id)}
-            >
-              <Reply className="h-3 w-3 mr-1" />
-              Responder
-            </Button>
-          )}
+          <div className="flex items-center space-x-3">
+            {level < maxLevel && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => onStartReply?.(comment.id)}
+              >
+                <Reply className="h-3 w-3 mr-1" />
+                Responder
+              </Button>
+            )}
+            
+            {user?.id === comment.user_id && onDeleteComment && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-auto p-0 text-xs text-muted-foreground hover:text-red-500"
+                onClick={() => onDeleteComment(comment.id)}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                Deletar
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -135,6 +153,7 @@ export const CommentItem = ({
               key={reply.id}
               comment={reply}
               onReply={onReply}
+              onDeleteComment={onDeleteComment}
               onStartReply={onStartReply}
               onCancelReply={onCancelReply}
               isReplying={isReplying}
