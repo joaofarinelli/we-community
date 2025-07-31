@@ -13,6 +13,7 @@ import { MultipleChoiceResponse } from '@/components/trails/responses/MultipleCh
 import { CheckboxResponse } from '@/components/trails/responses/CheckboxResponse';
 import { FileUploadResponse } from '@/components/trails/responses/FileUploadResponse';
 import { ImageUploadResponse } from '@/components/trails/responses/ImageUploadResponse';
+import { ScaleResponse } from '@/components/trails/responses/ScaleResponse';
 
 export const TrailStagePlayerPage = () => {
   const { trailId, stageId } = useParams<{ trailId: string; stageId: string }>();

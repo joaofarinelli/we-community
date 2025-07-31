@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
-export type ResponseType = 'text' | 'multiple_choice' | 'checkbox' | 'file_upload' | 'image_upload';
+export type ResponseType = 'text' | 'multiple_choice' | 'checkbox' | 'file_upload' | 'image_upload' | 'scale';
 
 export interface ResponseOption {
   id: string;
@@ -22,6 +22,7 @@ export interface TrailStage {
   guidance_text?: string;
   is_required: boolean;
   video_url?: string;
+  document_url?: string;
   question?: string;
   requires_response: boolean;
   response_type: ResponseType;

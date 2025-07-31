@@ -1868,6 +1868,7 @@ export type Database = {
           allowed_file_types: string[] | null
           created_at: string
           description: string | null
+          document_url: string | null
           guidance_text: string | null
           id: string
           is_required: boolean | null
@@ -1888,6 +1889,7 @@ export type Database = {
           allowed_file_types?: string[] | null
           created_at?: string
           description?: string | null
+          document_url?: string | null
           guidance_text?: string | null
           id?: string
           is_required?: boolean | null
@@ -1908,6 +1910,7 @@ export type Database = {
           allowed_file_types?: string[] | null
           created_at?: string
           description?: string | null
+          document_url?: string | null
           guidance_text?: string | null
           id?: string
           is_required?: boolean | null
