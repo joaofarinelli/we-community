@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target } from 'lucide-react';
+import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
@@ -112,6 +112,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               variant="ghost" 
               size="sm" 
               className="text-foreground hover:text-primary px-3"
+              onClick={() => navigate('/dashboard/trails')}
+            >
+              Trilhas
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-foreground hover:text-primary px-3"
               onClick={() => navigate('/dashboard/members')}
             >
               Membros
@@ -194,6 +202,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             onClick={() => navigate('/dashboard/spaces')}
           >
             <div className="text-xs">Espaços</div>
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2"
+            onClick={() => navigate('/dashboard/trails')}
+          >
+            <div className="text-xs">Trilhas</div>
           </Button>
           <Button 
             variant="ghost" 
