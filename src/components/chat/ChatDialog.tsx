@@ -69,6 +69,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
             <ChatMessageArea 
               conversationId={selectedConversationId}
               selectedConversation={selectedConversation}
+              onClose={() => setIsOpen(false)}
             />
           </div>
 
