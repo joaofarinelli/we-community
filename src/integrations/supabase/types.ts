@@ -1966,8 +1966,10 @@ export type Database = {
       }
       trails: {
         Row: {
+          auto_complete: boolean | null
           company_id: string
           completed_at: string | null
+          completion_badge_id: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -1982,8 +1984,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          auto_complete?: boolean | null
           company_id: string
           completed_at?: string | null
+          completion_badge_id?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -1998,8 +2002,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          auto_complete?: boolean | null
           company_id?: string
           completed_at?: string | null
+          completion_badge_id?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -2013,7 +2019,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_trails_completion_badge"
+            columns: ["completion_badge_id"]
+            isOneToOne: false
+            referencedRelation: "trail_badges"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_course_access: {
         Row: {

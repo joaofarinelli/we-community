@@ -13,12 +13,15 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useUpdateTrail } from '@/hooks/useTrails';
 import { TrailStagesManager } from './TrailStagesManager';
+import { useTrailBadges } from '@/hooks/useTrailProgress';
 
 const editTrailSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   description: z.string().optional(),
   status: z.enum(['active', 'paused', 'completed']),
   life_area: z.string().optional(),
+  completion_badge_id: z.string().optional(),
+  auto_complete: z.boolean().optional(),
 });
 
 type EditTrailFormData = z.infer<typeof editTrailSchema>;
@@ -29,6 +32,8 @@ interface Trail {
   description?: string;
   status: string;
   life_area?: string;
+  completion_badge_id?: string;
+  auto_complete?: boolean;
   user_id: string;
   profiles?: {
     first_name?: string;
@@ -58,6 +63,7 @@ const lifeAreas = [
 export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const updateTrail = useUpdateTrail();
+  const { data: badges } = useTrailBadges();
 
   const form = useForm<EditTrailFormData>({
     resolver: zodResolver(editTrailSchema),
@@ -66,6 +72,8 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
       description: '',
       status: 'active',
       life_area: 'none',
+      completion_badge_id: 'none',
+      auto_complete: true,
     },
   });
 
@@ -76,6 +84,8 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
         description: trail.description || '',
         status: trail.status as 'active' | 'paused' | 'completed',
         life_area: trail.life_area || 'none',
+        completion_badge_id: trail.completion_badge_id || 'none',
+        auto_complete: trail.auto_complete ?? true,
       });
     }
   }, [trail, open, form]);
@@ -88,6 +98,9 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
       const updateData = { ...data };
       if (updateData.life_area === 'none') {
         updateData.life_area = null;
+      }
+      if (updateData.completion_badge_id === 'none') {
+        updateData.completion_badge_id = null;
       }
       await updateTrail.mutateAsync({
         id: trail.id,
@@ -197,6 +210,53 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
                         </SelectContent>
                       </Select>
                       <FormMessage />
+                    </FormItem>
+                  )}
+                 />
+
+                <FormField
+                  control={form.control}
+                  name="completion_badge_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Selo de Conclusão</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione um selo para conclusão" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">Nenhum selo</SelectItem>
+                          {badges?.map((badge) => (
+                            <SelectItem key={badge.id} value={badge.id}>
+                              {badge.name} {badge.coins_reward > 0 && `(${badge.coins_reward} moedas)`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="auto_complete"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Conclusão Automática</FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Concluir automaticamente a trilha quando todas as etapas forem finalizadas
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
                     </FormItem>
                   )}
                 />

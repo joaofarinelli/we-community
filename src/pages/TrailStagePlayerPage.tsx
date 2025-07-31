@@ -14,15 +14,22 @@ import { CheckboxResponse } from '@/components/trails/responses/CheckboxResponse
 import { FileUploadResponse } from '@/components/trails/responses/FileUploadResponse';
 import { ImageUploadResponse } from '@/components/trails/responses/ImageUploadResponse';
 import { ScaleResponse } from '@/components/trails/responses/ScaleResponse';
+import { useConfetti } from '@/hooks/useConfetti';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
 
 export const TrailStagePlayerPage = () => {
   const { trailId, stageId } = useParams<{ trailId: string; stageId: string }>();
   const navigate = useNavigate();
   const [responseText, setResponseText] = useState('');
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+  const { triggerTrailCompletionConfetti } = useConfetti();
 
   const { data: stages } = useTrailStages(trailId);
   const { data: progress } = useTrailProgress(trailId);
-  const { data: existingResponse } = useStageResponse(trailId || '', stageId || '');
+  const { data: existingResponse, refetch: refetchResponse } = useStageResponse(trailId || '', stageId || '');
   const createResponse = useCreateTrailStageResponse();
   const updateResponse = useUpdateTrailStageResponse();
   const completeStage = useCompleteTrailStage();
@@ -36,6 +43,63 @@ export const TrailStagePlayerPage = () => {
       setResponseText(existingResponse.response_text);
     }
   }, [existingResponse]);
+
+  // Real-time listener for trail stage responses
+  useEffect(() => {
+    if (!user?.id || !currentCompanyId || !trailId || !stageId) return;
+
+    const channel = supabase
+      .channel('trail-stage-responses')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'trail_stage_responses',
+          filter: `stage_id=eq.${stageId}`,
+        },
+        () => {
+          // Refetch response data when it changes
+          refetchResponse();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, currentCompanyId, trailId, stageId, refetchResponse]);
+
+  // Real-time listener for trail completion notifications
+  useEffect(() => {
+    if (!user?.id || !currentCompanyId) return;
+
+    const channel = supabase
+      .channel('trail-notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const notification = payload.new;
+          if (notification.type === 'trail_completed' && notification.reference_id === trailId) {
+            // Trigger confetti when trail is completed
+            setTimeout(() => {
+              triggerTrailCompletionConfetti();
+            }, 500);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, currentCompanyId, trailId, triggerTrailCompletionConfetti]);
 
   const handleSubmitResponse = async (data: {
     responseText?: string;
