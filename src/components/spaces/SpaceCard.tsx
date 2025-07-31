@@ -69,28 +69,28 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
   return (
     <Card 
       className={cn(
-        "group cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-border bg-card",
+        "group cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border-border bg-card w-full h-full flex flex-col overflow-hidden",
         className
       )}
       onClick={onClick}
     >
-      <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4 md:p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+      <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4 flex-shrink-0">
+        <div className="flex items-start justify-between gap-2 min-h-0">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
             <div className="flex-shrink-0">
               {renderSpaceIcon(
                 space.type,
                 space.custom_icon_type,
                 space.custom_icon_value,
-                "h-6 w-6 sm:h-8 sm:w-8"
+                "h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8"
               )}
             </div>
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-sm sm:text-base md:text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <CardTitle className="text-sm sm:text-base font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                 {space.name}
               </CardTitle>
               {space.space_categories && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
                   {space.space_categories.name}
                 </p>
               )}
@@ -99,81 +99,95 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 space-y-3 sm:space-y-4 p-3 sm:p-4 md:p-6">
+      <CardContent className="pt-0 space-y-3 sm:space-y-4 p-3 sm:p-4 flex-1 flex flex-col min-h-0">
+        {/* Description */}
         {space.description && (
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-            {space.description}
-          </p>
+          <div className="flex-shrink-0">
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 break-words">
+              {space.description}
+            </p>
+          </div>
         )}
         
         {/* Badges */}
-        <div className="flex flex-wrap gap-1 sm:gap-2">
+        <div className="flex flex-wrap gap-1 sm:gap-2 flex-shrink-0">
           <Badge 
             variant="secondary" 
-            className={cn("text-xs", getVisibilityColor())}
+            className={cn("text-xs flex items-center gap-1 px-2 py-0.5", getVisibilityColor())}
           >
-            {getVisibilityIcon()}
-            <span className="ml-1 capitalize">{space.visibility}</span>
+            <span className="flex-shrink-0">{getVisibilityIcon()}</span>
+            <span className="capitalize truncate max-w-[60px] sm:max-w-none">
+              {space.visibility}
+            </span>
           </Badge>
           
           {userRole !== 'member' && (
             <Badge 
               variant="secondary"
-              className={cn("text-xs", getRoleColor())}
+              className={cn("text-xs px-2 py-0.5", getRoleColor())}
             >
-              {userRole === 'admin' ? 'Admin' : 'Moderador'}
+              <span className="truncate">
+                {userRole === 'admin' ? 'Admin' : 'Moderador'}
+              </span>
             </Badge>
           )}
         </div>
         
+        {/* Spacer to push member count and actions to bottom */}
+        <div className="flex-1"></div>
+        
         {/* Member count and actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+        <div className="flex flex-col gap-2 sm:gap-3 flex-shrink-0">
           <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
-            <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
+            <Users className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="truncate">
+              {memberCount} {memberCount === 1 ? 'membro' : 'membros'}
+            </span>
           </div>
           
-          <div className="flex items-center gap-1 sm:gap-2">
-            {showJoinLeave && space.visibility === 'public' && (
-              <>
-                {isMember ? (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      leaveSpace.mutate(space.id);
-                    }}
-                    disabled={leaveSpace.isPending}
-                    className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
-                  >
-                    <UserMinus className="h-3 w-3 mr-1" />
-                    <span className="hidden sm:inline">Sair</span>
-                  </Button>
-                ) : (
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      joinSpace.mutate(space.id);
-                    }}
-                    disabled={joinSpace.isPending}
-                    className="h-7 sm:h-8 px-2 sm:px-3 text-xs"
-                  >
-                    <UserPlus className="h-3 w-3 mr-1" />
-                    <span className="hidden sm:inline">Entrar</span>
-                  </Button>
-                )}
-              </>
-            )}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+              {showJoinLeave && space.visibility === 'public' && (
+                <>
+                  {isMember ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        leaveSpace.mutate(space.id);
+                      }}
+                      disabled={leaveSpace.isPending}
+                      className="h-7 sm:h-8 px-2 sm:px-3 text-xs flex-shrink-0"
+                    >
+                      <UserMinus className="h-3 w-3 sm:mr-1" />
+                      <span className="hidden sm:inline ml-1">Sair</span>
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        joinSpace.mutate(space.id);
+                      }}
+                      disabled={joinSpace.isPending}
+                      className="h-7 sm:h-8 px-2 sm:px-3 text-xs flex-shrink-0"
+                    >
+                      <UserPlus className="h-3 w-3 sm:mr-1" />
+                      <span className="hidden sm:inline ml-1">Entrar</span>
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
             
             <Button 
               size="sm" 
               variant="ghost"
-              className="h-7 sm:h-8 px-2 sm:px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+              className="h-7 sm:h-8 px-2 sm:px-3 text-xs group-hover:bg-primary group-hover:text-primary-foreground transition-colors flex-shrink-0"
             >
-              Acessar
+              <span className="truncate">Acessar</span>
             </Button>
           </div>
         </div>
