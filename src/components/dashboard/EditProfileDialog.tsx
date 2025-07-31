@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useForm } from 'react-hook-form';
@@ -12,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useCustomProfileFields, useUserCustomProfileData, useUpdateUserCustomProfileData } from '@/hooks/useCustomProfileFields';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -36,9 +38,13 @@ interface EditProfileDialogProps {
 export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps) => {
   const { user } = useAuth();
   const { data: userProfile, isLoading } = useUserProfile();
+  const { data: customFields = [] } = useCustomProfileFields();
+  const { data: customData = [] } = useUserCustomProfileData();
+  const updateCustomData = useUpdateUserCustomProfileData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -74,6 +80,16 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       });
     }
   }, [userProfile, reset]);
+
+  // Initialize custom field values
+  useEffect(() => {
+    const initialValues: Record<string, string> = {};
+    customFields.forEach(field => {
+      const userData = customData.find(data => data.field_id === field.id);
+      initialValues[field.id] = userData?.field_value || '';
+    });
+    setCustomFieldValues(initialValues);
+  }, [customFields, customData]);
 
   const showEmailToOthers = watch('show_email_to_others');
   const showCoinsToOthers = watch('show_coins_to_others');
@@ -146,8 +162,19 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
 
       if (error) throw error;
 
+      // Update custom fields data
+      const customUpdates = Object.entries(customFieldValues).map(([fieldId, value]) => ({
+        field_id: fieldId,
+        field_value: value || null,
+      }));
+
+      if (customUpdates.length > 0) {
+        await updateCustomData.mutateAsync(customUpdates);
+      }
+
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data'] });
       
       toast({
         title: 'Perfil atualizado',
@@ -297,6 +324,91 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
               </div>
             </CardContent>
           </Card>
+
+          {/* Custom Fields */}
+          {customFields.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações Adicionais</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {customFields.map((field) => (
+                  <div key={field.id}>
+                    <Label htmlFor={field.field_name}>
+                      {field.field_label}
+                      {field.is_required && <span className="text-destructive ml-1">*</span>}
+                    </Label>
+                    {field.field_type === 'text' && (
+                      <Input
+                        id={field.field_name}
+                        value={customFieldValues[field.id] || ''}
+                        onChange={(e) => setCustomFieldValues(prev => ({
+                          ...prev,
+                          [field.id]: e.target.value
+                        }))}
+                        placeholder={`Digite ${field.field_label.toLowerCase()}`}
+                      />
+                    )}
+                    {field.field_type === 'textarea' && (
+                      <Textarea
+                        id={field.field_name}
+                        value={customFieldValues[field.id] || ''}
+                        onChange={(e) => setCustomFieldValues(prev => ({
+                          ...prev,
+                          [field.id]: e.target.value
+                        }))}
+                        placeholder={`Digite ${field.field_label.toLowerCase()}`}
+                        rows={3}
+                      />
+                    )}
+                    {field.field_type === 'select' && (
+                      <Select
+                        value={customFieldValues[field.id] || ''}
+                        onValueChange={(value) => setCustomFieldValues(prev => ({
+                          ...prev,
+                          [field.id]: value
+                        }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={`Selecione ${field.field_label.toLowerCase()}`} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {((field.field_options as any)?.options || []).map((option: string) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {field.field_type === 'number' && (
+                      <Input
+                        id={field.field_name}
+                        type="number"
+                        value={customFieldValues[field.id] || ''}
+                        onChange={(e) => setCustomFieldValues(prev => ({
+                          ...prev,
+                          [field.id]: e.target.value
+                        }))}
+                        placeholder={`Digite ${field.field_label.toLowerCase()}`}
+                      />
+                    )}
+                    {field.field_type === 'date' && (
+                      <Input
+                        id={field.field_name}
+                        type="date"
+                        value={customFieldValues[field.id] || ''}
+                        onChange={(e) => setCustomFieldValues(prev => ({
+                          ...prev,
+                          [field.id]: e.target.value
+                        }))}
+                      />
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Privacy Settings */}
           <Card>
