@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from './UserAvatar';
 import { UserProfileDialog } from './UserProfileDialog';
+import { EditProfileDialog } from './EditProfileDialog';
 import { NotificationDropdown } from './NotificationDropdown';
 import {
   DropdownMenu,
@@ -24,14 +25,14 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
   const navigate = useNavigate();
   const { signOut } = useAuth();
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const handleViewProfile = () => {
     setProfileDialogOpen(true);
   };
 
   const handleEditProfile = () => {
-    // Por enquanto, vamos abrir o mesmo dialog - pode ser melhorado para um modo de edição
-    setProfileDialogOpen(true);
+    setEditDialogOpen(true);
   };
 
   const handleSignOut = async () => {
@@ -91,6 +92,11 @@ export function UserDropdown({ name, email, imageUrl, size = 'md' }: UserDropdow
       <UserProfileDialog 
         open={profileDialogOpen} 
         onOpenChange={setProfileDialogOpen} 
+      />
+      
+      <EditProfileDialog 
+        open={editDialogOpen} 
+        onOpenChange={setEditDialogOpen} 
       />
     </DropdownMenu>
     </div>
