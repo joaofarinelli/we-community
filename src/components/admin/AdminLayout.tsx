@@ -65,6 +65,7 @@ const mainMenuItems = [
     key: 'trails',
     subItems: [
       { label: 'Gerenciar trilhas', path: '/admin/trails' },
+      { label: 'Selos de trilhas', path: '/admin/trail-badges' },
     ]
   },
   {

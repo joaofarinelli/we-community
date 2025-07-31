@@ -1604,6 +1604,7 @@ export type Database = {
       }
       trail_badges: {
         Row: {
+          background_color: string | null
           badge_type: string
           coins_reward: number | null
           color: string
@@ -1611,6 +1612,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          icon_color: string | null
           icon_name: string
           id: string
           is_active: boolean | null
@@ -1618,6 +1620,7 @@ export type Database = {
           name: string
         }
         Insert: {
+          background_color?: string | null
           badge_type: string
           coins_reward?: number | null
           color: string
@@ -1625,6 +1628,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          icon_color?: string | null
           icon_name: string
           id?: string
           is_active?: boolean | null
@@ -1632,6 +1636,7 @@ export type Database = {
           name: string
         }
         Update: {
+          background_color?: string | null
           badge_type?: string
           coins_reward?: number | null
           color?: string
@@ -1639,6 +1644,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          icon_color?: string | null
           icon_name?: string
           id?: string
           is_active?: boolean | null

@@ -52,6 +52,7 @@ import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
 import SuperAdminManagement from "./pages/super-admin/SuperAdminManagement";
 import { TrailsPage } from "./pages/TrailsPage";
 import { AdminTrailsPage } from "./pages/admin/AdminTrailsPage";
+import AdminTrailBadgesPage from "./pages/admin/AdminTrailBadgesPage";
 import { TrailStagesPage } from "./pages/TrailStagesPage";
 import { TrailStagePlayerPage } from "./pages/TrailStagePlayerPage";
 import NotFound from "./pages/NotFound";
@@ -110,6 +111,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
         <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
         <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
+        <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
