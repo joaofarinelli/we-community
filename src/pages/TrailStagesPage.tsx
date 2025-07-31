@@ -165,7 +165,7 @@ export const TrailStagesPage = () => {
                           {isNext && (
                             <Button 
                               size="sm" 
-                              onClick={() => handleStageClick(stage)}
+                              onClick={() => navigate(`/dashboard/trails/${trailId}/stage/${stage.id}`)}
                             >
                               Iniciar Etapa
                             </Button>
