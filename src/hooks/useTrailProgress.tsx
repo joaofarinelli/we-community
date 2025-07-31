@@ -70,11 +70,17 @@ export const useCompleteTrailStage = () => {
       if (error) throw error;
 
       // Calculate trail progress
-      const { error: progressError } = await supabase.rpc('calculate_trail_progress', {
+      console.log('Calling calculate_trail_progress for trail:', trailId);
+      const { data: progressResult, error: progressError } = await supabase.rpc('calculate_trail_progress', {
         p_trail_id: trailId
       });
 
-      if (progressError) throw progressError;
+      console.log('Trail progress calculation result:', progressResult, progressError);
+      
+      if (progressError) {
+        console.error('Error calculating trail progress:', progressError);
+        throw progressError;
+      }
 
       return data;
     },
