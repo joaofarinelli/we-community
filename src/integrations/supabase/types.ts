@@ -1805,7 +1805,9 @@ export type Database = {
         Row: {
           company_id: string
           created_at: string
+          file_urls: string[] | null
           id: string
+          response_data: Json | null
           response_text: string
           stage_id: string
           trail_id: string
@@ -1815,7 +1817,9 @@ export type Database = {
         Insert: {
           company_id: string
           created_at?: string
+          file_urls?: string[] | null
           id?: string
+          response_data?: Json | null
           response_text: string
           stage_id: string
           trail_id: string
@@ -1825,7 +1829,9 @@ export type Database = {
         Update: {
           company_id?: string
           created_at?: string
+          file_urls?: string[] | null
           id?: string
+          response_data?: Json | null
           response_text?: string
           stage_id?: string
           trail_id?: string
@@ -1858,45 +1864,60 @@ export type Database = {
       }
       trail_stages: {
         Row: {
+          allow_multiple_files: boolean | null
+          allowed_file_types: string[] | null
           created_at: string
           description: string | null
           guidance_text: string | null
           id: string
           is_required: boolean | null
+          max_file_size_mb: number | null
           name: string
           order_index: number
           question: string | null
           requires_response: boolean
+          response_options: Json | null
+          response_type: string | null
           template_id: string | null
           trail_id: string | null
           updated_at: string
           video_url: string | null
         }
         Insert: {
+          allow_multiple_files?: boolean | null
+          allowed_file_types?: string[] | null
           created_at?: string
           description?: string | null
           guidance_text?: string | null
           id?: string
           is_required?: boolean | null
+          max_file_size_mb?: number | null
           name: string
           order_index?: number
           question?: string | null
           requires_response?: boolean
+          response_options?: Json | null
+          response_type?: string | null
           template_id?: string | null
           trail_id?: string | null
           updated_at?: string
           video_url?: string | null
         }
         Update: {
+          allow_multiple_files?: boolean | null
+          allowed_file_types?: string[] | null
           created_at?: string
           description?: string | null
           guidance_text?: string | null
           id?: string
           is_required?: boolean | null
+          max_file_size_mb?: number | null
           name?: string
           order_index?: number
           question?: string | null
           requires_response?: boolean
+          response_options?: Json | null
+          response_type?: string | null
           template_id?: string | null
           trail_id?: string | null
           updated_at?: string

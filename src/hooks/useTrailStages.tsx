@@ -4,6 +4,14 @@ import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
+export type ResponseType = 'text' | 'multiple_choice' | 'checkbox' | 'file_upload' | 'image_upload';
+
+export interface ResponseOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
 export interface TrailStage {
   id: string;
   trail_id?: string;
@@ -13,9 +21,30 @@ export interface TrailStage {
   order_index: number;
   guidance_text?: string;
   is_required: boolean;
+  video_url?: string;
+  question?: string;
+  requires_response: boolean;
+  response_type: ResponseType;
+  response_options: any; // Will be parsed from JSONB
+  allow_multiple_files: boolean;
+  max_file_size_mb: number;
+  allowed_file_types: string[];
   created_at: string;
   updated_at: string;
 }
+
+// Helper function to parse response options
+export const parseResponseOptions = (options: any): ResponseOption[] => {
+  if (!options) return [];
+  if (typeof options === 'string') {
+    try {
+      return JSON.parse(options);
+    } catch {
+      return [];
+    }
+  }
+  return Array.isArray(options) ? options : [];
+};
 
 export const useTrailStages = (trailId?: string, templateId?: string) => {
   const { user } = useAuth();

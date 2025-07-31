@@ -6,9 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { useTrailStages } from '@/hooks/useTrailStages';
+import { useTrailStages, parseResponseOptions } from '@/hooks/useTrailStages';
 import { useTrailProgress, useCompleteTrailStage } from '@/hooks/useTrailProgress';
 import { useStageResponse, useCreateTrailStageResponse, useUpdateTrailStageResponse } from '@/hooks/useTrailStageResponses';
+import { MultipleChoiceResponse } from '@/components/trails/responses/MultipleChoiceResponse';
+import { CheckboxResponse } from '@/components/trails/responses/CheckboxResponse';
+import { FileUploadResponse } from '@/components/trails/responses/FileUploadResponse';
+import { ImageUploadResponse } from '@/components/trails/responses/ImageUploadResponse';
 
 export const TrailStagePlayerPage = () => {
   const { trailId, stageId } = useParams<{ trailId: string; stageId: string }>();
@@ -32,25 +36,34 @@ export const TrailStagePlayerPage = () => {
     }
   }, [existingResponse]);
 
-  const handleSubmitResponse = async () => {
-    if (!stage || !responseText.trim() || !trailId) return;
+  const handleSubmitResponse = async (data: {
+    responseText?: string;
+    responseData?: any;
+    fileUrls?: string[];
+  }) => {
+    if (!stage || !trailId) return;
 
     try {
       if (hasExistingResponse) {
         await updateResponse.mutateAsync({
           responseId: existingResponse.id,
-          responseText: responseText.trim(),
+          ...data,
         });
       } else {
         await createResponse.mutateAsync({
           trailId,
           stageId: stage.id,
-          responseText: responseText.trim(),
+          ...data,
         });
       }
     } catch (error) {
       console.error('Error submitting response:', error);
     }
+  };
+
+  const handleTextSubmitResponse = async () => {
+    if (!responseText.trim()) return;
+    await handleSubmitResponse({ responseText: responseText.trim() });
   };
 
   const handleCompleteStage = async () => {
@@ -156,36 +169,83 @@ export const TrailStagePlayerPage = () => {
 
         {/* Response Section */}
         {stage.requires_response && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Sua Resposta</CardTitle>
-              {stage.question && (
-                <p className="text-muted-foreground">{stage.question}</p>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="Digite sua resposta aqui..."
-                value={responseText}
-                onChange={(e) => setResponseText(e.target.value)}
-                rows={8}
-                className="min-h-[200px]"
+          <>
+            {stage.response_type === 'text' && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Sua Resposta</CardTitle>
+                  {stage.question && (
+                    <p className="text-muted-foreground">{stage.question}</p>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Digite sua resposta aqui..."
+                    value={responseText}
+                    onChange={(e) => setResponseText(e.target.value)}
+                    rows={8}
+                    className="min-h-[200px]"
+                  />
+                  <Button
+                    onClick={handleTextSubmitResponse}
+                    disabled={!responseText.trim() || createResponse.isPending || updateResponse.isPending}
+                    className="flex items-center gap-2"
+                  >
+                    <Send className="h-4 w-4" />
+                    {createResponse.isPending || updateResponse.isPending
+                      ? 'Salvando...'
+                      : hasExistingResponse
+                      ? 'Atualizar Resposta'
+                      : 'Enviar Resposta'
+                    }
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {stage.response_type === 'multiple_choice' && (
+              <MultipleChoiceResponse
+                question={stage.question || ''}
+                options={parseResponseOptions(stage.response_options)}
+                existingResponse={existingResponse}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={createResponse.isPending || updateResponse.isPending}
               />
-              <Button
-                onClick={handleSubmitResponse}
-                disabled={!responseText.trim() || createResponse.isPending || updateResponse.isPending}
-                className="flex items-center gap-2"
-              >
-                <Send className="h-4 w-4" />
-                {createResponse.isPending || updateResponse.isPending
-                  ? 'Salvando...'
-                  : hasExistingResponse
-                  ? 'Atualizar Resposta'
-                  : 'Enviar Resposta'
-                }
-              </Button>
-            </CardContent>
-          </Card>
+            )}
+
+            {stage.response_type === 'checkbox' && (
+              <CheckboxResponse
+                question={stage.question || ''}
+                options={parseResponseOptions(stage.response_options)}
+                existingResponse={existingResponse}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={createResponse.isPending || updateResponse.isPending}
+              />
+            )}
+
+            {stage.response_type === 'file_upload' && (
+              <FileUploadResponse
+                question={stage.question || ''}
+                allowMultipleFiles={stage.allow_multiple_files}
+                maxFileSizeMB={stage.max_file_size_mb}
+                allowedFileTypes={stage.allowed_file_types || []}
+                existingResponse={existingResponse}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={createResponse.isPending || updateResponse.isPending}
+              />
+            )}
+
+            {stage.response_type === 'image_upload' && (
+              <ImageUploadResponse
+                question={stage.question || ''}
+                allowMultipleFiles={stage.allow_multiple_files}
+                maxFileSizeMB={stage.max_file_size_mb}
+                existingResponse={existingResponse}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={createResponse.isPending || updateResponse.isPending}
+              />
+            )}
+          </>
         )}
 
         {/* Complete Button */}

@@ -11,6 +11,8 @@ export interface TrailStageResponse {
   user_id: string;
   company_id: string;
   response_text: string;
+  response_data: any; // JSON data for complex responses
+  file_urls: string[]; // Array of uploaded file URLs
   created_at: string;
   updated_at: string;
 }
@@ -58,7 +60,9 @@ export const useCreateTrailStageResponse = () => {
     mutationFn: async (data: {
       trailId: string;
       stageId: string;
-      responseText: string;
+      responseText?: string;
+      responseData?: any;
+      fileUrls?: string[];
     }) => {
       if (!user?.id || !company?.id) {
         throw new Error('User or company not found');
@@ -71,7 +75,9 @@ export const useCreateTrailStageResponse = () => {
           stage_id: data.stageId,
           user_id: user.id,
           company_id: company.id,
-          response_text: data.responseText,
+          response_text: data.responseText || '',
+          response_data: data.responseData || {},
+          file_urls: data.fileUrls || [],
         })
         .select()
         .single();
@@ -106,18 +112,25 @@ export const useUpdateTrailStageResponse = () => {
   return useMutation({
     mutationFn: async (data: {
       responseId: string;
-      responseText: string;
+      responseText?: string;
+      responseData?: any;
+      fileUrls?: string[];
     }) => {
       if (!user?.id || !company?.id) {
         throw new Error('User or company not found');
       }
 
+      const updateData: any = {
+        updated_at: new Date().toISOString(),
+      };
+
+      if (data.responseText !== undefined) updateData.response_text = data.responseText;
+      if (data.responseData !== undefined) updateData.response_data = data.responseData;
+      if (data.fileUrls !== undefined) updateData.file_urls = data.fileUrls;
+
       const { data: response, error } = await supabase
         .from('trail_stage_responses')
-        .update({
-          response_text: data.responseText,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', data.responseId)
         .eq('user_id', user.id)
         .eq('company_id', company.id)
