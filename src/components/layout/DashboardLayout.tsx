@@ -103,9 +103,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <ChatDialog />
             </div>
             <div className="hidden md:block">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Bell className="h-4 w-4" />
-              </Button>
+              <NotificationDropdown />
             </div>
             <div className="hidden md:block">
               <StreakDialog>
