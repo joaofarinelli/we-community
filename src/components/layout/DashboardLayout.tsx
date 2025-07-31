@@ -90,42 +90,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             )}
           </div>
 
-          {/* Center - Navigation */}
-          <nav className="hidden xl:flex items-center space-x-4 2xl:space-x-6">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-foreground hover:text-primary px-3"
-              onClick={() => navigate('/dashboard')}
-            >
-              Feed
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-foreground hover:text-primary px-3"
-              onClick={() => navigate('/dashboard/spaces')}
-            >
-              Espaços
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-foreground hover:text-primary px-3"
-              onClick={() => navigate('/dashboard/trails')}
-            >
-              Trilhas
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-foreground hover:text-primary px-3"
-              onClick={() => navigate('/dashboard/members')}
-            >
-              Membros
-            </Button>
-          </nav>
-
           {/* Right side */}
           <div className="flex items-center space-x-1 sm:space-x-2 flex-1 justify-end min-w-0">
             {/* Search Bar - responsive width */}
