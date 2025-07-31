@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Rss, BookOpen, ShoppingBag, Target, Wallet, Store, Trophy, Map, Grid3X3 } from 'lucide-react';
+import { Rss, BookOpen, ShoppingBag, Target, Wallet, Store, Trophy, Map, Grid3X3, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 
@@ -69,6 +69,22 @@ export function CircleSidebar({
           >
             <Map className="h-5 w-5 mr-3" />
             Trilhas
+          </Button>
+        </div>
+
+        {/* Membros */}
+        <div>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
+              location.pathname.startsWith('/dashboard/members') 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => navigate('/dashboard/members')}
+          >
+            <Users className="h-5 w-5 mr-3" />
+            Membros
           </Button>
         </div>
 
