@@ -37,6 +37,7 @@ export const MembersPage = () => {
     return 'U';
   };
 
+
   const handleViewProfile = (userId: string) => {
     setSelectedUserId(userId);
     setShowUserProfile(true);
@@ -104,11 +105,6 @@ export const MembersPage = () => {
               <p className="text-sm text-muted-foreground">
                 {member.email}
                </p>
-               {member.role !== 'member' && (
-                 <Badge variant="secondary" className={getRoleColor(member.role)}>
-                   {getRoleLabel(member.role)}
-                 </Badge>
-               )}
              </div>
 
             <div className="text-xs text-muted-foreground">
