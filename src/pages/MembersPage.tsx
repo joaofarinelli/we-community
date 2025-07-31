@@ -11,7 +11,6 @@ import { useCompanyMembers } from '@/hooks/useCompanyMembers';
 import { Search, Users, Grid, List, Filter, User, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { PageBanner } from '@/components/ui/page-banner';
 
 export const MembersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -166,13 +165,7 @@ export const MembersPage = () => {
                     {member.email}
                   </p>
                 </div>
-                
-                 <div className="flex items-center space-x-2 ml-4">
-                   {member.role !== 'member' && (
-                     <Badge variant="secondary" className={getRoleColor(member.role)}>
-                       {getRoleLabel(member.role)}
-                     </Badge>
-                   )}
+
                    <div className="text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(member.created_at).toLocaleDateString('pt-BR')}
                   </div>
@@ -188,8 +181,6 @@ export const MembersPage = () => {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
-        <PageBanner bannerType="members" />
-        
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
