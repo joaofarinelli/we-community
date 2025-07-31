@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
+import { PageBanner } from '@/components/ui/page-banner';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
 import { Search, Users, Grid, List, Filter, User, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -151,6 +152,7 @@ export const MembersPage = () => {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
+        <PageBanner bannerType="members" />
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
