@@ -1,45 +1,7 @@
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ExternalLink, Video, Plus, ChevronDown, ChevronRight, Trophy, Rss, BookOpen, ShoppingBag, Target, Wallet, MoreHorizontal, Edit2, Trash2, Store } from 'lucide-react';
+import { Rss, BookOpen, ShoppingBag, Target, Wallet, Store, Trophy, Map, Grid3X3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useSpaceCategories } from '@/hooks/useSpaceCategories';
-import { useUserSpaces } from '@/hooks/useUserSpaces';
-import { useCreateSpace } from '@/hooks/useCreateSpace';
-import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { useReorderSpaces } from '@/hooks/useReorderSpaces';
-import { useReorderCategories } from '@/hooks/useReorderCategories';
-import { useCreateCategory } from '@/hooks/useCreateCategory';
-import { useEditCategory } from '@/hooks/useEditCategory';
-import { useDeleteCategory } from '@/hooks/useDeleteCategory';
-import { renderSpaceIcon } from '@/lib/spaceUtils';
-import { SpaceTypeSelectionDialog } from './SpaceTypeSelectionDialog';
-import { SpaceConfigurationDialog } from './SpaceConfigurationDialog';
-import { CreateCategoryDialog } from './CreateCategoryDialog';
-import { EditCategoryDialog } from './EditCategoryDialog';
 import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import {
-  useSortable,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface CircleSidebarProps {
   onClose?: () => void;
@@ -50,11 +12,6 @@ export function CircleSidebar({
 }: CircleSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    data: categories = []
-  } = useSpaceCategories();
-  const { toggleCategory, isCategoryExpanded, updateExpandedCategories, isLoading } = useUserPreferences();
-  const reorderCategories = useReorderCategories();
   
   // Feature flags
   const isRankingEnabled = useIsFeatureEnabled('ranking');
@@ -63,83 +20,55 @@ export function CircleSidebar({
   const isBankEnabled = useIsFeatureEnabled('bank');
   const isChallengesEnabled = useIsFeatureEnabled('challenges');
 
-  const categorySensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const {
-    isTypeSelectionOpen,
-    isConfigurationOpen,
-    selectedType,
-    selectedCategoryId,
-    isCreating,
-    openTypeSelection,
-    selectTypeAndProceed,
-    closeAllDialogs,
-    createSpace
-  } = useCreateSpace();
-
-  const {
-    isOpen: isCategoryDialogOpen,
-    setIsOpen: setCategoryDialogOpen,
-    createCategory,
-    isLoading: isCreatingCategory
-  } = useCreateCategory();
-
-  const { editingCategory, setEditingCategory } = useEditCategory();
-  const { deleteCategory } = useDeleteCategory();
-  const [deletingCategory, setDeletingCategory] = useState<any>(null);
-
-  const openCategoryDialog = () => setCategoryDialogOpen(true);
-  const closeCategoryDialog = () => setCategoryDialogOpen(false);
-
-  const handleCategoryDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    const oldIndex = categories.findIndex(cat => cat.id === active.id);
-    const newIndex = categories.findIndex(cat => cat.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reorderedCategories = arrayMove(categories, oldIndex, newIndex);
-
-    const categoryUpdates = reorderedCategories.map((category, index) => ({
-      id: category.id,
-      order_index: index,
-    }));
-
-    reorderCategories.mutate({ categoryUpdates });
-  };
-
   return (
     <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
       {/* Content */}
-      <div className="flex-1 p-6 space-y-1">
+      <div className="flex-1 p-6 space-y-2">
         {/* Feed */}
         <div>
           <Button 
             variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
               location.pathname === '/dashboard' 
                 ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'hover:bg-muted/50'
             }`}
             onClick={() => navigate('/dashboard')}
           >
-            <Rss className="h-4 w-4 mr-2" />
+            <Rss className="h-5 w-5 mr-3" />
             Feed
+          </Button>
+        </div>
+
+        {/* Espaços */}
+        <div>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
+              location.pathname.startsWith('/dashboard/spaces') 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => navigate('/dashboard/spaces')}
+          >
+            <Grid3X3 className="h-5 w-5 mr-3" />
+            Espaços
+          </Button>
+        </div>
+
+        {/* Trilhas */}
+        <div>
+          <Button 
+            variant="ghost" 
+            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
+              location.pathname.startsWith('/dashboard/trails') 
+                ? 'bg-primary text-primary-foreground shadow-sm' 
+                : 'hover:bg-muted/50'
+            }`}
+            onClick={() => navigate('/dashboard/trails')}
+          >
+            <Map className="h-5 w-5 mr-3" />
+            Trilhas
           </Button>
         </div>
 
@@ -148,14 +77,14 @@ export function CircleSidebar({
           <div>
             <Button 
               variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
                 location.pathname === '/dashboard/ranking' 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'hover:bg-muted/50'
               }`}
               onClick={() => navigate('/dashboard/ranking')}
             >
-              <Trophy className="h-4 w-4 mr-2" />
+              <Trophy className="h-5 w-5 mr-3" />
               Ranking
             </Button>
           </div>
@@ -165,14 +94,14 @@ export function CircleSidebar({
         <div>
           <Button 
             variant="ghost" 
-            className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
               location.pathname.startsWith('/courses') 
                 ? 'bg-primary text-primary-foreground shadow-sm' 
                 : 'hover:bg-muted/50'
             }`}
             onClick={() => navigate('/courses')}
           >
-            <BookOpen className="h-4 w-4 mr-2" />
+            <BookOpen className="h-5 w-5 mr-3" />
             Cursos
           </Button>
         </div>
@@ -182,14 +111,14 @@ export function CircleSidebar({
           <div>
             <Button 
               variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
                 location.pathname.startsWith('/dashboard/marketplace') 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'hover:bg-muted/50'
               }`}
               onClick={() => navigate('/dashboard/marketplace')}
             >
-              <ShoppingBag className="h-4 w-4 mr-2" />
+              <ShoppingBag className="h-5 w-5 mr-3" />
               Marketplace
             </Button>
           </div>
@@ -200,14 +129,14 @@ export function CircleSidebar({
           <div>
             <Button 
               variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
                 location.pathname.startsWith('/dashboard/store') 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'hover:bg-muted/50'
               }`}
               onClick={() => navigate('/dashboard/store')}
             >
-              <Store className="h-4 w-4 mr-2" />
+              <Store className="h-5 w-5 mr-3" />
               Loja
             </Button>
           </div>
@@ -218,14 +147,14 @@ export function CircleSidebar({
           <div>
             <Button 
               variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
                 location.pathname.startsWith('/dashboard/bank') 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'hover:bg-muted/50'
               }`}
               onClick={() => navigate('/dashboard/bank')}
             >
-              <Wallet className="h-4 w-4 mr-2" />
+              <Wallet className="h-5 w-5 mr-3" />
               Banco
             </Button>
           </div>
@@ -236,351 +165,19 @@ export function CircleSidebar({
           <div>
             <Button 
               variant="ghost" 
-              className={`w-full justify-start h-[34px] px-3 text-left text-[13px] font-medium transition-all duration-200 ${
+              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
                 location.pathname.startsWith('/dashboard/challenges') 
                   ? 'bg-primary text-primary-foreground shadow-sm' 
                   : 'hover:bg-muted/50'
               }`}
               onClick={() => navigate('/dashboard/challenges')}
             >
-              <Target className="h-4 w-4 mr-2" />
+              <Target className="h-5 w-5 mr-3" />
               Desafios
             </Button>
           </div>
         )}
-
-        {/* Criar Categoria */}
-        {categories.length > 0 && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className="w-full justify-start h-[34px] px-3 text-left hover:bg-muted/50 text-muted-foreground text-[13px] font-medium"
-              onClick={openCategoryDialog}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Criar categoria
-            </Button>
-          </div>
-        )}
-
-        <Separator />
-
-        {/* Categories and Spaces Section */}
-        <div className="space-y-2">
-          <DndContext
-            sensors={categorySensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleCategoryDragEnd}
-          >
-            <SortableContext
-              items={categories.map(cat => cat.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {categories.map(category => (
-                <DraggableCategorySection 
-                  key={category.id} 
-                  category={category} 
-                  isExpanded={isCategoryExpanded(category.id)} 
-                  onToggle={() => toggleCategory(category.id)} 
-                  onCreateSpace={openTypeSelection} 
-                  onSpaceClick={spaceId => navigate(`/dashboard/space/${spaceId}`)} 
-                  onEditCategory={setEditingCategory}
-                  onDeleteCategory={setDeletingCategory}
-                  currentPath={location.pathname} 
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-        </div>
       </div>
-
-      {/* Dialogs de Criação de Espaço */}
-      <SpaceTypeSelectionDialog open={isTypeSelectionOpen} onClose={closeAllDialogs} onSelectType={selectTypeAndProceed} />
-      
-      <SpaceConfigurationDialog open={isConfigurationOpen} onClose={closeAllDialogs} onCreateSpace={createSpace} selectedType={selectedType} selectedCategoryId={selectedCategoryId} isCreating={isCreating} />
-
-      {/* Dialog de Criação de Categoria */}
-      <CreateCategoryDialog 
-        isOpen={isCategoryDialogOpen}
-        onClose={closeCategoryDialog}
-        onSubmit={createCategory}
-        isLoading={isCreatingCategory}
-      />
-
-      <EditCategoryDialog
-        category={editingCategory}
-        open={!!editingCategory}
-        onOpenChange={(open) => !open && setEditingCategory(null)}
-      />
-
-      <AlertDialog open={!!deletingCategory} onOpenChange={(open) => !open && setDeletingCategory(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Deletar categoria</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja deletar a categoria "{deletingCategory?.name}"? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                if (deletingCategory) {
-                  deleteCategory(deletingCategory.id);
-                  setDeletingCategory(null);
-                }
-              }}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Deletar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </aside>
-  );
-}
-
-// Component for draggable space item
-interface DraggableSpaceItemProps {
-  space: any;
-  isActive: boolean;
-  onSpaceClick: (spaceId: string) => void;
-}
-
-const DraggableSpaceItem = ({ space, isActive, onSpaceClick }: DraggableSpaceItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: space.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Button 
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      variant="ghost" 
-      onClick={() => onSpaceClick(space.id)} 
-      className={`w-full justify-start p-2 h-auto text-left text-sm transition-all duration-200 ${
-        isActive 
-          ? 'bg-primary text-primary-foreground shadow-sm' 
-          : 'hover:bg-muted/50'
-      }`}
-    >
-      <div className="h-4 w-4 mr-2 flex items-center justify-center">
-        {renderSpaceIcon(space.type, space.custom_icon_type, space.custom_icon_value, "h-4 w-4")}
-      </div>
-      <span className={`truncate ${space.is_private && !isActive ? "text-muted-foreground" : ""}`}>{space.name}</span>
-    </Button>
-  );
-};
-
-interface DraggableCategorySectionProps {
-  category: any;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onCreateSpace: (categoryId: string) => void;
-  onSpaceClick: (spaceId: string) => void;
-  onEditCategory: (category: any) => void;
-  onDeleteCategory: (category: any) => void;
-  currentPath: string;
-}
-
-const DraggableCategorySection = ({ 
-  category, 
-  isExpanded, 
-  onToggle, 
-  onCreateSpace, 
-  onSpaceClick, 
-  onEditCategory,
-  onDeleteCategory,
-  currentPath 
-}: DraggableCategorySectionProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: category.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style}>
-      <SpaceCategorySection
-        category={category}
-        isExpanded={isExpanded}
-        onToggle={onToggle}
-        onCreateSpace={onCreateSpace}
-        onSpaceClick={onSpaceClick}
-        onEditCategory={onEditCategory}
-        onDeleteCategory={onDeleteCategory}
-        currentPath={currentPath}
-        dragHandleProps={{ ...attributes, ...listeners }}
-      />
-    </div>
-  );
-};
-
-interface SpaceCategorySectionProps {
-  category: any;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onCreateSpace: (categoryId: string) => void;
-  onSpaceClick: (spaceId: string) => void;
-  onEditCategory: (category: any) => void;
-  onDeleteCategory: (category: any) => void;
-  currentPath: string;
-  dragHandleProps?: any;
-}
-
-function SpaceCategorySection({
-  category,
-  isExpanded,
-  onToggle,
-  onCreateSpace,
-  onSpaceClick,
-  onEditCategory,
-  onDeleteCategory,
-  currentPath,
-  dragHandleProps
-}: SpaceCategorySectionProps) {
-  const { data: spaces = [] } = useUserSpaces(category.id);
-  const reorderSpacesMutation = useReorderSpaces();
-  
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      const oldIndex = spaces.findIndex((space) => space.id === active.id);
-      const newIndex = spaces.findIndex((space) => space.id === over?.id);
-      
-      const reorderedSpaces = arrayMove(spaces, oldIndex, newIndex);
-      
-      // Create updates with new order indices
-      const spaceUpdates = reorderedSpaces.map((space, index) => ({
-        id: (space as any).id,
-        order_index: index,
-      }));
-
-      reorderSpacesMutation.mutate({
-        categoryId: category.id,
-        spaceUpdates,
-      });
-    }
-  };
-
-  return (
-    <Collapsible open={isExpanded} onOpenChange={onToggle}>
-      <CollapsibleTrigger asChild>
-        <Button 
-          variant="ghost" 
-          className="group w-full justify-between p-3 h-[34px] text-left hover:bg-muted/50 cursor-pointer"
-          {...dragHandleProps}
-        >
-          <span className="text-sm font-medium text-muted-foreground">{category.name}</span>
-          <div className="flex items-center gap-1">
-            {spaces.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('Plus clicked for category:', category.id);
-                  onCreateSpace(category.id);
-                }}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            )}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MoreHorizontal className="h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => onEditCategory(category)}>
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Editar categoria
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => onDeleteCategory(category)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Deletar categoria
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </div>
-        </Button>
-      </CollapsibleTrigger>
-      
-      <CollapsibleContent className="space-y-1 ml-3">
-        {spaces.length > 0 ? (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={spaces.map(s => s.id)} strategy={verticalListSortingStrategy}>
-              {spaces.map(space => {
-                const isActiveSpace = currentPath === `/dashboard/space/${space.id}`;
-                return (
-                  <DraggableSpaceItem
-                    key={space.id}
-                    space={space}
-                    isActive={isActiveSpace}
-                    onSpaceClick={onSpaceClick}
-                  />
-                );
-              })}
-            </SortableContext>
-          </DndContext>
-        ) : (
-          <Button variant="ghost" className="w-full justify-start p-2 h-auto text-left hover:bg-muted/50 text-muted-foreground text-sm" onClick={() => onCreateSpace(category.id)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Criar espaço
-          </Button>
-        )}
-      </CollapsibleContent>
-    </Collapsible>
   );
 }
