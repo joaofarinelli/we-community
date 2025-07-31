@@ -8,11 +8,43 @@ import {
 import { Input } from '@/components/ui/input';
 import * as LucideIcons from 'lucide-react';
 
-// Lista de ícones mais comuns para badges
+// Lista expandida de ícones para badges e trilhas
 const commonIcons = [
-  'Award', 'Trophy', 'Star', 'Medal', 'Crown', 'Shield', 'Heart',
-  'Target', 'Flag', 'CheckCircle', 'Badge', 'Gift', 'Zap', 'Flame',
-  'Sun', 'Moon', 'Diamond', 'Gem', 'Sparkles', 'Plus', 'Check'
+  // Conquistas e Prêmios
+  'Award', 'Trophy', 'Medal', 'Crown', 'Shield', 'Badge', 'Gem', 'Diamond',
+  'Star', 'Sparkles', 'Zap', 'Flame', 'Gift', 'Target', 'Flag',
+  
+  // Natureza e Jornada
+  'Mountain', 'Compass', 'Map', 'MapPin', 'Navigation', 'Route', 'Signpost',
+  'TreePine', 'Palmtree', 'Flower', 'Sun', 'Moon', 'Sunrise', 'Sunset',
+  
+  // Progresso e Movimento
+  'TrendingUp', 'ArrowUp', 'ArrowRight', 'ChevronUp', 'Play', 'FastForward',
+  'SkipForward', 'StepForward', 'CheckCircle', 'Check', 'CheckCheck',
+  
+  // Aprendizado e Conhecimento
+  'BookOpen', 'GraduationCap', 'Brain', 'Lightbulb', 'Telescope', 'Microscope',
+  'Library', 'ScrollText', 'FileText', 'PenTool', 'Edit3',
+  
+  // Tecnologia e Inovação
+  'Rocket', 'Cpu', 'Smartphone', 'Monitor', 'Code', 'Binary', 'Wifi',
+  'Globe', 'Satellite', 'Radio', 'Headphones',
+  
+  // Saúde e Bem-estar
+  'Heart', 'Activity', 'Smile', 'Coffee', 'Apple', 'Dumbbell', 'Bike',
+  'Clock', 'Timer', 'Alarm', 'Calendar',
+  
+  // Liderança e Comunidade
+  'Users', 'UserCheck', 'HandHeart', 'Handshake', 'MessageCircle', 'Share2',
+  'ThumbsUp', 'Eye', 'Focus', 'Crosshair',
+  
+  // Criatividade e Arte
+  'Palette', 'Brush', 'Camera', 'Image', 'Music', 'Mic', 'Video',
+  'Drama', 'Layers', 'Shapes', 'Circle',
+  
+  // Ferramentas e Utilidades
+  'Settings', 'Tool', 'Wrench', 'Hammer', 'Key', 'Lock', 'Unlock',
+  'Plus', 'Minus', 'X', 'Search', 'Filter'
 ];
 
 interface LucideIconSelectorProps {
