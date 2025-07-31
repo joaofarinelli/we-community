@@ -68,6 +68,11 @@ export const AdminSettingsPage = () => {
             title="Banner da Página de Desafios" 
             description="Configure o banner que aparecerá na página de desafios" 
           />
+          <PageBannerSection 
+            bannerType="spaces" 
+            title="Banner da Página de Espaços" 
+            description="Configure o banner que aparecerá na página de espaços" 
+          />
           <Card>
             <CardHeader>
               <CardTitle>Informações Gerais</CardTitle>

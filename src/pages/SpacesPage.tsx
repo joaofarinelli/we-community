@@ -9,6 +9,7 @@ import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { SpaceCard } from '@/components/spaces/SpaceCard';
 import { Loader2, Folder, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PageBanner } from '@/components/ui/page-banner';
 
 export const SpacesPage = () => {
   const navigate = useNavigate();
@@ -49,6 +50,9 @@ export const SpacesPage = () => {
   return (
     <DashboardLayout>
       <div className="space-y-4 sm:space-y-6">
+        {/* Banner */}
+        <PageBanner bannerType="spaces" />
+        
         {/* Header */}
         <div className="text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold">Espaços</h1>

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompany } from './useCompany';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export type BannerType = 
   | 'trails' 
@@ -11,7 +12,8 @@ export type BannerType =
   | 'marketplace' 
   | 'store' 
   | 'bank' 
-  | 'challenges';
+  | 'challenges'
+  | 'spaces';
 
 export const usePageBanner = (bannerType: BannerType) => {
   const { user } = useAuth();
@@ -28,6 +30,33 @@ export const usePageBanner = (bannerType: BannerType) => {
     },
     enabled: !!company?.id,
   });
+
+  // Setup real-time updates for banner changes
+  useEffect(() => {
+    if (!company?.id) return;
+
+    const channel = supabase
+      .channel(`banner-changes-${company.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'companies',
+          filter: `id=eq.${company.id}`,
+        },
+        (payload) => {
+          // Invalidate queries when banner changes
+          queryClient.invalidateQueries({ queryKey: ['page-banner'] });
+          queryClient.invalidateQueries({ queryKey: ['company'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [company?.id, queryClient]);
 
   const uploadBanner = useMutation({
     mutationFn: async (file: File) => {
@@ -121,7 +150,8 @@ function getBannerDisplayName(bannerType: BannerType): string {
     marketplace: 'Marketplace',
     store: 'Loja',
     bank: 'Banco',
-    challenges: 'Desafios'
+    challenges: 'Desafios',
+    spaces: 'Espaços'
   };
   return names[bannerType];
 }
