@@ -33,11 +33,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const isAdmin = useIsAdmin();
 
   return (
-    <div className="bg-background">
+    <div className="h-screen bg-background flex flex-col">
       <ThemeApplier />
       <AutoStreakCheckIn />
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-card border-b border-border">
+      <header className="shrink-0 bg-card border-b border-border z-10">
         <div className="flex items-center justify-between px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
           {/* Left side */}
           <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
@@ -122,7 +122,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </header>
 
       {/* Layout with sidebar */}
-      <div className="flex">
+      <div className="flex flex-1 min-h-0">
         
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
@@ -143,7 +143,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
 
         {/* Main Content */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           <div className="p-3 sm:p-4 md:p-6 lg:p-8">
             {children}
           </div>
