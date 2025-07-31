@@ -14,6 +14,7 @@ import { Search, ShoppingBag, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { CreateUserItemDialog } from '@/components/marketplace/CreateUserItemDialog';
 import { useCoinName } from '@/hooks/useCoinName';
+import { PageBanner } from '@/components/ui/page-banner';
 
 export const MarketplacePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export const MarketplacePage = () => {
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto p-6">
+        <PageBanner bannerType="marketplace" />
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

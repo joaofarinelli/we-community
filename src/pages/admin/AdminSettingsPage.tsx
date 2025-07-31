@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
 import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
+import { PageBannerSection } from '@/components/admin/PageBannerSection';
 import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
 import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
 import { FeedBannerSection } from '@/components/admin/FeedBannerSection';

@@ -238,7 +238,9 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          bank_banner_url: string | null
           button_text_color: string | null
+          challenges_banner_url: string | null
           city: string | null
           cnpj: string | null
           coin_name: string | null
@@ -252,22 +254,29 @@ export type Database = {
           id: string
           login_banner_url: string | null
           logo_url: string | null
+          marketplace_banner_url: string | null
+          members_banner_url: string | null
           name: string
           phone: string | null
           plan: string | null
           postal_code: string | null
           primary_color: string | null
+          ranking_banner_url: string | null
           state: string | null
           status: string | null
+          store_banner_url: string | null
           subdomain: string | null
           text_color: string | null
           theme_config: Json | null
           theme_mode: string | null
+          trails_banner_url: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
+          bank_banner_url?: string | null
           button_text_color?: string | null
+          challenges_banner_url?: string | null
           city?: string | null
           cnpj?: string | null
           coin_name?: string | null
@@ -281,22 +290,29 @@ export type Database = {
           id?: string
           login_banner_url?: string | null
           logo_url?: string | null
+          marketplace_banner_url?: string | null
+          members_banner_url?: string | null
           name: string
           phone?: string | null
           plan?: string | null
           postal_code?: string | null
           primary_color?: string | null
+          ranking_banner_url?: string | null
           state?: string | null
           status?: string | null
+          store_banner_url?: string | null
           subdomain?: string | null
           text_color?: string | null
           theme_config?: Json | null
           theme_mode?: string | null
+          trails_banner_url?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
+          bank_banner_url?: string | null
           button_text_color?: string | null
+          challenges_banner_url?: string | null
           city?: string | null
           cnpj?: string | null
           coin_name?: string | null
@@ -310,17 +326,22 @@ export type Database = {
           id?: string
           login_banner_url?: string | null
           logo_url?: string | null
+          marketplace_banner_url?: string | null
+          members_banner_url?: string | null
           name?: string
           phone?: string | null
           plan?: string | null
           postal_code?: string | null
           primary_color?: string | null
+          ranking_banner_url?: string | null
           state?: string | null
           status?: string | null
+          store_banner_url?: string | null
           subdomain?: string | null
           text_color?: string | null
           theme_config?: Json | null
           theme_mode?: string | null
+          trails_banner_url?: string | null
           updated_at?: string
         }
         Relationships: []

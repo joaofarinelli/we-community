@@ -17,6 +17,7 @@ import {
   Package,
   Zap
 } from 'lucide-react';
+import { PageBanner } from '@/components/ui/page-banner';
 
 export const ChallengesPage = () => {
   const { data: challenges, isLoading } = useChallenges();
@@ -104,6 +105,7 @@ export const ChallengesPage = () => {
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
+        <PageBanner bannerType="challenges" />
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Desafios</h1>
           <p className="text-muted-foreground">

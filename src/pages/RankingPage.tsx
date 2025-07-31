@@ -1,5 +1,6 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { RankingTab } from '@/components/gamification/RankingTab';
+import { PageBanner } from '@/components/ui/page-banner';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
 import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { useCoinName } from '@/hooks/useCoinName';
@@ -13,6 +14,7 @@ export const RankingPage = () => {
     <DashboardLayout>
       <div className="max-w-6xl p-8">
         <div className="space-y-6">
+          <PageBanner bannerType="ranking" />
           <div>
             <h1 className="text-3xl font-bold mb-2">
               Ranking {coinName}

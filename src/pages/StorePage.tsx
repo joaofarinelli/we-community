@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Search, ShoppingBag, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCoinName } from '@/hooks/useCoinName';
+import { PageBanner } from '@/components/ui/page-banner';
 
 export const StorePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export const StorePage = () => {
   return (
     <DashboardLayout>
       <div className="max-w-7xl mx-auto p-6">
+        <PageBanner bannerType="store" />
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
