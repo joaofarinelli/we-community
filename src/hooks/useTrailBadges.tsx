@@ -30,6 +30,7 @@ export const useTrailBadges = () => {
   return useQuery({
     queryKey: ['trail-badges', company?.id],
     queryFn: async () => {
+      console.log('🎯 Fetching trail badges for company:', company?.id);
       if (!company?.id) throw new Error('Company not found');
 
       const { data, error } = await supabase
@@ -38,6 +39,7 @@ export const useTrailBadges = () => {
         .eq('company_id', company.id)
         .order('created_at', { ascending: false });
 
+      console.log('🎯 Trail badges response:', { data, error });
       if (error) throw error;
       return data as TrailBadge[];
     },
