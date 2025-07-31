@@ -2824,6 +2824,15 @@ export type Database = {
         Args: { p_user_id: string; p_company_id: string; p_streak_days: number }
         Returns: undefined
       }
+      remove_user_coins: {
+        Args: {
+          p_user_id: string
+          p_company_id: string
+          p_action_type: string
+          p_reference_id?: string
+        }
+        Returns: undefined
+      }
       reset_broken_streaks: {
         Args: Record<PropertyKey, never>
         Returns: undefined
