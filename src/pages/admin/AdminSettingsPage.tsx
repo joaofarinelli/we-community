@@ -32,6 +32,42 @@ export const AdminSettingsPage = () => {
           <LoginBannerSection />
           <CustomDomainSection />
           <CoinNameSection />
+          
+          <PageBannerSection 
+            bannerType="trails" 
+            title="Banner da Página de Trilhas" 
+            description="Configure o banner que aparecerá na página de trilhas" 
+          />
+          <PageBannerSection 
+            bannerType="members" 
+            title="Banner da Página de Membros" 
+            description="Configure o banner que aparecerá na página de membros" 
+          />
+          <PageBannerSection 
+            bannerType="ranking" 
+            title="Banner da Página de Ranking" 
+            description="Configure o banner que aparecerá na página de ranking" 
+          />
+          <PageBannerSection 
+            bannerType="marketplace" 
+            title="Banner da Página de Marketplace" 
+            description="Configure o banner que aparecerá na página de marketplace" 
+          />
+          <PageBannerSection 
+            bannerType="store" 
+            title="Banner da Página de Loja" 
+            description="Configure o banner que aparecerá na página de loja" 
+          />
+          <PageBannerSection 
+            bannerType="bank" 
+            title="Banner da Página de Banco" 
+            description="Configure o banner que aparecerá na página de banco" 
+          />
+          <PageBannerSection 
+            bannerType="challenges" 
+            title="Banner da Página de Desafios" 
+            description="Configure o banner que aparecerá na página de desafios" 
+          />
           <Card>
             <CardHeader>
               <CardTitle>Informações Gerais</CardTitle>
