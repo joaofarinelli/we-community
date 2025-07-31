@@ -182,7 +182,7 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
           <div className="lg:w-1/3 p-6 border-r bg-muted/30">
             <div className="flex flex-col items-center text-center space-y-4">
               <Avatar className="h-32 w-32">
-                <AvatarImage src="" alt={getDisplayName()} />
+                <AvatarImage src={userProfile?.avatar_url} alt={getDisplayName()} />
                 <AvatarFallback className="text-3xl">
                   {getUserInitials()}
                 </AvatarFallback>
@@ -252,6 +252,14 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
               </TabsList>
 
               <TabsContent value="sobre" className="mt-6 space-y-6">
+                {/* Biography */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Biografia</h3>
+                  <p className="text-muted-foreground">
+                    {userProfile.bio || 'Nenhuma biografia adicionada.'}
+                  </p>
+                </div>
+
                 {/* Contact Info */}
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Informações de Contato</h3>
@@ -268,6 +276,11 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                         <span>{userProfile.phone}</span>
                       </div>
                     )}
+                    {!userProfile.email && !userProfile.phone && (
+                      <p className="text-muted-foreground text-sm">
+                        Este usuário optou por não compartilhar informações de contato.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -275,14 +288,25 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Estatísticas</h3>
                   <div className="grid grid-cols-2 gap-4">
-                    <Card>
-                      <CardContent className="p-4 text-center">
-                        <div className="text-2xl font-bold text-primary">
-                          {userPoints?.total_coins || 0}
-                        </div>
-                        <div className="text-sm text-muted-foreground">Moedas</div>
-                      </CardContent>
-                    </Card>
+                    {userPoints ? (
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <div className="text-2xl font-bold text-primary">
+                            {userPoints.total_coins || 0}
+                          </div>
+                          <div className="text-sm text-muted-foreground">Moedas</div>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card>
+                        <CardContent className="p-4 text-center">
+                          <div className="text-sm text-muted-foreground">
+                            Privado
+                          </div>
+                          <div className="text-sm text-muted-foreground">Moedas</div>
+                        </CardContent>
+                      </Card>
+                    )}
                     {userLevel && (
                       <Card>
                         <CardContent className="p-4 text-center">
