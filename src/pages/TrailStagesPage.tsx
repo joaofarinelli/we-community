@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, PlayCircle, CheckCircle } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -7,21 +8,26 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useTrails } from '@/hooks/useTrails';
 import { useTrailStages } from '@/hooks/useTrailStages';
-import { useTrailProgress, useCompleteTrailStage } from '@/hooks/useTrailProgress';
+import { useTrailProgress } from '@/hooks/useTrailProgress';
+import { StageDetailsDialog, TrailStage } from '@/components/trails/StageDetailsDialog';
 
 export const TrailStagesPage = () => {
   const { trailId } = useParams<{ trailId: string }>();
   const navigate = useNavigate();
+  const [selectedStage, setSelectedStage] = useState<TrailStage | null>(null);
+  const [isStageDialogOpen, setIsStageDialogOpen] = useState(false);
   
   const { data: trails } = useTrails();
   const { data: stages } = useTrailStages(trailId);
-  const { data: progress } = useTrailProgress(trailId);
-  const completeStage = useCompleteTrailStage();
+  const { data: progress, refetch: refetchProgress } = useTrailProgress(trailId);
 
-  const handleStartStage = (stageId: string) => {
-    if (trailId) {
-      completeStage.mutate({ trailId, stageId });
-    }
+  const handleStageClick = (stage: TrailStage) => {
+    setSelectedStage(stage);
+    setIsStageDialogOpen(true);
+  };
+
+  const handleStageComplete = () => {
+    refetchProgress();
   };
   
   const trail = trails?.find(t => t.id === trailId);
@@ -159,10 +165,9 @@ export const TrailStagesPage = () => {
                           {isNext && (
                             <Button 
                               size="sm" 
-                              onClick={() => handleStartStage(stage.id)}
-                              disabled={completeStage.isPending}
+                              onClick={() => handleStageClick(stage)}
                             >
-                              {completeStage.isPending ? 'Processando...' : 'Iniciar Etapa'}
+                              Iniciar Etapa
                             </Button>
                           )}
                         </div>
@@ -184,6 +189,16 @@ export const TrailStagesPage = () => {
             </Card>
           )}
         </div>
+
+        {/* Stage Details Dialog */}
+        <StageDetailsDialog
+          open={isStageDialogOpen}
+          onOpenChange={setIsStageDialogOpen}
+          stage={selectedStage}
+          trailId={trailId || ''}
+          isCompleted={selectedStage ? progress?.find(p => p.stage_id === selectedStage.id)?.is_completed || false : false}
+          onStageComplete={handleStageComplete}
+        />
       </div>
     </DashboardLayout>
   );

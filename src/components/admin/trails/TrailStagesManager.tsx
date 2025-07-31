@@ -21,6 +21,9 @@ interface StageFormData {
   description: string;
   guidance_text: string;
   is_required: boolean;
+  video_url: string;
+  question: string;
+  requires_response: boolean;
 }
 
 const initialStageData: StageFormData = {
@@ -28,6 +31,9 @@ const initialStageData: StageFormData = {
   description: '',
   guidance_text: '',
   is_required: true,
+  video_url: '',
+  question: '',
+  requires_response: false,
 };
 
 export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: TrailStagesManagerProps) => {
@@ -71,6 +77,9 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
       description: stage.description || '',
       guidance_text: stage.guidance_text || '',
       is_required: stage.is_required,
+      video_url: stage.video_url || '',
+      question: stage.question || '',
+      requires_response: stage.requires_response || false,
     });
     setEditingStage(stage.id);
     setShowAddForm(true);
@@ -153,6 +162,36 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
                   placeholder="Instruções ou dicas para esta etapa..."
                   className="resize-none"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="video_url">URL do Vídeo (opcional)</Label>
+                <Input
+                  id="video_url"
+                  value={formData.video_url}
+                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                  placeholder="https://www.youtube.com/embed/..."
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="question">Pergunta para o usuário (opcional)</Label>
+                <Textarea
+                  id="question"
+                  value={formData.question}
+                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                  placeholder="Qual pergunta o usuário deve responder?"
+                  className="resize-none"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="requires_response"
+                  checked={formData.requires_response}
+                  onCheckedChange={(checked) => setFormData({ ...formData, requires_response: checked })}
+                />
+                <Label htmlFor="requires_response">Requer resposta do usuário</Label>
               </div>
 
               <div className="flex items-center space-x-2">

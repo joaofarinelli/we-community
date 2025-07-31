@@ -1779,6 +1779,39 @@ export type Database = {
         }
         Relationships: []
       }
+      trail_stage_responses: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          response_text: string
+          stage_id: string
+          trail_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          response_text: string
+          stage_id: string
+          trail_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          response_text?: string
+          stage_id?: string
+          trail_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trail_stages: {
         Row: {
           created_at: string
@@ -1788,9 +1821,12 @@ export type Database = {
           is_required: boolean | null
           name: string
           order_index: number
+          question: string | null
+          requires_response: boolean
           template_id: string | null
           trail_id: string | null
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           created_at?: string
@@ -1800,9 +1836,12 @@ export type Database = {
           is_required?: boolean | null
           name: string
           order_index?: number
+          question?: string | null
+          requires_response?: boolean
           template_id?: string | null
           trail_id?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           created_at?: string
@@ -1812,9 +1851,12 @@ export type Database = {
           is_required?: boolean | null
           name?: string
           order_index?: number
+          question?: string | null
+          requires_response?: boolean
           template_id?: string | null
           trail_id?: string | null
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
