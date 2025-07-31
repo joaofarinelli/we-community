@@ -3,7 +3,6 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
@@ -36,7 +35,6 @@ export const MembersPage = () => {
     }
     return 'U';
   };
-
 
   const handleViewProfile = (userId: string) => {
     setSelectedUserId(userId);
@@ -104,8 +102,8 @@ export const MembersPage = () => {
               </h3>
               <p className="text-sm text-muted-foreground">
                 {member.email}
-               </p>
-             </div>
+              </p>
+            </div>
 
             <div className="text-xs text-muted-foreground">
               Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
@@ -139,15 +137,8 @@ export const MembersPage = () => {
                   </p>
                 </div>
                 
-                 <div className="flex items-center space-x-2 ml-4">
-                   {member.role !== 'member' && (
-                     <Badge variant="secondary" className={getRoleColor(member.role)}>
-                       {getRoleLabel(member.role)}
-                     </Badge>
-                   )}
-                   <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(member.created_at).toLocaleDateString('pt-BR')}
-                  </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(member.created_at).toLocaleDateString('pt-BR')}
                 </div>
               </div>
             </div>
