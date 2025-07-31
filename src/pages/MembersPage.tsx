@@ -165,10 +165,8 @@ export const MembersPage = () => {
                     {member.email}
                   </p>
                 </div>
-
-                   <div className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(member.created_at).toLocaleDateString('pt-BR')}
-                  </div>
+                <div className="text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(member.created_at).toLocaleDateString('pt-BR')}
                 </div>
               </div>
             </div>
