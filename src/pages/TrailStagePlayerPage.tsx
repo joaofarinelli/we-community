@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, PlayCircle, CheckCircle, Send, Video } from 'lucide-react';
+import { ArrowLeft, PlayCircle, CheckCircle, Send, Video, FileText } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -137,6 +137,29 @@ export const TrailStagePlayerPage = () => {
           </CardHeader>
         </Card>
 
+        {/* Document Section */}
+        {stage.document_url && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Documento de Orientação
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <a
+                href={stage.document_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-primary hover:underline"
+              >
+                <FileText className="h-4 w-4" />
+                Abrir documento
+              </a>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Video Section */}
         {stage.video_url && (
           <Card>
@@ -218,6 +241,15 @@ export const TrailStagePlayerPage = () => {
               <CheckboxResponse
                 question={stage.question || ''}
                 options={parseResponseOptions(stage.response_options)}
+                existingResponse={existingResponse}
+                onSubmit={handleSubmitResponse}
+                isSubmitting={createResponse.isPending || updateResponse.isPending}
+              />
+            )}
+
+            {stage.response_type === 'scale' && (
+              <ScaleResponse
+                question={stage.question || ''}
                 existingResponse={existingResponse}
                 onSubmit={handleSubmitResponse}
                 isSubmitting={createResponse.isPending || updateResponse.isPending}

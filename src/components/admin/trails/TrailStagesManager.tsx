@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Trash2, Plus, GripVertical } from 'lucide-react';
-import { useTrailStages, useCreateTrailStage, useUpdateTrailStage, useDeleteTrailStage } from '@/hooks/useTrailStages';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trash2, Plus, GripVertical, FileText } from 'lucide-react';
+import { useTrailStages, useCreateTrailStage, useUpdateTrailStage, useDeleteTrailStage, ResponseType } from '@/hooks/useTrailStages';
 
 
 interface TrailStagesManagerProps {
@@ -22,8 +23,14 @@ interface StageFormData {
   guidance_text: string;
   is_required: boolean;
   video_url: string;
+  document_url: string;
   question: string;
   requires_response: boolean;
+  response_type: ResponseType;
+  response_options: Array<{ label: string; value: string }>;
+  allow_multiple_files: boolean;
+  max_file_size_mb: number;
+  allowed_file_types: string[];
 }
 
 const initialStageData: StageFormData = {
@@ -32,8 +39,14 @@ const initialStageData: StageFormData = {
   guidance_text: '',
   is_required: true,
   video_url: '',
+  document_url: '',
   question: '',
   requires_response: false,
+  response_type: 'text',
+  response_options: [],
+  allow_multiple_files: false,
+  max_file_size_mb: 10,
+  allowed_file_types: [],
 };
 
 export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: TrailStagesManagerProps) => {
@@ -78,8 +91,14 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
       guidance_text: stage.guidance_text || '',
       is_required: stage.is_required,
       video_url: stage.video_url || '',
+      document_url: stage.document_url || '',
       question: stage.question || '',
       requires_response: stage.requires_response || false,
+      response_type: stage.response_type || 'text',
+      response_options: stage.response_options || [],
+      allow_multiple_files: stage.allow_multiple_files || false,
+      max_file_size_mb: stage.max_file_size_mb || 10,
+      allowed_file_types: stage.allowed_file_types || [],
     });
     setEditingStage(stage.id);
     setShowAddForm(true);
@@ -175,13 +194,12 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
               </div>
 
               <div>
-                <Label htmlFor="question">Pergunta para o usuário (opcional)</Label>
-                <Textarea
-                  id="question"
-                  value={formData.question}
-                  onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder="Qual pergunta o usuário deve responder?"
-                  className="resize-none"
+                <Label htmlFor="document_url">URL do Documento (opcional)</Label>
+                <Input
+                  id="document_url"
+                  value={formData.document_url}
+                  onChange={(e) => setFormData({ ...formData, document_url: e.target.value })}
+                  placeholder="https://exemplo.com/documento.pdf"
                 />
               </div>
 
@@ -193,6 +211,126 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
                 />
                 <Label htmlFor="requires_response">Requer resposta do usuário</Label>
               </div>
+
+              {formData.requires_response && (
+                <>
+                  <div>
+                    <Label htmlFor="question">Pergunta para o usuário</Label>
+                    <Textarea
+                      id="question"
+                      value={formData.question}
+                      onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                      placeholder="Qual pergunta o usuário deve responder?"
+                      className="resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="response_type">Tipo de Resposta</Label>
+                    <Select
+                      value={formData.response_type}
+                      onValueChange={(value: ResponseType) => setFormData({ ...formData, response_type: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de resposta" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="text">Texto livre</SelectItem>
+                        <SelectItem value="multiple_choice">Múltipla escolha</SelectItem>
+                        <SelectItem value="checkbox">Seleção múltipla</SelectItem>
+                        <SelectItem value="scale">Escala (0-10)</SelectItem>
+                        <SelectItem value="file_upload">Upload de arquivos</SelectItem>
+                        <SelectItem value="image_upload">Upload de imagens</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {(formData.response_type === 'multiple_choice' || formData.response_type === 'checkbox') && (
+                    <div>
+                      <Label>Opções de Resposta</Label>
+                      <div className="space-y-2">
+                        {formData.response_options.map((option, index) => (
+                          <div key={index} className="flex gap-2">
+                            <Input
+                              value={option.label}
+                              onChange={(e) => {
+                                const newOptions = [...formData.response_options];
+                                newOptions[index] = { ...option, label: e.target.value, value: e.target.value };
+                                setFormData({ ...formData, response_options: newOptions });
+                              }}
+                              placeholder="Texto da opção"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const newOptions = formData.response_options.filter((_, i) => i !== index);
+                                setFormData({ ...formData, response_options: newOptions });
+                              }}
+                            >
+                              Remover
+                            </Button>
+                          </div>
+                        ))}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              response_options: [...formData.response_options, { label: '', value: '' }]
+                            });
+                          }}
+                        >
+                          Adicionar Opção
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {(formData.response_type === 'file_upload' || formData.response_type === 'image_upload') && (
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="allow_multiple_files"
+                          checked={formData.allow_multiple_files}
+                          onCheckedChange={(checked) => setFormData({ ...formData, allow_multiple_files: checked })}
+                        />
+                        <Label htmlFor="allow_multiple_files">Permitir múltiplos arquivos</Label>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="max_file_size">Tamanho máximo (MB)</Label>
+                        <Input
+                          id="max_file_size"
+                          type="number"
+                          min="1"
+                          max="100"
+                          value={formData.max_file_size_mb}
+                          onChange={(e) => setFormData({ ...formData, max_file_size_mb: parseInt(e.target.value) || 10 })}
+                        />
+                      </div>
+
+                      {formData.response_type === 'file_upload' && (
+                        <div>
+                          <Label htmlFor="allowed_types">Tipos de arquivo permitidos (separados por vírgula)</Label>
+                          <Input
+                            id="allowed_types"
+                            value={formData.allowed_file_types.join(', ')}
+                            onChange={(e) => {
+                              const types = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                              setFormData({ ...formData, allowed_file_types: types });
+                            }}
+                            placeholder="pdf, doc, docx, txt"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
 
               <div className="flex items-center space-x-2">
                 <Switch
