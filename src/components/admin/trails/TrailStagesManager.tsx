@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, Plus, GripVertical, FileText } from 'lucide-react';
 import { useTrailStages, useCreateTrailStage, useUpdateTrailStage, useDeleteTrailStage, ResponseType } from '@/hooks/useTrailStages';
+import { DocumentUploader } from '@/components/ui/document-uploader';
 
 
 interface TrailStagesManagerProps {
@@ -193,15 +194,11 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
                 />
               </div>
 
-              <div>
-                <Label htmlFor="document_url">URL do Documento (opcional)</Label>
-                <Input
-                  id="document_url"
-                  value={formData.document_url}
-                  onChange={(e) => setFormData({ ...formData, document_url: e.target.value })}
-                  placeholder="https://exemplo.com/documento.pdf"
-                />
-              </div>
+              <DocumentUploader
+                value={formData.document_url}
+                onChange={(url) => setFormData({ ...formData, document_url: url || '' })}
+                label="Documento de Orientação (opcional)"
+              />
 
               <div className="flex items-center space-x-2">
                 <Switch
