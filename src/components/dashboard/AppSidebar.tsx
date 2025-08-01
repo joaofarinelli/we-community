@@ -94,15 +94,29 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                       to={item.url}
                       end={item.url === "/dashboard"}
                       onClick={() => handleNavClick(item.url)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors text-foreground hover:bg-muted hover:text-foreground"
-                      style={() =>
-                        isActive(item.url)
-                          ? {
-                              backgroundColor: company?.primary_color,
-                              color: company?.button_text_color ?? "#fff",
-                            }
-                          : {}
-                      }
+                      className="flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors text-foreground"
+                      style={({ isActive: navIsActive }) => {
+                        const active = isActive(item.url);
+                        if (active) {
+                          return {
+                            backgroundColor: company?.primary_color,
+                            color: company?.button_text_color ?? "#fff",
+                          };
+                        }
+                        return {};
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive(item.url) && company?.primary_color) {
+                          e.currentTarget.style.backgroundColor = `${company.primary_color}15`;
+                          e.currentTarget.style.color = company.primary_color;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive(item.url)) {
+                          e.currentTarget.style.backgroundColor = '';
+                          e.currentTarget.style.color = '';
+                        }
+                      }}
                     >
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
