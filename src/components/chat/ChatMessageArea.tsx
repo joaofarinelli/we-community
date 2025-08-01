@@ -17,13 +17,14 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   selectedConversation
 }) => {
   const { data: messages = [], isLoading } = useMessages(conversationId);
+  
+  // Enable real-time updates
   useMessagesRealtime(conversationId);
 
-  // Ref para o container do input e estado para altura
   const inputRef = useRef<HTMLDivElement>(null);
   const [inputHeight, setInputHeight] = useState(0);
 
-  // Atualiza altura do input ao montar e ao redimensionar
+  // Atualiza altura do input ao renderizar mensagens e ao redimensionar
   useEffect(() => {
     const updateHeight = () => {
       if (inputRef.current) {
@@ -35,7 +36,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // Recalcula altura sempre que mudam as mensagens
+  // Recalcula altura sempre que as mensagens mudam
   useEffect(() => {
     if (inputRef.current) {
       setInputHeight(inputRef.current.getBoundingClientRect().height);
@@ -53,6 +54,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
     );
   }
 
+  // If we have conversationId but no selectedConversation, show loading
   if (!selectedConversation) {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -66,9 +68,6 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
 
   const otherUser = selectedConversation.otherParticipant;
 
-  // Ajusta padding para compensar o padding interno do ScrollArea (p-4 = 16px)
-  const scrollPadding = inputHeight > 16 ? inputHeight - 16 : inputHeight;
-
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -76,12 +75,17 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-sm font-medium text-primary">
-              {otherUser?.first_name?.[0] || '?'}{otherUser?.last_name?.[0] || ''}
+              {otherUser?.first_name?.[0] || '?'}
+              {otherUser?.last_name?.[0] || ''}
             </span>
           </div>
           <div>
-            <h3 className="font-medium">{otherUser?.first_name} {otherUser?.last_name}</h3>
-            <p className="text-sm text-muted-foreground">{otherUser?.email}</p>
+            <h3 className="font-medium">
+              {otherUser?.first_name} {otherUser?.last_name}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {otherUser?.email}
+            </p>
           </div>
         </div>
       </div>
@@ -89,7 +93,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       {/* Messages */}
       <ScrollArea
         className="flex-1 min-h-0 p-4"
-        style={{ paddingBottom: scrollPadding }}
+        style={{ paddingBottom: inputHeight }}
       >
         {isLoading ? (
           <div className="space-y-4">
@@ -119,10 +123,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       </ScrollArea>
 
       {/* Input fixo */}
-      <div
-        ref={inputRef}
-        className="p-4 border-t border-border bg-background sticky bottom-0 z-10"
-      >
+      <div className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
         <ChatInput conversationId={conversationId} />
       </div>
     </div>
