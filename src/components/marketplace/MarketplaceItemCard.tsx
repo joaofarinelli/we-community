@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Package, Lock } from 'lucide-react';
 import { useState, memo } from 'react';
-import { PurchaseDialog } from './PurchaseDialog';
+import { ProductDetailsDialog } from './ProductDetailsDialog';
 import { useCheckProductAccess } from '@/hooks/useCheckProductAccess';
 
 interface MarketplaceItem {
@@ -16,8 +16,13 @@ interface MarketplaceItem {
   is_featured: boolean;
   seller_type: string;
   seller_id?: string;
-  profiles?: any;
+  category_id: string;
   access_tags?: string[];
+  created_at: string;
+  profiles?: {
+    first_name: string;
+    last_name: string;
+  };
 }
 
 interface MarketplaceItemCardProps {
@@ -26,7 +31,7 @@ interface MarketplaceItemCardProps {
 }
 
 export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCardProps) => {
-  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const { data: hasAccess = true, isLoading: checkingAccess } = useCheckProductAccess(item.id);
   
   const canAfford = userCoins >= item.price_coins;
@@ -36,7 +41,7 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
 
   return (
     <>
-      <Card className="h-full flex flex-col">
+      <Card className="h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowDetailsDialog(true)}>
         <CardContent className="p-4 flex-1">
           <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center">
             {item.image_url ? (
@@ -98,21 +103,21 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
         <CardFooter className="p-4 pt-0">
           <Button 
             className="w-full" 
-            onClick={() => setShowPurchaseDialog(true)}
-            disabled={!canPurchase || checkingAccess}
-            variant={!canPurchase ? "outline" : "default"}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDetailsDialog(true);
+            }}
+            disabled={checkingAccess}
+            variant="outline"
           >
-            {checkingAccess ? 'Verificando...' :
-             isOutOfStock ? 'Esgotado' : 
-             !hasRequiredTags ? 'Acesso restrito' :
-             !canAfford ? 'Moedas insuficientes' : 'Comprar'}
+            {checkingAccess ? 'Carregando...' : 'Ver Detalhes'}
           </Button>
         </CardFooter>
       </Card>
 
-      <PurchaseDialog
-        open={showPurchaseDialog}
-        onOpenChange={setShowPurchaseDialog}
+      <ProductDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
         item={item}
         userCoins={userCoins}
       />
