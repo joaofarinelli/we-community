@@ -14,7 +14,7 @@ export const RankingPage = () => {
       {/* Banner - sem padding para ocupar largura total */}
       <PageBanner bannerType="ranking" />
       
-      <div className="max-w-6xl p-8">
+      <div className="max-w-6xl mx-auto p-8">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">
