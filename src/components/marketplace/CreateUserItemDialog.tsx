@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateUserMarketplaceItem, useUpdateUserMarketplaceItem } from '@/hooks/useUserMarketplaceItems';
+import { ImageUploader } from '@/components/ui/image-uploader';
 
 interface MarketplaceItem {
   id: string;
@@ -35,14 +36,6 @@ interface CreateUserItemDialogProps {
   item?: MarketplaceItem;
 }
 
-const PLACEHOLDER_IMAGES = [
-  'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-  'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400', 
-  'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400',
-  'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400',
-  'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400',
-  'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
-];
 
 export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserItemDialogProps) => {
   const [formData, setFormData] = useState({
@@ -166,32 +159,10 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Imagem do Item</Label>
-            <div className="grid grid-cols-3 gap-2 mb-3">
-              {PLACEHOLDER_IMAGES.map((img, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className={`border-2 rounded-lg p-1 ${
-                    formData.image_url === img ? 'border-primary' : 'border-muted'
-                  }`}
-                  onClick={() => setFormData({ ...formData, image_url: img })}
-                >
-                  <img
-                    src={img}
-                    alt={`Opção ${index + 1}`}
-                    className="w-full h-20 object-cover rounded"
-                  />
-                </button>
-              ))}
-            </div>
-            <Input
-              value={formData.image_url}
-              onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-              placeholder="Ou cole o URL de uma imagem personalizada"
-            />
-          </div>
+          <ImageUploader
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
+          />
 
           <div className="flex gap-3 pt-4">
             <Button
