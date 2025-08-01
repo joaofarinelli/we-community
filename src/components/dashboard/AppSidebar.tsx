@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Home, Users, BookOpen, Calendar, Trophy, Plus, Download, Smartphone, ShoppingBag, Target, Wallet, Store, MapPin } from "lucide-react";
+import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Plus, Smartphone } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -17,8 +16,11 @@ import { useCompany } from "@/hooks/useCompany";
 import { CompanyLogo } from "@/components/ui/company-logo";
 import { useIsFeatureEnabled } from "@/hooks/useCompanyFeatures";
 
+interface AppSidebarProps {
+  onClose?: () => void;
+}
 
-export function AppSidebar() {
+export function AppSidebar({ onClose }: AppSidebarProps) {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -32,24 +34,35 @@ export function AppSidebar() {
   const isBankEnabled = useIsFeatureEnabled('bank');
   const isChallengesEnabled = useIsFeatureEnabled('challenges');
   
-  // Dynamic main items based on enabled features
+  // Dynamic main items based on enabled features (matching CircleSidebar)
   const mainItems = [
-    { title: "Home", url: "/dashboard", icon: Home },
-    { title: "Courses", url: "/dashboard/courses", icon: BookOpen },
-    { title: "Trilhas", url: "/dashboard/trails", icon: MapPin },
-    { title: "Events", url: "/dashboard/events", icon: Calendar },
-    { title: "Members", url: "/dashboard/members", icon: Users },
-    ...(isRankingEnabled ? [{ title: "Leaderboard", url: "/dashboard/leaderboard", icon: Trophy }] : []),
+    { title: "Feed", url: "/dashboard", icon: Rss },
+    { title: "Espaços", url: "/dashboard/spaces", icon: Grid3X3 },
+    { title: "Trilhas", url: "/dashboard/trails", icon: Map },
+    { title: "Membros", url: "/dashboard/members", icon: Users },
+    ...(isRankingEnabled ? [{ title: "Ranking", url: "/dashboard/ranking", icon: Trophy }] : []),
+    { title: "Cursos", url: "/courses", icon: BookOpen },
     ...(isMarketplaceEnabled ? [{ title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag }] : []),
     ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
-    { title: "Calendário", url: "/dashboard/calendar", icon: Calendar },
     ...(isChallengesEnabled ? [{ title: "Desafios", url: "/dashboard/challenges", icon: Target }] : []),
   ];
 
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
+  const isActive = (path: string) => {
+    if (path === "/dashboard") {
+      return currentPath === "/dashboard";
+    }
+    if (path === "/courses") {
+      return currentPath.startsWith("/courses");
+    }
+    return currentPath.startsWith(path);
+  };
+
+  const handleNavClick = (url: string) => {
+    if (onClose) {
+      onClose();
+    }
+  };
 
   return (
     <Sidebar className={collapsed ? "w-16" : "w-72"} collapsible="icon">
@@ -84,12 +97,13 @@ export function AppSidebar() {
                     asChild 
                     className="rounded-xl transition-all duration-200 hover:shadow-soft"
                   >
-                    <NavLink 
+                     <NavLink 
                       to={item.url} 
-                      end 
-                      className={({ isActive }) => 
+                      end={item.url === "/dashboard"}
+                      onClick={() => handleNavClick(item.url)}
+                      className={({ isActive: navLinkIsActive }) => 
                         `flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-                          isActive 
+                          isActive(item.url)
                             ? "bg-primary text-primary-foreground shadow-elegant scale-[1.02]" 
                             : "hover:bg-muted/50 hover:translate-x-1"
                         }`
