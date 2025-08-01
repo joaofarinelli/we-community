@@ -18,16 +18,12 @@ export const AuthPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex">
         {/* Left Banner */}
-        <div className="hidden md:flex md:w-full md:max-w-[400px] lg:max-w-[500px] relative">
-          <div className="w-full h-screen relative flex items-center justify-center">
+        <div className="hidden md:flex md:w-full md:min-w-[500px] md:max-w-[500px] lg:max-w-[600px] relative">
+          <div className="w-full h-screen relative overflow-hidden">
             <img
               src={company.login_banner_url}
               alt="Banner da empresa"
               className="w-full h-full object-cover object-center"
-              style={{ 
-                maxHeight: '100vh',
-                objectFit: 'cover'
-              }}
               onError={(e) => {
                 // Hide banner if image fails to load
                 const parent = e.currentTarget.parentElement?.parentElement;
