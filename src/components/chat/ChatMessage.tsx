@@ -34,7 +34,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
             "px-4 py-2 rounded-lg text-sm",
             isOwn
               ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground"
+              : "bg-card text-card-foreground border border-border"
           )}
         >
           <p className="whitespace-pre-wrap break-words">{message.content}</p>

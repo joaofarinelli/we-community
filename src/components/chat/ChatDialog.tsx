@@ -56,8 +56,7 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
           h-[90vh]
           max-w-[80vw]
           p-0
-          bg-background/95
-          backdrop-blur-md
+          bg-background
           border
           border-border
           shadow-lg
@@ -74,9 +73,10 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
               top-4
               -right-8
               z-20
-              bg-background/80
-              backdrop-blur-sm
-              hover:bg-background/90
+              bg-background
+              border
+              border-border
+              hover:bg-muted
               pointer-events-auto
             "
           >
