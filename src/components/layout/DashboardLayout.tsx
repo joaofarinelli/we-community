@@ -76,34 +76,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
                 
-                {isAdmin ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="text-lg sm:text-xl font-semibold text-foreground hover:text-primary h-auto p-1 sm:p-2 min-w-0">
-                        Administração
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48 sm:w-56 bg-popover border-border z-50">
-                      <DropdownMenuItem onClick={() => navigate('/admin/levels')}>
-                        <Trophy className="mr-2 h-4 w-4" />
-                        Gerenciar Níveis
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Configurações
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate('/admin/users')}>
-                        <Users className="mr-2 h-4 w-4" />
-                        Gerenciar Usuários
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate('/admin/challenges')}>
-                        <Target className="mr-2 h-4 w-4" />
-                        Gerenciar Desafios
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
+                {/* Espaço vazio onde estava a logo */}
               </div>
 
               {/* Right side */}

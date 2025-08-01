@@ -1,11 +1,10 @@
-import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Plus, Smartphone } from "lucide-react";
+import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -15,6 +14,7 @@ import {
 import { useCompany } from "@/hooks/useCompany";
 import { CompanyLogo } from "@/components/ui/company-logo";
 import { useIsFeatureEnabled } from "@/hooks/useCompanyFeatures";
+import { useIsAdmin } from "@/hooks/useUserRole";
 
 interface AppSidebarProps {
   onClose?: () => void;
@@ -26,6 +26,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   const currentPath = location.pathname;
   const { data: company } = useCompany();
   const collapsed = state === "collapsed";
+  const isAdmin = useIsAdmin();
   
   // Feature flags
   const isRankingEnabled = useIsFeatureEnabled('ranking');
@@ -46,6 +47,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
     ...(isChallengesEnabled ? [{ title: "Desafios", url: "/dashboard/challenges", icon: Target }] : []),
+    ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
 
   const isActive = (path: string) => {
@@ -54,6 +56,9 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     }
     if (path === "/courses") {
       return currentPath.startsWith("/courses");
+    }
+    if (path === "/admin/settings") {
+      return currentPath.startsWith("/admin");
     }
     return currentPath.startsWith(path);
   };
