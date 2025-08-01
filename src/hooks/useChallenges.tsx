@@ -31,7 +31,8 @@ export const useChallenges = () => {
           start_date,
           end_date,
           requirements,
-          challenge_duration_days
+          challenge_duration_days,
+          access_tags
         `)
         .eq('is_active', true)
         .order('order_index', { ascending: true });

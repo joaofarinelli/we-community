@@ -49,6 +49,9 @@ export const useCreateChallenge = () => {
       max_participants?: number;
       challenge_duration_days?: number;
       image_url?: string;
+      is_available_for_all_levels?: boolean;
+      required_level_id?: string;
+      access_tags?: string[];
     }) => {
       if (!user?.id || !company?.id) throw new Error('User not authenticated or company not found');
 

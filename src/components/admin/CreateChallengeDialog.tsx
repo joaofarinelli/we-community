@@ -9,7 +9,9 @@ import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { useCreateChallenge } from '@/hooks/useManageChallenges';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
-import { Plus, Coins, BookOpen, Download, Package } from 'lucide-react';
+import { useTags } from '@/hooks/useTags';
+import { Plus, Coins, BookOpen, Download, Package, Tag, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export const CreateChallengeDialog = () => {
   const [open, setOpen] = useState(false);
@@ -24,9 +26,12 @@ export const CreateChallengeDialog = () => {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isAvailableForAllLevels, setIsAvailableForAllLevels] = useState<boolean>(true);
   const [requiredLevelId, setRequiredLevelId] = useState<string>('');
+  const [accessTags, setAccessTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string>('');
 
   const createChallenge = useCreateChallenge();
   const { data: levels } = useCompanyLevels();
+  const { data: tags } = useTags();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +49,8 @@ export const CreateChallengeDialog = () => {
       end_date: endDate || undefined,
       image_url: imageUrl || undefined,
       is_available_for_all_levels: isAvailableForAllLevels,
-      required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined
+      required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined,
+      access_tags: accessTags
     };
 
     try {
@@ -62,9 +68,22 @@ export const CreateChallengeDialog = () => {
       setImageUrl('');
       setIsAvailableForAllLevels(true);
       setRequiredLevelId('');
+      setAccessTags([]);
+      setSelectedTag('');
     } catch (error) {
       console.error('Error creating challenge:', error);
     }
+  };
+
+  const addAccessTag = () => {
+    if (selectedTag && !accessTags.includes(selectedTag)) {
+      setAccessTags([...accessTags, selectedTag]);
+      setSelectedTag('');
+    }
+  };
+
+  const removeAccessTag = (tagToRemove: string) => {
+    setAccessTags(accessTags.filter(tag => tag !== tagToRemove));
   };
 
   const getChallengeTypeIcon = (type: string) => {
@@ -256,6 +275,75 @@ export const CreateChallengeDialog = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4 border rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <Tag className="h-4 w-4" />
+              <Label>Acesso por Tags</Label>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Defina quais tags podem acessar este desafio. Deixe vazio para permitir acesso a todos.
+            </p>
+            
+            <div className="flex space-x-2">
+              <Select value={selectedTag} onValueChange={setSelectedTag}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione uma tag" />
+                </SelectTrigger>
+                <SelectContent>
+                  {tags?.filter(tag => !accessTags.includes(tag.name)).map((tag) => (
+                    <SelectItem key={tag.id} value={tag.name}>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: tag.color }}
+                        />
+                        {tag.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={addAccessTag}
+                disabled={!selectedTag}
+              >
+                Adicionar
+              </Button>
+            </div>
+
+            {accessTags.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Tags Selecionadas:</Label>
+                <div className="flex flex-wrap gap-2">
+                  {accessTags.map((tagName) => {
+                    const tag = tags?.find(t => t.name === tagName);
+                    return (
+                      <Badge 
+                        key={tagName} 
+                        variant="secondary" 
+                        className="flex items-center gap-1"
+                      >
+                        {tag && (
+                          <div 
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: tag.color }}
+                          />
+                        )}
+                        {tagName}
+                        <X 
+                          className="h-3 w-3 cursor-pointer hover:text-red-500" 
+                          onClick={() => removeAccessTag(tagName)}
+                        />
+                      </Badge>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

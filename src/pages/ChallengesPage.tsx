@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useChallenges, useChallengeRewards } from '@/hooks/useChallenges';
 import { useChallengeProgressBatch, useChallengeParticipationsBatch } from '@/hooks/useChallengeProgress';
+import { useFilteredChallengesByAccess } from '@/hooks/useChallengeAccess';
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -32,8 +33,11 @@ export const ChallengesPage = () => {
   const { data: userLevel } = useUserLevel();
   const { data: rewards } = useChallengeRewards();
   
+  // Filter challenges by access tags first
+  const accessibleChallenges = useFilteredChallengesByAccess(challenges || []);
+  
   // Get challenge IDs for batch queries
-  const challengeIds = useMemo(() => challenges?.map(c => c.id) || [], [challenges]);
+  const challengeIds = useMemo(() => accessibleChallenges?.map(c => c.id) || [], [accessibleChallenges]);
   
   // Batch load progress and participations for better performance
   const { data: progressMap = {} } = useChallengeProgressBatch(challengeIds);
@@ -114,9 +118,9 @@ export const ChallengesPage = () => {
 
   // Filter challenges based on user level with stable memoization
   const filteredChallenges = useMemo(() => {
-    if (!challenges) return [];
+    if (!accessibleChallenges) return [];
 
-    return challenges.filter(challenge => {
+    return accessibleChallenges.filter(challenge => {
       // If challenge is available for all levels, include it
       if (challenge.is_available_for_all_levels) {
         return true;
@@ -130,7 +134,7 @@ export const ChallengesPage = () => {
       // For now, include all challenges - we can add level filtering later if needed
       return true;
     });
-  }, [challenges, userLevel]);
+  }, [accessibleChallenges, userLevel]);
 
   // Separate active and completed challenges with stable memoization
   const activeChallenges = useMemo(() => {
