@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { DocumentUploader } from '@/components/ui/document-uploader';
+import { LessonMaterialUploader } from '@/components/ui/lesson-material-uploader';
 import { useCreateLesson } from '@/hooks/useManageCourses';
 import { useCreateLessonMaterial } from '@/hooks/useLessonMaterials';
 
@@ -282,7 +282,7 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
                       />
                     </div>
 
-                    <DocumentUploader
+                    <LessonMaterialUploader
                       label="Arquivo"
                       value={material.file_url || undefined}
                       onChange={(url) => updateMaterial(index, 'file_url', url || '')}

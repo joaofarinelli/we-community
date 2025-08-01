@@ -21,7 +21,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { LessonMaterialUploader } from '@/components/ui/lesson-material-uploader';
 import { useUpdateLesson } from '@/hooks/useManageCourses';
+import { useLessonMaterials, useCreateLessonMaterial, useDeleteLessonMaterial } from '@/hooks/useLessonMaterials';
 
 const lessonSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -42,7 +44,11 @@ interface EditLessonDialogProps {
 
 export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [materials, setMaterials] = useState<Array<{ id?: string; title: string; file_url: string }>>([]);
   const updateLesson = useUpdateLesson();
+  const { data: existingMaterials } = useLessonMaterials(lesson?.id || '');
+  const createLessonMaterial = useCreateLessonMaterial();
+  const deleteLessonMaterial = useDeleteLessonMaterial();
 
   const form = useForm<LessonFormData>({
     resolver: zodResolver(lessonSchema),
@@ -69,6 +75,16 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
     }
   }, [lesson, form]);
 
+  useEffect(() => {
+    if (existingMaterials) {
+      setMaterials(existingMaterials.map(mat => ({
+        id: mat.id,
+        title: mat.title,
+        file_url: mat.file_url,
+      })));
+    }
+  }, [existingMaterials]);
+
   const onSubmit = async (data: LessonFormData) => {
     if (!lesson?.id) return;
     
@@ -84,12 +100,65 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
         duration: data.duration || undefined,
         difficulty_level: data.difficulty_level,
       });
+
+      // Gerenciar materiais
+      const existingIds = existingMaterials?.map(m => m.id) || [];
+      const currentIds = materials.filter(m => m.id).map(m => m.id);
+      
+      // Deletar materiais removidos
+      const toDelete = existingIds.filter(id => !currentIds.includes(id));
+      await Promise.all(
+        toDelete.map(id => 
+          deleteLessonMaterial.mutateAsync({ materialId: id!, lessonId: lesson.id })
+        )
+      );
+
+      // Criar novos materiais
+      const newMaterials = materials.filter(m => !m.id && m.title && m.file_url);
+      await Promise.all(
+        newMaterials.map(material =>
+          createLessonMaterial.mutateAsync({
+            lessonId: lesson.id,
+            title: material.title,
+            fileUrl: material.file_url,
+          })
+        )
+      );
+
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating lesson:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const addMaterial = () => {
+    setMaterials([...materials, { title: '', file_url: '' }]);
+  };
+
+  const removeMaterial = async (index: number) => {
+    const material = materials[index];
+    if (material.id) {
+      // Material existente - deletar do banco
+      try {
+        await deleteLessonMaterial.mutateAsync({ 
+          materialId: material.id, 
+          lessonId: lesson?.id || '' 
+        });
+      } catch (error) {
+        console.error('Error deleting material:', error);
+      }
+    }
+    // Remover da lista local
+    setMaterials(materials.filter((_, i) => i !== index));
+  };
+
+  const updateMaterial = (index: number, field: 'title' | 'file_url', value: string) => {
+    const updatedMaterials = materials.map((material, i) =>
+      i === index ? { ...material, [field]: value } : material
+    );
+    setMaterials(updatedMaterials);
   };
 
   return (
@@ -217,6 +286,58 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
                 </FormItem>
               )}
             />
+
+            {/* Seção de Materiais */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>Materiais da Aula (opcional)</FormLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addMaterial}
+                  disabled={isSubmitting}
+                >
+                  Adicionar Material
+                </Button>
+              </div>
+
+              {materials.map((material, index) => (
+                <div key={index} className="p-4 border rounded-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium">
+                      Material {index + 1} {material.id && '(Existente)'}
+                    </h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeMaterial(index)}
+                      disabled={isSubmitting}
+                    >
+                      Remover
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <FormLabel>Título do Material</FormLabel>
+                      <Input
+                        placeholder="Ex: PDF com exercícios, slides da apresentação..."
+                        value={material.title}
+                        onChange={(e) => updateMaterial(index, 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <LessonMaterialUploader
+                      label="Arquivo"
+                      value={material.file_url || undefined}
+                      onChange={(url) => updateMaterial(index, 'file_url', url || '')}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="flex justify-end gap-3 pt-4">
               <Button 

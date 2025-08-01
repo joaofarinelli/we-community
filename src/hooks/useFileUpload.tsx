@@ -5,7 +5,7 @@ import { useCompany } from './useCompany';
 import { toast } from 'sonner';
 
 interface UseFileUploadOptions {
-  bucket: 'post-images' | 'post-documents';
+  bucket: 'post-images' | 'post-documents' | 'lesson-materials';
   maxSizeBytes?: number;
   allowedTypes?: string[];
 }
@@ -57,7 +57,7 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
         return null;
       }
 
-      // Get public URL for images or signed URL for documents
+      // Get public URL for images or signed URL for documents/materials
       if (options.bucket === 'post-images') {
         const { data: { publicUrl } } = supabase.storage
           .from(options.bucket)
@@ -65,9 +65,10 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
         
         return publicUrl;
       } else {
+        // For lesson-materials and post-documents, use signed URLs for security
         const { data: { signedUrl }, error: signedError } = await supabase.storage
           .from(options.bucket)
-          .createSignedUrl(data.path, 3600); // 1 hour expiry
+          .createSignedUrl(data.path, 86400); // 24 hours expiry for lesson materials
         
         if (signedError) {
           console.error('Error creating signed URL:', signedError);
