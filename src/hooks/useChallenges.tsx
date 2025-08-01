@@ -1,25 +1,64 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useUserLevel } from './useUserLevel';
+import { useCompanyContext } from './useCompanyContext';
+import { useMemo } from 'react';
 
 export const useChallenges = () => {
   const { user } = useAuth();
-  const { data: userLevel } = useUserLevel();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['challenges', user?.id],
+    queryKey: ['challenges', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !currentCompanyId) return [];
+
+      // Simplified query - get basic challenge data first
+      const { data, error } = await supabase
+        .from('challenges')
+        .select(`
+          id,
+          title,
+          description,
+          challenge_type,
+          reward_type,
+          reward_value,
+          image_url,
+          is_active,
+          is_available_for_all_levels,
+          required_level_id,
+          order_index,
+          start_date,
+          end_date,
+          requirements,
+          challenge_duration_days
+        `)
+        .eq('is_active', true)
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id && !!currentCompanyId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes  
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Separate hook for challenge progress - only load when needed
+export const useChallengeWithProgress = (challengeId?: string) => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['challenge-with-progress', challengeId, user?.id],
+    queryFn: async () => {
+      if (!challengeId || !user?.id) return null;
 
       const { data, error } = await supabase
         .from('challenges')
         .select(`
           *,
-          required_level:user_levels!challenges_required_level_id_fkey(
-            level_number,
-            level_name
-          ),
           challenge_progress!left(
             id,
             progress_value,
@@ -36,34 +75,15 @@ export const useChallenges = () => {
         `)
         .eq('challenge_progress.user_id', user.id)
         .eq('user_challenge_participations.user_id', user.id)
-        .eq('is_active', true)
-        .order('order_index', { ascending: true });
+        .eq('id', challengeId)
+        .single();
 
       if (error) throw error;
-
-      // Filter challenges based on user level
-      const filteredChallenges = data?.filter(challenge => {
-        // If challenge is available for all levels, include it
-        if (challenge.is_available_for_all_levels) {
-          return true;
-        }
-        
-        // If user doesn't have a level yet, only show all-levels challenges
-        if (!userLevel?.user_levels) {
-          return false;
-        }
-
-        // If challenge has a required level, check if user meets it
-        if (challenge.required_level_id && challenge.required_level) {
-          return userLevel.user_levels.level_number >= challenge.required_level.level_number;
-        }
-
-        return true;
-      }) || [];
-      
-      return filteredChallenges;
+      return data;
     },
-    enabled: !!user?.id,
+    enabled: !!challengeId && !!user?.id,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -123,5 +143,8 @@ export const useChallengeRewards = () => {
       return data || [];
     },
     enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000, // 5 minutes - rewards don't change frequently
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    refetchOnWindowFocus: false,
   });
 };

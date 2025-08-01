@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { useChallenges, useChallengeProgress, useChallengeRewards } from '@/hooks/useChallenges';
+import { useChallenges, useChallengeRewards } from '@/hooks/useChallenges';
+import { useChallengeProgressBatch, useChallengeParticipationsBatch } from '@/hooks/useChallengeProgress';
+import { useUserLevel } from '@/hooks/useUserLevel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -27,8 +29,15 @@ export const ChallengesPage = () => {
   const [showChallengeDetails, setShowChallengeDetails] = useState(false);
   
   const { data: challenges, isLoading } = useChallenges();
-  const { data: progress } = useChallengeProgress();
+  const { data: userLevel } = useUserLevel();
   const { data: rewards } = useChallengeRewards();
+  
+  // Get challenge IDs for batch queries
+  const challengeIds = useMemo(() => challenges?.map(c => c.id) || [], [challenges]);
+  
+  // Batch load progress and participations for better performance
+  const { data: progressMap = {} } = useChallengeProgressBatch(challengeIds);
+  const { data: participationsMap = {} } = useChallengeParticipationsBatch(challengeIds);
 
   const getChallengeTypeIcon = (type: string) => {
     switch (type) {
@@ -103,15 +112,40 @@ export const ChallengesPage = () => {
     );
   }
 
-  const activeChallenges = challenges?.filter(c => {
-    const userProgress = c.challenge_progress?.[0];
-    return !userProgress?.is_completed;
-  }) || [];
+  // Filter challenges with progress data using memoization for performance
+  const { activeChallenges, completedChallenges } = useMemo(() => {
+    if (!challenges) return { activeChallenges: [], completedChallenges: [] };
 
-  const completedChallenges = challenges?.filter(c => {
-    const userProgress = c.challenge_progress?.[0];
-    return userProgress?.is_completed;
-  }) || [];
+    // Filter challenges based on user level first
+    const filteredChallenges = challenges.filter(challenge => {
+      // If challenge is available for all levels, include it
+      if (challenge.is_available_for_all_levels) {
+        return true;
+      }
+      
+      // If user doesn't have a level yet, only show all-levels challenges
+      if (!userLevel?.user_levels) {
+        return false;
+      }
+
+      // For now, include all challenges - we can add level filtering later if needed
+      return true;
+    });
+
+    const active: any[] = [];
+    const completed: any[] = [];
+
+    filteredChallenges.forEach(challenge => {
+      const userProgress = progressMap[challenge.id];
+      if (userProgress?.is_completed) {
+        completed.push(challenge);
+      } else {
+        active.push(challenge);
+      }
+    });
+
+    return { activeChallenges: active, completedChallenges: completed };
+  }, [challenges, progressMap, userLevel]);
 
   return (
     <DashboardLayout>
@@ -156,7 +190,7 @@ export const ChallengesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeChallenges.map((challenge) => {
-                  const userProgress = challenge.challenge_progress?.[0];
+                  const userProgress = progressMap[challenge.id];
                   const progressValue = userProgress?.progress_value || 0;
                   const targetValue = userProgress?.target_value || (challenge.requirements as any)?.target_value || 1;
                   const progressPercent = Math.min((progressValue / targetValue) * 100, 100);
@@ -188,9 +222,9 @@ export const ChallengesPage = () => {
                                 <Badge variant="outline">
                                   {formatChallengeType(challenge.challenge_type)}
                                 </Badge>
-                                {!challenge.is_available_for_all_levels && challenge.required_level && (
+                                {!challenge.is_available_for_all_levels && challenge.required_level_id && (
                                   <Badge variant="secondary" className="text-xs">
-                                    Nível {challenge.required_level.level_number}+
+                                    Nível restrito
                                   </Badge>
                                 )}
                               </div>
@@ -264,7 +298,7 @@ export const ChallengesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {completedChallenges.map((challenge) => {
-                  const userProgress = challenge.challenge_progress?.[0];
+                  const userProgress = progressMap[challenge.id];
 
                   return (
                     <Card 
@@ -293,9 +327,9 @@ export const ChallengesPage = () => {
                                 <Badge variant="outline" className="border-green-600 text-green-600">
                                   Concluído
                                 </Badge>
-                                {!challenge.is_available_for_all_levels && challenge.required_level && (
+                                {!challenge.is_available_for_all_levels && challenge.required_level_id && (
                                   <Badge variant="secondary" className="text-xs">
-                                    Nível {challenge.required_level.level_number}+
+                                    Nível restrito
                                   </Badge>
                                 )}
                               </div>

@@ -66,7 +66,8 @@ export const useUserLevel = (userId?: string) => {
       };
     },
     enabled: !!targetUserId && !!currentCompanyId,
-    staleTime: 30000,
+    staleTime: 5 * 60 * 1000, // 5 minutes - level changes are infrequent
+    gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
   });
 };
