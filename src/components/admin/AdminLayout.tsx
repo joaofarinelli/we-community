@@ -131,7 +131,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const activeMenuData = mainMenuItems.find(m => m.key === activeMenu);
 
   return (
-    <TooltipProvider>
+    <TooltipProvider delayDuration={0}>
       <div className="min-h-screen bg-background flex">
         {/* Main Menu Sidebar */}
         <div className="w-16 bg-card border-r border-border flex flex-col">
