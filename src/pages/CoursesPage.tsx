@@ -95,9 +95,10 @@ export const CoursesPage = () => {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        {/* Course Banner */}
-        <CourseBannerSection />
-        
+        {/* Course Banner - Full Width */}
+        <div className="-mx-8 -mt-8">
+          <CourseBannerSection />
+        </div>
 
         {/* Courses Showcase */}
         <div className="px-8 py-8 space-y-12">
