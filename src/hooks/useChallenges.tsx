@@ -26,9 +26,16 @@ export const useChallenges = () => {
             target_value,
             is_completed,
             completed_at
+          ),
+          user_challenge_participations!left(
+            id,
+            status,
+            accepted_at,
+            expires_at
           )
         `)
         .eq('challenge_progress.user_id', user.id)
+        .eq('user_challenge_participations.user_id', user.id)
         .eq('is_active', true)
         .order('order_index', { ascending: true });
 

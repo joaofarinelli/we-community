@@ -14,6 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_group_courses: {
+        Row: {
+          access_group_id: string
+          added_at: string
+          added_by: string
+          company_id: string
+          course_id: string
+          id: string
+        }
+        Insert: {
+          access_group_id: string
+          added_at?: string
+          added_by: string
+          company_id: string
+          course_id: string
+          id?: string
+        }
+        Update: {
+          access_group_id?: string
+          added_at?: string
+          added_by?: string
+          company_id?: string
+          course_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      access_group_members: {
+        Row: {
+          access_group_id: string
+          added_at: string
+          added_by: string
+          company_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          access_group_id: string
+          added_at?: string
+          added_by: string
+          company_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          access_group_id?: string
+          added_at?: string
+          added_by?: string
+          company_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      access_group_spaces: {
+        Row: {
+          access_group_id: string
+          added_at: string
+          added_by: string
+          company_id: string
+          id: string
+          space_id: string
+        }
+        Insert: {
+          access_group_id: string
+          added_at?: string
+          added_by: string
+          company_id: string
+          id?: string
+          space_id: string
+        }
+        Update: {
+          access_group_id?: string
+          added_at?: string
+          added_by?: string
+          company_id?: string
+          id?: string
+          space_id?: string
+        }
+        Relationships: []
+      }
+      access_groups: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       challenge_files: {
         Row: {
           challenge_id: string
@@ -154,8 +268,69 @@ export type Database = {
           },
         ]
       }
+      challenge_submissions: {
+        Row: {
+          admin_review_notes: string | null
+          admin_review_status: string | null
+          company_id: string
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          mime_type: string | null
+          participation_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          submission_content: string | null
+          submission_type: string
+          submitted_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_review_notes?: string | null
+          admin_review_status?: string | null
+          company_id: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          mime_type?: string | null
+          participation_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submission_content?: string | null
+          submission_type: string
+          submitted_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_review_notes?: string | null
+          admin_review_status?: string | null
+          company_id?: string
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          mime_type?: string | null
+          participation_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          submission_content?: string | null
+          submission_type?: string
+          submitted_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenges: {
         Row: {
+          challenge_duration_days: number | null
           challenge_type: Database["public"]["Enums"]["challenge_type"]
           company_id: string
           created_at: string
@@ -177,6 +352,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          challenge_duration_days?: number | null
           challenge_type: Database["public"]["Enums"]["challenge_type"]
           company_id: string
           created_at?: string
@@ -198,6 +374,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          challenge_duration_days?: number | null
           challenge_type?: Database["public"]["Enums"]["challenge_type"]
           company_id?: string
           created_at?: string
@@ -2116,6 +2293,42 @@ export type Database = {
           },
         ]
       }
+      user_challenge_participations: {
+        Row: {
+          accepted_at: string
+          challenge_id: string
+          company_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          challenge_id: string
+          company_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          challenge_id?: string
+          company_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_course_access: {
         Row: {
           company_id: string
@@ -2702,6 +2915,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      expire_challenges: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       find_or_create_direct_conversation: {
         Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
         Returns: string
@@ -2873,6 +3090,7 @@ export type Database = {
         | "marketplace_purchase"
         | "custom_action"
         | "points_accumulation"
+        | "custom_goal"
       field_type:
         | "text"
         | "textarea"
@@ -3021,6 +3239,7 @@ export const Constants = {
         "marketplace_purchase",
         "custom_action",
         "points_accumulation",
+        "custom_goal",
       ],
       field_type: [
         "text",

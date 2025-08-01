@@ -4,7 +4,7 @@ import { useAuth } from './useAuth';
 import { useCompany } from './useCompany';
 import { toast } from 'sonner';
 
-type ChallengeType = 'course_completion' | 'post_creation' | 'marketplace_purchase' | 'custom_action' | 'points_accumulation';
+type ChallengeType = 'course_completion' | 'post_creation' | 'marketplace_purchase' | 'custom_action' | 'points_accumulation' | 'custom_goal';
 type RewardType = 'coins' | 'course_access' | 'file_download' | 'marketplace_item';
 
 export const useManageChallenges = () => {
@@ -47,6 +47,8 @@ export const useCreateChallenge = () => {
       start_date?: string;
       end_date?: string;
       max_participants?: number;
+      challenge_duration_days?: number;
+      image_url?: string;
     }) => {
       if (!user?.id || !company?.id) throw new Error('User not authenticated or company not found');
 
