@@ -26,11 +26,12 @@ export const Dashboard = () => {
 
   return (
     <DashboardLayout>
+      {/* Feed Banner */}
+      <FeedBanner />
+      
       <div className="h-full overflow-y-auto">
         <div className="max-w-4xl mx-auto p-8">
           <div className="space-y-6">
-            {/* Feed Banner */}
-            <FeedBanner />
 
             {/* Welcome Title */}
             <div>
