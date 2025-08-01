@@ -30,11 +30,15 @@ export const ChallengesPage = () => {
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [showChallengeDetails, setShowChallengeDetails] = useState(false);
   
+  // Sempre chame todos os hooks primeiro, na mesma ordem
   const { user } = useAuth();
   const { data: challenges, isLoading } = useChallenges();
   const { data: userLevel } = useUserLevel();
   const { data: rewards } = useChallengeRewards();
-  const { data: userTags } = useUserTags(user?.id || '');
+  
+  // Stabilize userId - sempre passe um valor consistente
+  const stableUserId = user?.id || '';
+  const { data: userTags } = useUserTags(stableUserId);
   
   // Filter challenges by access tags first using useMemo
   const accessibleChallenges = useMemo(() => {
@@ -59,10 +63,13 @@ export const ChallengesPage = () => {
     });
   }, [challenges, userTags]);
   
-  // Get challenge IDs for batch queries
-  const challengeIds = useMemo(() => accessibleChallenges?.map(c => c.id) || [], [accessibleChallenges]);
+  // Get challenge IDs for batch queries - always return array to maintain stable dependency
+  const challengeIds = useMemo(() => {
+    return accessibleChallenges?.map(c => c.id) || [];
+  }, [accessibleChallenges]);
   
   // Batch load progress and participations for better performance
+  // Always call hooks with stable arrays, even if empty
   const { data: progressMap = {} } = useChallengeProgressBatch(challengeIds);
   const { data: participationsMap = {} } = useChallengeParticipationsBatch(challengeIds);
 
@@ -107,38 +114,7 @@ export const ChallengesPage = () => {
     return types[type as keyof typeof types] || type;
   };
 
-  const handleViewChallenge = (challenge: any) => {
-    setSelectedChallenge(challenge);
-    setShowChallengeDetails(true);
-  };
-
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="p-8">
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold">Desafios</h1>
-              <p className="text-muted-foreground">
-                Complete desafios e ganhe recompensas incríveis!
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
+  // Manter todas as separações de dados em useMemo estáveis
   // Filter challenges based on user level with stable memoization
   const filteredChallenges = useMemo(() => {
     if (!accessibleChallenges) return [];
@@ -173,6 +149,40 @@ export const ChallengesPage = () => {
       return userProgress?.is_completed;
     });
   }, [filteredChallenges, progressMap]);
+
+  const handleViewChallenge = (challenge: any) => {
+    setSelectedChallenge(challenge);
+    setShowChallengeDetails(true);
+  };
+
+  // Move loading check after all hooks to maintain consistent hook order
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="p-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold">Desafios</h1>
+              <p className="text-muted-foreground">
+                Complete desafios e ganhe recompensas incríveis!
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <CardContent className="p-6">
+                    <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
+                    <div className="h-3 bg-muted rounded w-1/2"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
 
   return (
     <DashboardLayout>

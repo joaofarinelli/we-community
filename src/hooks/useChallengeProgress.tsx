@@ -7,10 +7,14 @@ import { useMemo } from 'react';
 export const useChallengeProgressBatch = (challengeIds: string[]) => {
   const { user } = useAuth();
 
+  // Estabilizar user ID para evitar mudanças desnecessárias
+  const stableUserId = user?.id || '';
+
   return useQuery({
-    queryKey: ['challenge-progress-batch', challengeIds, user?.id],
+    queryKey: ['challenge-progress-batch', challengeIds, stableUserId],
     queryFn: async () => {
-      if (!user?.id || challengeIds.length === 0) return {};
+      // Se não tem user ID ou challengeIds, retorna objeto vazio
+      if (!stableUserId || challengeIds.length === 0) return {};
 
       const { data, error } = await supabase
         .from('challenge_progress')
@@ -21,7 +25,7 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
           is_completed,
           completed_at
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', stableUserId)
         .in('challenge_id', challengeIds);
 
       if (error) throw error;
@@ -32,7 +36,7 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
         return acc;
       }, {} as Record<string, any>);
     },
-    enabled: !!user?.id && challengeIds.length > 0,
+    enabled: !!stableUserId && challengeIds.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   });
@@ -42,10 +46,14 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
 export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
   const { user } = useAuth();
 
+  // Estabilizar user ID para evitar mudanças desnecessárias
+  const stableUserId = user?.id || '';
+
   return useQuery({
-    queryKey: ['challenge-participations-batch', challengeIds, user?.id],
+    queryKey: ['challenge-participations-batch', challengeIds, stableUserId],
     queryFn: async () => {
-      if (!user?.id || challengeIds.length === 0) return {};
+      // Se não tem user ID ou challengeIds, retorna objeto vazio
+      if (!stableUserId || challengeIds.length === 0) return {};
 
       const { data, error } = await supabase
         .from('user_challenge_participations')
@@ -55,7 +63,7 @@ export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
           accepted_at,
           expires_at
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', stableUserId)
         .in('challenge_id', challengeIds);
 
       if (error) throw error;
@@ -66,7 +74,7 @@ export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
         return acc;
       }, {} as Record<string, any>);
     },
-    enabled: !!user?.id && challengeIds.length > 0,
+    enabled: !!stableUserId && challengeIds.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   });
