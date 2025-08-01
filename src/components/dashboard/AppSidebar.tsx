@@ -50,9 +50,18 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
 
-  const isActive = (path: string) => currentPath === path;
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
+  const isActive = (path: string) => {
+    if (path === "/dashboard") {
+      return currentPath === "/dashboard";
+    }
+    if (path === "/courses") {
+      return currentPath.startsWith("/courses");
+    }
+    if (path === "/admin/settings") {
+      return currentPath.startsWith("/admin");
+    }
+    return currentPath.startsWith(path);
+  };
 
   const handleNavClick = (url: string) => {
     if (onClose) {
@@ -81,13 +90,13 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
+                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
                       onClick={() => handleNavClick(item.url)}
-                      className="flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors text-foreground hover:bg-muted hover:text-foreground"
-                      style={({ isActive }) =>
-                        isActive
+                      className="flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors text-foreground hover:bg-muted hover:text-foreground"
+                      style={() =>
+                        isActive(item.url)
                           ? {
                               backgroundColor: company?.primary_color,
                               color: company?.button_text_color ?? "#fff",
