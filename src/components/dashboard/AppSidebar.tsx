@@ -50,18 +50,9 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
 
-  const isActive = (path: string) => {
-    if (path === "/dashboard") {
-      return currentPath === "/dashboard";
-    }
-    if (path === "/courses") {
-      return currentPath.startsWith("/courses");
-    }
-    if (path === "/admin/settings") {
-      return currentPath.startsWith("/admin");
-    }
-    return currentPath.startsWith(path);
-  };
+  const isActive = (path: string) => currentPath === path;
+  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+    isActive ? "bg-muted text-primary font-medium" : "hover:bg-muted/50";
 
   const handleNavClick = (url: string) => {
     if (onClose) {
