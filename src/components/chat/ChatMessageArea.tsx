@@ -21,6 +21,28 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   // Enable real-time updates
   useMessagesRealtime(conversationId);
 
+  const inputRef = useRef<HTMLDivElement>(null);
+  const [inputHeight, setInputHeight] = useState(0);
+
+  // Atualiza altura do input ao renderizar mensagens e ao redimensionar
+  useEffect(() => {
+    const updateHeight = () => {
+      if (inputRef.current) {
+        setInputHeight(inputRef.current.getBoundingClientRect().height);
+      }
+    };
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
+  // Recalcula altura sempre que as mensagens mudam
+  useEffect(() => {
+    if (inputRef.current) {
+      setInputHeight(inputRef.current.getBoundingClientRect().height);
+    }
+  }, [messages.length]);
+
   if (!conversationId) {
     return (
       <div className="flex-1 flex items-center justify-center text-muted-foreground">
@@ -69,7 +91,10 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 min-h-0 p-4 pb-20">
+      <ScrollArea
+        className="flex-1 min-h-0 p-4"
+        style={{ paddingBottom: inputHeight }}
+      >
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
