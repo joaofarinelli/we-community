@@ -69,7 +69,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 min-h-0 p-4">
+      <ScrollArea className="flex-1 min-h-0 p-4 pb-20">
         {isLoading ? (
           <div className="space-y-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -98,7 +98,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       </ScrollArea>
 
       {/* Input fixo */}
-      <div className="p-4 border-t border-border bg-background sticky bottom-0">
+      <div className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
         <ChatInput conversationId={conversationId} />
       </div>
     </div>
