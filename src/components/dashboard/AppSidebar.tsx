@@ -74,7 +74,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
       <SidebarContent className="bg-card border-r border-border">
         {/* Company Header */}
         {!collapsed && (
-          <div className="p-4 border-b border-border h-20 flex items-center">
+          <div className="p-4 border-b border-border h-[72px] flex items-center">
             <CompanyLogo 
               fallbackText="Minha Empresa"
               textClassName="text-lg font-semibold text-foreground"
