@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import {
   Drawer,
   DrawerContent,
@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useUpdateSpace } from '@/hooks/useUpdateSpace';
+import { useSpaceBanner } from '@/hooks/useSpaceBanner';
 import { IconSelector } from '@/components/ui/icon-selector';
 import { SpaceType } from '@/lib/spaceUtils';
 
@@ -41,6 +42,7 @@ export const SpaceCustomizationDrawer = ({
 }: SpaceCustomizationDrawerProps) => {
   const { data: categories = [] } = useSpaceCategories();
   const updateSpaceMutation = useUpdateSpace();
+  const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving } = useSpaceBanner(space.id);
   
   // Estados para as configurações
   const [spaceName, setSpaceName] = useState(space.name);
@@ -253,25 +255,76 @@ export const SpaceCustomizationDrawer = ({
 
             <Separator />
 
-            {/* Seção Imagens */}
+            {/* Seção Banner */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground">Imagens</h3>
+              <h3 className="text-sm font-medium text-foreground">Banner do Espaço</h3>
               
-              <div className="space-y-2">
-                <Label>Imagem de capa</Label>
-                <Button variant="outline" className="w-full justify-start">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Fazer upload
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Miniatura para dispositivos móveis</Label>
-                <Button variant="outline" className="w-full justify-start">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Fazer upload
-                </Button>
-              </div>
+              {bannerUrl ? (
+                <div className="space-y-4">
+                  <div className="relative rounded-lg overflow-hidden border">
+                    <img
+                      src={bannerUrl}
+                      alt="Banner do espaço"
+                      className="w-full h-32 object-cover"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                      onClick={() => removeBanner()}
+                      disabled={isRemoving}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Alterar banner</Label>
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.accept = 'image/*';
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement).files?.[0];
+                          if (file) uploadBanner(file);
+                        };
+                        input.click();
+                      }}
+                      disabled={isUploading}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {isUploading ? 'Enviando...' : 'Alterar banner'}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Banner do espaço</Label>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      const input = document.createElement('input');
+                      input.type = 'file';
+                      input.accept = 'image/*';
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) uploadBanner(file);
+                      };
+                      input.click();
+                    }}
+                    disabled={isUploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {isUploading ? 'Enviando...' : 'Fazer upload do banner'}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Recomendado: 1200x300 pixels
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

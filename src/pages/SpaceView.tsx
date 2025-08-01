@@ -20,6 +20,7 @@ import { CreateEventDialog } from '@/components/events/CreateEventDialog';
 import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
+import { SpaceBanner } from '@/components/ui/space-banner';
 import { useState } from 'react';
 export const SpaceView = () => {
   const [notificationSettings, setNotificationSettings] = useState({
@@ -230,6 +231,8 @@ export const SpaceView = () => {
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Space Banner */}
+          <SpaceBanner spaceId={spaceId} />
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-3 space-y-6">
