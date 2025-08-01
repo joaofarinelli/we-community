@@ -90,22 +90,22 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
+                    <NavLink
+                      to={item.url}
                       end={item.url === "/dashboard"}
                       onClick={() => handleNavClick(item.url)}
-                      className={({ isActive: navLinkIsActive }) => 
-                        `flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
-                          isActive(item.url)
-                            ? "bg-primary text-primary-foreground" 
-                            : "text-foreground hover:bg-muted hover:text-foreground"
-                        }`
+                      className="flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors text-foreground hover:bg-muted hover:text-foreground"
+                      style={({ isActive }) =>
+                        isActive
+                          ? {
+                              backgroundColor: company?.primaryColor,
+                              color: company?.primaryForegroundColor ?? "#fff",
+                            }
+                          : {}
                       }
                     >
                       <item.icon className="h-4 w-4" />
-                      {!collapsed && (
-                        <span>{item.title}</span>
-                      )}
+                      {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
