@@ -20,12 +20,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { ImageUpload } from '@/components/ui/image-upload';
+import { BookOpen, Loader2 } from 'lucide-react';
 import { useCreateCourse } from '@/hooks/useManageCourses';
 
 const courseSchema = z.object({
-  title: z.string().min(1, 'Título é obrigatório'),
+  title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
   description: z.string().optional(),
-  thumbnail_url: z.string().url('URL deve ser válida').optional().or(z.literal('')),
+  thumbnail_url: z.string().optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -67,80 +69,123 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Criar Novo Curso</DialogTitle>
-          <DialogDescription>
-            Preencha as informações básicas do curso
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+              <BookOpen className="h-4 w-4 text-primary" />
+            </div>
+            <DialogTitle className="text-xl">Criar Novo Curso</DialogTitle>
+          </div>
+          <DialogDescription className="text-sm">
+            Preencha as informações básicas para criar um novo curso. Você poderá adicionar módulos e aulas depois.
           </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título *</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Ex: Introdução ao Marketing Digital" 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Basic Information Section */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Informações Básicas
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">
+                      Título do Curso *
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="Ex: Introdução ao Marketing Digital" 
+                        className="h-11"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Descreva o conteúdo e objetivos do curso"
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Descrição</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Descreva o conteúdo, objetivos e o que os alunos aprenderão neste curso..."
+                        rows={4}
+                        className="resize-none"
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="thumbnail_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>URL da Imagem de Capa</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="https://exemplo.com/imagem.jpg" 
-                      type="url"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Visual Section */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Imagem de Capa
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="thumbnail_url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">
+                      Capa do Curso
+                    </FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        value={field.value}
+                        onChange={field.onChange}
+                        onRemove={() => field.onChange('')}
+                        bucketName="course-thumbnails"
+                        maxSizeKB={2048}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            {/* Action Buttons */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
               >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Criando...' : 'Criar Curso'}
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="w-full sm:w-auto"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Criando...
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Criar Curso
+                  </>
+                )}
               </Button>
             </div>
           </form>
