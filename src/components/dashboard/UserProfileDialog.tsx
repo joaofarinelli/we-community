@@ -10,9 +10,11 @@ import { useCompany } from '@/hooks/useCompany';
 import { useUserPoints } from '@/hooks/useUserPoints';
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useUserMarketplaceItems } from '@/hooks/useUserMarketplaceItems';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { UserPostItem } from './UserPostItem';
-import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone } from 'lucide-react';
+import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
+import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,6 +45,9 @@ export const UserProfileDialog = ({
   const {
     data: userStats
   } = useUserStats(user?.id || '');
+  const {
+    data: userMarketplaceItems = []
+  } = useUserMarketplaceItems();
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
@@ -155,7 +160,7 @@ export const UserProfileDialog = ({
           {/* Right Panel - Detailed Info */}
           <div className="lg:w-2/3 p-6">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="sobre">Sobre</TabsTrigger>
                 <TabsTrigger value="publicacoes">
                   Publicações ({userStats?.postsCount || 0})
@@ -165,6 +170,9 @@ export const UserProfileDialog = ({
                 </TabsTrigger>
                 <TabsTrigger value="espacos">
                   Espaços
+                </TabsTrigger>
+                <TabsTrigger value="marketplace">
+                  Marketplace ({userMarketplaceItems.length})
                 </TabsTrigger>
               </TabsList>
 
@@ -240,6 +248,25 @@ export const UserProfileDialog = ({
                   <Users className="h-12 w-12 mx-auto mb-4" />
                   <p>Os espaços que você participa aparecerão aqui</p>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="marketplace" className="mt-6">
+                {userMarketplaceItems.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {userMarketplaceItems.map((item) => (
+                      <MarketplaceItemCard 
+                        key={item.id} 
+                        item={item} 
+                        userCoins={userPoints?.total_coins || 0}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <ShoppingBag className="h-12 w-12 mx-auto mb-4" />
+                    <p>Você ainda não tem itens à venda no marketplace</p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>

@@ -5,10 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOtherUserProfile, useOtherUserPoints, useOtherUserLevel } from '@/hooks/useOtherUserProfile';
+import { useOtherUserMarketplaceItems } from '@/hooks/useOtherUserMarketplaceItems';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { UserPostItem } from './UserPostItem';
+import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { 
   User, 
   Mail, 
@@ -18,7 +20,8 @@ import {
   Users,
   Clock,
   X,
-  Phone
+  Phone,
+  ShoppingBag
 } from 'lucide-react';
 
 interface OtherUserProfileDialogProps {
@@ -34,6 +37,7 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
   const { data: userTags = [] } = useUserTags(userId || '');
   const { data: userPosts = [] } = useUserPosts(userId || '');
   const { data: userStats } = useUserStats(userId || '');
+  const { data: userMarketplaceItems = [] } = useOtherUserMarketplaceItems(userId || '');
 
   const getUserInitials = () => {
     if (!userProfile) return 'U';
@@ -243,12 +247,15 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
           {/* Right Panel - Detailed Info */}
           <div className="lg:w-2/3 p-6">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="sobre">Sobre</TabsTrigger>
                 <TabsTrigger value="publicacoes">
                   Publicações ({userStats?.postsCount || 0})
                 </TabsTrigger>
                 <TabsTrigger value="atividade">Atividade</TabsTrigger>
+                <TabsTrigger value="marketplace">
+                  Marketplace ({userMarketplaceItems.length})
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="sobre" className="mt-6 space-y-6">
@@ -348,6 +355,25 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                   <Users className="h-12 w-12 mx-auto mb-4" />
                   <p>A atividade recente deste usuário aparecerá aqui</p>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="marketplace" className="mt-6">
+                {userMarketplaceItems.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {userMarketplaceItems.map((item) => (
+                      <MarketplaceItemCard 
+                        key={item.id} 
+                        item={item} 
+                        userCoins={userPoints?.total_coins || 0}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <ShoppingBag className="h-12 w-12 mx-auto mb-4" />
+                    <p>Este usuário não possui itens à venda no marketplace</p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
