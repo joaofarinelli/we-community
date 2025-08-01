@@ -49,18 +49,18 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
           </Button>
         )}
       </DrawerTrigger>
-      <DrawerContent className="h-[90vh] w-full p-0">
-        <div className="flex h-full relative">
-          {/* Botão de fechar no canto superior direito */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 z-10"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+      <DrawerContent className="h-[90vh] w-full p-0 relative">
+        {/* Botão de fechar no canto superior direito - FORA da área de chat */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setIsOpen(false)}
+          className="absolute top-4 right-4 z-20 bg-background/80 hover:bg-background"
+        >
+          <X className="h-4 w-4" />
+        </Button>
 
+        <div className="flex h-full">
           {/* Sidebar esquerda - Lista de conversas */}
           <div className="w-80 border-r border-border">
             <ChatSidebar 
