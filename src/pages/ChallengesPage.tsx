@@ -2,8 +2,9 @@ import { useState, useMemo } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useChallenges, useChallengeRewards } from '@/hooks/useChallenges';
 import { useChallengeProgressBatch, useChallengeParticipationsBatch } from '@/hooks/useChallengeProgress';
-import { useFilteredChallengesByAccess } from '@/hooks/useChallengeAccess';
 import { useUserLevel } from '@/hooks/useUserLevel';
+import { useUserTags } from '@/hooks/useUserTags';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -29,12 +30,34 @@ export const ChallengesPage = () => {
   const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
   const [showChallengeDetails, setShowChallengeDetails] = useState(false);
   
+  const { user } = useAuth();
   const { data: challenges, isLoading } = useChallenges();
   const { data: userLevel } = useUserLevel();
   const { data: rewards } = useChallengeRewards();
+  const { data: userTags } = useUserTags(user?.id || '');
   
-  // Filter challenges by access tags first
-  const accessibleChallenges = useFilteredChallengesByAccess(challenges || []);
+  // Filter challenges by access tags first using useMemo
+  const accessibleChallenges = useMemo(() => {
+    if (!challenges) return [];
+
+    return challenges.filter(challenge => {
+      // Se o desafio não tem tags de acesso específicas, é acessível a todos
+      if (!challenge.access_tags || challenge.access_tags.length === 0) {
+        return true;
+      }
+
+      // Se o usuário não tem tags, não pode acessar desafios com restrições
+      if (!userTags || userTags.length === 0) {
+        return false;
+      }
+
+      // Verifica se o usuário tem pelo menos uma das tags necessárias
+      const userTagNames = userTags.map(tag => tag.tags.name);
+      return challenge.access_tags.some((requiredTag: string) => 
+        userTagNames.includes(requiredTag)
+      );
+    });
+  }, [challenges, userTags]);
   
   // Get challenge IDs for batch queries
   const challengeIds = useMemo(() => accessibleChallenges?.map(c => c.id) || [], [accessibleChallenges]);
