@@ -112,12 +112,11 @@ export const ChallengesPage = () => {
     );
   }
 
-  // Filter challenges with progress data using memoization for performance
-  const { activeChallenges, completedChallenges } = useMemo(() => {
-    if (!challenges) return { activeChallenges: [], completedChallenges: [] };
+  // Filter challenges based on user level with stable memoization
+  const filteredChallenges = useMemo(() => {
+    if (!challenges) return [];
 
-    // Filter challenges based on user level first
-    const filteredChallenges = challenges.filter(challenge => {
+    return challenges.filter(challenge => {
       // If challenge is available for all levels, include it
       if (challenge.is_available_for_all_levels) {
         return true;
@@ -131,21 +130,22 @@ export const ChallengesPage = () => {
       // For now, include all challenges - we can add level filtering later if needed
       return true;
     });
+  }, [challenges, userLevel]);
 
-    const active: any[] = [];
-    const completed: any[] = [];
-
-    filteredChallenges.forEach(challenge => {
+  // Separate active and completed challenges with stable memoization
+  const activeChallenges = useMemo(() => {
+    return filteredChallenges.filter(challenge => {
       const userProgress = progressMap[challenge.id];
-      if (userProgress?.is_completed) {
-        completed.push(challenge);
-      } else {
-        active.push(challenge);
-      }
+      return !userProgress?.is_completed;
     });
+  }, [filteredChallenges, progressMap]);
 
-    return { activeChallenges: active, completedChallenges: completed };
-  }, [challenges, progressMap, userLevel]);
+  const completedChallenges = useMemo(() => {
+    return filteredChallenges.filter(challenge => {
+      const userProgress = progressMap[challenge.id];
+      return userProgress?.is_completed;
+    });
+  }, [filteredChallenges, progressMap]);
 
   return (
     <DashboardLayout>
