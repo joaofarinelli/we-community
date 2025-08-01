@@ -98,8 +98,8 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                       style={({ isActive }) =>
                         isActive
                           ? {
-                              backgroundColor: company?.primaryColor,
-                              color: company?.primaryForegroundColor ?? "#fff",
+                              backgroundColor: company?.primary_color,
+                              color: company?.button_text_color ?? "#fff",
                             }
                           : {}
                       }
