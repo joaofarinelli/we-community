@@ -56,10 +56,7 @@ export const useAvailableTrails = () => {
       // Get all trails created by admins/owners that are available for users
       const { data, error } = await supabase
         .from('trails')
-        .select(`
-          *,
-          profiles!trails_created_by_fkey(first_name, last_name, role)
-        `)
+        .select('*')
         .eq('company_id', currentCompanyId)
         .neq('user_id', user.id) // Exclude user's own trails
         .order('created_at', { ascending: false });
@@ -68,6 +65,8 @@ export const useAvailableTrails = () => {
       return data || [];
     },
     enabled: !!user && !!currentCompanyId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 

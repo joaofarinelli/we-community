@@ -5,7 +5,6 @@ import { PageBanner } from '@/components/ui/page-banner';
 export const TrailsPage = () => {
   return (
     <DashboardLayout>
-      {/* Banner - sem padding para ocupar largura total */}
       <PageBanner bannerType="trails" />
       
       <div className="p-6 space-y-6">

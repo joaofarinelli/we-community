@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Play, Award, MapPin, Calendar, Users, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -109,11 +109,24 @@ const JoinTrailDialog = ({ open, onOpenChange, trail }: JoinTrailDialogProps) =>
 };
 
 export const AvailableTrailsSection = () => {
-  const { data: availableTrails, isLoading } = useAvailableTrails();
-  const { data: templates } = useTrailTemplates();
+  const { data: availableTrails, isLoading: availableLoading } = useAvailableTrails();
+  const { data: templates, isLoading: templatesLoading } = useTrailTemplates();
   const [selectedTrail, setSelectedTrail] = useState<any>(null);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+
+  const isLoading = availableLoading || templatesLoading;
+
+  const allAvailableTrails = useMemo(() => [
+    ...(templates || []).map(template => ({
+      ...template,
+      type: 'template' as const,
+    })),
+    ...(availableTrails || []).map(trail => ({
+      ...trail,
+      type: 'trail' as const,
+    })),
+  ], [templates, availableTrails]);
 
   const handleStartTrail = (trail: any) => {
     setSelectedTrail(trail);
@@ -147,18 +160,6 @@ export const AvailableTrailsSection = () => {
       </div>
     );
   }
-
-  // Combine templates and available trails
-  const allAvailableTrails = [
-    ...(templates || []).map(template => ({
-      ...template,
-      type: 'template' as const,
-    })),
-    ...(availableTrails || []).map(trail => ({
-      ...trail,
-      type: 'trail' as const,
-    })),
-  ];
 
   if (allAvailableTrails.length === 0) {
     return (
