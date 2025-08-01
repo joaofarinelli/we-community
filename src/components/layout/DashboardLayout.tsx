@@ -80,11 +80,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="text-lg sm:text-xl font-semibold text-foreground hover:text-primary h-auto p-1 sm:p-2 min-w-0">
-                        <CompanyLogo 
-                          fallbackText="Minha Empresa"
-                          textClassName="text-sm sm:text-lg md:text-xl font-semibold truncate"
-                          logoClassName="h-6 sm:h-8 w-auto object-contain max-w-[80px] sm:max-w-[120px]"
-                        />
+                        Administração
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-48 sm:w-56 bg-popover border-border z-50">
@@ -107,13 +103,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : (
-                  <CompanyLogo 
-                    fallbackText="Minha Empresa"
-                    textClassName="text-sm sm:text-lg md:text-xl font-semibold text-foreground truncate"
-                    logoClassName="h-6 sm:h-8 w-auto object-contain max-w-[80px] sm:max-w-[120px]"
-                  />
-                )}
+                ) : null}
               </div>
 
               {/* Right side */}
