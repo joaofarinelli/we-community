@@ -19,8 +19,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { DocumentUploader } from '@/components/ui/document-uploader';
 import { useCreateLesson } from '@/hooks/useManageCourses';
+import { useCreateLessonMaterial } from '@/hooks/useLessonMaterials';
 
 const lessonSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -28,6 +31,11 @@ const lessonSchema = z.object({
   content: z.string().optional(),
   video_url: z.string().url('URL deve ser válida').optional().or(z.literal('')),
   duration: z.number().min(0, 'Duração deve ser positiva').optional(),
+  difficulty_level: z.enum(['beginner', 'intermediate', 'advanced']),
+  materials: z.array(z.object({
+    title: z.string().min(1, 'Título do material é obrigatório'),
+    file_url: z.string().min(1, 'Arquivo é obrigatório'),
+  })).optional(),
 });
 
 type LessonFormData = z.infer<typeof lessonSchema>;
@@ -40,7 +48,9 @@ interface CreateLessonDialogProps {
 
 export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLessonDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [materials, setMaterials] = useState<Array<{ title: string; file_url: string }>>([]);
   const createLesson = useCreateLesson();
+  const createLessonMaterial = useCreateLessonMaterial();
 
   const form = useForm<LessonFormData>({
     resolver: zodResolver(lessonSchema),
@@ -50,27 +60,60 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
       content: '',
       video_url: '',
       duration: 0,
+      difficulty_level: 'beginner',
+      materials: [],
     }
   });
 
   const onSubmit = async (data: LessonFormData) => {
     setIsSubmitting(true);
     try {
-      await createLesson.mutateAsync({
+      const lesson = await createLesson.mutateAsync({
         module_id: moduleId,
         title: data.title,
         description: data.description || undefined,
         content: data.content || undefined,
         video_url: data.video_url || undefined,
         duration: data.duration || undefined,
+        difficulty_level: data.difficulty_level,
       });
+
+      // Criar materiais da aula se houver
+      if (materials.length > 0) {
+        await Promise.all(
+          materials.map(material =>
+            createLessonMaterial.mutateAsync({
+              lessonId: lesson.id,
+              title: material.title,
+              fileUrl: material.file_url,
+            })
+          )
+        );
+      }
+
       form.reset();
+      setMaterials([]);
       onOpenChange(false);
     } catch (error) {
       console.error('Error creating lesson:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const addMaterial = () => {
+    setMaterials([...materials, { title: '', file_url: '' }]);
+  };
+
+  const removeMaterial = (index: number) => {
+    setMaterials(materials.filter((_, i) => i !== index));
+  };
+
+  const updateMaterial = (index: number, field: 'title' | 'file_url', value: string) => {
+    const updatedMaterials = materials.map((material, i) =>
+      i === index ? { ...material, [field]: value } : material
+    );
+    setMaterials(updatedMaterials);
   };
 
   return (
@@ -160,6 +203,29 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
 
             <FormField
               control={form.control}
+              name="difficulty_level"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nível de Dificuldade</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o nível de dificuldade" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="beginner">Iniciante</SelectItem>
+                      <SelectItem value="intermediate">Intermediário</SelectItem>
+                      <SelectItem value="advanced">Avançado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="content"
               render={({ field }) => (
                 <FormItem>
@@ -175,6 +241,56 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
                 </FormItem>
               )}
             />
+
+            {/* Seção de Materiais */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <FormLabel>Materiais da Aula (opcional)</FormLabel>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={addMaterial}
+                  disabled={isSubmitting}
+                >
+                  Adicionar Material
+                </Button>
+              </div>
+
+              {materials.map((material, index) => (
+                <div key={index} className="p-4 border rounded-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-medium">Material {index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeMaterial(index)}
+                      disabled={isSubmitting}
+                    >
+                      Remover
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <FormLabel>Título do Material</FormLabel>
+                      <Input
+                        placeholder="Ex: PDF com exercícios, slides da apresentação..."
+                        value={material.title}
+                        onChange={(e) => updateMaterial(index, 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <DocumentUploader
+                      label="Arquivo"
+                      value={material.file_url || undefined}
+                      onChange={(url) => updateMaterial(index, 'file_url', url || '')}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
 
             <div className="flex justify-end gap-3 pt-4">
               <Button 
