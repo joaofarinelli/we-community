@@ -57,7 +57,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         <SidebarInset className="flex flex-col flex-1">
           {/* Header */}
-          <header className="shrink-0 bg-card border-b border-border z-10">
+          <header className="sticky top-0 shrink-0 bg-card border-b border-border z-30">
             <div className="flex items-center justify-between px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
               {/* Left side */}
               <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
