@@ -119,7 +119,7 @@ export const AdminCourseModulesPage = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardHeader className="pb-2">
@@ -138,7 +138,7 @@ export const AdminCourseModulesPage = () => {
 
         {/* Modules Grid */}
         {!isLoading && (
-          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredModules.map((module, index) => (
               <Card 
                 key={module.id} 
