@@ -49,12 +49,10 @@ export const SpacesPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="w-full max-w-full overflow-hidden space-y-3 sm:space-y-4 md:space-y-6">
-        {/* Banner */}
-        <div className="w-full">
-          <PageBanner bannerType="spaces" />
-        </div>
-        
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="spaces" />
+      
+      <div className="p-6 w-full max-w-full overflow-hidden space-y-3 sm:space-y-4 md:space-y-6">
         {/* Header */}
         <div className="px-1 sm:px-0">
           <div className="text-center sm:text-left space-y-1 sm:space-y-2">
