@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Play, Award, MapPin, Calendar, Users } from 'lucide-react';
+import { Play, Award, MapPin, Calendar, Users, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAvailableTrails, useJoinTrail } from '@/hooks/useTrails';
 import { useTrailTemplates } from '@/hooks/useTrailTemplates';
+import { TrailTemplateDetailsDialog } from './TrailTemplateDetailsDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -112,9 +113,20 @@ export const AvailableTrailsSection = () => {
   const { data: templates } = useTrailTemplates();
   const [selectedTrail, setSelectedTrail] = useState<any>(null);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
   const handleStartTrail = (trail: any) => {
     setSelectedTrail(trail);
+    setJoinDialogOpen(true);
+  };
+
+  const handleViewDetails = (trail: any) => {
+    setSelectedTrail(trail);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleStartFromDetails = () => {
+    setDetailsDialogOpen(false);
     setJoinDialogOpen(true);
   };
 
@@ -200,15 +212,26 @@ export const AvailableTrailsSection = () => {
                 </div>
               </div>
 
-              {/* Action Button */}
-              <Button 
-                onClick={() => handleStartTrail(trail)}
-                className="w-full"
-                size="sm"
-              >
-                <Play className="h-4 w-4 mr-2" />
-                Iniciar Trilha
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => handleViewDetails(trail)}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver Detalhes
+                </Button>
+                <Button 
+                  onClick={() => handleStartTrail(trail)}
+                  className="flex-1"
+                  size="sm"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Iniciar
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -219,6 +242,15 @@ export const AvailableTrailsSection = () => {
         onOpenChange={setJoinDialogOpen}
         trail={selectedTrail}
       />
+
+      {selectedTrail && (
+        <TrailTemplateDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+          trailTemplate={selectedTrail}
+          onStartTrail={handleStartFromDetails}
+        />
+      )}
     </>
   );
 };

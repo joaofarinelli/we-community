@@ -5,9 +5,10 @@ import { PageBanner } from '@/components/ui/page-banner';
 export const TrailsPage = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <PageBanner bannerType="trails" />
-        
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="trails" />
+      
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Minhas Trilhas</h1>
           <p className="text-muted-foreground">

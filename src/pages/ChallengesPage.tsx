@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useChallenges, useChallengeProgress, useChallengeRewards } from '@/hooks/useChallenges';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,11 +16,16 @@ import {
   BookOpen,
   Download,
   Package,
-  Zap
+  Zap,
+  Eye
 } from 'lucide-react';
 import { PageBanner } from '@/components/ui/page-banner';
+import { ChallengeDetailsDialog } from '@/components/challenges/ChallengeDetailsDialog';
 
 export const ChallengesPage = () => {
+  const [selectedChallenge, setSelectedChallenge] = useState<any>(null);
+  const [showChallengeDetails, setShowChallengeDetails] = useState(false);
+  
   const { data: challenges, isLoading } = useChallenges();
   const { data: progress } = useChallengeProgress();
   const { data: rewards } = useChallengeRewards();
@@ -65,6 +71,11 @@ export const ChallengesPage = () => {
     return types[type as keyof typeof types] || type;
   };
 
+  const handleViewChallenge = (challenge: any) => {
+    setSelectedChallenge(challenge);
+    setShowChallengeDetails(true);
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -104,8 +115,10 @@ export const ChallengesPage = () => {
 
   return (
     <DashboardLayout>
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="challenges" />
+      
       <div className="p-8 space-y-6">
-        <PageBanner bannerType="challenges" />
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Desafios</h1>
           <p className="text-muted-foreground">
@@ -149,7 +162,11 @@ export const ChallengesPage = () => {
                   const progressPercent = Math.min((progressValue / targetValue) * 100, 100);
 
                   return (
-                    <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
+                    <Card 
+                      key={challenge.id} 
+                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => handleViewChallenge(challenge)}
+                    >
                       {challenge.image_url && (
                         <div className="aspect-video w-full overflow-hidden rounded-t-lg">
                           <img 
@@ -192,7 +209,7 @@ export const ChallengesPage = () => {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {challenge.description && (
-                          <p className="text-sm text-muted-foreground">{challenge.description}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{challenge.description}</p>
                         )}
 
                         <div className="space-y-2">
@@ -212,6 +229,19 @@ export const ChallengesPage = () => {
                             <span>Termina em {new Date(challenge.end_date).toLocaleDateString()}</span>
                           </div>
                         )}
+
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewChallenge(challenge);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -237,7 +267,11 @@ export const ChallengesPage = () => {
                   const userProgress = challenge.challenge_progress?.[0];
 
                   return (
-                    <Card key={challenge.id} className="border-green-200 bg-green-50/50">
+                    <Card 
+                      key={challenge.id} 
+                      className="border-green-200 bg-green-50/50 cursor-pointer hover:shadow-lg transition-shadow"
+                      onClick={() => handleViewChallenge(challenge)}
+                    >
                       {challenge.image_url && (
                         <div className="aspect-video w-full overflow-hidden rounded-t-lg">
                           <img 
@@ -280,7 +314,7 @@ export const ChallengesPage = () => {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         {challenge.description && (
-                          <p className="text-sm text-muted-foreground">{challenge.description}</p>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{challenge.description}</p>
                         )}
 
                         <div className="space-y-2">
@@ -296,6 +330,19 @@ export const ChallengesPage = () => {
                             <span>Concluído em {new Date(userProgress.completed_at).toLocaleDateString()}</span>
                           </div>
                         )}
+
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewChallenge(challenge);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
                       </CardContent>
                     </Card>
                   );
@@ -355,6 +402,15 @@ export const ChallengesPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Challenge Details Dialog */}
+      {selectedChallenge && (
+        <ChallengeDetailsDialog
+          open={showChallengeDetails}
+          onOpenChange={setShowChallengeDetails}
+          challenge={selectedChallenge}
+        />
+      )}
     </DashboardLayout>
   );
 };
