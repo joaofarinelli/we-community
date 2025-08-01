@@ -97,8 +97,8 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                       className={({ isActive: navLinkIsActive }) => 
                         `flex items-center gap-3 px-3 py-2 rounded-md font-medium transition-colors ${
                           isActive(item.url)
-                            ? "bg-primary text-primary-foreground" 
-                            : "text-foreground hover:bg-muted"
+                            ? "bg-primary text-primary-foreground shadow-sm" 
+                            : "text-foreground hover:bg-muted hover:text-foreground"
                         }`
                       }
                     >
