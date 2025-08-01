@@ -49,14 +49,14 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
           </Button>
         )}
       </DrawerTrigger>
-      <DrawerContent className="h-[90vh] w-full p-0">
+      <DrawerContent className="h-[90vh] p-0 relative overflow-visible">
         {/* Div invisível para posicionar o botão de fechar fora da seção de chat */}
-        <div className="absolute inset-0 pointer-events-none z-20">
+        <div className="absolute inset-0 pointer-events-none z-20 overflow-visible">
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={() => setIsOpen(false)}
-            className="absolute top-4 right-4 pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-background/90"
+            className="absolute top-4 -right-8 pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-background/90"
           >
             <X className="h-4 w-4" />
           </Button>
