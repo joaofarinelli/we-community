@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatMessageArea } from './ChatMessageArea';
@@ -50,7 +50,17 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
         )}
       </DrawerTrigger>
       <DrawerContent className="h-[90vh] w-full p-0">
-        <div className="flex h-full">
+        <div className="flex h-full relative">
+          {/* Botão de fechar no canto superior direito */}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => setIsOpen(false)}
+            className="absolute top-4 right-4 z-10"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+
           {/* Sidebar esquerda - Lista de conversas */}
           <div className="w-80 border-r border-border">
             <ChatSidebar 
@@ -69,7 +79,6 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
             <ChatMessageArea 
               conversationId={selectedConversationId}
               selectedConversation={selectedConversation}
-              onClose={() => setIsOpen(false)}
             />
           </div>
 

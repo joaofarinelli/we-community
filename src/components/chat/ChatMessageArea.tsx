@@ -10,13 +10,11 @@ import { X } from 'lucide-react';
 interface ChatMessageAreaProps {
   conversationId: string | null;
   selectedConversation: any;
-  onClose?: () => void;
 }
 
 export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   conversationId,
-  selectedConversation,
-  onClose
+  selectedConversation
 }) => {
   const { data: messages = [], isLoading } = useMessages(conversationId);
   
@@ -52,28 +50,21 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border bg-background">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-sm font-medium text-primary">
-                {otherUser?.first_name?.[0] || '?'}
-                {otherUser?.last_name?.[0] || ''}
-              </span>
-            </div>
-            <div>
-              <h3 className="font-medium">
-                {otherUser?.first_name} {otherUser?.last_name}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {otherUser?.email}
-              </p>
-            </div>
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-sm font-medium text-primary">
+              {otherUser?.first_name?.[0] || '?'}
+              {otherUser?.last_name?.[0] || ''}
+            </span>
           </div>
-          {onClose && (
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+          <div>
+            <h3 className="font-medium">
+              {otherUser?.first_name} {otherUser?.last_name}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {otherUser?.email}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -106,8 +97,8 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
         )}
       </ScrollArea>
 
-      {/* Input */}
-      <div className="p-4 border-t border-border bg-background">
+      {/* Input fixo */}
+      <div className="p-4 border-t border-border bg-background sticky bottom-0">
         <ChatInput conversationId={conversationId} />
       </div>
     </div>
