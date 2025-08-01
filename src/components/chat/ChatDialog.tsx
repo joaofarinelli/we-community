@@ -13,18 +13,24 @@ import { ChatMessageArea } from './ChatMessageArea';
 import { ChatUserProfile } from './ChatUserProfile';
 import { useConversations } from '@/hooks/useConversations';
 
-export const ChatDialog: React.FC = ({ children }) => {
-  const [selectedConversationId, setSelectedConversationId] = useState<string|null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string|null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const { data: conversations = [], refetch } = useConversations();
+interface ChatDialogProps {
+  children?: React.ReactNode;
+}
 
-  const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadCount||0), 0);
+export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { data: conversations = [], refetch } = useConversations();
+  const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
 
-  useEffect(()=>{
-    if (selectedConversationId && !selectedConversation) refetch();
-  },[selectedConversationId, selectedConversation, refetch]);
+  useEffect(() => {
+    if (selectedConversationId && !selectedConversation) {
+      refetch();
+    }
+  }, [selectedConversationId, selectedConversation, refetch]);
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -33,8 +39,11 @@ export const ChatDialog: React.FC = ({ children }) => {
           <Button variant="ghost" size="sm" className="relative">
             <MessageCircle className="h-5 w-5" />
             {totalUnread > 0 && (
-              <Badge className="absolute -top-2 -right-2" variant="destructive">
-                {totalUnread>99?'99+':totalUnread}
+              <Badge
+                variant="destructive"
+                className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs"
+              >
+                {totalUnread > 99 ? '99+' : totalUnread}
               </Badge>
             )}
           </Button>
@@ -45,13 +54,12 @@ export const ChatDialog: React.FC = ({ children }) => {
         className="
           relative
           h-[90vh]
-          max-w-[80vw]    /* largura fixa menor que 100% */
+          max-w-[80vw]
           p-0
-          bg-background   /* fundo do painel */
+          bg-background
           overflow-visible
         "
       >
-        {/* botón de fechar usando DrawerClose */}
         <DrawerClose asChild>
           <Button
             variant="ghost"
@@ -60,11 +68,12 @@ export const ChatDialog: React.FC = ({ children }) => {
             className="
               absolute
               top-4
-              -right-8      /* joga 2rem pra fora do painel */
+              -right-8
               z-20
               bg-background/80
               backdrop-blur-sm
               hover:bg-background/90
+              pointer-events-auto
             "
           >
             <X className="h-4 w-4" />
