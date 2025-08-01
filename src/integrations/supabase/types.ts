@@ -1730,6 +1730,7 @@ export type Database = {
       }
       spaces: {
         Row: {
+          banner_url: string | null
           category_id: string
           company_id: string
           created_at: string
@@ -1746,6 +1747,7 @@ export type Database = {
           visibility: string | null
         }
         Insert: {
+          banner_url?: string | null
           category_id: string
           company_id: string
           created_at?: string
@@ -1762,6 +1764,7 @@ export type Database = {
           visibility?: string | null
         }
         Update: {
+          banner_url?: string | null
           category_id?: string
           company_id?: string
           created_at?: string
