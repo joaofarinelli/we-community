@@ -21,13 +21,10 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
   
   // Calculate total unread messages
   const totalUnread = conversations.reduce((sum, conv) => sum + (conv.unreadCount || 0), 0);
-
   const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
 
-  // Refetch conversations when a new conversation is selected to ensure it's in the list
   useEffect(() => {
     if (selectedConversationId && !selectedConversation) {
-      console.log('🔄 Refetching conversations for missing conversation:', selectedConversationId);
       refetchConversations();
     }
   }, [selectedConversationId, selectedConversation, refetchConversations]);
@@ -49,42 +46,58 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
           </Button>
         )}
       </DrawerTrigger>
-      <DrawerContent className="h-[90vh] p-0 relative overflow-visible">
-        {/* Div invisível para posicionar o botão de fechar fora da seção de chat */}
-        <div className="absolute inset-0 pointer-events-none z-20 overflow-visible">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsOpen(false)}
-            className="absolute top-4 -right-8 pointer-events-auto bg-background/80 backdrop-blur-sm hover:bg-background/90"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
 
-        <div className="flex h-full relative">
-          {/* Sidebar esquerda - Lista de conversas */}
+      <DrawerContent
+        className="
+          relative
+          h-[90vh]
+          p-0
+          overflow-visible   /* permite o botão escapar */
+          bg-background      /* garante fundo no painel */
+          max-w-[80vw]       /* largura menor que 100% para espaço transparente à direita */
+        "
+      >
+        {/* Botão de fechar “vazando” para fora */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsOpen(false)}
+          className="
+            absolute
+            top-4
+            -right-8
+            z-20
+            bg-background/80
+            backdrop-blur-sm
+            hover:bg-background/90
+            pointer-events-auto
+          "
+        >
+          <X className="h-4 w-4" />
+        </Button>
+
+        <div className="flex h-full">
+          {/* Sidebar esquerda */}
           <div className="w-80 border-r border-border">
-            <ChatSidebar 
+            <ChatSidebar
               conversations={conversations}
               selectedConversationId={selectedConversationId}
               onSelectConversation={(conversationId, userId) => {
-                console.log('🎬 ChatDialog selecting conversation:', { conversationId, userId });
                 setSelectedConversationId(conversationId);
                 setSelectedUserId(userId);
               }}
             />
           </div>
 
-          {/* Área central - Mensagens */}
+          {/* Área central de mensagens */}
           <div className="flex-1 flex flex-col">
-            <ChatMessageArea 
+            <ChatMessageArea
               conversationId={selectedConversationId}
               selectedConversation={selectedConversation}
             />
           </div>
 
-          {/* Sidebar direita - Perfil do usuário */}
+          {/* Sidebar direita */}
           {selectedUserId && (
             <div className="w-80 border-l border-border">
               <ChatUserProfile userId={selectedUserId} />
