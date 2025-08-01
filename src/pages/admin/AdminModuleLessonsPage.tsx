@@ -76,151 +76,211 @@ export const AdminModuleLessonsPage = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 p-2 sm:p-4 lg:p-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/admin/courses')}
-            className="h-auto p-0 hover:bg-transparent"
+            className="h-auto p-1 sm:p-2 hover:bg-transparent text-xs sm:text-sm"
           >
             Cursos
           </Button>
-          <span>/</span>
+          <span className="text-muted-foreground/50">/</span>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate(`/admin/courses/${courseId}/modules`)}
-            className="h-auto p-0 hover:bg-transparent"
+            className="h-auto p-1 sm:p-2 hover:bg-transparent text-xs sm:text-sm max-w-[120px] sm:max-w-none truncate"
           >
             {course.title}
           </Button>
-          <span>/</span>
-          <span className="text-foreground">{module.title}</span>
+          <span className="text-muted-foreground/50">/</span>
+          <span className="text-foreground font-medium max-w-[120px] sm:max-w-none truncate">{module.title}</span>
         </div>
 
-        {/* Header */}
+        {/* Back Button */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate(`/admin/courses/${courseId}/modules`)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar aos Módulos
+            <span className="hidden sm:inline">Voltar aos Módulos</span>
+            <span className="sm:hidden">Voltar</span>
           </Button>
         </div>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Aulas do Módulo</h1>
-            <p className="text-muted-foreground">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Aulas do Módulo</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Gerencie as aulas de "{module.title}"
             </p>
           </div>
-          <Button onClick={() => setCreateDialogOpen(true)}>
+          <Button 
+            onClick={() => setCreateDialogOpen(true)}
+            className="w-full sm:w-auto"
+            size="default"
+          >
             <Plus className="mr-2 h-4 w-4" />
-            Nova Aula
+            <span className="hidden sm:inline">Nova Aula</span>
+            <span className="sm:hidden">Criar</span>
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar aulas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        {/* Search and Filters */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-lg">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar aulas..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          {filteredLessons.length > 0 && (
+            <div className="text-sm text-muted-foreground">
+              {filteredLessons.length} aula{filteredLessons.length !== 1 ? 's' : ''} encontrada{filteredLessons.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="h-6 bg-muted rounded w-3/4" />
+                      <div className="h-4 bg-muted rounded w-full" />
+                      <div className="h-4 bg-muted rounded w-2/3" />
+                    </div>
+                    <div className="h-6 w-16 bg-muted rounded" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2">
+                    <div className="h-8 w-20 bg-muted rounded" />
+                    <div className="h-8 w-20 bg-muted rounded" />
+                    <div className="h-8 w-20 bg-muted rounded" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {/* Lessons List */}
-        <div className="grid gap-4">
-          {filteredLessons.map((lesson, index) => (
-            <Card key={lesson.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1 flex-1">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-semibold">
-                        {index + 1}
-                      </span>
-                      {lesson.video_url ? (
-                        <Video className="h-4 w-4 text-blue-500" />
-                      ) : (
-                        <FileText className="h-4 w-4 text-gray-500" />
+        {!isLoading && (
+          <div className="space-y-4">
+            {filteredLessons.map((lesson, index) => (
+              <Card 
+                key={lesson.id} 
+                className="group relative transition-all duration-200 hover:shadow-lg hover:-translate-y-1 border border-border/50 hover:border-border"
+              >
+                <CardHeader className="pb-3 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="space-y-2 flex-1 min-w-0">
+                      <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                            {index + 1}
+                          </span>
+                          {lesson.video_url ? (
+                            <Video className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                          ) : (
+                            <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          )}
+                        </div>
+                        <span className="line-clamp-2 min-w-0">{lesson.title}</span>
+                      </CardTitle>
+                      {lesson.description && (
+                        <CardDescription className="text-xs sm:text-sm line-clamp-2 leading-relaxed">
+                          {lesson.description}
+                        </CardDescription>
                       )}
-                      {lesson.title}
-                    </CardTitle>
-                    {lesson.description && (
-                      <CardDescription className="line-clamp-2">
-                        {lesson.description}
-                      </CardDescription>
-                    )}
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {lesson.duration && (
+                        <Badge variant="outline" className="text-xs">
+                          <Clock className="mr-1 h-3 w-3" />
+                          {formatDuration(lesson.duration)}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {lesson.duration && (
-                      <Badge variant="outline" className="text-xs">
-                        <Clock className="mr-1 h-3 w-3" />
-                        {formatDuration(lesson.duration)}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
+                </CardHeader>
 
-              <CardContent className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Ver Aula
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setEditingLesson(lesson)}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Excluir
+                <CardContent className="space-y-3">
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                    <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}`)}
+                        className="text-xs h-8 px-2"
+                        title="Ver Aula"
+                      >
+                        <Eye className="h-3 w-3 sm:mr-1" />
+                        <span className="hidden sm:inline">Ver</span>
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Excluir Aula</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tem certeza que deseja excluir a aula "{lesson.title}"? 
-                          Esta ação não pode ser desfeita.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => handleDeleteLesson(lesson.id)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Excluir
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingLesson(lesson)}
+                        className="text-xs h-8 px-2"
+                        title="Editar Aula"
+                      >
+                        <Edit className="h-3 w-3 sm:mr-1" />
+                        <span className="hidden sm:inline">Editar</span>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="text-xs h-8 px-2 text-destructive hover:text-destructive"
+                            title="Excluir Aula"
+                          >
+                            <Trash2 className="h-3 w-3 sm:mr-1" />
+                            <span className="hidden sm:inline">Excluir</span>
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="sm:max-w-[500px]">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir Aula</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir a aula "{lesson.title}"? 
+                              Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteLesson(lesson.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         {filteredLessons.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center py-12 text-center">
