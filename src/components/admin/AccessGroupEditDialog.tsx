@@ -30,7 +30,7 @@ export const AccessGroupEditDialog = ({ open, onOpenChange, accessGroup }: Acces
           <ArrowLeft className="h-4 w-4 rotate-180" />
         </Button>
       </div>
-      <DialogContent className="w-full h-[95vh] max-w-none p-0 gap-0 top-[5vh] translate-y-0 data-[state=open]:animate-[slide-in-from-bottom_0.3s_ease-out] data-[state=closed]:animate-[slide-out-to-bottom_0.3s_ease-out]">
+      <DialogContent className="w-full h-[95vh] max-w-none p-0 gap-0 top-[5vh] translate-y-0 border-0 border-t sm:rounded-none data-[state=open]:animate-[slide-in-from-bottom_0.3s_ease-out] data-[state=closed]:animate-[slide-out-to-bottom_0.3s_ease-out]">
         {/* Header */}
         <div className="flex items-center gap-4 p-6 border-b">
           <Button 
