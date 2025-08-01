@@ -39,8 +39,10 @@ export const StorePage = () => {
 
   return (
     <DashboardLayout>
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="store" />
+      
       <div className="max-w-7xl mx-auto p-6">
-        <PageBanner bannerType="store" />
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>

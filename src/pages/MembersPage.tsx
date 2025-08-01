@@ -151,8 +151,10 @@ export const MembersPage = () => {
 
   return (
     <DashboardLayout>
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="members" />
+      
       <div className="p-8 space-y-6">
-        <PageBanner bannerType="members" />
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

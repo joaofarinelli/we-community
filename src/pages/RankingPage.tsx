@@ -3,6 +3,7 @@ import { RankingTab } from '@/components/gamification/RankingTab';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
 import { useCoinName } from '@/hooks/useCoinName';
 import { useCompanyStreakLeaderboard } from '@/hooks/useUserStreak';
+import { PageBanner } from '@/components/ui/page-banner';
 
 export const RankingPage = () => {
   const { data: coinName = 'WomanCoins' } = useCoinName();
@@ -10,6 +11,9 @@ export const RankingPage = () => {
 
   return (
     <DashboardLayout>
+      {/* Banner - sem padding para ocupar largura total */}
+      <PageBanner bannerType="ranking" />
+      
       <div className="max-w-6xl p-8">
         <div className="space-y-6">
           <div>
