@@ -1,15 +1,80 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { AccessGroup } from '@/hooks/useAccessGroups';
+import { useSpaces } from '@/hooks/useSpaces';
+import { useCourses } from '@/hooks/useCourses';
 
 interface AccessGroupAccessTabProps {
   accessGroup: AccessGroup;
 }
 
+interface AccessItem {
+  id: string;
+  name: string;
+  type: 'space' | 'course';
+}
+
 export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [availableItems, setAvailableItems] = useState<AccessItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<AccessItem[]>([]);
+
+  const { data: spaces } = useSpaces();
+  const { data: courses } = useCourses();
+
+  useEffect(() => {
+    // Combine spaces and courses into available items
+    const spaceItems: AccessItem[] = (spaces || []).map(space => ({
+      id: space.id,
+      name: space.name,
+      type: 'space' as const
+    }));
+
+    const courseItems: AccessItem[] = (courses || []).map(course => ({
+      id: course.id,
+      name: course.title,
+      type: 'course' as const
+    }));
+
+    setAvailableItems([...spaceItems, ...courseItems]);
+  }, [spaces, courses]);
+
+  // Filter items based on search
+  const filteredAvailable = availableItems.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const filteredSelected = selectedItems.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Move item between lists
+  const moveItem = (item: AccessItem, fromAvailable: boolean) => {
+    if (fromAvailable) {
+      setSelectedItems([...selectedItems, item]);
+      setAvailableItems(availableItems.filter(i => i.id !== item.id));
+    } else {
+      setAvailableItems([...availableItems, item]);
+      setSelectedItems(selectedItems.filter(i => i.id !== item.id));
+    }
+  };
+
+  // Move all items
+  const addAll = () => {
+    setSelectedItems([...selectedItems, ...availableItems]);
+    setAvailableItems([]);
+  };
+
+  const removeAll = () => {
+    setAvailableItems([...availableItems, ...selectedItems]);
+    setSelectedItems([]);
+  };
+
+  const handleSave = () => {
+    // TODO: Implement saving access configuration
+    console.log('Saving access configuration:', selectedItems);
+  };
 
   return (
     <div className="space-y-6">
@@ -32,46 +97,80 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
 
       <div className="grid grid-cols-2 gap-4 h-[400px]">
         {/* Left Column - No Access */}
-        <div className="border rounded-lg">
+        <div className="border rounded-lg flex flex-col">
           <div className="flex items-center justify-between p-4 border-b bg-muted/50">
             <span className="font-medium text-sm">SEM ACESSO</span>
-            <Button variant="link" size="sm" className="text-xs text-muted-foreground">
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="text-xs text-muted-foreground h-auto p-0"
+              onClick={addAll}
+              disabled={availableItems.length === 0}
+            >
               Adicionar todos
             </Button>
           </div>
-          <div className="p-4">
-            <div className="space-y-3">
-              <div>
-                <h4 className="font-medium text-sm mb-2">Spaces</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="text-xs">👥</span>
-                    teste
+          <div className="flex-1 overflow-auto p-2">
+            {filteredAvailable.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Nenhum item disponível
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {filteredAvailable.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => moveItem(item, true)}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-muted/50 cursor-pointer text-sm"
+                  >
+                    <span className="text-xs">{item.type === 'space' ? '👥' : '📚'}</span>
+                    <span>{item.name}</span>
                   </div>
-                </div>
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
 
         {/* Right Column - Access */}
-        <div className="border rounded-lg">
+        <div className="border rounded-lg flex flex-col">
           <div className="flex items-center justify-between p-4 border-b bg-primary/10">
             <span className="font-medium text-sm">ACESSO</span>
-            <Button variant="link" size="sm" className="text-xs text-muted-foreground">
+            <Button 
+              variant="link" 
+              size="sm" 
+              className="text-xs text-muted-foreground h-auto p-0"
+              onClick={removeAll}
+              disabled={selectedItems.length === 0}
+            >
               Remover todos
             </Button>
           </div>
-          <div className="p-4">
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Nenhum acesso configurado
-            </p>
+          <div className="flex-1 overflow-auto p-2">
+            {filteredSelected.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Nenhum acesso configurado
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {filteredSelected.map((item) => (
+                  <div
+                    key={item.id}
+                    onClick={() => moveItem(item, false)}
+                    className="flex items-center gap-2 p-2 rounded hover:bg-muted/50 cursor-pointer text-sm"
+                  >
+                    <span className="text-xs">{item.type === 'space' ? '👥' : '📚'}</span>
+                    <span>{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button className="bg-primary text-primary-foreground">
+        <Button onClick={handleSave} className="bg-primary text-primary-foreground">
           Salvar alterações
         </Button>
       </div>
