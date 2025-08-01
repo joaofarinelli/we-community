@@ -20,7 +20,7 @@ export const AccessGroupEditDialog = ({ open, onOpenChange, accessGroup }: Acces
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl h-[90vh] p-0 gap-0">
+      <DialogContent className="w-full h-[95vh] max-w-none p-0 gap-0 top-[5vh] translate-y-0 data-[state=open]:animate-[slide-in-from-bottom_0.3s_ease-out] data-[state=closed]:animate-[slide-out-to-bottom_0.3s_ease-out]">
         {/* Header */}
         <div className="flex items-center gap-4 p-6 border-b">
           <Button 
