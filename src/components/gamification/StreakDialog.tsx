@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Flame, Trophy, Target, Award, Clock } from 'lucide-react';
+import { Calendar, Flame, Trophy, Target, Award, Clock, X } from 'lucide-react';
 import { useUserStreak, useCompanyStreakLeaderboard } from '@/hooks/useUserStreak';
 import { usePointsHistory } from '@/hooks/usePointsHistory';
 import { StreakBadge } from './StreakBadge';
@@ -79,10 +79,20 @@ export const StreakDialog = ({ children, open, onOpenChange }: StreakDialogProps
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Flame className="h-5 w-5 text-orange-500" />
-            Sistema de Ofensiva
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Flame className="h-5 w-5 text-orange-500" />
+              Sistema de Ofensiva
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
