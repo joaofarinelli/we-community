@@ -25,14 +25,13 @@ export const Dashboard = () => {
   const { data: posts, isLoading: postsLoading } = useAllPosts(sortBy);
 
   return (
-    <>
-      {/* Feed Banner fora do DashboardLayout para ocupar toda a largura */}
+    <DashboardLayout>
+      {/* Feed Banner */}
       <FeedBanner />
       
-      <DashboardLayout>
-        <div className="h-full overflow-y-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="space-y-6">
+      <div className="h-full overflow-y-auto p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-6">
 
             {/* Welcome Title */}
             <div>
@@ -96,10 +95,9 @@ export const Dashboard = () => {
                 </Card>
               )}
             </div>
-            </div>
           </div>
         </div>
-      </DashboardLayout>
-    </>
+      </div>
+    </DashboardLayout>
   );
 };
