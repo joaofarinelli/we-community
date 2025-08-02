@@ -118,39 +118,41 @@ export const UserProfileDialog = ({
       </Dialog>;
   }
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="flex flex-row items-center justify-between p-6 border-b">
-          <DialogTitle className="text-2xl font-bold">Perfil</DialogTitle>
-          
+      <DialogContent className="max-w-6xl max-h-[90vh] w-[95vw] p-0 overflow-hidden">
+        <DialogHeader className="flex flex-row items-center justify-between p-4 md:p-6 border-b">
+          <DialogTitle className="text-xl md:text-2xl font-bold">Perfil</DialogTitle>
+          <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="h-8 w-8">
+            <X className="h-4 w-4" />
+          </Button>
         </DialogHeader>
 
-        <div className="flex flex-col lg:flex-row h-full">
+        <div className="flex flex-col lg:flex-row h-full overflow-hidden">
           {/* Left Panel - Avatar and Basic Info */}
-          <div className="lg:w-1/3 p-6 border-r bg-muted/30">
+          <div className="lg:w-1/3 p-4 md:p-6 lg:border-r bg-muted/30">
             <div className="flex flex-col items-center text-center space-y-4">
-              <Avatar className="h-32 w-32">
+              <Avatar className="h-24 w-24 md:h-32 md:w-32">
                 <AvatarImage src={user?.user_metadata?.avatar_url} alt={getDisplayName()} />
-                <AvatarFallback className="text-3xl">
+                <AvatarFallback className="text-2xl md:text-3xl">
                   {getUserInitials()}
                 </AvatarFallback>
               </Avatar>
 
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold">{getDisplayName()}</h2>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4 mr-1" />
+                <h2 className="text-xl md:text-2xl font-bold">{getDisplayName()}</h2>
+                <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+                  <Clock className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                   Visto pela última vez {getLastSeen()}
                 </div>
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-1" />
+                <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+                  <Calendar className="h-3 w-3 md:h-4 md:w-4 mr-1" />
                   Membro desde {getMemberSince()}
                 </div>
-                {userProfile?.role && <Badge variant="secondary" className="mt-2">
+                {userProfile?.role && <Badge variant="secondary" className="mt-2 text-xs">
                     {userProfile.role === 'owner' ? 'Proprietário' : userProfile.role === 'admin' ? 'Administrador' : userProfile.role === 'moderator' ? 'Moderador' : 'Membro'}
                   </Badge>}
               </div>
 
-              <Button className="w-full" variant="outline">
+              <Button className="w-full" variant="outline" size="sm">
                 <Edit3 className="h-4 w-4 mr-2" />
                 Editar
               </Button>
@@ -158,101 +160,107 @@ export const UserProfileDialog = ({
           </div>
 
           {/* Right Panel - Detailed Info */}
-          <div className="lg:w-2/3 p-6">
+          <div className="lg:w-2/3 p-4 md:p-6 overflow-auto">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="sobre">Sobre</TabsTrigger>
-                <TabsTrigger value="publicacoes">
-                  Publicações ({userStats?.postsCount || 0})
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 text-xs md:text-sm">
+                <TabsTrigger value="sobre" className="px-2">Sobre</TabsTrigger>
+                <TabsTrigger value="publicacoes" className="px-2">
+                  <span className="hidden md:inline">Publicações</span>
+                  <span className="md:hidden">Posts</span>
+                  <span className="ml-1">({userStats?.postsCount || 0})</span>
                 </TabsTrigger>
-                <TabsTrigger value="comentarios">
-                  Comentários ({userStats?.commentsCount || 0})
+                <TabsTrigger value="comentarios" className="px-2">
+                  <span className="hidden md:inline">Comentários</span>
+                  <span className="md:hidden">Coment.</span>
+                  <span className="ml-1">({userStats?.commentsCount || 0})</span>
                 </TabsTrigger>
-                <TabsTrigger value="espacos">
+                <TabsTrigger value="espacos" className="px-2 hidden md:block">
                   Espaços
                 </TabsTrigger>
-                <TabsTrigger value="marketplace">
-                  Marketplace ({userMarketplaceItems.length})
+                <TabsTrigger value="marketplace" className="px-2 hidden md:block">
+                  <span className="hidden lg:inline">Marketplace</span>
+                  <span className="lg:hidden">Market</span>
+                  <span className="ml-1">({userMarketplaceItems.length})</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="sobre" className="mt-6 space-y-6">
+              <TabsContent value="sobre" className="mt-4 md:mt-6 space-y-4 md:space-y-6 overflow-auto max-h-[50vh] md:max-h-none">
                 {/* Biography */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Biografia</h3>
-                  <p className="text-muted-foreground">
+                  <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Biografia</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
                     {userProfile?.first_name && userProfile?.last_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'Nenhuma biografia adicionada ainda.'}
                   </p>
                 </div>
 
                 {/* Contact Info */}
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Informações de Contato</h3>
+                  <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Informações de Contato</h3>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 mr-3 text-muted-foreground" />
-                      <span>{userProfile?.email}</span>
+                      <Mail className="h-3 w-3 md:h-4 md:w-4 mr-2 md:mr-3 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm md:text-base truncate">{userProfile?.email}</span>
                     </div>
                     {userProfile?.phone && <div className="flex items-center">
-                        <Phone className="h-4 w-4 mr-3 text-muted-foreground" />
-                        <span>{userProfile.phone}</span>
+                        <Phone className="h-3 w-3 md:h-4 md:w-4 mr-2 md:mr-3 text-muted-foreground flex-shrink-0" />
+                        <span className="text-sm md:text-base">{userProfile.phone}</span>
                       </div>}
                   </div>
                 </div>
 
                 {/* Gamification Stats */}
                 {userPoints && <div>
-                    <h3 className="text-lg font-semibold mb-3">Estatísticas</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Estatísticas</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       <Card>
-                        <CardContent className="p-4 text-center">
-                          <div className="text-2xl font-bold text-primary">
+                        <CardContent className="p-3 md:p-4 text-center">
+                          <div className="text-xl md:text-2xl font-bold text-primary">
                             {userPoints.total_coins || 0}
                           </div>
-                          <div className="text-sm text-muted-foreground">Moedas</div>
+                          <div className="text-xs md:text-sm text-muted-foreground">Moedas</div>
                         </CardContent>
                       </Card>
                       {userLevel && <Card>
-                          <CardContent className="p-4 text-center">
-                            <div className="text-2xl font-bold text-primary">
+                          <CardContent className="p-3 md:p-4 text-center">
+                            <div className="text-xl md:text-2xl font-bold text-primary">
                               {userLevel.user_levels?.level_name}
                             </div>
-                            <div className="text-sm text-muted-foreground">Nível Atual</div>
+                            <div className="text-xs md:text-sm text-muted-foreground">Nível Atual</div>
                           </CardContent>
                         </Card>}
                     </div>
                   </div>}
               </TabsContent>
 
-              <TabsContent value="publicacoes" className="mt-6">
+              <TabsContent value="publicacoes" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
                 {userPosts.length > 0 ? <div className="space-y-3">
                     {userPosts.map(post => <UserPostItem key={post.id} post={post} onClick={() => {
                   // Navigate to post or space
                   window.location.href = `/dashboard/space/${post.space_id}`;
                 }} />)}
-                  </div> : <div className="text-center py-12 text-muted-foreground">
-                    <FileText className="h-12 w-12 mx-auto mb-4" />
-                    <p>Você ainda não fez nenhuma publicação</p>
+                  </div> : <div className="text-center py-8 md:py-12 text-muted-foreground">
+                    <FileText className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                    <p className="text-sm md:text-base">Você ainda não fez nenhuma publicação</p>
                   </div>}
               </TabsContent>
 
-              <TabsContent value="comentarios" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4" />
-                  <p>Seus comentários aparecerão aqui</p>
+              <TabsContent value="comentarios" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
+                <div className="text-center py-8 md:py-12 text-muted-foreground">
+                  <MessageSquare className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                  <p className="text-sm md:text-base">Seus comentários aparecerão aqui</p>
                 </div>
               </TabsContent>
 
-              <TabsContent value="espacos" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4" />
-                  <p>Os espaços que você participa aparecerão aqui</p>
+              <TabsContent value="espacos" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
+                <div className="text-center py-8 md:py-12 text-muted-foreground">
+                  <Users className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                  <p className="text-sm md:text-base">Os espaços que você participa aparecerão aqui</p>
                 </div>
               </TabsContent>
 
-              <TabsContent value="marketplace" className="mt-6">
+              <TabsContent value="marketplace" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
                 {userMarketplaceItems.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
                     {userMarketplaceItems.map((item) => (
                       <MarketplaceItemCard 
                         key={item.id} 
@@ -262,9 +270,9 @@ export const UserProfileDialog = ({
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <ShoppingBag className="h-12 w-12 mx-auto mb-4" />
-                    <p>Você ainda não tem itens à venda no marketplace</p>
+                  <div className="text-center py-8 md:py-12 text-muted-foreground">
+                    <ShoppingBag className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                    <p className="text-sm md:text-base">Você ainda não tem itens à venda no marketplace</p>
                   </div>
                 )}
               </TabsContent>
