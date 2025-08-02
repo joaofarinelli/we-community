@@ -44,7 +44,7 @@ export const CourseBannerSection = () => {
   // If there's a banner, display it
   if (bannerUrl) {
     return (
-      <div className="relative w-full h-48 md:h-64 overflow-hidden">
+      <div className="relative w-full h-[300px] overflow-hidden">
         <img
           src={bannerUrl}
           alt="Banner de Cursos"

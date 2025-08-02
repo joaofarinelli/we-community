@@ -16,7 +16,7 @@ export const FeedBanner = () => {
         <img
           src={company.feed_banner_url}
           alt="Banner da empresa"
-          className="w-full h-[200px] object-cover"
+          className="w-full h-[300px] object-cover"
           onError={(e) => {
             // Hide the component if image fails to load
             const container = e.currentTarget.closest('.feed-banner-container');

@@ -13,7 +13,7 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
   }
 
   return (
-    <div className={`w-full h-48 md:h-64 rounded-lg overflow-hidden mb-6 ${className}`}>
+    <div className={`w-full h-[300px] rounded-lg overflow-hidden mb-6 ${className}`}>
       <img
         src={bannerUrl}
         alt="Banner do espaço"
