@@ -11,6 +11,7 @@ export const useUserMemberSpaces = () => {
       if (!user) return [];
 
       // Get all spaces the user can see (relies on RLS policy with can_user_see_space)
+      // This now includes spaces accessible through access groups
       const { data, error } = await supabase
         .from('spaces')
         .select(`

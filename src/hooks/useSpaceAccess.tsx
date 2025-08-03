@@ -1,9 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUserSpaceAccess } from './useUserAccessGroups';
 
 export const useSpaceAccess = (spaceId: string) => {
   const { user } = useAuth();
+  const { data: hasAccessGroupAccess } = useUserSpaceAccess(spaceId);
 
   return useQuery({
     queryKey: ['spaceAccess', spaceId, user?.id],
@@ -42,10 +44,14 @@ export const useSpaceAccess = (spaceId: string) => {
 
       const isMember = !memberError && !!memberData;
 
+      // Check if user has access through access groups
+      const hasGroupAccess = hasAccessGroupAccess || false;
+
       return { 
         canSee: true, 
-        canAccess: isMember,
-        visibility: spaceData.visibility
+        canAccess: isMember || hasGroupAccess,
+        visibility: spaceData.visibility,
+        accessSource: isMember ? 'direct' : hasGroupAccess ? 'access_group' : 'none'
       };
     },
     enabled: !!user && !!spaceId,
