@@ -35,11 +35,14 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
   const handleAddMembers = async () => {
     if (selectedUsers.length === 0) return;
     
+    console.log('handleAddMembers called with:', { selectedUsers, accessGroupId });
+    
     try {
       await addMembers.mutateAsync({
         accessGroupId,
         userIds: selectedUsers
       });
+      console.log('Members added successfully, resetting form...');
       setSelectedUsers([]);
       onOpenChange(false);
     } catch (error) {

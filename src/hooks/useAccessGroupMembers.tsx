@@ -17,6 +17,12 @@ export interface AccessGroupMember {
     email: string;
     role: string;
   };
+  profiles?: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: string;
+  };
 }
 
 export const useAccessGroupMembers = (accessGroupId?: string) => {
@@ -30,11 +36,13 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
     queryFn: async () => {
       if (!accessGroupId || !currentCompanyId) return [];
 
+      console.log('Fetching access group members for:', { accessGroupId, currentCompanyId });
+
       const { data, error } = await supabase
         .from('access_group_members')
         .select(`
           *,
-          user:profiles!access_group_members_user_id_fkey(
+          profiles!inner(
             first_name,
             last_name,
             email,
@@ -44,7 +52,12 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
         .eq('access_group_id', accessGroupId)
         .eq('company_id', currentCompanyId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching members:', error);
+        throw error;
+      }
+      
+      console.log('Fetched members:', data);
       return (data as unknown as AccessGroupMember[]) || [];
     },
     enabled: !!accessGroupId && !!currentCompanyId,
@@ -54,6 +67,8 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
     mutationFn: async ({ accessGroupId, userIds }: { accessGroupId: string; userIds: string[] }) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
+      console.log('Adding members:', { accessGroupId, userIds, currentCompanyId, userId: user.id });
+
       const membersToAdd = userIds.map(userId => ({
         access_group_id: accessGroupId,
         user_id: userId,
@@ -61,15 +76,23 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
         added_by: user.id,
       }));
 
+      console.log('Members to add:', membersToAdd);
+
       const { data, error } = await supabase
         .from('access_group_members')
         .insert(membersToAdd)
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error inserting members:', error);
+        throw error;
+      }
+      
+      console.log('Successfully added members:', data);
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
+      console.log('Members added successfully, invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['access-group-members', variables.accessGroupId] });
       queryClient.invalidateQueries({ queryKey: ['access-groups'] });
       toast({
@@ -77,7 +100,8 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
         description: "Os usuários foram adicionados ao grupo de acesso.",
       });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Error in addMembers mutation:', error);
       toast({
         title: "Erro ao adicionar membros",
         description: "Não foi possível adicionar os membros ao grupo.",
