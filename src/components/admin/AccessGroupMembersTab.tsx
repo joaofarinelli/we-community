@@ -45,21 +45,21 @@ export const AccessGroupMembersTab = ({ accessGroup }: AccessGroupMembersTabProp
                 <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-medium">
-                      {(member.user?.first_name || member.profiles?.first_name)?.charAt(0)}
-                      {(member.user?.last_name || member.profiles?.last_name)?.charAt(0)}
+                      {member.profiles?.first_name?.charAt(0)}
+                      {member.profiles?.last_name?.charAt(0)}
                     </div>
                     <div>
                       <div className="font-medium text-foreground">
-                        {member.user?.first_name || member.profiles?.first_name} {member.user?.last_name || member.profiles?.last_name}
+                        {member.profiles?.first_name} {member.profiles?.last_name}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {member.user?.email || member.profiles?.email}
+                        {member.profiles?.email}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary" className="capitalize">
-                      {member.user?.role || member.profiles?.role}
+                      {member.profiles?.role}
                     </Badge>
                     <Button
                       variant="ghost"

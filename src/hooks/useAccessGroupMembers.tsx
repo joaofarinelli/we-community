@@ -38,27 +38,44 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
 
       console.log('Fetching access group members for:', { accessGroupId, currentCompanyId });
 
-      const { data, error } = await supabase
+      // First get the members without joining
+      const { data: membersData, error: membersError } = await supabase
         .from('access_group_members')
-        .select(`
-          *,
-          profiles!inner(
-            first_name,
-            last_name,
-            email,
-            role
-          )
-        `)
+        .select('*')
         .eq('access_group_id', accessGroupId)
         .eq('company_id', currentCompanyId);
 
-      if (error) {
-        console.error('Error fetching members:', error);
-        throw error;
+      if (membersError) {
+        console.error('Error fetching members:', membersError);
+        throw membersError;
       }
-      
-      console.log('Fetched members:', data);
-      return (data as unknown as AccessGroupMember[]) || [];
+
+      // Then get the profile data for each user
+      if (!membersData || membersData.length === 0) {
+        console.log('No members found');
+        return [];
+      }
+
+      const userIds = membersData.map(member => member.user_id);
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email, role')
+        .in('user_id', userIds)
+        .eq('company_id', currentCompanyId);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      // Combine the data
+      const result = membersData.map(member => ({
+        ...member,
+        profiles: profilesData?.find(profile => profile.user_id === member.user_id)
+      }));
+
+      console.log('Fetched members with profiles:', result);
+      return result;
     },
     enabled: !!accessGroupId && !!currentCompanyId,
   });
@@ -69,14 +86,28 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
 
       console.log('Adding members:', { accessGroupId, userIds, currentCompanyId, userId: user.id });
 
-      const membersToAdd = userIds.map(userId => ({
+      // Check for existing members to avoid duplicates
+      const { data: existingMembers } = await supabase
+        .from('access_group_members')
+        .select('user_id')
+        .eq('access_group_id', accessGroupId)
+        .in('user_id', userIds);
+
+      const existingUserIds = existingMembers?.map(m => m.user_id) || [];
+      const newUserIds = userIds.filter(id => !existingUserIds.includes(id));
+
+      if (newUserIds.length === 0) {
+        throw new Error('Todos os usuários selecionados já são membros deste grupo');
+      }
+
+      const membersToAdd = newUserIds.map(userId => ({
         access_group_id: accessGroupId,
         user_id: userId,
         company_id: currentCompanyId,
         added_by: user.id,
       }));
 
-      console.log('Members to add:', membersToAdd);
+      console.log('Members to add (filtered):', membersToAdd);
 
       const { data, error } = await supabase
         .from('access_group_members')
@@ -97,14 +128,14 @@ export const useAccessGroupMembers = (accessGroupId?: string) => {
       queryClient.invalidateQueries({ queryKey: ['access-groups'] });
       toast({
         title: "Membros adicionados com sucesso!",
-        description: "Os usuários foram adicionados ao grupo de acesso.",
+        description: `${data.length} usuário(s) adicionado(s) ao grupo de acesso.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error('Error in addMembers mutation:', error);
       toast({
         title: "Erro ao adicionar membros",
-        description: "Não foi possível adicionar os membros ao grupo.",
+        description: error.message || "Não foi possível adicionar os membros ao grupo.",
         variant: "destructive",
       });
     },
