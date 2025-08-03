@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
 export const useMarketplacePurchases = () => {
@@ -29,12 +30,19 @@ export const useMarketplacePurchases = () => {
 
 export const usePurchaseItem = () => {
   const queryClient = useQueryClient();
+  const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
     mutationFn: async ({ itemId, quantity = 1 }: { itemId: string; quantity?: number }) => {
+      const { data: user } = await supabase.auth.getUser();
+      
+      if (!user.user?.id || !currentCompanyId) {
+        throw new Error('Usuário não autenticado ou empresa não encontrada');
+      }
+
       const { data, error } = await supabase.rpc('process_marketplace_purchase', {
-        p_user_id: (await supabase.auth.getUser()).data.user?.id,
-        p_company_id: null, // Will be handled by the function using get_user_company_id()
+        p_user_id: user.user.id,
+        p_company_id: currentCompanyId,
         p_item_id: itemId,
         p_quantity: quantity,
       });
