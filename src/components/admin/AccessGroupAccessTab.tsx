@@ -5,6 +5,8 @@ import { Search } from 'lucide-react';
 import { AccessGroup } from '@/hooks/useAccessGroups';
 import { useSpaces } from '@/hooks/useSpaces';
 import { useCourses } from '@/hooks/useCourses';
+import { useAccessGroupSpaces } from '@/hooks/useAccessGroupSpaces';
+import { useAccessGroupCourses } from '@/hooks/useAccessGroupCourses';
 
 interface AccessGroupAccessTabProps {
   accessGroup: AccessGroup;
@@ -23,6 +25,8 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
 
   const { data: spaces } = useSpaces();
   const { data: courses } = useCourses();
+  const { spaces: groupSpaces, updateSpaces } = useAccessGroupSpaces(accessGroup.id);
+  const { courses: groupCourses, updateCourses } = useAccessGroupCourses(accessGroup.id);
 
   useEffect(() => {
     // Combine spaces and courses into available items
@@ -38,8 +42,20 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
       type: 'course' as const
     }));
 
-    setAvailableItems([...spaceItems, ...courseItems]);
-  }, [spaces, courses]);
+    const allItems = [...spaceItems, ...courseItems];
+    
+    // Get currently selected items
+    const selectedSpaceIds = groupSpaces.map(gs => gs.space_id);
+    const selectedCourseIds = groupCourses.map(gc => gc.course_id);
+    const currentlySelected = allItems.filter(item => 
+      (item.type === 'space' && selectedSpaceIds.includes(item.id)) ||
+      (item.type === 'course' && selectedCourseIds.includes(item.id))
+    );
+    
+    // Set available and selected items
+    setSelectedItems(currentlySelected);
+    setAvailableItems(allItems.filter(item => !currentlySelected.find(s => s.id === item.id)));
+  }, [spaces, courses, groupSpaces, groupCourses]);
 
   // Filter items based on search
   const filteredAvailable = availableItems.filter(item => 
@@ -71,9 +87,19 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
     setSelectedItems([]);
   };
 
-  const handleSave = () => {
-    // TODO: Implement saving access configuration
-    console.log('Saving access configuration:', selectedItems);
+  const handleSave = async () => {
+    try {
+      const spaceIds = selectedItems.filter(item => item.type === 'space').map(item => item.id);
+      const courseIds = selectedItems.filter(item => item.type === 'course').map(item => item.id);
+
+      // Update spaces and courses simultaneously
+      await Promise.all([
+        updateSpaces.mutateAsync({ accessGroupId: accessGroup.id, spaceIds }),
+        updateCourses.mutateAsync({ accessGroupId: accessGroup.id, courseIds })
+      ]);
+    } catch (error) {
+      console.error('Error saving access configuration:', error);
+    }
   };
 
   return (
@@ -170,8 +196,12 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} className="bg-primary text-primary-foreground">
-          Salvar alterações
+        <Button 
+          onClick={handleSave} 
+          className="bg-primary text-primary-foreground"
+          disabled={updateSpaces.isPending || updateCourses.isPending}
+        >
+          {(updateSpaces.isPending || updateCourses.isPending) ? 'Salvando...' : 'Salvar alterações'}
         </Button>
       </div>
     </div>
