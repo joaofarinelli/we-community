@@ -12,9 +12,11 @@ import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMarketplaceItems } from '@/hooks/useUserMarketplaceItems';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
+import { useUserTrailBadges } from '@/hooks/useTrailProgress';
 import { UserPostItem } from './UserPostItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
-import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag } from 'lucide-react';
+import { TrailBadgesDisplay } from '@/components/trails/TrailBadgesDisplay';
+import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag, Award } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -48,6 +50,9 @@ export const UserProfileDialog = ({
   const {
     data: userMarketplaceItems = []
   } = useUserMarketplaceItems();
+  const {
+    data: userBadges = []
+  } = useUserTrailBadges();
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
@@ -162,8 +167,13 @@ export const UserProfileDialog = ({
           {/* Right Panel - Detailed Info */}
           <div className="lg:w-2/3 p-4 md:p-6 overflow-auto">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 text-xs md:text-sm">
+              <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 text-xs md:text-sm">
                 <TabsTrigger value="sobre" className="px-2">Sobre</TabsTrigger>
+                <TabsTrigger value="selos" className="px-2">
+                  <span className="hidden md:inline">Selos</span>
+                  <span className="md:hidden">Selos</span>
+                  <span className="ml-1">({userBadges.length})</span>
+                </TabsTrigger>
                 <TabsTrigger value="publicacoes" className="px-2">
                   <span className="hidden md:inline">Publicações</span>
                   <span className="md:hidden">Posts</span>
@@ -230,6 +240,18 @@ export const UserProfileDialog = ({
                         </Card>}
                     </div>
                   </div>}
+              </TabsContent>
+
+              <TabsContent value="selos" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
+                {userBadges.length > 0 ? (
+                  <TrailBadgesDisplay badges={userBadges} />
+                ) : (
+                  <div className="text-center py-8 md:py-12 text-muted-foreground">
+                    <Award className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                    <p className="text-sm md:text-base">Você ainda não conquistou nenhum selo</p>
+                    <p className="text-xs md:text-sm mt-2">Complete etapas das trilhas para ganhar seus primeiros selos!</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="publicacoes" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
