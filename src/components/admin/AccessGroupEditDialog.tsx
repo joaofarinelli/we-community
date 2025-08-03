@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import { AccessGroup } from '@/hooks/useAccessGroups';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccessGroupMembersTab } from './AccessGroupMembersTab';
@@ -48,6 +48,14 @@ export const AccessGroupEditDialog = ({ open, onOpenChange, accessGroup }: Acces
                 {accessGroup.description || 'Nenhuma descrição fornecida'}
               </p>
             </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
           
           {/* Tabs in Header */}
