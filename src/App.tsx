@@ -11,6 +11,7 @@ import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { AuthGuard } from "@/components/AuthGuard";
 import { MultiCompanyGuard } from "@/components/MultiCompanyGuard";
+import { useSubdomain } from "@/hooks/useSubdomain";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
@@ -63,9 +64,10 @@ const queryClient = new QueryClient();
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
+  const { subdomain, customDomain, isLoading: subdomainLoading } = useSubdomain();
   useDynamicTitle();
 
-  if (loading) {
+  if (loading || subdomainLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -73,10 +75,17 @@ const AppRoutes = () => {
     );
   }
 
+  // Check if we're on the main domain (weplataforma.com.br)
+  const hostname = window.location.hostname;
+  const isMainDomain = hostname === 'weplataforma.com.br';
+  
+  // If we're not on the main domain and have a subdomain/custom domain, redirect to auth
+  const shouldShowAuthAsHome = !isMainDomain && (subdomain || customDomain);
+
   return (
     <MultiCompanyGuard>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Index />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
         <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
         <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
