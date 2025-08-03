@@ -1374,6 +1374,36 @@ export type Database = {
           },
         ]
       }
+      monthly_rankings: {
+        Row: {
+          company_id: string
+          created_at: string
+          final_rank: number
+          id: string
+          month_year: string
+          monthly_coins: number
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          final_rank: number
+          id?: string
+          month_year: string
+          monthly_coins?: number
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          final_rank?: number
+          id?: string
+          month_year?: string
+          monthly_coins?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           company_id: string
@@ -2625,6 +2655,8 @@ export type Database = {
           company_id: string
           created_at: string
           id: string
+          last_monthly_reset: string | null
+          monthly_coins: number
           total_coins: number
           updated_at: string
           user_id: string
@@ -2633,6 +2665,8 @@ export type Database = {
           company_id: string
           created_at?: string
           id?: string
+          last_monthly_reset?: string | null
+          monthly_coins?: number
           total_coins?: number
           updated_at?: string
           user_id: string
@@ -2641,6 +2675,8 @@ export type Database = {
           company_id?: string
           created_at?: string
           id?: string
+          last_monthly_reset?: string | null
+          monthly_coins?: number
           total_coins?: number
           updated_at?: string
           user_id?: string
@@ -3058,6 +3094,10 @@ export type Database = {
       }
       reset_broken_streaks: {
         Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      reset_monthly_coins: {
+        Args: { p_company_id: string }
         Returns: undefined
       }
       transfer_user_coins: {

@@ -88,9 +88,9 @@ export const RankingCard = ({ rank, user, isCurrentUser = false }: RankingCardPr
         <div className="text-right">
           <div className="flex items-center gap-1 justify-end">
             <Coins className="h-4 w-4 text-amber-500" />
-            <span className="font-semibold">{user.total_coins || user.current_coins || 0}</span>
+            <span className="font-semibold">{user.monthly_coins || 0}</span>
           </div>
-          <p className="text-xs text-muted-foreground">WomanCoins</p>
+          <p className="text-xs text-muted-foreground">Moedas do mês</p>
         </div>
       </CardContent>
     </Card>

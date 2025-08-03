@@ -1,15 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trophy, TrendingUp, Users, Coins } from 'lucide-react';
+import { Trophy, TrendingUp, Users, Coins, Calendar, Clock } from 'lucide-react';
 import { useCompanyRanking, useUserRankingPosition } from '@/hooks/useCompanyRanking';
+import { useCurrentMonthProgress } from '@/hooks/useMonthlyRankings';
 import { useAuth } from '@/hooks/useAuth';
 import { useCoinName } from '@/hooks/useCoinName';
 import { RankingCard } from './RankingCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 export const RankingTab = () => {
   const { user } = useAuth();
   const { data: ranking, isLoading: rankingLoading } = useCompanyRanking(10);
   const { data: userPosition, isLoading: positionLoading } = useUserRankingPosition();
+  const { data: monthProgress } = useCurrentMonthProgress();
   const { data: coinName = 'WomanCoins' } = useCoinName();
 
   const isStatsLoading = positionLoading;
@@ -17,6 +21,35 @@ export const RankingTab = () => {
 
   return (
     <div className="space-y-6">
+      {/* Monthly Progress Card */}
+      {monthProgress && (
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Ciclo Mensal Atual</CardTitle>
+              </div>
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {monthProgress.daysRemaining} dias restantes
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>Progresso do mês</span>
+              <span>{Math.round(monthProgress.progressPercentage)}%</span>
+            </div>
+            <Progress value={monthProgress.progressPercentage} className="h-2" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Próximo reset: {monthProgress.nextReset.toLocaleDateString('pt-BR')}</span>
+              <span>{monthProgress.daysPassed} de {monthProgress.totalDays} dias</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {isStatsLoading ? (
@@ -50,9 +83,9 @@ export const RankingTab = () => {
                 <div className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-amber-500" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Suas {coinName}</p>
+                    <p className="text-sm text-muted-foreground">Moedas do Mês</p>
                     <p className="text-2xl font-bold">
-                      {userPosition?.coins || 0}
+                      {userPosition?.monthlyCoins || 0}
                     </p>
                   </div>
                 </div>
