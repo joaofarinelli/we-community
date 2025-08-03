@@ -28,14 +28,13 @@ export const useAccessGroups = () => {
     queryFn: async () => {
       if (!currentCompanyId) return [];
 
-      // Use SQL query directly to bypass type issues
+      // Get all access groups (active and inactive)
       const { data, error } = await supabase
         .rpc('get_user_company_id')
         .then(async () => {
           const response = await (supabase as any).from('access_groups')
             .select('*')
             .eq('company_id', currentCompanyId)
-            .eq('is_active', true)
             .order('created_at', { ascending: false });
           return response;
         });
@@ -81,7 +80,7 @@ export const useAccessGroups = () => {
   });
 
   const updateGroup = useMutation({
-    mutationFn: async ({ id, ...updateData }: { id: string; name?: string; description?: string }) => {
+    mutationFn: async ({ id, ...updateData }: { id: string; name?: string; description?: string; is_active?: boolean }) => {
       const { data, error } = await supabase
         .from('access_groups' as any)
         .update(updateData)

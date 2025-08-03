@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, X, Archive, ArchiveRestore } from 'lucide-react';
 import { AccessGroup } from '@/hooks/useAccessGroups';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AccessGroupMembersTab } from './AccessGroupMembersTab';
 import { AccessGroupAccessTab } from './AccessGroupAccessTab';
+import { useAccessGroups } from '@/hooks/useAccessGroups';
 
 interface AccessGroupEditDialogProps {
   open: boolean;
@@ -15,6 +16,20 @@ interface AccessGroupEditDialogProps {
 
 export const AccessGroupEditDialog = ({ open, onOpenChange, accessGroup }: AccessGroupEditDialogProps) => {
   const [activeTab, setActiveTab] = useState('members');
+  const { updateGroup } = useAccessGroups();
+
+  const handleToggleStatus = async () => {
+    if (!accessGroup) return;
+    
+    try {
+      await updateGroup.mutateAsync({
+        id: accessGroup.id,
+        is_active: !accessGroup.is_active
+      });
+    } catch (error) {
+      console.error('Error toggling group status:', error);
+    }
+  };
 
   if (!accessGroup) return null;
 
@@ -48,14 +63,35 @@ export const AccessGroupEditDialog = ({ open, onOpenChange, accessGroup }: Acces
                 {accessGroup.description || 'Nenhuma descrição fornecida'}
               </p>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleToggleStatus}
+                disabled={updateGroup.isPending}
+                className="flex items-center gap-2"
+              >
+                {accessGroup.is_active ? (
+                  <>
+                    <Archive className="h-4 w-4" />
+                    Arquivar
+                  </>
+                ) : (
+                  <>
+                    <ArchiveRestore className="h-4 w-4" />
+                    Desarquivar
+                  </>
+                )}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           
           {/* Tabs in Header */}

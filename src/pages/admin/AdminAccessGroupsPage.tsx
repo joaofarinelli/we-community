@@ -11,7 +11,19 @@ import { AccessGroup } from '@/hooks/useAccessGroups';
 export const AdminAccessGroupsPage = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<AccessGroup | null>(null);
+  const [filter, setFilter] = useState<'all' | 'active' | 'archived'>('all');
   const { accessGroups, isLoading } = useAccessGroups();
+
+  // Filter groups based on selected filter
+  const filteredGroups = accessGroups.filter(group => {
+    if (filter === 'active') return group.is_active;
+    if (filter === 'archived') return !group.is_active;
+    return true; // 'all'
+  });
+
+  // Count groups by status
+  const activeCount = accessGroups.filter(group => group.is_active).length;
+  const archivedCount = accessGroups.filter(group => !group.is_active).length;
 
   const handleEditGroup = (group: AccessGroup) => {
     setSelectedGroup(group);
@@ -50,7 +62,21 @@ export const AdminAccessGroupsPage = () => {
           </Button>
         </div>
 
-        {accessGroups.length === 0 ? (
+        {filteredGroups.length === 0 && filter !== 'all' ? (
+          <Card>
+            <CardHeader className="text-center py-12">
+              <CardTitle className="text-xl text-foreground">
+                Nenhum grupo {filter === 'active' ? 'ativo' : 'arquivado'}
+              </CardTitle>
+              <CardDescription className="max-w-md mx-auto">
+                {filter === 'active' 
+                  ? 'Não há grupos ativos no momento.'
+                  : 'Não há grupos arquivados no momento.'
+                }
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : filteredGroups.length === 0 ? (
           <Card>
             <CardHeader className="text-center py-12">
               <CardTitle className="text-xl text-foreground">Nenhum grupo criado ainda</CardTitle>
@@ -68,19 +94,31 @@ export const AdminAccessGroupsPage = () => {
           <div>
             {/* Filter tabs */}
             <div className="flex gap-4 mb-6">
-              <Button variant="secondary" size="sm">
+              <Button 
+                variant={filter === 'all' ? 'secondary' : 'ghost'} 
+                size="sm"
+                onClick={() => setFilter('all')}
+              >
                 Todos {accessGroups.length}
               </Button>
-              <Button variant="ghost" size="sm">
-                Ativos 1
+              <Button 
+                variant={filter === 'active' ? 'secondary' : 'ghost'} 
+                size="sm"
+                onClick={() => setFilter('active')}
+              >
+                Ativos {activeCount}
               </Button>
-              <Button variant="ghost" size="sm">
-                Arquivados 0
+              <Button 
+                variant={filter === 'archived' ? 'secondary' : 'ghost'} 
+                size="sm"
+                onClick={() => setFilter('archived')}
+              >
+                Arquivados {archivedCount}
               </Button>
             </div>
 
             <div className="text-sm text-muted-foreground mb-4">
-              {accessGroups.length} grupo{accessGroups.length !== 1 ? 's' : ''} de acesso
+              {filteredGroups.length} grupo{filteredGroups.length !== 1 ? 's' : ''} de acesso
             </div>
 
             {/* Table */}
@@ -97,7 +135,7 @@ export const AdminAccessGroupsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {accessGroups.map((group) => (
+                    {filteredGroups.map((group) => (
                       <tr 
                         key={group.id} 
                         className="border-b hover:bg-muted/50 cursor-pointer"
@@ -108,8 +146,14 @@ export const AdminAccessGroupsPage = () => {
                           {group.description || '-'}
                         </td>
                         <td className="p-4">
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            Ativo
+                          <Badge 
+                            variant="secondary" 
+                            className={group.is_active 
+                              ? "bg-green-100 text-green-800" 
+                              : "bg-gray-100 text-gray-600"
+                            }
+                          >
+                            {group.is_active ? 'Ativo' : 'Arquivado'}
                           </Badge>
                         </td>
                         <td className="p-4 text-foreground">{group.member_count || 0}</td>
@@ -127,7 +171,7 @@ export const AdminAccessGroupsPage = () => {
                   <Button variant="outline" size="sm">Próximo</Button>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  Mostrando 1-{accessGroups.length} de {accessGroups.length}
+                  Mostrando 1-{filteredGroups.length} de {filteredGroups.length}
                 </span>
               </div>
             </Card>
