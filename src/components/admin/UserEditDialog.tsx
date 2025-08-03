@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,13 +46,24 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
   const assignTag = useAssignTag();
   const removeTag = useRemoveTag();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<UserFormData>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<UserFormData>({
     defaultValues: {
-      display_name: member?.display_name || '',
-      email: member?.email || '',
-      role: member?.role || 'member',
+      display_name: '',
+      email: '',
+      role: 'member',
     }
   });
+
+  // Reset form when member changes
+  React.useEffect(() => {
+    if (member) {
+      reset({
+        display_name: member.display_name || '',
+        email: member.email || '',
+        role: member.role || 'member',
+      });
+    }
+  }, [member, reset]);
 
   const onSubmit = (data: UserFormData) => {
     // TODO: Implementar atualização dos dados do usuário
@@ -68,19 +79,31 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
     try {
       const newAmount = parseInt(newCoinAmount);
       
-      // Atualizar moedas do usuário
+      // Atualizar moedas do usuário usando UPDATE ao invés de UPSERT para evitar conflito de constraint
       const { error } = await supabase
         .from('user_points')
-        .upsert({
-          user_id: member.user_id,
-          company_id: currentCompanyId,
-          total_coins: newAmount
-        });
+        .update({ total_coins: newAmount, updated_at: new Date().toISOString() })
+        .eq('user_id', member.user_id)
+        .eq('company_id', currentCompanyId);
 
-      if (error) throw error;
+      // Se não existe registro, criar um novo
+      if (error && error.code === 'PGRST116') {
+        const { error: insertError } = await supabase
+          .from('user_points')
+          .insert({
+            user_id: member.user_id,
+            company_id: currentCompanyId,
+            total_coins: newAmount
+          });
+        
+        if (insertError) throw insertError;
+      } else if (error) {
+        throw error;
+      }
 
-      // Invalidar query para atualizar dados
-      queryClient.invalidateQueries({ queryKey: ['user-points', member.user_id] });
+      // Invalidar queries para atualizar dados
+      queryClient.invalidateQueries({ queryKey: ['userCoins', member.user_id, currentCompanyId] });
+      queryClient.invalidateQueries({ queryKey: ['user-points'] });
       
       toast.success('Moedas atualizadas com sucesso!');
       setNewCoinAmount('');
