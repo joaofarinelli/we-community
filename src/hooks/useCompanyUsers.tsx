@@ -8,6 +8,8 @@ export interface CompanyUser {
   first_name: string;
   last_name: string;
   email?: string;
+  role: string;
+  created_at: string;
 }
 
 export const useCompanyUsers = (searchQuery?: string) => {
@@ -21,8 +23,9 @@ export const useCompanyUsers = (searchQuery?: string) => {
 
       let query = supabase
         .from('profiles')
-        .select('user_id, first_name, last_name')
-        .eq('company_id', currentCompanyId);
+        .select('user_id, first_name, last_name, email, role, created_at')
+        .eq('company_id', currentCompanyId)
+        .eq('is_active', true);
 
       if (searchQuery && searchQuery.length > 0) {
         const searchTerm = `%${searchQuery}%`;

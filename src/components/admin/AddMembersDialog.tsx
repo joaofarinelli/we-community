@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Search, Plus, Users, Tag, Calendar } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useCompanyUsers } from '@/hooks/useCompanyUsers';
+import { useAccessGroupMembers } from '@/hooks/useAccessGroupMembers';
 
 interface AddMembersDialogProps {
   open: boolean;
@@ -16,6 +17,12 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const { data: users } = useCompanyUsers(searchTerm);
+  const { members, addMembers } = useAccessGroupMembers(accessGroupId);
+
+  // Filter out users who are already members
+  const availableUsers = users?.filter(user => 
+    !members.some(member => member.user_id === user.user_id)
+  ) || [];
 
   const handleUserToggle = (userId: string) => {
     setSelectedUsers(prev =>
@@ -25,10 +32,19 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
     );
   };
 
-  const handleAddMembers = () => {
-    // TODO: Implement adding members to access group
-    console.log('Adding members:', selectedUsers);
-    onOpenChange(false);
+  const handleAddMembers = async () => {
+    if (selectedUsers.length === 0) return;
+    
+    try {
+      await addMembers.mutateAsync({
+        accessGroupId,
+        userIds: selectedUsers
+      });
+      setSelectedUsers([]);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error adding members:', error);
+    }
   };
 
   return (
@@ -93,7 +109,7 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
 
             {/* Table content */}
             <div className="overflow-y-auto h-[calc(100%-57px)]">
-              {users?.map((user) => (
+              {availableUsers.map((user) => (
                 <div key={user.user_id} className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/50">
                   <div className="col-span-1 flex items-center">
                     <Checkbox
@@ -115,10 +131,12 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
                     </div>
                   </div>
                   <div className="col-span-3 flex items-center">
-                    <span className="text-sm">Administrador</span>
+                    <span className="text-sm capitalize">{user.role}</span>
                   </div>
                   <div className="col-span-4 flex items-center">
-                    <span className="text-sm text-muted-foreground">22 Jul 2025</span>
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -141,9 +159,9 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
             </Button>
             <Button 
               onClick={handleAddMembers}
-              disabled={selectedUsers.length === 0}
+              disabled={selectedUsers.length === 0 || addMembers.isPending}
             >
-              Adicionar {selectedUsers.length} membro{selectedUsers.length !== 1 ? 's' : ''}
+              {addMembers.isPending ? 'Adicionando...' : `Adicionar ${selectedUsers.length} membro${selectedUsers.length !== 1 ? 's' : ''}`}
             </Button>
           </div>
         </div>
