@@ -40,6 +40,8 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
       let filePath: string;
       const timestamp = Date.now();
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      
+      console.log('🔧 useFileUpload: bucket:', options.bucket, 'user:', user.id, 'company:', company?.id);
 
       if (options.bucket === 'post-images') {
         filePath = `${user.id}/${timestamp}_${sanitizedFileName}`;
@@ -47,9 +49,13 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
         filePath = `${company.id}/${user.id}/${timestamp}_${sanitizedFileName}`;
       }
 
+      console.log('🔧 useFileUpload: filePath:', filePath);
+
       const { data, error } = await supabase.storage
         .from(options.bucket)
         .upload(filePath, file);
+
+      console.log('🔧 useFileUpload: upload result:', { data, error });
 
       if (error) {
         console.error('Error uploading file:', error);
