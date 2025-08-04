@@ -3100,6 +3100,10 @@ export type Database = {
         Args: { p_company_id: string }
         Returns: undefined
       }
+      set_current_company_context: {
+        Args: { p_company_id: string }
+        Returns: undefined
+      }
       transfer_user_coins: {
         Args: {
           p_from_user_id: string

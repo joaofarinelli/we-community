@@ -16,10 +16,8 @@ export const useSupabaseContext = () => {
       if (user && currentCompanyId) {
         try {
           // Set the current company ID in the Supabase session context
-          await supabase.rpc('set_config', {
-            setting_name: 'app.current_company_id',
-            setting_value: currentCompanyId,
-            is_local: true
+          await supabase.rpc('set_current_company_context', {
+            p_company_id: currentCompanyId
           });
           console.log('Set Supabase context for company:', currentCompanyId);
         } catch (error) {

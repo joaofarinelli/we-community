@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
@@ -35,6 +36,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   const isAdmin = useIsAdmin();
+  
+  // Set Supabase context for RLS policies
+  useSupabaseContext();
   
   // Initialize realtime subscriptions for posts
   useRealtimePosts();
