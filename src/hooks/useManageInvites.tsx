@@ -12,8 +12,7 @@ export const useManageInvites = () => {
       const { error } = await supabase
         .from('user_invites')
         .update({ 
-          status: 'cancelled',
-          updated_at: new Date().toISOString()
+          status: 'cancelled'
         })
         .eq('id', inviteId)
         .eq('company_id', company?.id)
@@ -39,8 +38,7 @@ export const useManageInvites = () => {
       const { error } = await supabase
         .from('user_invites')
         .update({ 
-          expires_at: newExpirationDate.toISOString(),
-          updated_at: new Date().toISOString()
+          expires_at: newExpirationDate.toISOString()
         })
         .eq('id', inviteId)
         .eq('company_id', company?.id)
