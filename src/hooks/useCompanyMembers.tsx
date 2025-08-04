@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export interface CompanyMember {
   id: string;
@@ -15,29 +16,18 @@ export interface CompanyMember {
 
 export const useCompanyMembers = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['company-members', user?.id],
+    queryKey: ['company-members', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !currentCompanyId) return [];
 
-      // Buscar a empresa do usuário atual
-      const { data: userProfile, error: profileError } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (profileError || !userProfile?.company_id) {
-        console.error('Error fetching user profile:', profileError);
-        return [];
-      }
-
-      // Buscar todos os profiles da empresa
+      // Buscar todos os profiles da empresa usando o currentCompanyId
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, user_id, first_name, last_name, email, role, is_active, created_at')
-        .eq('company_id', userProfile.company_id);
+        .eq('company_id', currentCompanyId);
 
       if (profilesError) {
         console.error('Error fetching profiles:', profilesError);
@@ -49,7 +39,7 @@ export const useCompanyMembers = () => {
       const { data: userRoles } = await supabase
         .from('user_roles')
         .select('user_id, role, created_at')
-        .eq('company_id', userProfile.company_id)
+        .eq('company_id', currentCompanyId)
         .in('user_id', userIds);
 
       // Combinar os dados, priorizando o role da tabela profiles
@@ -69,6 +59,6 @@ export const useCompanyMembers = () => {
         };
       }) as CompanyMember[] || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentCompanyId,
   });
 };
