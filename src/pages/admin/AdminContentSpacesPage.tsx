@@ -143,7 +143,7 @@ export const AdminContentSpacesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {spaces.map((space) => {
+                {(spaces || []).map((space) => {
                   const totalMembers = Array.isArray(space.members) ? space.members.length : 0;
                   const moderators = Array.isArray(space.members) ? space.members.filter(m => m.role === 'admin').length : 0;
                   
