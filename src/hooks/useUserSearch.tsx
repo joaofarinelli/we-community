@@ -1,28 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const useUserSearch = (searchTerm: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['userSearch', searchTerm],
+    queryKey: ['userSearch', searchTerm, currentCompanyId],
     queryFn: async () => {
-      if (!user || searchTerm.length < 2) return [];
-
-      // Get user's company ID first
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) return [];
+      if (!user || searchTerm.length < 2 || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email')
-        .eq('company_id', profile.company_id)
+        .eq('company_id', currentCompanyId)
         .neq('user_id', user.id) // Exclude current user
         .eq('is_active', true)
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
@@ -31,6 +24,6 @@ export const useUserSearch = (searchTerm: string) => {
       if (error) throw error;
       return data || [];
     },
-    enabled: searchTerm.length >= 2,
+    enabled: searchTerm.length >= 2 && !!currentCompanyId,
   });
 };
