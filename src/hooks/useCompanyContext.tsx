@@ -49,6 +49,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   // Set current company ID based on subdomain/domain context
   useEffect(() => {
     if (currentCompany?.id) {
+      console.log('🏢 Company context changing to:', currentCompany.id, currentCompany.name);
       setCurrentCompanyId(currentCompany.id);
     }
   }, [currentCompany]);

@@ -51,6 +51,17 @@ export const useUserStreak = () => {
         throw new Error('User or company not found');
       }
 
+      // First, ensure the Supabase context is set correctly for multi-company
+      try {
+        await supabase.rpc('set_current_company_context', {
+          p_company_id: currentCompanyId
+        });
+        console.log('✅ Context set for streak update, company:', currentCompanyId);
+      } catch (contextError) {
+        console.error('❌ Failed to set context for streak update:', contextError);
+        throw new Error('Failed to set company context');
+      }
+
       console.log('Calling update_user_streak RPC with params:', { p_user_id: user.id, p_company_id: currentCompanyId });
       const { error } = await supabase.rpc('update_user_streak', {
         p_user_id: user.id,
