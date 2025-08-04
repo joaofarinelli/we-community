@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { SpaceBanner } from '@/components/ui/space-banner';
 import { renderSpaceIcon } from '@/lib/spaceUtils';
 import { Users, Lock, Eye, EyeOff, UserPlus, UserMinus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -74,6 +75,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
       )}
       onClick={onClick}
     >
+      <SpaceBanner spaceId={space.id} className="h-32 mb-0 rounded-t-lg rounded-b-none" />
       <CardHeader className="pb-2 sm:pb-3 p-3 sm:p-4 flex-shrink-0">
         <div className="flex items-start justify-between gap-2 min-h-0">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
