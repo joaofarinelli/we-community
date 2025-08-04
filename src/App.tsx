@@ -22,6 +22,7 @@ import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { AdminLevelsPage } from "./pages/admin/AdminLevelsPage";
 import { AdminAccessGroupsPage } from "./pages/admin/AdminAccessGroupsPage";
 import { AdminSegmentsPage } from "./pages/admin/AdminSegmentsPage";
+import { AdminSpacesPage } from "./pages/admin/AdminSpacesPage";
 import { AdminTagsPage } from "./pages/admin/AdminTagsPage";
 import { AdminUserEditPage } from "./pages/admin/AdminUserEditPage";
 import { AdminProfileFieldsPage } from "./pages/admin/AdminProfileFieldsPage";
@@ -95,6 +96,7 @@ const AppRoutes = () => {
         <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
         <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
         <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
+        <Route path="/admin/spaces" element={<AuthGuard><AdminSpacesPage /></AuthGuard>} />
         <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
         <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
         <Route path="/admin/profile-fields" element={<AuthGuard><AdminProfileFieldsPage /></AuthGuard>} />

@@ -6,6 +6,8 @@ import { toast } from 'sonner';
 interface UpdateSpaceData {
   id: string;
   name?: string;
+  description?: string;
+  visibility?: 'public' | 'private' | 'secret';
   category_id?: string;
   is_private?: boolean;
   custom_icon_type?: 'default' | 'emoji' | 'image';
