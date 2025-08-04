@@ -134,7 +134,7 @@ export const AdminContentPostsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {posts.map((post) => (
+                    {(posts || []).map((post) => (
                       <tr key={post.id} className="border-b hover:bg-muted/25">
                         <td className="p-4 font-medium">{post.title || 'Post sem título'}</td>
                         <td className="p-4">
