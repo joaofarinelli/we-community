@@ -16,6 +16,7 @@ import { useUserTrailBadges } from '@/hooks/useTrailProgress';
 import { UserPostItem } from './UserPostItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { TrailBadgesDisplay } from '@/components/trails/TrailBadgesDisplay';
+import { EditProfileDialog } from './EditProfileDialog';
 import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag, Award } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
@@ -25,6 +26,7 @@ export const UserProfileDialog = ({
   open,
   onOpenChange
 }: UserProfileDialogProps) => {
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const {
     user
   } = useAuth();
@@ -157,7 +159,12 @@ export const UserProfileDialog = ({
                   </Badge>}
               </div>
 
-              <Button className="w-full" variant="outline" size="sm">
+              <Button 
+                className="w-full" 
+                variant="outline" 
+                size="sm"
+                onClick={() => setEditDialogOpen(true)}
+              >
                 <Edit3 className="h-4 w-4 mr-2" />
                 Editar
               </Button>
@@ -301,6 +308,11 @@ export const UserProfileDialog = ({
             </Tabs>
           </div>
         </div>
+
+        <EditProfileDialog 
+          open={editDialogOpen} 
+          onOpenChange={setEditDialogOpen} 
+        />
       </DialogContent>
     </Dialog>;
 };
