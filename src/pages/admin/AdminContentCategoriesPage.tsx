@@ -108,7 +108,7 @@ export const AdminContentCategoriesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {categories.map((category) => (
+                {(categories || []).map((category) => (
                   <tr key={category.id} className="border-b hover:bg-muted/25">
                     <td className="p-4 font-medium">{category.name}</td>
                     <td className="p-4">
