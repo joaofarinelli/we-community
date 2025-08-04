@@ -5,12 +5,14 @@ import { useUserCoins } from '@/hooks/useUserPoints';
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { useAccountStats } from '@/hooks/useAccountStats';
 import { useCoinName } from '@/hooks/useCoinName';
+import { useCompany } from '@/hooks/useCompany';
 
 export const BankHeader = () => {
   const { data: userCoins, isLoading: coinsLoading } = useUserCoins();
   const { data: userLevel, isLoading: levelLoading } = useUserLevel();
   const { data: stats, isLoading: statsLoading } = useAccountStats();
   const { data: coinName = 'WomanCoins' } = useCoinName();
+  const { data: company } = useCompany();
 
   if (coinsLoading || levelLoading || statsLoading) {
     return (
@@ -32,7 +34,7 @@ export const BankHeader = () => {
     <div className="mb-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-          {coinName} Bank
+          <span style={{ color: company?.primary_color || '#334155' }}>{company?.name || 'Empresa'}</span> Bank
         </h1>
         <p className="text-muted-foreground">Gerencie suas moedas e faça transferências</p>
       </div>
