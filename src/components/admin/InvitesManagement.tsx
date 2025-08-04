@@ -8,13 +8,26 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useUserInvites } from "@/hooks/useUserInvites";
+import { useManageInvites } from "@/hooks/useManageInvites";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { RotateCcw, X } from "lucide-react";
 
 export const InvitesManagement = () => {
   const { data: invites, isLoading } = useUserInvites();
+  const { revokeInvite, resendInvite, isRevoking, isResending } = useManageInvites();
 
   if (isLoading) {
     return <div>Carregando convites...</div>;
@@ -95,19 +108,41 @@ export const InvitesManagement = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        disabled
-                        title="Reenviar convite (em breve)"
+                        onClick={() => resendInvite(invite.id)}
+                        disabled={isResending}
+                        title="Reenviar convite"
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled
-                        title="Cancelar convite (em breve)"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Revogar convite"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Revogar Convite</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja revogar o convite para "{invite.email}"? 
+                              Esta ação não pode ser desfeita e o usuário não poderá mais usar este convite.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => revokeInvite(invite.id)}
+                              disabled={isRevoking}
+                            >
+                              {isRevoking ? 'Revogando...' : 'Revogar Convite'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </>
                   )}
                 </div>
