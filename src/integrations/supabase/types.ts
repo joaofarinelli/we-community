@@ -1200,6 +1200,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           is_featured: boolean
+          item_type: string
           name: string
           order_index: number
           price_coins: number
@@ -1220,6 +1221,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          item_type?: string
           name: string
           order_index?: number
           price_coins: number
@@ -1240,6 +1242,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_featured?: boolean
+          item_type?: string
           name?: string
           order_index?: number
           price_coins?: number

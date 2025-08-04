@@ -20,7 +20,9 @@ import {
   Lock,
   Star,
   ShoppingCart,
-  Eye
+  Eye,
+  Download,
+  Truck
 } from 'lucide-react';
 import { useState } from 'react';
 import { PurchaseDialog } from './PurchaseDialog';
@@ -42,6 +44,7 @@ interface MarketplaceItem {
   seller_id?: string;
   category_id: string;
   access_tags?: string[];
+  item_type?: string;
   created_at: string;
 }
 
@@ -100,16 +103,34 @@ export const ProductDetailsDialog = ({
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Package className="h-16 w-16 text-muted-foreground" />
+                    item.item_type === 'digital' ? (
+                      <Download className="h-16 w-16 text-muted-foreground" />
+                    ) : (
+                      <Package className="h-16 w-16 text-muted-foreground" />
+                    )
                   )}
                 </div>
                 
-                {item.is_featured && (
-                  <Badge variant="secondary" className="w-fit">
-                    <Star className="h-3 w-3 mr-1" />
-                    Produto em Destaque
-                  </Badge>
-                )}
+                <div className="flex flex-wrap gap-2">
+                  {item.item_type === 'digital' && (
+                    <Badge variant="outline" className="text-xs">
+                      <Download className="h-3 w-3 mr-1" />
+                      Produto Digital
+                    </Badge>
+                  )}
+                  {item.item_type === 'physical' && (
+                    <Badge variant="outline" className="text-xs">
+                      <Truck className="h-3 w-3 mr-1" />
+                      Produto Físico
+                    </Badge>
+                  )}
+                  {item.is_featured && (
+                    <Badge variant="secondary" className="text-xs">
+                      <Star className="h-3 w-3 mr-1" />
+                      Destaque
+                    </Badge>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -140,9 +161,11 @@ export const ProductDetailsDialog = ({
                 <div className="space-y-2">
                   {item.stock_quantity !== null && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Estoque:</span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.item_type === 'digital' ? 'Licenças:' : 'Estoque:'}
+                      </span>
                       <Badge variant={isOutOfStock ? "destructive" : "outline"}>
-                        {isOutOfStock ? 'Esgotado' : `${item.stock_quantity} disponíveis`}
+                        {isOutOfStock ? 'Esgotado' : item.item_type === 'digital' ? `${item.stock_quantity} licenças` : `${item.stock_quantity} disponíveis`}
                       </Badge>
                     </div>
                   )}
@@ -220,6 +243,26 @@ export const ProductDetailsDialog = ({
                       <p className="text-xs text-muted-foreground">Data de publicação</p>
                     </div>
                   </div>
+                  
+                  {item.item_type && (
+                    <div className="flex items-center gap-3">
+                      {item.item_type === 'digital' ? (
+                        <Download className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <Truck className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium">
+                          {item.item_type === 'digital' ? 'Produto Digital' : 'Produto Físico'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.item_type === 'digital' 
+                            ? 'Entrega instantânea' 
+                            : 'Requer endereço de entrega'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

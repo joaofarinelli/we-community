@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Coins, Package, Lock } from 'lucide-react';
+import { Coins, Package, Lock, Download, Package2 } from 'lucide-react';
 import { useState, memo } from 'react';
 import { ProductDetailsDialog } from './ProductDetailsDialog';
 import { useCheckProductAccess } from '@/hooks/useCheckProductAccess';
@@ -18,6 +18,7 @@ interface MarketplaceItem {
   seller_id?: string;
   category_id: string;
   access_tags?: string[];
+  item_type?: string;
   created_at: string;
   profiles?: {
     first_name: string;
@@ -51,18 +52,30 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <Package className="h-12 w-12 text-muted-foreground" />
+              item.item_type === 'digital' ? (
+                <Download className="h-12 w-12 text-muted-foreground" />
+              ) : (
+                <Package className="h-12 w-12 text-muted-foreground" />
+              )
             )}
           </div>
           
           <div className="space-y-2">
             <div className="flex items-start justify-between">
               <h3 className="font-medium text-sm leading-tight">{item.name}</h3>
-              {item.is_featured && (
-                <Badge variant="secondary" className="ml-2 shrink-0">
-                  Destaque
-                </Badge>
-              )}
+              <div className="flex gap-1 ml-2 shrink-0">
+                {item.item_type === 'digital' && (
+                  <Badge variant="outline" className="text-xs">
+                    <Download className="h-3 w-3 mr-1" />
+                    Digital
+                  </Badge>
+                )}
+                {item.is_featured && (
+                  <Badge variant="secondary">
+                    Destaque
+                  </Badge>
+                )}
+              </div>
             </div>
             
             {item.description && (
@@ -86,7 +99,7 @@ export const MarketplaceItemCard = memo(({ item, userCoins }: MarketplaceItemCar
               
               {item.stock_quantity !== null && (
                 <Badge variant={isOutOfStock ? "destructive" : "outline"} className="text-xs">
-                  {isOutOfStock ? 'Esgotado' : `${item.stock_quantity} restantes`}
+                  {isOutOfStock ? 'Esgotado' : item.item_type === 'digital' ? `${item.stock_quantity} licenças` : `${item.stock_quantity} restantes`}
                 </Badge>
               )}
             </div>

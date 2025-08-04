@@ -10,6 +10,7 @@ interface CreateUserItemData {
   image_url?: string;
   price_coins: number;
   stock_quantity?: number;
+  item_type?: string;
 }
 
 export const useUserMarketplaceItems = () => {

@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateUserMarketplaceItem, useUpdateUserMarketplaceItem } from '@/hooks/useUserMarketplaceItems';
 import { ImageUploader } from '@/components/ui/image-uploader';
@@ -28,6 +29,7 @@ interface MarketplaceItem {
   image_url?: string;
   price_coins: number;
   stock_quantity?: number;
+  item_type?: 'physical' | 'digital';
 }
 
 interface CreateUserItemDialogProps {
@@ -45,6 +47,7 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
     image_url: item?.image_url || '',
     price_coins: item?.price_coins || 0,
     stock_quantity: item?.stock_quantity || undefined,
+    item_type: item?.item_type || 'physical' as 'physical' | 'digital',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -72,6 +75,7 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
         image_url: '',
         price_coins: 0,
         stock_quantity: undefined,
+        item_type: 'physical',
       });
     } catch (error) {
       console.error('Error creating/updating item:', error);
@@ -145,7 +149,30 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="stock">Quantidade em Estoque (opcional)</Label>
+            <Label>Tipo de Item *</Label>
+            <RadioGroup
+              value={formData.item_type}
+              onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="physical" id="physical" />
+                <Label htmlFor="physical">Físico</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="digital" id="digital" />
+                <Label htmlFor="digital">Digital</Label>
+              </div>
+            </RadioGroup>
+            <p className="text-xs text-muted-foreground">
+              Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="stock">
+              {formData.item_type === 'digital' ? 'Quantidade de Licenças (opcional)' : 'Quantidade em Estoque (opcional)'}
+            </Label>
             <Input
               id="stock"
               type="number"
@@ -155,7 +182,7 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
                 ...formData, 
                 stock_quantity: e.target.value ? parseInt(e.target.value) : undefined 
               })}
-              placeholder="Deixe vazio para estoque ilimitado"
+              placeholder={formData.item_type === 'digital' ? 'Deixe vazio para licenças ilimitadas' : 'Deixe vazio para estoque ilimitado'}
             />
           </div>
 

@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateMarketplaceItem, useUpdateMarketplaceItem } from '@/hooks/useManageMarketplace';
 import { useTags } from '@/hooks/useTags';
@@ -30,6 +31,7 @@ interface MarketplaceItem {
   stock_quantity?: number;
   is_featured?: boolean;
   access_tags?: string[];
+  item_type?: 'physical' | 'digital';
 }
 
 interface CreateItemDialogProps {
@@ -48,6 +50,7 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
     stock_quantity: item?.stock_quantity || undefined,
     is_featured: item?.is_featured || false,
     access_tags: item?.access_tags || [],
+    item_type: item?.item_type || 'physical',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -172,7 +175,9 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock">Estoque (opcional)</Label>
+              <Label htmlFor="stock">
+                {formData.item_type === 'digital' ? 'Licenças' : 'Estoque'} (opcional)
+              </Label>
               <Input
                 id="stock"
                 type="number"
@@ -182,9 +187,30 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
                   ...prev, 
                   stock_quantity: e.target.value ? parseInt(e.target.value) : undefined 
                 }))}
-                placeholder="Deixe vazio para estoque ilimitado"
+                placeholder={formData.item_type === 'digital' ? 'Deixe vazio para licenças ilimitadas' : 'Deixe vazio para estoque ilimitado'}
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Tipo de Item *</Label>
+            <RadioGroup
+              value={formData.item_type || 'physical'}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, item_type: value as 'physical' | 'digital' }))}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="physical" id="physical-admin" />
+                <Label htmlFor="physical-admin">Físico</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="digital" id="digital-admin" />
+                <Label htmlFor="digital-admin">Digital</Label>
+              </div>
+            </RadioGroup>
+            <p className="text-xs text-muted-foreground">
+              Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
+            </p>
           </div>
 
           <ImageUploader

@@ -12,6 +12,7 @@ interface CreateStoreItemData {
   stock_quantity?: number;
   is_featured?: boolean;
   access_tags?: string[];
+  item_type?: string;
   store_type: 'store';
   seller_type: 'company';
 }

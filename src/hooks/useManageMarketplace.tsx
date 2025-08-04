@@ -21,6 +21,7 @@ interface CreateItemData {
   store_type?: string;
   seller_type?: string;
   access_tags?: string[];
+  item_type?: string;
 }
 
 export const useCreateMarketplaceCategory = () => {

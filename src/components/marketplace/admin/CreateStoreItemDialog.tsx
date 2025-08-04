@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateStoreItem, useUpdateStoreItem } from '@/hooks/useManageStore';
 import { useTags } from '@/hooks/useTags';
@@ -23,6 +24,7 @@ interface MarketplaceItem {
   stock_quantity: number | null;
   is_featured: boolean;
   access_tags?: string[];
+  item_type?: 'physical' | 'digital';
 }
 
 interface CreateStoreItemDialogProps {
@@ -41,6 +43,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     stock_quantity: null as number | null,
     is_featured: false,
     access_tags: [] as string[],
+    item_type: 'physical' as 'physical' | 'digital',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -61,6 +64,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
         stock_quantity: item.stock_quantity,
         is_featured: item.is_featured,
         access_tags: item.access_tags || [],
+        item_type: item.item_type || 'physical',
       });
     } else {
       setFormData({
@@ -72,6 +76,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
         stock_quantity: null,
         is_featured: false,
         access_tags: [],
+        item_type: 'physical',
       });
     }
   }, [item, open]);
@@ -187,7 +192,30 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
           </div>
 
           <div>
-            <Label htmlFor="stock">Quantidade em Estoque</Label>
+            <Label>Tipo de Produto *</Label>
+            <RadioGroup
+              value={formData.item_type}
+              onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
+              className="flex gap-6 mt-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="physical" id="physical-store" />
+                <Label htmlFor="physical-store">Físico</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="digital" id="digital-store" />
+                <Label htmlFor="digital-store">Digital</Label>
+              </div>
+            </RadioGroup>
+            <p className="text-xs text-muted-foreground mt-1">
+              Produtos físicos requerem endereço de entrega. Produtos digitais são entregues instantaneamente.
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="stock">
+              {formData.item_type === 'digital' ? 'Quantidade de Licenças' : 'Quantidade em Estoque'}
+            </Label>
             <Input
               id="stock"
               type="number"
@@ -197,7 +225,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
                 ...formData, 
                 stock_quantity: e.target.value ? parseInt(e.target.value) : null 
               })}
-              placeholder="Deixe vazio para estoque ilimitado"
+              placeholder={formData.item_type === 'digital' ? 'Deixe vazio para licenças ilimitadas' : 'Deixe vazio para estoque ilimitado'}
             />
           </div>
 
