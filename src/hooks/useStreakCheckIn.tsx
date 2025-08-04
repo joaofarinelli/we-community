@@ -16,18 +16,25 @@ export const useStreakCheckIn = () => {
         throw new Error('User or company context not available');
       }
 
-      // First, ensure the Supabase context is set correctly
+      console.log('🚀 Starting streak check-in for user:', user.id, 'company:', currentCompanyId);
+
+      // Always set the context before any streak operation
       try {
+        console.log('🔧 Setting company context...');
         await supabase.rpc('set_current_company_context', {
           p_company_id: currentCompanyId
         });
-        console.log('✅ Context set for streak check-in, company:', currentCompanyId);
+        console.log('✅ Context set successfully for company:', currentCompanyId);
       } catch (contextError) {
         console.error('❌ Failed to set context for streak check-in:', contextError);
         throw new Error('Failed to set company context');
       }
 
+      // Wait a small moment to ensure context is applied
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Now perform the streak update
+      console.log('📈 Calling update_user_streak...');
       const { data, error } = await supabase.rpc('update_user_streak', {
         p_user_id: user.id,
         p_company_id: currentCompanyId
@@ -38,7 +45,7 @@ export const useStreakCheckIn = () => {
         throw error;
       }
 
-      console.log('✅ Streak check-in successful for company:', currentCompanyId);
+      console.log('✅ Streak check-in successful for company:', currentCompanyId, 'data:', data);
       return data;
     },
     onSuccess: () => {
