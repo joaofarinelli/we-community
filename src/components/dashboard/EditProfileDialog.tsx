@@ -109,11 +109,23 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
   const uploadAvatar = async (file: File): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user?.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${user?.id}/avatar-${Date.now()}.${fileExt}`;
+      
+      // Delete previous avatar if exists
+      if (userProfile?.avatar_url) {
+        const oldFileName = userProfile.avatar_url.split('/').pop();
+        if (oldFileName && oldFileName.includes('avatar-')) {
+          await supabase.storage
+            .from('avatars')
+            .remove([`${user?.id}/${oldFileName}`]);
+        }
+      }
       
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          upsert: true
+        });
 
       if (uploadError) {
         throw uploadError;
@@ -126,7 +138,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       return data.publicUrl;
     } catch (error) {
       console.error('Error uploading avatar:', error);
-      return null;
+      throw error;
     }
   };
 
@@ -162,14 +174,18 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
 
       if (error) throw error;
 
-      // Update custom fields data
-      const customUpdates = Object.entries(customFieldValues).map(([fieldId, value]) => ({
-        field_id: fieldId,
-        field_value: value || null,
-      }));
+      // Update custom fields data - only if there are values to update
+      if (Object.keys(customFieldValues).length > 0) {
+        const customUpdates = Object.entries(customFieldValues)
+          .filter(([_, value]) => value && value.trim() !== '') // Only send non-empty values
+          .map(([fieldId, value]) => ({
+            field_id: fieldId,
+            field_value: value,
+          }));
 
-      if (customUpdates.length > 0) {
-        await updateCustomData.mutateAsync(customUpdates);
+        if (customUpdates.length > 0) {
+          await updateCustomData.mutateAsync(customUpdates);
+        }
       }
 
       // Invalidate queries to refresh data

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 export type CustomFieldType = 'text' | 'textarea' | 'select' | 'number' | 'date';
 
@@ -81,6 +81,7 @@ export const useCreateCustomProfileField = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (fieldData: {
@@ -108,16 +109,24 @@ export const useCreateCustomProfileField = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-profile-fields'] });
-      toast.success('Campo personalizado criado com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Campo personalizado criado com sucesso!',
+      });
     },
     onError: (error: any) => {
-      toast.error('Erro ao criar campo: ' + error.message);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao criar campo: ' + error.message,
+        variant: 'destructive',
+      });
     },
   });
 };
 
 export const useUpdateCustomProfileField = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: { id: string } & Partial<CustomProfileField>) => {
@@ -133,16 +142,24 @@ export const useUpdateCustomProfileField = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-profile-fields'] });
-      toast.success('Campo atualizado com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Campo atualizado com sucesso!',
+      });
     },
     onError: (error: any) => {
-      toast.error('Erro ao atualizar campo: ' + error.message);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar campo: ' + error.message,
+        variant: 'destructive',
+      });
     },
   });
 };
 
 export const useDeleteCustomProfileField = () => {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (id: string) => {
@@ -155,10 +172,17 @@ export const useDeleteCustomProfileField = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['custom-profile-fields'] });
-      toast.success('Campo excluído com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Campo excluído com sucesso!',
+      });
     },
     onError: (error: any) => {
-      toast.error('Erro ao excluir campo: ' + error.message);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao excluir campo: ' + error.message,
+        variant: 'destructive',
+      });
     },
   });
 };
@@ -167,36 +191,44 @@ export const useUpdateUserCustomProfileData = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (updates: Array<{ field_id: string; field_value: string | null }>) => {
       if (!user?.id || !currentCompanyId) throw new Error('User not authenticated');
 
-      const operations = updates.map(({ field_id, field_value }) =>
-        supabase
-          .from('user_custom_profile_data')
-          .upsert({
-            field_id,
-            field_value,
-            user_id: user.id,
-            company_id: currentCompanyId,
-          })
-      );
+      // Prepare upsert data with all required fields for unique constraint
+      const upsertData = updates.map(({ field_id, field_value }) => ({
+        field_id,
+        field_value,
+        user_id: user.id,
+        company_id: currentCompanyId,
+      }));
 
-      const results = await Promise.all(operations);
-      
-      for (const result of results) {
-        if (result.error) throw result.error;
-      }
+      // Use a single upsert operation with conflict resolution
+      const { data, error } = await supabase
+        .from('user_custom_profile_data')
+        .upsert(upsertData, {
+          onConflict: 'user_id,company_id,field_id',
+          ignoreDuplicates: false
+        });
 
-      return results;
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data'] });
-      toast.success('Dados personalizados atualizados!');
+      toast({
+        title: 'Sucesso',
+        description: 'Dados personalizados atualizados!',
+      });
     },
     onError: (error: any) => {
-      toast.error('Erro ao atualizar dados: ' + error.message);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao atualizar dados: ' + error.message,
+        variant: 'destructive',
+      });
     },
   });
 };
