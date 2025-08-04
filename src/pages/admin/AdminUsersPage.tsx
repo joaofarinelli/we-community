@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
+import { UserImportExportDialog } from '@/components/admin/UserImportExportDialog';
 import { InvitesManagement } from '@/components/admin/InvitesManagement';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +20,7 @@ import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MoreHorizontal, Edit, Trash2, Users, Mail, UserCheck, UserX } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, Users, Mail, UserCheck, UserX, FileSpreadsheet } from 'lucide-react';
 
 export const AdminUsersPage = () => {
   const [editingMember, setEditingMember] = useState<CompanyMember | null>(null);
@@ -110,7 +111,15 @@ export const AdminUsersPage = () => {
               Gerencie todos os usuários da sua comunidade - membros e administradores ({members?.length || 0} usuários)
             </p>
           </div>
-          <InviteUserDialog />
+          <div className="flex items-center gap-2">
+            <UserImportExportDialog>
+              <Button variant="outline" size="sm">
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Importar/Exportar
+              </Button>
+            </UserImportExportDialog>
+            <InviteUserDialog />
+          </div>
         </div>
 
         <Tabs defaultValue="members" className="space-y-6">
@@ -136,9 +145,15 @@ export const AdminUsersPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center pb-12">
-              <Button>
-                Adicionar audiência
-              </Button>
+              <div className="flex items-center justify-center gap-2">
+                <InviteUserDialog />
+                <UserImportExportDialog>
+                  <Button variant="outline">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Importar usuários
+                  </Button>
+                </UserImportExportDialog>
+              </div>
             </CardContent>
           </Card>
         ) : (
