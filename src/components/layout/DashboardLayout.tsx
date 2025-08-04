@@ -11,6 +11,7 @@ import { UserPointsBadge } from '@/components/gamification/UserPointsBadge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
@@ -30,6 +31,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: company } = useCompany();
+  const { data: userProfile } = useUserProfile();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   const isAdmin = useIsAdmin();
@@ -106,9 +108,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </StreakDialog>
                 </div>
                 <UserDropdown
-                  name={user?.user_metadata?.display_name}
-                  email={user?.email}
-                  imageUrl={user?.user_metadata?.avatar_url}
+                  name={userProfile?.first_name && userProfile?.last_name 
+                    ? `${userProfile.first_name} ${userProfile.last_name}` 
+                    : (userProfile?.first_name || user?.user_metadata?.display_name)
+                  }
+                  email={userProfile?.email || user?.email}
+                  imageUrl={userProfile?.avatar_url || user?.user_metadata?.avatar_url}
                 />
               </div>
             </div>

@@ -192,12 +192,19 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data'] });
       
+      // Also invalidate the specific user profile query to ensure header updates
+      queryClient.invalidateQueries({ queryKey: ['userProfileForCompany'] });
+      
       toast({
         title: 'Perfil atualizado',
         description: 'Suas informações foram salvas com sucesso.',
-      });
+       });
 
-      onOpenChange(false);
+       // Reset avatar preview and file
+       setAvatarPreview(null);
+       setAvatarFile(null);
+       
+       onOpenChange(false);
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
