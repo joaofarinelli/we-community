@@ -17,6 +17,27 @@ export const useUserStreak = () => {
         return null;
       }
 
+      // First get the profile ID for this user in this company
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('company_id', currentCompanyId)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('❌ useUserStreak: Profile not found', profileError);
+        return {
+          user_id: user.id,
+          company_id: currentCompanyId,
+          current_streak: 0,
+          longest_streak: 0,
+          last_activity_date: null,
+          streak_start_date: null,
+          is_active: false
+        };
+      }
+
       // Ensure context is set before querying
       try {
         await supabase.rpc('set_current_company_context', {
@@ -31,7 +52,7 @@ export const useUserStreak = () => {
       const { data, error } = await supabase
         .from('user_streaks')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .eq('company_id', currentCompanyId)
         .single();
 
@@ -44,7 +65,7 @@ export const useUserStreak = () => {
       if (!data) {
         console.log('✅ useUserStreak: No streak record found, returning defaults');
         return {
-          user_id: user.id,
+          user_id: profile.id,
           company_id: currentCompanyId,
           current_streak: 0,
           longest_streak: 0,
@@ -144,7 +165,14 @@ export const useCompanyStreakLeaderboard = (limit: number = 10) => {
 
       const { data: streakData, error } = await supabase
         .from('user_streaks')
-        .select('*')
+        .select(`
+          *,
+          profiles!inner(
+            user_id,
+            first_name,
+            last_name
+          )
+        `)
         .eq('company_id', currentCompanyId)
         .eq('is_active', true)
         .order('current_streak', { ascending: false })
@@ -153,23 +181,7 @@ export const useCompanyStreakLeaderboard = (limit: number = 10) => {
       if (error) throw error;
       if (!streakData?.length) return [];
 
-      // Get user profiles separately
-      const userIds = streakData.map(streak => streak.user_id);
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, first_name, last_name')
-        .in('user_id', userIds)
-        .eq('company_id', currentCompanyId);
-
-      if (profilesError) throw profilesError;
-
-      // Combine the data
-      const data = streakData.map(streak => ({
-        ...streak,
-        profiles: profilesData?.find(profile => profile.user_id === streak.user_id) || null
-      }));
-
-      return data;
+      return streakData;
     },
     enabled: !!currentCompanyId,
     staleTime: 60000, // Cache for 1 minute
