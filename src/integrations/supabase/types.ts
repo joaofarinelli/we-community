@@ -1487,6 +1487,7 @@ export type Database = {
       post_interactions: {
         Row: {
           comment_text: string | null
+          company_id: string
           created_at: string
           id: string
           parent_comment_id: string | null
@@ -1496,6 +1497,7 @@ export type Database = {
         }
         Insert: {
           comment_text?: string | null
+          company_id: string
           created_at?: string
           id?: string
           parent_comment_id?: string | null
@@ -1505,6 +1507,7 @@ export type Database = {
         }
         Update: {
           comment_text?: string | null
+          company_id?: string
           created_at?: string
           id?: string
           parent_comment_id?: string | null
@@ -1526,6 +1529,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "posts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_interactions_user_profile_fkey"
+            columns: ["user_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id", "company_id"]
           },
         ]
       }
@@ -1573,6 +1583,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_author_profile_fkey"
+            columns: ["author_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id", "company_id"]
+          },
           {
             foreignKeyName: "posts_company_id_fkey"
             columns: ["company_id"]
@@ -1700,6 +1717,7 @@ export type Database = {
       }
       space_members: {
         Row: {
+          company_id: string
           id: string
           joined_at: string
           role: string
@@ -1707,6 +1725,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          company_id: string
           id?: string
           joined_at?: string
           role?: string
@@ -1714,6 +1733,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          company_id?: string
           id?: string
           joined_at?: string
           role?: string
@@ -1727,6 +1747,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "spaces"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "space_members_user_profile_fkey"
+            columns: ["user_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id", "company_id"]
           },
         ]
       }

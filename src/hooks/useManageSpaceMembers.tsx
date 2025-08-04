@@ -1,20 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompany } from './useCompany';
 import { toast } from '@/hooks/use-toast';
 
 export const useManageSpaceMembers = () => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   const addMember = useMutation({
     mutationFn: async ({ spaceId, userId }: { spaceId: string; userId: string }) => {
+      if (!company) throw new Error('Company not found');
+      
       const { data, error } = await supabase
         .from('space_members')
         .insert([
           {
             space_id: spaceId,
             user_id: userId,
+            company_id: company.id,
             role: 'member'
           }
         ])
@@ -67,7 +72,7 @@ export const useManageSpaceMembers = () => {
 
   const joinSpace = useMutation({
     mutationFn: async (spaceId: string) => {
-      if (!user) throw new Error('Usuário não autenticado');
+      if (!user || !company) throw new Error('Usuário não autenticado ou empresa não encontrada');
       
       const { data, error } = await supabase
         .from('space_members')
@@ -75,6 +80,7 @@ export const useManageSpaceMembers = () => {
           {
             space_id: spaceId,
             user_id: user.id,
+            company_id: company.id,
             role: 'member'
           }
         ])

@@ -39,7 +39,7 @@ export const useGlobalSearch = (query: string) => {
           .from('posts')
           .select(`
             id, title, content, created_at,
-            profiles!posts_author_id_fkey(first_name, last_name)
+            profiles!posts_author_profile_fkey(first_name, last_name)
           `)
           .eq('company_id', profile.company_id)
           .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
@@ -62,7 +62,7 @@ export const useGlobalSearch = (query: string) => {
           .from('post_interactions')
           .select(`
             id, comment_text, created_at,
-            profiles!post_interactions_user_id_fkey(first_name, last_name),
+            profiles!post_interactions_user_profile_fkey(first_name, last_name),
             posts!post_interactions_post_id_fkey(title)
           `)
           .eq('type', 'comment')

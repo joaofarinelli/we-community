@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompany } from './useCompany';
 import { toast } from 'sonner';
 
 export const usePostInteractions = (postId: string) => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   const { data: interactions, isLoading } = useQuery({
@@ -16,7 +18,7 @@ export const usePostInteractions = (postId: string) => {
         .from('post_interactions')
         .select(`
           *,
-          profiles!post_interactions_user_id_fkey(first_name, last_name)
+          profiles!post_interactions_user_profile_fkey(first_name, last_name)
         `)
         .eq('post_id', postId);
 
@@ -32,13 +34,14 @@ export const usePostInteractions = (postId: string) => {
       commentText?: string; 
       parentCommentId?: string;
     }) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user || !company) throw new Error('User not authenticated or company not found');
 
       const { error } = await supabase
         .from('post_interactions')
         .insert({
           post_id: postId,
           user_id: user.id,
+          company_id: company.id,
           type,
           comment_text: commentText,
           parent_comment_id: parentCommentId,
