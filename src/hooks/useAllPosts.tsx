@@ -12,7 +12,7 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
     queryFn: async () => {
       if (!user) return [];
 
-      let query = supabase
+      let queryBuilder = supabase
         .from('posts')
         .select(`
           *,
@@ -24,20 +24,20 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
       let orderQuery;
       switch (sortBy) {
         case 'pinned':
-          orderQuery = query
+          orderQuery = queryBuilder
             .order('is_pinned', { ascending: false })
             .order('is_announcement', { ascending: false })
             .order('created_at', { ascending: false });
           break;
         case 'popular':
           // For now, we'll order by created_at, but this could be enhanced with actual interaction counts
-          orderQuery = query
+          orderQuery = queryBuilder
             .order('is_pinned', { ascending: false })
             .order('created_at', { ascending: false });
           break;
         case 'recent':
         default:
-          orderQuery = query
+          orderQuery = queryBuilder
             .order('created_at', { ascending: false });
           break;
       }

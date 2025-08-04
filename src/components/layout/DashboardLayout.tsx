@@ -18,6 +18,7 @@ import { NotificationDropdown } from '@/components/dashboard/NotificationDropdow
 import { ChatDialog } from '@/components/chat/ChatDialog';
 import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
+import { useRealtimePosts } from '@/hooks/useRealtimePosts';
 import { AutoStreakCheckIn } from '@/components/gamification/AutoStreakCheckIn';
 
 
@@ -32,6 +33,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   const isAdmin = useIsAdmin();
+  
+  // Initialize realtime subscriptions for posts
+  useRealtimePosts();
 
   return (
     <SidebarProvider defaultOpen={true}>
