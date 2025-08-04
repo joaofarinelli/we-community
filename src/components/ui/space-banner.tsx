@@ -13,11 +13,11 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
   }
 
   return (
-    <div className={`w-full h-[300px] rounded-lg overflow-hidden mb-6 ${className}`}>
+    <div className={`w-full h-[120px] rounded-lg overflow-hidden mb-6 mx-3 mt-3 ${className}`}>
       <img
         src={bannerUrl}
         alt="Banner do espaço"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover rounded-lg"
         onError={(e) => {
           e.currentTarget.style.display = 'none';
         }}
