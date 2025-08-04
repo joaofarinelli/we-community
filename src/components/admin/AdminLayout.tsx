@@ -43,6 +43,17 @@ const mainMenuItems = [
     ]
   },
   {
+    icon: FileText,
+    label: 'Conteúdo',
+    key: 'content',
+    subItems: [
+      { label: 'Publicações', path: '/admin/content/posts' },
+      { label: 'Categorias', path: '/admin/content/categories' },
+      { label: 'Espaços', path: '/admin/content/spaces' },
+      { label: 'Moderação', path: '/admin/content/moderation' },
+    ]
+  },
+  {
     icon: Tags,
     label: 'Customização',
     key: 'customization',
