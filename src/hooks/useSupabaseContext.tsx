@@ -14,25 +14,29 @@ export const useSupabaseContext = () => {
   useEffect(() => {
     const setSupabaseContext = async () => {
       if (user && currentCompanyId) {
+        console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
         try {
           // Always set the current company ID in the Supabase session context
           // This is crucial for multi-company setups
           await supabase.rpc('set_current_company_context', {
             p_company_id: currentCompanyId
           });
-          console.log('✅ Set Supabase context for company:', currentCompanyId);
+          console.log('✅ useSupabaseContext: Set Supabase context for company:', currentCompanyId);
         } catch (error) {
-          console.error('❌ Error setting Supabase context:', error);
+          console.error('❌ useSupabaseContext: Error setting Supabase context:', error);
           // Retry once in case of temporary failure
           try {
+            console.log('🔄 useSupabaseContext: Retrying context setting...');
             await supabase.rpc('set_current_company_context', {
               p_company_id: currentCompanyId
             });
-            console.log('✅ Retry successful - Set Supabase context for company:', currentCompanyId);
+            console.log('✅ useSupabaseContext: Retry successful - Set Supabase context for company:', currentCompanyId);
           } catch (retryError) {
-            console.error('❌ Retry failed - Error setting Supabase context:', retryError);
+            console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', retryError);
           }
         }
+      } else {
+        console.log('⏸️ useSupabaseContext: Skipping context setup - user:', !!user, 'company:', !!currentCompanyId);
       }
     };
 
