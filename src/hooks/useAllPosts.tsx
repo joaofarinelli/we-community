@@ -1,16 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export type SortOption = 'recent' | 'pinned' | 'popular';
 
 export const useAllPosts = (sortBy: SortOption = 'recent') => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['allPosts', user?.id, sortBy],
+    queryKey: ['allPosts', user?.id, sortBy, currentCompanyId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user || !currentCompanyId) return [];
 
       let queryBuilder = supabase
         .from('posts')
@@ -19,7 +21,8 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
           profiles!posts_author_profile_fkey(first_name, last_name),
           spaces(name, type),
           post_interactions(id)
-        `);
+        `)
+        .eq('company_id', currentCompanyId);
 
       let orderQuery;
       switch (sortBy) {
@@ -47,6 +50,6 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user,
+    enabled: !!user && !!currentCompanyId,
   });
 };

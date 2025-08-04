@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export interface OtherUserProfile {
   user_id: string;
@@ -20,11 +21,12 @@ export interface OtherUserProfile {
 
 export const useOtherUserProfile = (userId: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['other-user-profile', userId, user?.id],
+    queryKey: ['other-user-profile', userId, user?.id, currentCompanyId],
     queryFn: async (): Promise<OtherUserProfile | null> => {
-      if (!user || !userId || userId === user.id) return null;
+      if (!user || !userId || userId === user.id || !currentCompanyId) return null;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -44,7 +46,8 @@ export const useOtherUserProfile = (userId: string) => {
           show_coins_to_others
         `)
         .eq('user_id', userId)
-        .single();
+        .eq('company_id', currentCompanyId)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching other user profile:', error);
@@ -61,34 +64,26 @@ export const useOtherUserProfile = (userId: string) => {
 
       return data;
     },
-    enabled: !!user && !!userId && userId !== user.id,
+    enabled: !!user && !!userId && userId !== user.id && !!currentCompanyId,
   });
 };
 
 export const useOtherUserPoints = (userId: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['other-user-points', userId, user?.id],
+    queryKey: ['other-user-points', userId, user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user || !userId || userId === user.id) return null;
-
-      // Get user's company ID first
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
+      if (!user || !userId || userId === user.id || !currentCompanyId) return null;
 
       // Check if user allows showing coins first
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('show_coins_to_others')
         .eq('user_id', userId)
-        .eq('company_id', profile.company_id)
-        .single();
+        .eq('company_id', currentCompanyId)
+        .maybeSingle();
 
       if (!userProfile?.show_coins_to_others) {
         return null; // User doesn't want to show coins
@@ -98,8 +93,8 @@ export const useOtherUserPoints = (userId: string) => {
         .from('user_points')
         .select('total_coins')
         .eq('user_id', userId)
-        .eq('company_id', profile.company_id)
-        .single();
+        .eq('company_id', currentCompanyId)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching other user points:', error);
@@ -108,26 +103,18 @@ export const useOtherUserPoints = (userId: string) => {
 
       return data;
     },
-    enabled: !!user && !!userId && userId !== user.id,
+    enabled: !!user && !!userId && userId !== user.id && !!currentCompanyId,
   });
 };
 
 export const useOtherUserLevel = (userId: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['other-user-level', userId, user?.id],
+    queryKey: ['other-user-level', userId, user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user || !userId || userId === user.id) return null;
-
-      // Get user's company ID first
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
+      if (!user || !userId || userId === user.id || !currentCompanyId) return null;
 
       const { data, error } = await supabase
         .from('user_current_level')
@@ -141,8 +128,8 @@ export const useOtherUserLevel = (userId: string) => {
           )
         `)
         .eq('user_id', userId)
-        .eq('company_id', profile.company_id)
-        .single();
+        .eq('company_id', currentCompanyId)
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching other user level:', error);
@@ -151,6 +138,6 @@ export const useOtherUserLevel = (userId: string) => {
 
       return data;
     },
-    enabled: !!user && !!userId && userId !== user.id,
+    enabled: !!user && !!userId && userId !== user.id && !!currentCompanyId,
   });
 };

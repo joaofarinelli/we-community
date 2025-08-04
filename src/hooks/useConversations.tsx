@@ -1,15 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const useConversations = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['conversations', user?.id],
+    queryKey: ['conversations', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) {
-        console.log('❌ No user ID, returning empty conversations');
+      if (!user?.id || !currentCompanyId) {
+        console.log('❌ No user ID or company ID, returning empty conversations');
         return [];
       }
 
@@ -19,7 +21,8 @@ export const useConversations = () => {
       const { data: userConversations, error: conversationError } = await supabase
         .from('conversation_participants')
         .select('conversation_id')
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('company_id', currentCompanyId);
 
       if (conversationError) {
         console.error('❌ Error fetching user conversations:', conversationError);
@@ -39,6 +42,7 @@ export const useConversations = () => {
         .from('conversations')
         .select('*')
         .in('id', conversationIds)
+        .eq('company_id', currentCompanyId)
         .order('last_message_at', { ascending: false });
 
       if (error) {
@@ -55,7 +59,8 @@ export const useConversations = () => {
       const { data: participants, error: participantsError } = await supabase
         .from('conversation_participants')
         .select('conversation_id, user_id, last_read_at')
-        .in('conversation_id', conversationIds);
+        .in('conversation_id', conversationIds)
+        .eq('company_id', currentCompanyId);
 
       if (participantsError) {
         console.error('❌ Error fetching participants:', participantsError);
@@ -68,7 +73,8 @@ export const useConversations = () => {
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email')
-        .in('user_id', userIds);
+        .in('user_id', userIds)
+        .eq('company_id', currentCompanyId);
 
       if (profilesError) {
         console.error('❌ Error fetching profiles:', profilesError);
@@ -128,32 +134,24 @@ export const useConversations = () => {
       console.log('✅ Final conversations:', conversationsWithMessages);
       return conversationsWithMessages;
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentCompanyId,
   });
 };
 
 export const useCreateConversation = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
     mutationFn: async (otherUserId: string) => {
-      if (!user) throw new Error('User not authenticated');
-
-      // Get user's company ID
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) throw new Error('Profile not found');
+      if (!user || !currentCompanyId) throw new Error('User not authenticated or no company context');
 
       // Use the database function to find or create conversation
       const { data, error } = await supabase.rpc('find_or_create_direct_conversation', {
         p_user1_id: user.id,
         p_user2_id: otherUserId,
-        p_company_id: profile.company_id
+        p_company_id: currentCompanyId
       });
 
       if (error) throw error;

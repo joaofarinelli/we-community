@@ -1,18 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useCompany } from './useCompany';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
 export const usePostInteractions = (postId: string) => {
   const { user } = useAuth();
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   const { data: interactions, isLoading } = useQuery({
-    queryKey: ['postInteractions', postId, user?.id],
+    queryKey: ['postInteractions', postId, user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user || !postId) return [];
+      if (!user || !postId || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('post_interactions')
@@ -20,12 +20,13 @@ export const usePostInteractions = (postId: string) => {
           *,
           profiles!post_interactions_user_profile_fkey(first_name, last_name)
         `)
-        .eq('post_id', postId);
+        .eq('post_id', postId)
+        .eq('company_id', currentCompanyId);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user && !!postId,
+    enabled: !!user && !!postId && !!currentCompanyId,
   });
 
   const addInteraction = useMutation({
@@ -34,14 +35,14 @@ export const usePostInteractions = (postId: string) => {
       commentText?: string; 
       parentCommentId?: string;
     }) => {
-      if (!user || !company) throw new Error('User not authenticated or company not found');
+      if (!user || !currentCompanyId) throw new Error('User not authenticated or company not found');
 
       const { error } = await supabase
         .from('post_interactions')
         .insert({
           post_id: postId,
           user_id: user.id,
-          company_id: company.id,
+          company_id: currentCompanyId,
           type,
           comment_text: commentText,
           parent_comment_id: parentCommentId,

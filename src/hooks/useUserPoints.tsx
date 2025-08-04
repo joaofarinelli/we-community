@@ -15,13 +15,10 @@ export const useUserCoins = (userId?: string) => {
 
       const { data: userCoins, error } = await supabase
         .from('user_points')
-        .select(`
-          *,
-          profiles!user_points_user_id_fkey(first_name, last_name)
-        `)
+        .select('*')
         .eq('user_id', targetUserId)
         .eq('company_id', currentCompanyId)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       
