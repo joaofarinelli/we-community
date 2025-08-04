@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Plus, MoreHorizontal, Edit, Trash2, Users, Shield } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,12 +27,7 @@ export const AdminContentSpacesPage = () => {
       
       const { data, error } = await supabase
         .from('spaces')
-        .select(`
-          *,
-          category:space_categories!spaces_category_id_fkey (name),
-          creator:profiles!spaces_created_by_fkey (first_name, last_name),
-          members:space_members (id, role)
-        `)
+        .select('id, name, type, visibility, category_id, created_by, created_at, order_index')
         .eq('company_id', currentCompanyId)
         .order('order_index', { ascending: true });
       
@@ -39,6 +35,38 @@ export const AdminContentSpacesPage = () => {
       return data || [];
     },
     enabled: !!currentCompanyId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Separate query for members count
+  const { data: membersCount } = useQuery({
+    queryKey: ['admin-spaces-members-count', currentCompanyId, spaces?.map(s => s.id)],
+    queryFn: async () => {
+      if (!spaces?.length) return {};
+      
+      const spaceIds = spaces.map(s => s.id);
+      const { data, error } = await supabase
+        .from('space_members')
+        .select('space_id, role')
+        .in('space_id', spaceIds);
+      
+      if (error) throw error;
+      
+      const counts = data?.reduce((acc, member) => {
+        if (!acc[member.space_id]) {
+          acc[member.space_id] = { total: 0, moderators: 0 };
+        }
+        acc[member.space_id].total += 1;
+        if (member.role === 'admin') {
+          acc[member.space_id].moderators += 1;
+        }
+        return acc;
+      }, {} as Record<string, { total: number; moderators: number }>) || {};
+      
+      return counts;
+    },
+    enabled: !!spaces?.length,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const filters = [
@@ -113,9 +141,7 @@ export const AdminContentSpacesPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-          </div>
+          <TableSkeleton rows={8} columns={6} />
         ) : spaces?.length === 0 ? (
           <div className="border rounded-lg p-16 text-center">
             <h2 className="text-xl font-semibold mb-2">Crie seu primeiro espaço</h2>
@@ -144,8 +170,9 @@ export const AdminContentSpacesPage = () => {
               </thead>
               <tbody>
                 {(spaces || []).map((space) => {
-                  const totalMembers = Array.isArray(space.members) ? space.members.length : 0;
-                  const moderators = Array.isArray(space.members) ? space.members.filter(m => m.role === 'admin').length : 0;
+                  const memberData = membersCount?.[space.id] || { total: 0, moderators: 0 };
+                  const totalMembers = memberData.total;
+                  const moderators = memberData.moderators;
                   
                   return (
                     <tr key={space.id} className="border-b hover:bg-muted/25">

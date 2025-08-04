@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -26,11 +27,7 @@ export const AdminContentCategoriesPage = () => {
       
       const { data, error } = await supabase
         .from('space_categories')
-        .select(`
-          *,
-          creator:profiles!space_categories_created_by_fkey (first_name, last_name),
-          spaces:spaces (id)
-        `)
+        .select('id, name, created_by, created_at, order_index')
         .eq('company_id', currentCompanyId)
         .order('order_index', { ascending: true });
       
@@ -38,6 +35,54 @@ export const AdminContentCategoriesPage = () => {
       return data || [];
     },
     enabled: !!currentCompanyId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Separate query for creators data
+  const { data: creatorsData } = useQuery({
+    queryKey: ['admin-categories-creators', currentCompanyId, categories?.map(c => c.created_by)],
+    queryFn: async () => {
+      if (!categories?.length) return {};
+      
+      const creatorIds = [...new Set(categories.map(c => c.created_by))];
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', creatorIds);
+      
+      if (error) throw error;
+      return data?.reduce((acc, creator) => {
+        acc[creator.user_id] = creator;
+        return acc;
+      }, {} as Record<string, any>) || {};
+    },
+    enabled: !!categories?.length,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  // Separate query for spaces count
+  const { data: spacesCount } = useQuery({
+    queryKey: ['admin-categories-spaces-count', currentCompanyId, categories?.map(c => c.id)],
+    queryFn: async () => {
+      if (!categories?.length) return {};
+      
+      const categoryIds = categories.map(c => c.id);
+      const { data, error } = await supabase
+        .from('spaces')
+        .select('category_id')
+        .in('category_id', categoryIds);
+      
+      if (error) throw error;
+      
+      const counts = data?.reduce((acc, space) => {
+        acc[space.category_id] = (acc[space.category_id] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+      
+      return counts;
+    },
+    enabled: !!categories?.length,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const filters = [
@@ -82,9 +127,7 @@ export const AdminContentCategoriesPage = () => {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-          </div>
+          <TableSkeleton rows={6} columns={5} />
         ) : categories?.length === 0 ? (
           <div className="border rounded-lg p-16 text-center">
             <h2 className="text-xl font-semibold mb-2">Crie sua primeira categoria</h2>
@@ -108,20 +151,20 @@ export const AdminContentCategoriesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {(categories || []).map((category) => (
-                  <tr key={category.id} className="border-b hover:bg-muted/25">
-                    <td className="p-4 font-medium">{category.name}</td>
-                    <td className="p-4">
-                      {Array.isArray(category.creator) && category.creator.length > 0 
-                        ? `${category.creator[0].first_name} ${category.creator[0].last_name}`
-                        : 'N/A'
-                      }
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="secondary">
-                        {Array.isArray(category.spaces) ? category.spaces.length : 0} espaços
-                      </Badge>
-                    </td>
+                  {(categories || []).map((category) => (
+                    <tr key={category.id} className="border-b hover:bg-muted/25">
+                      <td className="p-4 font-medium">{category.name}</td>
+                      <td className="p-4">
+                        {creatorsData?.[category.created_by] 
+                          ? `${creatorsData[category.created_by].first_name} ${creatorsData[category.created_by].last_name}`
+                          : 'Carregando...'
+                        }
+                      </td>
+                      <td className="p-4">
+                        <Badge variant="secondary">
+                          {spacesCount?.[category.id] || 0} espaços
+                        </Badge>
+                      </td>
                     <td className="p-4 text-sm text-muted-foreground">
                       {format(new Date(category.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
                     </td>

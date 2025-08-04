@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,17 +23,64 @@ export const AdminContentPostsPage = () => {
       const { data, error } = await supabase
         .from('posts')
         .select(`
-          *,
-          author:profiles!posts_author_id_fkey (first_name, last_name),
-          space:spaces!posts_space_id_fkey (name)
+          id,
+          title,
+          created_at,
+          author_id,
+          space_id
         `)
         .eq('company_id', currentCompanyId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
       
       if (error) throw error;
       return data || [];
     },
     enabled: !!currentCompanyId,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Separate queries for author and space data to load faster
+  const { data: authorsData } = useQuery({
+    queryKey: ['admin-posts-authors', currentCompanyId, posts?.map(p => p.author_id)],
+    queryFn: async () => {
+      if (!posts?.length) return {};
+      
+      const authorIds = [...new Set(posts.map(p => p.author_id))];
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', authorIds);
+      
+      if (error) throw error;
+      return data?.reduce((acc, author) => {
+        acc[author.user_id] = author;
+        return acc;
+      }, {} as Record<string, any>) || {};
+    },
+    enabled: !!posts?.length,
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  const { data: spacesData } = useQuery({
+    queryKey: ['admin-posts-spaces', currentCompanyId, posts?.map(p => p.space_id)],
+    queryFn: async () => {
+      if (!posts?.length) return {};
+      
+      const spaceIds = [...new Set(posts.map(p => p.space_id))];
+      const { data, error } = await supabase
+        .from('spaces')
+        .select('id, name')
+        .in('id', spaceIds);
+      
+      if (error) throw error;
+      return data?.reduce((acc, space) => {
+        acc[space.id] = space;
+        return acc;
+      }, {} as Record<string, any>) || {};
+    },
+    enabled: !!posts?.length,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
   const filters = [
@@ -107,9 +155,7 @@ export const AdminContentPostsPage = () => {
 
           <TabsContent value="all" className="mt-6">
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-              </div>
+              <TableSkeleton rows={8} columns={6} />
             ) : posts?.length === 0 ? (
               <div className="border rounded-lg p-16 text-center">
                 <h2 className="text-xl font-semibold mb-2">Crie sua primeira publicação</h2>
@@ -138,12 +184,12 @@ export const AdminContentPostsPage = () => {
                       <tr key={post.id} className="border-b hover:bg-muted/25">
                         <td className="p-4 font-medium">{post.title || 'Post sem título'}</td>
                         <td className="p-4">
-                          {Array.isArray(post.author) && post.author.length > 0 
-                            ? `${post.author[0].first_name} ${post.author[0].last_name}`
-                            : 'N/A'
+                          {authorsData?.[post.author_id] 
+                            ? `${authorsData[post.author_id].first_name} ${authorsData[post.author_id].last_name}`
+                            : 'Carregando...'
                           }
                         </td>
-                        <td className="p-4">{post.space?.name || 'N/A'}</td>
+                        <td className="p-4">{spacesData?.[post.space_id]?.name || 'Carregando...'}</td>
                         <td className="p-4">
                           <Badge variant="default">
                             Publicado
