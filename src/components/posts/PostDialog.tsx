@@ -156,7 +156,7 @@ export const PostDialog = ({
         <div className="flex flex-col h-full">
           {/* Título opcional */}
           <div className="px-4 pt-4 pb-4 border-b border-border">
-            <Input placeholder="Título (opcional)" value={title} onChange={e => setTitle(e.target.value)} className="border-none bg-transparent font-medium placeholder:text-muted-foreground p-0" style={{
+            <Input placeholder="Título (opcional)" value={title} onChange={e => setTitle(e.target.value)} className="border-none bg-transparent font-medium placeholder:text-muted-foreground p-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0" style={{
             fontSize: '24px'
           }} />
           </div>
