@@ -31,11 +31,23 @@ export const TransactionStatement = () => {
       'comment_post': 'Comentou em um post',
       'receive_like': 'Recebeu uma curtida',
       'receive_comment': 'Recebeu um comentário',
+      'undo_create_post': 'Post deletado',
+      'undo_like_post': 'Curtida removida',
+      'undo_comment_post': 'Comentário removido',
+      'undo_receive_like': 'Curtida perdida',
+      'undo_receive_comment': 'Comentário perdido',
       'transfer_sent': 'Transferência enviada',
       'transfer_received': 'Transferência recebida',
       'purchase_item': 'Compra no marketplace',
       'item_sold': 'Venda no marketplace',
-      'challenge_reward': 'Recompensa de desafio'
+      'challenge_reward': 'Recompensa de desafio',
+      'lesson_complete': 'Aula concluída',
+      'module_complete': 'Módulo concluído',
+      'course_complete': 'Curso concluído',
+      'lesson_like': 'Curtiu uma aula',
+      'streak_milestone': 'Marco de sequência',
+      'trail_badge': 'Selo de trilha conquistado',
+      'trail_completion': 'Trilha concluída'
     };
     
     return labels[actionType] || actionType;
