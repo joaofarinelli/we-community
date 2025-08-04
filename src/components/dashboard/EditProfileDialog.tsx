@@ -249,12 +249,15 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
                 </AvatarFallback>
               </Avatar>
               <div>
-                <Label htmlFor="avatar" className="cursor-pointer">
-                  <Button type="button" variant="outline" className="cursor-pointer">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Alterar Foto
-                  </Button>
-                </Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => document.getElementById('avatar')?.click()}
+                  className="cursor-pointer"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Alterar Foto
+                </Button>
                 <Input
                   id="avatar"
                   type="file"
