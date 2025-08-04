@@ -147,7 +147,7 @@ export const PostDialog = ({
   return <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-background overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between p-4 border-b border-border">
-          <DialogTitle className="text-lg font-semibold">
+          <DialogTitle className="font-semibold text-2xl">
             {mode === 'create' ? 'Criar publicação' : 'Editar publicação'}
           </DialogTitle>
           
