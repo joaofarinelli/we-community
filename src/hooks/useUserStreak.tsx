@@ -12,7 +12,21 @@ export const useUserStreak = () => {
   const streakQuery = useQuery({
     queryKey: ['userStreak', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !currentCompanyId) return null;
+      if (!user?.id || !currentCompanyId) {
+        console.log('❌ useUserStreak: Missing user or company', { userId: user?.id, companyId: currentCompanyId });
+        return null;
+      }
+
+      // Ensure context is set before querying
+      try {
+        await supabase.rpc('set_current_company_context', {
+          p_company_id: currentCompanyId
+        });
+        console.log('✅ useUserStreak: Context set for query', currentCompanyId);
+      } catch (contextError) {
+        console.error('❌ useUserStreak: Failed to set context', contextError);
+        throw new Error('Failed to set company context for streak query');
+      }
 
       const { data, error } = await supabase
         .from('user_streaks')
@@ -21,10 +35,14 @@ export const useUserStreak = () => {
         .eq('company_id', currentCompanyId)
         .single();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error && error.code !== 'PGRST116') {
+        console.error('❌ useUserStreak: Query error', error);
+        throw error;
+      }
       
       // If no streak record exists, return default values
       if (!data) {
+        console.log('✅ useUserStreak: No streak record found, returning defaults');
         return {
           user_id: user.id,
           company_id: currentCompanyId,
@@ -36,6 +54,7 @@ export const useUserStreak = () => {
         };
       }
 
+      console.log('✅ useUserStreak: Retrieved streak data', data);
       return data;
     },
     enabled: !!user?.id && !!currentCompanyId,

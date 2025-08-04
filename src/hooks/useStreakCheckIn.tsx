@@ -54,9 +54,20 @@ export const useStreakCheckIn = () => {
     },
     onError: (error: any) => {
       console.error('❌ Streak check-in failed:', error);
+      
+      let errorMessage = 'Não foi possível realizar o check-in.';
+      
+      if (error.message?.includes('context')) {
+        errorMessage = 'Erro de contexto da empresa. Tente trocar e voltar para esta empresa.';
+      } else if (error.message?.includes('RLS')) {
+        errorMessage = 'Erro de permissão. Verifique se você tem acesso a esta empresa.';
+      } else if (error.message?.includes('mismatch')) {
+        errorMessage = 'Contexto da empresa incorreto. Recarregue a página e tente novamente.';
+      }
+      
       toast({
         title: 'Erro no check-in',
-        description: error.message || 'Não foi possível realizar o check-in.',
+        description: errorMessage,
         variant: 'destructive',
       });
     },
