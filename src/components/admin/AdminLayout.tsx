@@ -58,7 +58,6 @@ const mainMenuItems = [
     label: 'Customização',
     key: 'customization',
     subItems: [
-      { label: 'Espaços e categorias', path: '/admin/spaces' },
       { label: 'Tags', path: '/admin/tags' },
       { label: 'Campos de perfil', path: '/admin/profile-fields' },
     ]
