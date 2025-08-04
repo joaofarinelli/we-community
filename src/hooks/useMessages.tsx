@@ -66,7 +66,19 @@ export const useSendMessage = () => {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ conversationId, content }: { conversationId: string; content: string }) => {
+    mutationFn: async ({ 
+      conversationId, 
+      content, 
+      attachmentUrl, 
+      attachmentName, 
+      attachmentType 
+    }: { 
+      conversationId: string; 
+      content: string;
+      attachmentUrl?: string | null;
+      attachmentName?: string | null;
+      attachmentType?: 'image' | 'document' | null;
+    }) => {
       if (!user) throw new Error('User not authenticated');
 
       // Get user's company ID
@@ -78,6 +90,8 @@ export const useSendMessage = () => {
 
       if (!profile) throw new Error('Profile not found');
 
+      const messageType = attachmentUrl ? (attachmentType === 'image' ? 'image' : 'file') : 'text';
+
       const { data, error } = await supabase
         .from('messages')
         .insert({
@@ -85,7 +99,10 @@ export const useSendMessage = () => {
           sender_id: user.id,
           company_id: profile.company_id,
           content,
-          message_type: 'text'
+          message_type: messageType,
+          attachment_url: attachmentUrl,
+          attachment_name: attachmentName,
+          attachment_type: attachmentType
         })
         .select()
         .single();
