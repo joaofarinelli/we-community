@@ -59,6 +59,10 @@ import { AdminTrailsPage } from "./pages/admin/AdminTrailsPage";
 import AdminTrailBadgesPage from "./pages/admin/AdminTrailBadgesPage";
 import { TrailStagesPage } from "./pages/TrailStagesPage";
 import { TrailStagePlayerPage } from "./pages/TrailStagePlayerPage";
+import { AdminContentPostsPage } from "./pages/admin/AdminContentPostsPage";
+import { AdminContentCategoriesPage } from "./pages/admin/AdminContentCategoriesPage";
+import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
+import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -127,6 +131,10 @@ const AppRoutes = () => {
         <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
         <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
         <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
+        <Route path="/admin/content/posts" element={<AuthGuard><AdminContentPostsPage /></AuthGuard>} />
+        <Route path="/admin/content/categories" element={<AuthGuard><AdminContentCategoriesPage /></AuthGuard>} />
+        <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
+        <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
