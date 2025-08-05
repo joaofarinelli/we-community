@@ -5,7 +5,7 @@ import { useChallengeProgressBatch, useChallengeParticipationsBatch } from '@/ho
 import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -235,72 +235,76 @@ export const ChallengesPage = () => {
                   return (
                     <Card 
                       key={challenge.id} 
-                      className="hover:shadow-lg transition-shadow cursor-pointer"
+                      className="h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      {challenge.image_url && (
-                        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-                          <img 
-                            src={challenge.image_url} 
-                            alt={challenge.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                              {getChallengeTypeIcon(challenge.challenge_type)}
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline">
-                                  {formatChallengeType(challenge.challenge_type)}
-                                </Badge>
-                                {!challenge.is_available_for_all_levels && challenge.required_level_id && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Nível restrito
+                      <CardContent className="p-4 flex-1">
+                        {challenge.image_url && (
+                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={challenge.image_url} 
+                              alt={challenge.title}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="p-1.5 bg-primary/10 rounded-lg">
+                                {getChallengeTypeIcon(challenge.challenge_type)}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-medium text-sm leading-tight">{challenge.title}</h3>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Badge variant="outline" className="text-xs">
+                                    {formatChallengeType(challenge.challenge_type)}
                                   </Badge>
-                                )}
+                                  {!challenge.is_available_for_all_levels && challenge.required_level_id && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Nível restrito
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            <div className="flex items-center space-x-1 shrink-0">
+                              {getRewardTypeIcon(challenge.reward_type)}
+                              <span className="text-xs font-medium">
+                                {challenge.reward_type === 'coins' 
+                                  ? `${(challenge.reward_value as any)?.amount}`
+                                  : formatRewardType(challenge.reward_type)
+                                }
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            {getRewardTypeIcon(challenge.reward_type)}
-                            <span className="text-sm font-medium">
-                              {challenge.reward_type === 'coins' 
-                                ? `${(challenge.reward_value as any)?.amount} coins`
-                                : formatRewardType(challenge.reward_type)
-                              }
-                            </span>
+
+                          {challenge.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">{challenge.description}</p>
+                          )}
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs">
+                              <span>Progresso</span>
+                              <span>{progressValue}/{targetValue}</span>
+                            </div>
+                            <Progress value={progressPercent} className="h-2" />
+                            <p className="text-xs text-muted-foreground">
+                              {progressPercent.toFixed(1)}% concluído
+                            </p>
                           </div>
+
+                          {challenge.end_date && (
+                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              <span>Termina em {new Date(challenge.end_date).toLocaleDateString()}</span>
+                            </div>
+                          )}
                         </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {challenge.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">{challenge.description}</p>
-                        )}
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Progresso</span>
-                            <span>{progressValue}/{targetValue}</span>
-                          </div>
-                          <Progress value={progressPercent} className="h-3" />
-                          <p className="text-xs text-muted-foreground">
-                            {progressPercent.toFixed(1)}% concluído
-                          </p>
-                        </div>
-
-                        {challenge.end_date && (
-                          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>Termina em {new Date(challenge.end_date).toLocaleDateString()}</span>
-                          </div>
-                        )}
-
+                      </CardContent>
+                      
+                      <CardFooter className="p-4 pt-0">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -313,7 +317,7 @@ export const ChallengesPage = () => {
                           <Eye className="h-4 w-4 mr-2" />
                           Ver Detalhes
                         </Button>
-                      </CardContent>
+                      </CardFooter>
                     </Card>
                   );
                 })}
@@ -340,68 +344,72 @@ export const ChallengesPage = () => {
                   return (
                     <Card 
                       key={challenge.id} 
-                      className="border-green-200 bg-green-50/50 cursor-pointer hover:shadow-lg transition-shadow"
+                      className="h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow border-green-200 bg-green-50/50"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      {challenge.image_url && (
-                        <div className="aspect-video w-full overflow-hidden rounded-t-lg">
-                          <img 
-                            src={challenge.image_url} 
-                            alt={challenge.title}
-                            className="w-full h-full object-cover opacity-75"
-                          />
-                        </div>
-                      )}
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-green-100 rounded-lg">
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge variant="outline" className="border-green-600 text-green-600">
-                                  Concluído
-                                </Badge>
-                                {!challenge.is_available_for_all_levels && challenge.required_level_id && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    Nível restrito
+                      <CardContent className="p-4 flex-1">
+                        {challenge.image_url && (
+                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={challenge.image_url} 
+                              alt={challenge.title}
+                              className="w-full h-full object-cover rounded-lg opacity-75"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center space-x-2">
+                              <div className="p-1.5 bg-green-100 rounded-lg">
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <h3 className="font-medium text-sm leading-tight">{challenge.title}</h3>
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Badge variant="outline" className="text-xs border-green-600 text-green-600">
+                                    Concluído
                                   </Badge>
-                                )}
+                                  {!challenge.is_available_for_all_levels && challenge.required_level_id && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      Nível restrito
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            <div className="flex items-center space-x-1 shrink-0">
+                              {getRewardTypeIcon(challenge.reward_type)}
+                              <span className="text-xs font-medium">
+                                {challenge.reward_type === 'coins' 
+                                  ? `${(challenge.reward_value as any)?.amount}`
+                                  : formatRewardType(challenge.reward_type)
+                                }
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center space-x-1">
-                            {getRewardTypeIcon(challenge.reward_type)}
-                            <span className="text-sm font-medium">
-                              {challenge.reward_type === 'coins' 
-                                ? `${(challenge.reward_value as any)?.amount} coins`
-                                : formatRewardType(challenge.reward_type)
-                              }
-                            </span>
+
+                          {challenge.description && (
+                            <p className="text-xs text-muted-foreground line-clamp-2">{challenge.description}</p>
+                          )}
+
+                          <div className="space-y-2">
+                            <Progress value={100} className="h-2" />
+                            <p className="text-xs text-green-600 font-medium">
+                              ✓ Desafio concluído!
+                            </p>
                           </div>
+
+                          {userProgress?.completed_at && (
+                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              <span>Concluído em {new Date(userProgress.completed_at).toLocaleDateString()}</span>
+                            </div>
+                          )}
                         </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        {challenge.description && (
-                          <p className="text-sm text-muted-foreground line-clamp-2">{challenge.description}</p>
-                        )}
-
-                        <div className="space-y-2">
-                          <Progress value={100} className="h-3" />
-                          <p className="text-xs text-green-600 font-medium">
-                            ✓ Desafio concluído!
-                          </p>
-                        </div>
-
-                        {userProgress?.completed_at && (
-                          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>Concluído em {new Date(userProgress.completed_at).toLocaleDateString()}</span>
-                          </div>
-                        )}
-
+                      </CardContent>
+                      
+                      <CardFooter className="p-4 pt-0">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -414,7 +422,7 @@ export const ChallengesPage = () => {
                           <Eye className="h-4 w-4 mr-2" />
                           Ver Detalhes
                         </Button>
-                      </CardContent>
+                      </CardFooter>
                     </Card>
                   );
                 })}
