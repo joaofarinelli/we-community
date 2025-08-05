@@ -21,17 +21,20 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
       }
 
       try {
+        // Get any active profile for the user (since they might have multiple companies)
         const { data, error } = await supabase
           .from('profiles')
           .select('is_active')
           .eq('user_id', user.id)
-          .single();
+          .eq('is_active', true)
+          .limit(1);
 
         if (error) {
           console.error('Error checking user status:', error);
           setIsActive(true); // Default to active if error
         } else {
-          setIsActive(data?.is_active ?? true);
+          // If user has at least one active profile, they're considered active
+          setIsActive(data && data.length > 0);
         }
       } catch (error) {
         console.error('Error checking user status:', error);
