@@ -5,10 +5,14 @@ import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCompanyByDomain } from '@/hooks/useCompanyByDomain';
 import { useLoginPageTheme } from '@/hooks/useLoginPageTheme';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
 export const AuthPage = () => {
   const [authView, setAuthView] = useState<'login' | 'signup' | 'forgot'>('login');
   const { data: company } = useCompanyByDomain();
+  
+  // Initialize Supabase context for multi-company users
+  useSupabaseContext();
   
   // Apply company theme
   useLoginPageTheme();

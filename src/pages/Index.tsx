@@ -18,11 +18,15 @@ import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-community.jpg";
 import { useCompany } from "@/hooks/useCompany";
 import { useSubdomain } from "@/hooks/useSubdomain";
+import { useSupabaseContext } from "@/hooks/useSupabaseContext";
 
 const Index = () => {
   const navigate = useNavigate();
   const { data: company } = useCompany();
   const { subdomain, customDomain } = useSubdomain();
+  
+  // Initialize Supabase context for multi-company users
+  useSupabaseContext();
   
   // Check if we're on a company domain
   const isCompanyDomain = Boolean(subdomain || customDomain);
