@@ -15,10 +15,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CreateSpaceDialog } from '@/components/admin/CreateSpaceDialog';
+import { EditSpaceDialog } from '@/components/admin/EditSpaceDialog';
+import { DeleteSpaceDialog } from '@/components/admin/DeleteSpaceDialog';
 
 export const AdminContentSpacesPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingSpace, setEditingSpace] = useState<any>(null);
+  const [deletingSpace, setDeletingSpace] = useState<any>(null);
 
   const { data: spaces, isLoading } = useQuery({
     queryKey: ['admin-spaces', currentCompanyId],
@@ -115,7 +121,7 @@ export const AdminContentSpacesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Espaços</h1>
-          <Button>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Novo espaço
           </Button>
@@ -148,7 +154,7 @@ export const AdminContentSpacesPage = () => {
             <p className="text-muted-foreground mb-6">
               Organize sua comunidade criando espaços.
             </p>
-            <Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
               Criar espaço
             </Button>
           </div>
@@ -221,11 +227,14 @@ export const AdminContentSpacesPage = () => {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setEditingSpace(space)}>
                               <Edit className="h-4 w-4 mr-2" />
                               Editar
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem 
+                              className="text-destructive"
+                              onClick={() => setDeletingSpace(space)}
+                            >
                               <Trash2 className="h-4 w-4 mr-2" />
                               Excluir
                             </DropdownMenuItem>
@@ -254,6 +263,27 @@ export const AdminContentSpacesPage = () => {
           </div>
         )}
       </div>
+      
+      <CreateSpaceDialog 
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
+      
+      {editingSpace && (
+        <EditSpaceDialog
+          space={editingSpace}
+          isOpen={!!editingSpace}
+          onOpenChange={() => setEditingSpace(null)}
+        />
+      )}
+      
+      {deletingSpace && (
+        <DeleteSpaceDialog
+          space={deletingSpace}
+          isOpen={!!deletingSpace}
+          onOpenChange={() => setDeletingSpace(null)}
+        />
+      )}
     </AdminLayout>
   );
 };
