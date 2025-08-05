@@ -1629,7 +1629,9 @@ export type Database = {
           id: string
           is_active: boolean
           last_name: string
+          location: string | null
           phone: string | null
+          profession: string | null
           role: string | null
           show_coins_to_others: boolean | null
           show_email_to_others: boolean | null
@@ -1646,7 +1648,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_name: string
+          location?: string | null
           phone?: string | null
+          profession?: string | null
           role?: string | null
           show_coins_to_others?: boolean | null
           show_email_to_others?: boolean | null
@@ -1663,7 +1667,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_name?: string
+          location?: string | null
           phone?: string | null
+          profession?: string | null
           role?: string | null
           show_coins_to_others?: boolean | null
           show_email_to_others?: boolean | null

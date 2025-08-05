@@ -12,6 +12,8 @@ export interface CompanyMember {
   created_at: string;
   role: string;
   is_active: boolean;
+  profession: string | null;
+  location: string | null;
 }
 
 export const useCompanyMembers = () => {
@@ -26,7 +28,7 @@ export const useCompanyMembers = () => {
       // Buscar todos os profiles da empresa usando o currentCompanyId
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, user_id, first_name, last_name, email, role, is_active, created_at, avatar_url')
+        .select('id, user_id, first_name, last_name, email, role, is_active, created_at, avatar_url, profession, location')
         .eq('company_id', currentCompanyId);
 
       if (profilesError) {
@@ -55,7 +57,9 @@ export const useCompanyMembers = () => {
           avatar_url: profile.avatar_url || (profile.user_id === user.id ? user.user_metadata?.avatar_url : null),
           created_at: userRole?.created_at || profile.created_at,
           role: profile.role || userRole?.role || 'member', // Prioriza role da tabela profiles
-          is_active: profile.is_active ?? true
+          is_active: profile.is_active ?? true,
+          profession: profile.profession,
+          location: profile.location
         };
       }) as CompanyMember[] || [];
     },

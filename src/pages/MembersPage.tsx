@@ -110,7 +110,7 @@ export const MembersPage = () => {
                 {member.display_name || 'Nome não disponível'}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {member.email}
+                {member.profession || 'Profissão não informada'}
               </p>
             </div>
 
@@ -146,7 +146,7 @@ export const MembersPage = () => {
                     {member.display_name || 'Nome não disponível'}
                   </h3>
                   <p className="text-sm text-muted-foreground truncate">
-                    {member.email}
+                    {member.profession || 'Profissão não informada'}
                   </p>
                 </div>
                 
