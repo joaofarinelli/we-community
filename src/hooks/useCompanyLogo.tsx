@@ -15,23 +15,33 @@ export const useCompanyLogo = () => {
     mutationFn: async (file: File) => {
       if (!user || !company) throw new Error('Usuário ou empresa não encontrados');
 
+      console.log('🚀 Starting logo upload for company:', company.id, company.name);
       setUploading(true);
 
       // Create a unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `${company.id}/logo.${fileExt}`;
+      console.log('📁 File name:', fileName);
 
       // Delete old logo if exists
       if (company.logo_url) {
+        console.log('🗑️ Removing old logo:', company.logo_url);
         const oldPath = company.logo_url.split('/').pop();
         if (oldPath) {
-          await supabase.storage
+          const { error: removeError } = await supabase.storage
             .from('company-logos')
             .remove([`${company.id}/${oldPath}`]);
+          
+          if (removeError) {
+            console.error('❌ Error removing old logo:', removeError);
+          } else {
+            console.log('✅ Old logo removed successfully');
+          }
         }
       }
 
       // Upload new logo
+      console.log('⬆️ Uploading new logo...');
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('company-logos')
         .upload(fileName, file, {
@@ -39,22 +49,34 @@ export const useCompanyLogo = () => {
           upsert: true
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('❌ Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      console.log('✅ Upload successful:', uploadData);
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('company-logos')
         .getPublicUrl(fileName);
 
+      console.log('🔗 Public URL:', publicUrl);
+
       // Update company with new logo URL
+      console.log('💾 Updating company record...');
       const { data, error: updateError } = await supabase
         .from('companies')
         .update({ logo_url: publicUrl })
         .eq('id', company.id)
         .select();
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        console.error('❌ Database update error:', updateError);
+        throw updateError;
+      }
 
+      console.log('✅ Company updated successfully:', data);
       return data[0];
     },
     onSuccess: () => {
