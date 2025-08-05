@@ -79,8 +79,16 @@ export const useCompanyLogo = () => {
       console.log('✅ Company updated successfully:', data);
       return data[0];
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('🎉 Upload completed successfully:', data);
+      // Invalidate multiple related queries to ensure UI updates
       queryClient.invalidateQueries({ queryKey: ['company'] });
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['userCompanies'] });
+      
+      // Force a refetch to ensure immediate UI update
+      queryClient.refetchQueries({ queryKey: ['company'] });
+      
       toast({
         title: 'Logo atualizado',
         description: 'O logo da empresa foi atualizado com sucesso.',
