@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { AdminCreateCategoryDialog } from '@/components/admin/AdminCreateCategoryDialog';
+import { useCreateCategory } from '@/hooks/useCreateCategory';
+import { EditCategoryDialog } from '@/components/dashboard/EditCategoryDialog';
+import { useEditCategory } from '@/hooks/useEditCategory';
+import { DeleteCategoryDialog } from '@/components/admin/DeleteCategoryDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
@@ -19,6 +24,11 @@ import {
 export const AdminContentCategoriesPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [deletingCategory, setDeletingCategory] = useState<any>(null);
+  
+  const { isOpen, setIsOpen, createCategory, isLoading: isCreating } = useCreateCategory();
+  const { editCategory, isLoading: isEditing } = useEditCategory();
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['admin-space-categories', currentCompanyId],
@@ -105,7 +115,7 @@ export const AdminContentCategoriesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Categorias</h1>
-          <Button>
+          <Button onClick={() => setIsOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Nova categoria
           </Button>
@@ -134,7 +144,7 @@ export const AdminContentCategoriesPage = () => {
             <p className="text-muted-foreground mb-6">
               Organize seus espaços criando categorias.
             </p>
-            <Button>
+            <Button onClick={() => setIsOpen(true)}>
               Criar categoria
             </Button>
           </div>
@@ -176,11 +186,14 @@ export const AdminContentCategoriesPage = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setEditingCategory(category)}>
                             <Edit className="h-4 w-4 mr-2" />
                             Editar
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => setDeletingCategory(category)}
+                          >
                             <Trash2 className="h-4 w-4 mr-2" />
                             Excluir
                           </DropdownMenuItem>
@@ -208,6 +221,27 @@ export const AdminContentCategoriesPage = () => {
           </div>
         )}
       </div>
+      
+      <AdminCreateCategoryDialog 
+        isOpen={isOpen} 
+        onOpenChange={setIsOpen}
+      />
+      
+      {editingCategory && (
+        <EditCategoryDialog
+          category={editingCategory}
+          open={!!editingCategory}
+          onOpenChange={() => setEditingCategory(null)}
+        />
+      )}
+      
+      {deletingCategory && (
+        <DeleteCategoryDialog
+          category={deletingCategory}
+          isOpen={!!deletingCategory}
+          onOpenChange={() => setDeletingCategory(null)}
+        />
+      )}
     </AdminLayout>
   );
 };
