@@ -96,7 +96,7 @@ export const MembersPage = () => {
           <div className="flex flex-col items-center text-center space-y-4">
             <Avatar className="h-20 w-20">
               <AvatarImage 
-                src={member.avatar_url} 
+                src={member.avatar_url || ''} 
                 alt={member.display_name}
                 className="object-cover"
               />
