@@ -10,6 +10,8 @@ export interface OtherUserProfile {
   email?: string;
   phone?: string;
   bio?: string;
+  profession?: string;
+  location?: string;
   avatar_url?: string;
   created_at: string;
   updated_at: string;
@@ -17,6 +19,8 @@ export interface OtherUserProfile {
   is_active: boolean;
   show_email_to_others?: boolean;
   show_coins_to_others?: boolean;
+  show_profession_to_others?: boolean;
+  show_location_to_others?: boolean;
 }
 
 export const useOtherUserProfile = (userId: string) => {
@@ -37,13 +41,17 @@ export const useOtherUserProfile = (userId: string) => {
           email,
           phone,
           bio,
+          profession,
+          location,
           avatar_url,
           created_at,
           updated_at,
           role,
           is_active,
           show_email_to_others,
-          show_coins_to_others
+          show_coins_to_others,
+          show_profession_to_others,
+          show_location_to_others
         `)
         .eq('user_id', userId)
         .eq('company_id', currentCompanyId)
@@ -56,9 +64,21 @@ export const useOtherUserProfile = (userId: string) => {
 
       // Apply privacy settings
       if (data) {
+        // Check if user is admin/owner to bypass privacy settings
+        const { data: currentUserProfile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('company_id', currentCompanyId)
+          .single();
+        
+        const isAdmin = currentUserProfile?.role === 'admin' || currentUserProfile?.role === 'owner';
+        
         return {
           ...data,
-          email: data.show_email_to_others ? data.email : undefined,
+          email: (data.show_email_to_others || isAdmin) ? data.email : undefined,
+          profession: (data.show_profession_to_others || isAdmin) ? data.profession : undefined,
+          location: (data.show_location_to_others || isAdmin) ? data.location : undefined,
         };
       }
 

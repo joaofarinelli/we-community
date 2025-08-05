@@ -1635,6 +1635,8 @@ export type Database = {
           role: string | null
           show_coins_to_others: boolean | null
           show_email_to_others: boolean | null
+          show_location_to_others: boolean | null
+          show_profession_to_others: boolean | null
           updated_at: string
           user_id: string
         }
@@ -1654,6 +1656,8 @@ export type Database = {
           role?: string | null
           show_coins_to_others?: boolean | null
           show_email_to_others?: boolean | null
+          show_location_to_others?: boolean | null
+          show_profession_to_others?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -1673,6 +1677,8 @@ export type Database = {
           role?: string | null
           show_coins_to_others?: boolean | null
           show_email_to_others?: boolean | null
+          show_location_to_others?: boolean | null
+          show_profession_to_others?: boolean | null
           updated_at?: string
           user_id?: string
         }

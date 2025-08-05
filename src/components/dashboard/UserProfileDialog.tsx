@@ -17,7 +17,7 @@ import { UserPostItem } from './UserPostItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { TrailBadgesDisplay } from '@/components/trails/TrailBadgesDisplay';
 import { EditProfileDialog } from './EditProfileDialog';
-import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag, Award } from 'lucide-react';
+import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag, Award, Briefcase } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -212,6 +212,30 @@ export const UserProfileDialog = ({
                   <p className="text-sm md:text-base text-muted-foreground">
                     {userProfile?.first_name && userProfile?.last_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'Nenhuma biografia adicionada ainda.'}
                   </p>
+                </div>
+
+                {/* Professional & Location Info */}
+                <div>
+                  <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Informações Profissionais</h3>
+                  <div className="space-y-2">
+                    {userProfile?.profession && (
+                      <div className="flex items-center">
+                        <Briefcase className="h-3 w-3 md:h-4 md:w-4 mr-2 md:mr-3 text-muted-foreground flex-shrink-0" />
+                        <span className="text-sm md:text-base">{userProfile.profession}</span>
+                      </div>
+                    )}
+                    {userProfile?.location && (
+                      <div className="flex items-center">
+                        <MapPin className="h-3 w-3 md:h-4 md:w-4 mr-2 md:mr-3 text-muted-foreground flex-shrink-0" />
+                        <span className="text-sm md:text-base">{userProfile.location}</span>
+                      </div>
+                    )}
+                    {!userProfile?.profession && !userProfile?.location && (
+                      <p className="text-sm text-muted-foreground">
+                        Nenhuma informação profissional adicionada ainda.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Contact Info */}

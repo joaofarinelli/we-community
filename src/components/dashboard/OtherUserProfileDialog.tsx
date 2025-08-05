@@ -21,7 +21,9 @@ import {
   Clock,
   X,
   Phone,
-  ShoppingBag
+  ShoppingBag,
+  MapPin,
+  Briefcase
 } from 'lucide-react';
 
 interface OtherUserProfileDialogProps {
@@ -269,6 +271,30 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                   <p className="text-muted-foreground">
                     {userProfile.bio || 'Nenhuma biografia adicionada.'}
                   </p>
+                </div>
+
+                {/* Professional & Location Info */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Informações Profissionais</h3>
+                  <div className="space-y-2">
+                    {userProfile.profession && (
+                      <div className="flex items-center">
+                        <Briefcase className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{userProfile.profession}</span>
+                      </div>
+                    )}
+                    {userProfile.location && (
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-3 text-muted-foreground" />
+                        <span>{userProfile.location}</span>
+                      </div>
+                    )}
+                    {!userProfile.profession && !userProfile.location && (
+                      <p className="text-muted-foreground text-sm">
+                        Este usuário optou por não compartilhar informações profissionais.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 {/* Contact Info */}

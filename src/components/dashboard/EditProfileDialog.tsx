@@ -28,6 +28,8 @@ const profileSchema = z.object({
   location: z.string().optional(),
   show_email_to_others: z.boolean(),
   show_coins_to_others: z.boolean(),
+  show_profession_to_others: z.boolean(),
+  show_location_to_others: z.boolean(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -68,6 +70,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       location: userProfile?.location || '',
       show_email_to_others: userProfile?.show_email_to_others ?? true,
       show_coins_to_others: userProfile?.show_coins_to_others ?? true,
+      show_profession_to_others: userProfile?.show_profession_to_others ?? true,
+      show_location_to_others: userProfile?.show_location_to_others ?? true,
     }
   });
 
@@ -83,6 +87,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         location: userProfile.location || '',
         show_email_to_others: userProfile.show_email_to_others ?? true,
         show_coins_to_others: userProfile.show_coins_to_others ?? true,
+        show_profession_to_others: userProfile.show_profession_to_others ?? true,
+        show_location_to_others: userProfile.show_location_to_others ?? true,
       });
     }
   }, [userProfile, reset]);
@@ -99,6 +105,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
 
   const showEmailToOthers = watch('show_email_to_others');
   const showCoinsToOthers = watch('show_coins_to_others');
+  const showProfessionToOthers = watch('show_profession_to_others');
+  const showLocationToOthers = watch('show_location_to_others');
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -175,6 +183,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
           avatar_url: avatarUrl,
           show_email_to_others: data.show_email_to_others,
           show_coins_to_others: data.show_coins_to_others,
+          show_profession_to_others: data.show_profession_to_others,
+          show_location_to_others: data.show_location_to_others,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
@@ -493,6 +503,32 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
                 <Switch
                   checked={showCoinsToOthers}
                   onCheckedChange={(checked) => setValue('show_coins_to_others', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Mostrar profissão para outros membros</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Outros membros poderão ver sua profissão
+                  </p>
+                </div>
+                <Switch
+                  checked={showProfessionToOthers}
+                  onCheckedChange={(checked) => setValue('show_profession_to_others', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Mostrar localização para outros membros</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Outros membros poderão ver sua localização
+                  </p>
+                </div>
+                <Switch
+                  checked={showLocationToOthers}
+                  onCheckedChange={(checked) => setValue('show_location_to_others', checked)}
                 />
               </div>
             </CardContent>
