@@ -12,7 +12,12 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
   return useQuery({
     queryKey: ['allPosts', user?.id, sortBy, currentCompanyId],
     queryFn: async () => {
-      if (!user || !currentCompanyId) return [];
+      if (!user || !currentCompanyId) {
+        console.log('🔍 useAllPosts: Missing user or company:', { user: !!user, currentCompanyId });
+        return [];
+      }
+
+      console.log('🔍 useAllPosts: Fetching posts for user:', user.id, 'company:', currentCompanyId, 'sortBy:', sortBy);
 
       let queryBuilder = supabase
         .from('posts')
@@ -47,7 +52,12 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
 
       const { data, error } = await orderQuery;
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ useAllPosts: Error fetching posts:', error);
+        throw error;
+      }
+
+      console.log('✅ useAllPosts: Found', data?.length || 0, 'posts');
       return data || [];
     },
     enabled: !!user && !!currentCompanyId,

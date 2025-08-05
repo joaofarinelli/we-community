@@ -15,6 +15,7 @@ export const useSupabaseContext = () => {
     const setSupabaseContext = async () => {
       if (user && currentCompanyId) {
         console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
+        console.log('🔧 useSupabaseContext: User email:', user.email);
         try {
           // Always set the current company ID in the Supabase session context
           // This is crucial for multi-company setups
@@ -37,6 +38,9 @@ export const useSupabaseContext = () => {
         }
       } else {
         console.log('⏸️ useSupabaseContext: Skipping context setup - user:', !!user, 'company:', !!currentCompanyId);
+        if (user) {
+          console.log('⏸️ useSupabaseContext: User email:', user.email);
+        }
       }
     };
 

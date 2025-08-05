@@ -10,7 +10,12 @@ export const useUserMemberSpaces = () => {
   return useQuery({
     queryKey: ['userMemberSpaces', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user || !currentCompanyId) return [];
+      if (!user || !currentCompanyId) {
+        console.log('🔍 useUserMemberSpaces: Missing user or company:', { user: !!user, currentCompanyId });
+        return [];
+      }
+
+      console.log('🔍 useUserMemberSpaces: Fetching spaces for user:', user.id, 'company:', currentCompanyId);
 
       // Get all spaces the user can see (relies on RLS policy with can_user_see_space)
       // This now includes spaces accessible through access groups
@@ -31,10 +36,11 @@ export const useUserMemberSpaces = () => {
         .order('order_index', { ascending: true });
 
       if (error) {
-        console.error('Error fetching user member spaces:', error);
+        console.error('❌ useUserMemberSpaces: Error fetching user member spaces:', error);
         throw error;
       }
 
+      console.log('✅ useUserMemberSpaces: Found', data?.length || 0, 'spaces');
       return data || [];
     },
     enabled: !!user && !!currentCompanyId,
