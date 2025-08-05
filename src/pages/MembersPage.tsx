@@ -50,7 +50,11 @@ export const MembersPage = () => {
       <HoverCardContent className="w-80 p-4" side="right" align="start" sideOffset={10}>
         <div className="flex items-start space-x-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={member.avatar_url} alt={member.display_name} />
+            <AvatarImage 
+              src={member.avatar_url} 
+              alt={member.display_name}
+              className="object-cover"
+            />
             <AvatarFallback className="text-lg">
               {getUserInitials(member.display_name, member.email)}
             </AvatarFallback>
@@ -91,7 +95,11 @@ export const MembersPage = () => {
         <CardContent className="p-6">
           <div className="flex flex-col items-center text-center space-y-4">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={member.avatar_url} alt={member.display_name} />
+              <AvatarImage 
+                src={member.avatar_url} 
+                alt={member.display_name}
+                className="object-cover"
+              />
               <AvatarFallback className="text-lg">
                 {getUserInitials(member.display_name, member.email)}
               </AvatarFallback>
@@ -121,7 +129,11 @@ export const MembersPage = () => {
         <CardContent className="p-4">
           <div className="flex items-center space-x-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={member.avatar_url} alt={member.display_name} />
+              <AvatarImage 
+                src={member.avatar_url} 
+                alt={member.display_name}
+                className="object-cover"
+              />
               <AvatarFallback>
                 {getUserInitials(member.display_name, member.email)}
               </AvatarFallback>
