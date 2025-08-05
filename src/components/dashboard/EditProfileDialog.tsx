@@ -24,6 +24,8 @@ const profileSchema = z.object({
   last_name: z.string().min(1, 'Sobrenome é obrigatório'),
   bio: z.string().optional(),
   phone: z.string().optional(),
+  profession: z.string().optional(),
+  location: z.string().optional(),
   show_email_to_others: z.boolean(),
   show_coins_to_others: z.boolean(),
 });
@@ -62,6 +64,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       last_name: userProfile?.last_name || '',
       bio: userProfile?.bio || '',
       phone: userProfile?.phone || '',
+      profession: userProfile?.profession || '',
+      location: userProfile?.location || '',
       show_email_to_others: userProfile?.show_email_to_others ?? true,
       show_coins_to_others: userProfile?.show_coins_to_others ?? true,
     }
@@ -75,6 +79,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         last_name: userProfile.last_name || '',
         bio: userProfile.bio || '',
         phone: userProfile.phone || '',
+        profession: userProfile.profession || '',
+        location: userProfile.location || '',
         show_email_to_others: userProfile.show_email_to_others ?? true,
         show_coins_to_others: userProfile.show_coins_to_others ?? true,
       });
@@ -164,6 +170,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
           last_name: data.last_name,
           bio: data.bio,
           phone: data.phone,
+          profession: data.profession,
+          location: data.location,
           avatar_url: avatarUrl,
           show_email_to_others: data.show_email_to_others,
           show_coins_to_others: data.show_coins_to_others,
@@ -348,6 +356,25 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
                   {...register('phone')}
                   placeholder="(00) 00000-0000"
                 />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="profession">Profissão</Label>
+                  <Input
+                    id="profession"
+                    {...register('profession')}
+                    placeholder="Sua profissão"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="location">Localização</Label>
+                  <Input
+                    id="location"
+                    {...register('location')}
+                    placeholder="Sua cidade/estado"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
