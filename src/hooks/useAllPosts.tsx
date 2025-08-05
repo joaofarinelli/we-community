@@ -23,7 +23,7 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
         .from('posts')
         .select(`
           *,
-          profiles!posts_author_profile_fkey(first_name, last_name),
+          profiles!posts_author_profile_fkey(first_name, last_name, avatar_url),
           spaces(name, type),
           post_interactions(id)
         `)

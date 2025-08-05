@@ -38,6 +38,7 @@ interface FeedPost {
   profiles?: {
     first_name: string;
     last_name: string;
+    avatar_url?: string;
   };
   spaces?: {
     name: string;
@@ -119,7 +120,7 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
                 className="h-8 w-8 sm:h-10 sm:w-10 transition-all flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary/50"
                 onClick={handleUserClick}
               >
-                <AvatarImage src="" />
+                <AvatarImage src={post.profiles?.avatar_url || ''} />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs sm:text-sm">
                   {authorInitials}
                 </AvatarFallback>
