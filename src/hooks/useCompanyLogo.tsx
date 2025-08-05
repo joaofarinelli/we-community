@@ -81,13 +81,17 @@ export const useCompanyLogo = () => {
     },
     onSuccess: (data) => {
       console.log('🎉 Upload completed successfully:', data);
-      // Invalidate multiple related queries to ensure UI updates
-      queryClient.invalidateQueries({ queryKey: ['company'] });
-      queryClient.invalidateQueries({ queryKey: ['companies'] });
-      queryClient.invalidateQueries({ queryKey: ['userCompanies'] });
       
-      // Force a refetch to ensure immediate UI update
-      queryClient.refetchQueries({ queryKey: ['company'] });
+      // Update the query cache directly with the new data to force immediate UI update
+      queryClient.setQueryData(['company'], (oldData: any) => {
+        if (oldData) {
+          return { ...oldData, logo_url: data.logo_url };
+        }
+        return oldData;
+      });
+      
+      // Also invalidate to ensure consistency
+      queryClient.invalidateQueries({ queryKey: ['company'] });
       
       toast({
         title: 'Logo atualizado',
