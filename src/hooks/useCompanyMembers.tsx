@@ -26,7 +26,7 @@ export const useCompanyMembers = () => {
       // Buscar todos os profiles da empresa usando o currentCompanyId
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, user_id, first_name, last_name, email, role, is_active, created_at')
+        .select('id, user_id, first_name, last_name, email, role, is_active, created_at, avatar_url')
         .eq('company_id', currentCompanyId);
 
       if (profilesError) {
@@ -52,7 +52,7 @@ export const useCompanyMembers = () => {
           display_name: profile.first_name && profile.last_name 
             ? `${profile.first_name} ${profile.last_name}`.trim() 
             : profile.first_name || 'Nome não encontrado',
-          avatar_url: profile.user_id === user.id ? user.user_metadata?.avatar_url : null,
+          avatar_url: profile.avatar_url || (profile.user_id === user.id ? user.user_metadata?.avatar_url : null),
           created_at: userRole?.created_at || profile.created_at,
           role: profile.role || userRole?.role || 'member', // Prioriza role da tabela profiles
           is_active: profile.is_active ?? true
