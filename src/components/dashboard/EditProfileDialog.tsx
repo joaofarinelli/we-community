@@ -265,7 +265,8 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
               <Avatar className="h-20 w-20">
                 <AvatarImage 
                   src={avatarPreview || userProfile?.avatar_url || user?.user_metadata?.avatar_url} 
-                  alt="Avatar" 
+                  alt="Avatar"
+                  className="object-cover" 
                 />
                 <AvatarFallback className="text-xl">
                   {getUserInitials()}

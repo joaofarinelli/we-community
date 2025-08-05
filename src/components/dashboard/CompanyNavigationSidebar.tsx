@@ -60,6 +60,7 @@ export const CompanyNavigationSidebar = () => {
                     <AvatarImage 
                       src={company.company_logo_url} 
                       alt={company.company_name}
+                      className="object-cover"
                     />
                     <AvatarFallback className="text-xs font-semibold bg-primary/20 text-primary">
                       {company.company_name.charAt(0).toUpperCase()}

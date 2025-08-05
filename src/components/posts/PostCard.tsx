@@ -101,7 +101,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                 className="h-10 w-10 transition-all cursor-pointer hover:ring-2 hover:ring-primary/50" 
                 onClick={handleUserClick}
               >
-                <AvatarImage src="" />
+                <AvatarImage src="" className="object-cover" />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
                   {authorInitials}
                 </AvatarFallback>

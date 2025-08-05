@@ -182,7 +182,7 @@ export const AdminUsersPage = () => {
                     <TableRow key={member.id}>
                       <TableCell className="flex items-center space-x-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={member.avatar_url || ''} />
+                          <AvatarImage src={member.avatar_url || ''} className="object-cover" />
                           <AvatarFallback>
                             {member.display_name?.charAt(0) || member.email.charAt(0).toUpperCase()}
                           </AvatarFallback>

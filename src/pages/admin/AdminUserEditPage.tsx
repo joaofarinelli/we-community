@@ -118,7 +118,7 @@ export const AdminUserEditPage = () => {
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                   <div className="flex items-center space-x-4 mb-6">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={member.avatar_url || ''} />
+                      <AvatarImage src={member.avatar_url || ''} className="object-cover" />
                       <AvatarFallback className="text-lg">
                         {member.display_name?.charAt(0) || member.email.charAt(0).toUpperCase()}
                       </AvatarFallback>
