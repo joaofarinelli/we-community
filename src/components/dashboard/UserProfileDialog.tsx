@@ -138,7 +138,11 @@ export const UserProfileDialog = ({
           <div className="lg:w-1/3 p-4 md:p-6 lg:border-r bg-muted/30">
             <div className="flex flex-col items-center text-center space-y-4">
               <Avatar className="h-24 w-24 md:h-32 md:w-32">
-                <AvatarImage src={userProfile?.avatar_url} alt={getDisplayName()} />
+                <AvatarImage 
+                  src={userProfile?.avatar_url} 
+                  alt={getDisplayName()}
+                  className="object-cover"
+                />
                 <AvatarFallback className="text-2xl md:text-3xl">
                   {getUserInitials()}
                 </AvatarFallback>

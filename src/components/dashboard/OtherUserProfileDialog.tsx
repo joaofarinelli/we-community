@@ -186,7 +186,11 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
           <div className="lg:w-1/3 p-6 border-r bg-muted/30">
             <div className="flex flex-col items-center text-center space-y-4">
               <Avatar className="h-32 w-32">
-                <AvatarImage src={userProfile?.avatar_url} alt={getDisplayName()} />
+                <AvatarImage 
+                  src={userProfile?.avatar_url} 
+                  alt={getDisplayName()}
+                  className="object-cover"
+                />
                 <AvatarFallback className="text-3xl">
                   {getUserInitials()}
                 </AvatarFallback>
