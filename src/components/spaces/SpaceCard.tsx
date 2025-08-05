@@ -76,7 +76,9 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
       onClick={onClick}
     >
       <CardContent className="p-4 flex-1">
-        <SpaceBanner spaceId={space.id} className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden" />
+        <div className="aspect-video bg-muted rounded-lg mb-3 overflow-hidden">
+          <SpaceBanner spaceId={space.id} className="w-full h-full" />
+        </div>
         
         <div className="space-y-3">
           <div className="flex items-start justify-between">
