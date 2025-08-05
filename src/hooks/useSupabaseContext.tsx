@@ -40,7 +40,10 @@ export const useSupabaseContext = () => {
       }
     };
 
-    setSupabaseContext();
+    // Only set context when both user and company are available
+    if (user && currentCompanyId) {
+      setSupabaseContext();
+    }
   }, [user, currentCompanyId]);
 
   return null;

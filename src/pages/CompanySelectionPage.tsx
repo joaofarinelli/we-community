@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Building2, Plus, ExternalLink, Users } from 'lucide-react';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,6 +18,9 @@ export const CompanySelectionPage = () => {
   const [isCreating, setIsCreating] = useState(false);
   const { userCompanies, switchToCompany, createProfileForCompany } = useCompanyContext();
   const { toast } = useToast();
+  
+  // Initialize Supabase context for multi-company users
+  useSupabaseContext();
 
   const handleSwitchCompany = async (companyId: string) => {
     await switchToCompany(companyId);

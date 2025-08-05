@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useSupabaseContext } from "@/hooks/useSupabaseContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { 
@@ -52,6 +53,9 @@ const menuItems = [
 export const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  // Initialize Supabase context for multi-company users
+  useSupabaseContext();
 
   return (
     <div className="min-h-screen bg-background">
