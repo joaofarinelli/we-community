@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -115,6 +116,9 @@ const mainMenuItems = [
 export const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Initialize Supabase context for multi-company users
+  useSupabaseContext();
   const [activeMenu, setActiveMenu] = useState<string | null>(() => {
     // Determinar menu ativo baseado na rota atual
     const currentPath = location.pathname;
