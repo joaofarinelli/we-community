@@ -64,55 +64,44 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
 
   return (
     <div className="space-y-3">
-      {/* Estatísticas */}
-      {((likes?.length || 0) > 0 || (comments?.length || 0) > 0) && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground border-b pb-3">
-          <div className="flex items-center space-x-4">
+      {/* Botões de Ação e Contadores */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLike}
+            className={cn(
+              "flex items-center space-x-2 hover:bg-primary/10 hover:text-primary",
+              userLiked && "bg-primary text-primary-foreground"
+            )}
+          >
+            <ThumbsUp className="h-4 w-4" />
+            <span>Curtir</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center space-x-2 hover:bg-muted"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span>Comentar</span>
+          </Button>
+        </div>
+        
+        {/* Contadores do lado direito */}
+        {((likes?.length || 0) > 0 || (comments?.length || 0) > 0) && (
+          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
             {(likes?.length || 0) > 0 && (
-              <div className="flex items-center space-x-1">
-                <div className="bg-blue-500 rounded-full p-1">
-                  <ThumbsUp className="h-3 w-3 text-white" />
-                </div>
-                <span>{likes?.length || 0}</span>
-              </div>
+              <span>{likes?.length || 0} curtidas</span>
+            )}
+            {(comments?.length || 0) > 0 && (
+              <span>{comments?.length || 0} comentário{(comments?.length || 0) !== 1 ? 's' : ''}</span>
             )}
           </div>
-          
-          {(comments?.length || 0) > 0 && (
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className="hover:underline"
-            >
-              {comments?.length || 0} comentário{(comments?.length || 0) !== 1 ? 's' : ''}
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Botões de Ação */}
-      <div className="flex items-center space-x-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLike}
-          className={cn(
-            "flex items-center space-x-2 hover:bg-primary/10 hover:text-primary",
-            userLiked && "bg-primary text-primary-foreground"
-          )}
-        >
-          <ThumbsUp className="h-4 w-4" />
-          <span>Curtir</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowComments(!showComments)}
-          className="flex items-center space-x-2 hover:bg-muted"
-        >
-          <MessageCircle className="h-4 w-4" />
-          <span>Comentar</span>
-        </Button>
+        )}
       </div>
 
       {/* Área de Comentários */}
