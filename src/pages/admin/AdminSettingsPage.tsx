@@ -116,7 +116,7 @@ export const AdminSettingsPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CourseBannerSection />
+                  <CourseBannerSection isAdminMode={true} />
                 </CardContent>
               </Card>
               <PageBannerSection 

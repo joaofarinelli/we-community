@@ -6,7 +6,11 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export const CourseBannerSection = () => {
+interface CourseBannerSectionProps {
+  isAdminMode?: boolean;
+}
+
+export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSectionProps) => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = useCourseBanner();
   const { data: userRole } = useUserRole();
   const isOwner = userRole?.role === 'owner';
@@ -14,9 +18,11 @@ export const CourseBannerSection = () => {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const bannerHeight = isAdminMode ? "h-[200px]" : "h-[300px]";
+
   if (isLoading) {
     return (
-      <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg" />
+      <div className={`w-full ${bannerHeight} bg-muted animate-pulse rounded-lg`} />
     );
   }
 
@@ -47,13 +53,13 @@ export const CourseBannerSection = () => {
   // If there's a banner, display it (always show if banner exists, regardless of role)
   if (bannerUrl) {
     return (
-      <div className="relative w-full h-[200px] overflow-hidden rounded-lg border">
+      <div className={`relative w-full ${bannerHeight} overflow-hidden ${isAdminMode ? 'rounded-lg border' : ''}`}>
         <img
           src={bannerUrl}
           alt="Banner de Cursos"
           className="w-full h-full object-cover"
         />
-        {isOwner && (
+        {isOwner && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2">
             <Button
               size="sm"
@@ -74,7 +80,7 @@ export const CourseBannerSection = () => {
             </Button>
           </div>
         )}
-        {isOwner && (
+        {isOwner && isAdminMode && (
           <input
             ref={fileInputRef}
             type="file"
@@ -87,20 +93,24 @@ export const CourseBannerSection = () => {
     );
   }
 
-  // If no banner and user is not owner, show message
-  if (!isOwner) {
+  // If no banner and user is not owner or not admin mode, show message or nothing
+  if (!isOwner || !isAdminMode) {
+    if (!isAdminMode) {
+      // In courses page, don't show anything if no banner
+      return null;
+    }
     return (
-      <div className="w-full h-[200px] border border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+      <div className={`w-full ${bannerHeight} border border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center`}>
         <p className="text-muted-foreground">Nenhum banner configurado</p>
       </div>
     );
   }
 
-  // Show upload area for owners when no banner exists
+  // Show upload area for owners in admin mode when no banner exists
   return (
     <div
       className={cn(
-        "border-2 border-dashed rounded-lg p-8 text-center transition-colors h-[200px] flex flex-col items-center justify-center",
+        `border-2 border-dashed rounded-lg p-8 text-center transition-colors ${bannerHeight} flex flex-col items-center justify-center`,
         isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
         "hover:border-primary hover:bg-primary/5"
       )}
