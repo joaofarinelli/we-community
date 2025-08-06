@@ -13,11 +13,17 @@ export const useHidePost = () => {
   return useMutation({
     mutationFn: async ({ postId, reason }: HidePostParams) => {
       const user = await supabase.auth.getUser();
-      const { data, error } = await supabase.rpc('hide_post', {
-        post_id: postId,
-        hidden_by_user: user.data.user?.id,
-        hide_reason: reason || null
-      });
+      if (!user.data.user?.id) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('posts')
+        .update({
+          is_hidden: true,
+          hidden_at: new Date().toISOString(),
+          hidden_by: user.data.user.id,
+          hide_reason: reason || null
+        })
+        .eq('id', postId);
 
       if (error) throw error;
       return data;
@@ -40,9 +46,15 @@ export const useUnhidePost = () => {
 
   return useMutation({
     mutationFn: async (postId: string) => {
-      const { data, error } = await supabase.rpc('unhide_post', {
-        post_id: postId
-      });
+      const { data, error } = await supabase
+        .from('posts')
+        .update({
+          is_hidden: false,
+          hidden_at: null,
+          hidden_by: null,
+          hide_reason: null
+        })
+        .eq('id', postId);
 
       if (error) throw error;
       return data;

@@ -1557,9 +1557,13 @@ export type Database = {
           company_id: string
           content: string
           created_at: string
+          hidden_at: string | null
+          hidden_by: string | null
+          hidden_reason: string | null
           hide_author: boolean
           id: string
           is_announcement: boolean
+          is_hidden: boolean
           is_pinned: boolean
           space_id: string
           title: string | null
@@ -1571,9 +1575,13 @@ export type Database = {
           company_id: string
           content: string
           created_at?: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          hidden_reason?: string | null
           hide_author?: boolean
           id?: string
           is_announcement?: boolean
+          is_hidden?: boolean
           is_pinned?: boolean
           space_id: string
           title?: string | null
@@ -1585,9 +1593,13 @@ export type Database = {
           company_id?: string
           content?: string
           created_at?: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          hidden_reason?: string | null
           hide_author?: boolean
           id?: string
           is_announcement?: boolean
+          is_hidden?: boolean
           is_pinned?: boolean
           space_id?: string
           title?: string | null
@@ -3069,6 +3081,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      hide_post: {
+        Args: { post_id: string; hidden_by_user: string; hide_reason?: string }
+        Returns: undefined
+      }
       is_company_owner: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -3145,6 +3161,10 @@ export type Database = {
           p_reference_id?: string
         }
         Returns: boolean
+      }
+      unhide_post: {
+        Args: { post_id: string }
+        Returns: undefined
       }
       update_challenge_progress: {
         Args: {
