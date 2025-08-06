@@ -17,22 +17,22 @@ export const CompanyLogo = ({
   textClassName = "text-lg font-bold font-heading"
 }: CompanyLogoProps) => {
   const { data: company } = useCompany();
+  const logoSrc = useMemo(() => {
+    const url = company?.logo_url;
+    if (!url) return null;
+    const suffix = url.includes('?') ? '&' : '?';
+    return `${url}${suffix}v=${Date.now()}`;
+  }, [company?.logo_url]);
 
-  if (company?.logo_url) {
-    const logoSrc = useMemo(() => {
-      // Cache-bust only when the URL changes to avoid extra reloads
-      const suffix = company.logo_url.includes('?') ? '&' : '?';
-      return `${company.logo_url}${suffix}v=${Date.now()}`;
-    }, [company?.logo_url]);
-
+  if (logoSrc) {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
         <img
           src={logoSrc}
-          alt={company.name || "Logo da empresa"}
+          alt={company?.name || "Logo da empresa"}
           className={logoClassName}
         />
-        {showName && company.name && (
+        {showName && company?.name && (
           <span className={textClassName}>{company.name}</span>
         )}
       </div>

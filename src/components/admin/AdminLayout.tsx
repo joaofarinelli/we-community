@@ -24,6 +24,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -119,6 +120,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   
   // Initialize Supabase context for multi-company users
   useSupabaseContext();
+  useCompanyRealtime();
   const [activeMenu, setActiveMenu] = useState<string | null>(() => {
     // Determinar menu ativo baseado na rota atual
     const currentPath = location.pathname;

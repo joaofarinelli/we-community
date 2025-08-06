@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,13 @@ export const CompanyLogoSection = () => {
   const { uploadLogo, removeLogo, uploading } = useCompanyLogo();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const logoSrc = useMemo(() => {
+    const url = company?.logo_url;
+    if (!url) return null;
+    const suffix = url.includes('?') ? '&' : '?';
+    const version = uploadLogo.isSuccess ? Date.now() : 0;
+    return `${url}${suffix}v=${version}`;
+  }, [company?.logo_url, uploadLogo.isSuccess]);
 
   const handleFileSelect = (file: File) => {
     if (file) {
@@ -76,11 +83,11 @@ export const CompanyLogoSection = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {company?.logo_url ? (
+        {logoSrc ? (
           <div className="space-y-4">
             <div className="flex items-center space-x-4">
               <img
-                src={company.logo_url}
+                src={logoSrc}
                 alt="Logo da empresa"
                 className="h-16 w-16 object-contain rounded border"
               />
