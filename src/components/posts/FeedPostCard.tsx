@@ -23,7 +23,6 @@ import { useIsAdmin } from '@/hooks/useUserRole';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
-import { PostModerationActions } from '@/components/admin/PostModerationActions';
 
 interface FeedPost {
   id: string;
@@ -33,10 +32,6 @@ interface FeedPost {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
-  is_hidden?: boolean;
-  hidden_by?: string;
-  hidden_at?: string;
-  hidden_reason?: string;
   created_at: string;
   author_id: string;
   space_id: string;
@@ -191,53 +186,43 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
           </div>
           
           {/* Menu de Ações - for author or admin */}
-          <div className="flex items-center space-x-1">
-            {/* Ações de moderação para admins */}
-            <PostModerationActions 
-              postId={post.id}
-              isHidden={post.is_hidden || false}
-              hiddenReason={post.hidden_reason}
-            />
-            
-            {/* Menu principal para autor ou admin */}
-            {canEditDelete && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0 flex-shrink-0">
-                    <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
+          {canEditDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 sm:h-8 sm:w-8 p-0 flex-shrink-0">
+                  <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
+                    {post.hide_author ? (
+                      <>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Mostrar Autor
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="h-4 w-4 mr-2" />
+                        Ocultar Autor
+                      </>
+                    )}
                   </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
-                      {post.hide_author ? (
-                        <>
-                          <Eye className="h-4 w-4 mr-2" />
-                          Mostrar Autor
-                        </>
-                      ) : (
-                        <>
-                          <EyeOff className="h-4 w-4 mr-2" />
-                          Ocultar Autor
-                        </>
-                      )}
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem 
-                    onClick={() => setShowDeleteDialog(true)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Deletar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
+                )}
+                <DropdownMenuItem 
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Deletar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         {/* Conteúdo do Post */}
