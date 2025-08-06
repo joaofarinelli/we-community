@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useCompany } from '@/hooks/useCompany';
 
 interface CompanyLogoProps {
@@ -18,10 +19,16 @@ export const CompanyLogo = ({
   const { data: company } = useCompany();
 
   if (company?.logo_url) {
+    const logoSrc = useMemo(() => {
+      // Cache-bust only when the URL changes to avoid extra reloads
+      const suffix = company.logo_url.includes('?') ? '&' : '?';
+      return `${company.logo_url}${suffix}v=${Date.now()}`;
+    }, [company?.logo_url]);
+
     return (
       <div className={`flex items-center gap-3 ${className}`}>
         <img
-          src={company.logo_url}
+          src={logoSrc}
           alt={company.name || "Logo da empresa"}
           className={logoClassName}
         />
