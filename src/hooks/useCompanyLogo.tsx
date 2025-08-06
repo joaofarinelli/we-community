@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompany } from './useCompany';
+import { useSubdomain } from './useSubdomain';
 import { toast } from '@/hooks/use-toast';
 
 export const useCompanyLogo = () => {
@@ -10,6 +11,9 @@ export const useCompanyLogo = () => {
   const { data: company } = useCompany();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
+  const { subdomain, customDomain } = useSubdomain();
+  const preferredCompanyId = (typeof window !== 'undefined') ? localStorage.getItem('preferredCompanyId') : null;
+  const companyQueryKey = ['company', subdomain, customDomain, user?.id, preferredCompanyId] as const;
 
   const uploadLogo = useMutation({
     mutationFn: async (file: File) => {
@@ -82,15 +86,16 @@ export const useCompanyLogo = () => {
     onSuccess: (data) => {
       console.log('🎉 Upload completed successfully:', data);
       
-      // Update the query cache directly with the new data to force immediate UI update
-      queryClient.setQueryData(['company'], (oldData: any) => {
-        if (oldData) {
-          return { ...oldData, logo_url: data.logo_url };
-        }
-        return oldData;
+      // Update the exact company query for instant UI feedback
+      queryClient.setQueryData(companyQueryKey as any, data);
+
+      // Also update any other cached variants that start with ['company']
+      // @ts-ignore - setQueriesData is available in TanStack v5
+      queryClient.setQueriesData({ queryKey: ['company'] }, (oldData: any) => {
+        return oldData ? { ...oldData, logo_url: data.logo_url } : oldData;
       });
       
-      // Also invalidate to ensure consistency
+      // Invalidate to ensure consistency
       queryClient.invalidateQueries({ queryKey: ['company'] });
       
       toast({
@@ -135,7 +140,13 @@ export const useCompanyLogo = () => {
       if (error) throw error;
       return data[0];
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Update caches for immediate UI update
+      queryClient.setQueryData(companyQueryKey as any, data);
+      // @ts-ignore - setQueriesData exists in TanStack v5
+      queryClient.setQueriesData({ queryKey: ['company'] }, (oldData: any) => {
+        return oldData ? { ...oldData, logo_url: null } : oldData;
+      });
       queryClient.invalidateQueries({ queryKey: ['company'] });
       toast({
         title: 'Logo removido',
