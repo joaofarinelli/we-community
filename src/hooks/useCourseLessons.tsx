@@ -1,9 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
 export const useCourseLessons = (moduleId: string) => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+  useSupabaseContext();
+
   return useQuery({
-    queryKey: ['course-lessons', moduleId],
+    queryKey: ['course-lessons', moduleId, user?.id, currentCompanyId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('course_lessons')
@@ -14,6 +21,6 @@ export const useCourseLessons = (moduleId: string) => {
       if (error) throw error;
       return data;
     },
-    enabled: !!moduleId
+    enabled: !!moduleId && !!user?.id && !!currentCompanyId,
   });
 };
