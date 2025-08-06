@@ -43,14 +43,29 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       setInputHeight(inputRef.current.getBoundingClientRect().height);
     }
     
-    // Scroll para a última mensagem quando novas mensagens chegarem
+    // Scroll para a última mensagem quando mensagens mudarem ou quando carregar inicialmente
     if (scrollAreaRef.current && messages.length > 0) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        // Use setTimeout para garantir que o DOM foi atualizado
+        setTimeout(() => {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }, 50);
       }
     }
-  }, [messages.length]);
+  }, [messages.length, messages]);
+
+  // Scroll inicial quando a conversa é selecionada
+  useEffect(() => {
+    if (conversationId && scrollAreaRef.current && messages.length > 0) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        setTimeout(() => {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }, 100);
+      }
+    }
+  }, [conversationId]);
 
   if (!conversationId) {
     return (
