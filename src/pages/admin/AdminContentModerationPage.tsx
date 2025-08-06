@@ -42,6 +42,10 @@ const useAllPostsForModeration = () => {
     queryFn: async () => {
       if (!currentCompanyId) return [];
 
+      // First, get user data to ensure we have proper permissions
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from('posts')
         .select(`
@@ -62,7 +66,11 @@ const useAllPostsForModeration = () => {
         .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching posts for moderation:', error);
+        throw error;
+      }
+      
       return data as ModerationPost[];
     },
     enabled: !!currentCompanyId,
