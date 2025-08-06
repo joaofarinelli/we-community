@@ -253,12 +253,11 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
           {/* Right Panel - Detailed Info */}
           <div className="lg:w-2/3 p-6">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="sobre">Sobre</TabsTrigger>
                 <TabsTrigger value="publicacoes">
                   Publicações ({userStats?.postsCount || 0})
                 </TabsTrigger>
-                <TabsTrigger value="atividade">Atividade</TabsTrigger>
                 <TabsTrigger value="marketplace">
                   Marketplace ({userMarketplaceItems.length})
                 </TabsTrigger>
@@ -380,12 +379,6 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                 )}
               </TabsContent>
 
-              <TabsContent value="atividade" className="mt-6">
-                <div className="text-center py-12 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4" />
-                  <p>A atividade recente deste usuário aparecerá aqui</p>
-                </div>
-              </TabsContent>
 
               <TabsContent value="marketplace" className="mt-6">
                 {userMarketplaceItems.length > 0 ? (
