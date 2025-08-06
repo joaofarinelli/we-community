@@ -12,6 +12,7 @@ export const useHidePost = () => {
 
   return useMutation({
     mutationFn: async ({ postId, reason }: HidePostParams) => {
+      console.log('🔒 Hiding post:', postId, 'reason:', reason);
       const user = await supabase.auth.getUser();
       if (!user.data.user?.id) throw new Error('User not authenticated');
 
@@ -23,15 +24,20 @@ export const useHidePost = () => {
           hidden_by: user.data.user.id,
           hide_reason: reason || null
         })
-        .eq('id', postId);
+        .eq('id', postId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Error hiding post:', error);
+        throw error;
+      }
+      console.log('✅ Post hidden successfully:', data);
       return data;
     },
     onSuccess: () => {
       toast.success('Post ocultado com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['all-posts'] });
       queryClient.invalidateQueries({ queryKey: ['space-posts'] });
     },
     onError: (error) => {
@@ -61,8 +67,8 @@ export const useUnhidePost = () => {
     },
     onSuccess: () => {
       toast.success('Post reexibido com sucesso');
+      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['all-posts'] });
       queryClient.invalidateQueries({ queryKey: ['space-posts'] });
     },
     onError: (error) => {
