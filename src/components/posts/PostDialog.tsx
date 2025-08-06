@@ -163,7 +163,7 @@ export const PostDialog = ({
 
           {/* Editor de conteúdo */}
           <div className="flex-1 min-h-[300px] overflow-y-auto">
-            <TipTapEditor ref={editorRef} content={content} onChange={setContent} placeholder="Escreva algo..." className="min-h-[300px]" />
+            <TipTapEditor ref={editorRef} content={content} onChange={setContent} placeholder={mode === 'create' ? "O que você gostaria de compartilhar?" : "Escreva algo..."} className="min-h-[300px]" />
           </div>
 
           {/* Barra de ferramentas com emoji picker, upload de imagem e documento */}
