@@ -21,6 +21,7 @@ export const CreateChallengeDialog = () => {
   const [rewardType, setRewardType] = useState<string>('');
   const [targetValue, setTargetValue] = useState<number>(1);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
+  const [digitalUrl, setDigitalUrl] = useState<string>('');
   const [maxParticipants, setMaxParticipants] = useState<number | undefined>();
   const [endDate, setEndDate] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -38,13 +39,19 @@ export const CreateChallengeDialog = () => {
     
     if (!title || !challengeType || !rewardType) return;
 
+    const rewardValue = rewardType === 'coins'
+      ? { amount: rewardAmount }
+      : rewardType === 'file_download'
+      ? { url: digitalUrl }
+      : {};
+
     const challengeData = {
       title,
       description,
       challenge_type: challengeType as any,
       requirements: { target_value: targetValue },
       reward_type: rewardType as any,
-      reward_value: { amount: rewardAmount },
+      reward_value: rewardValue,
       max_participants: maxParticipants,
       end_date: endDate || undefined,
       image_url: imageUrl || undefined,
@@ -63,6 +70,7 @@ export const CreateChallengeDialog = () => {
       setRewardType('');
       setTargetValue(1);
       setRewardAmount(0);
+      setDigitalUrl('');
       setMaxParticipants(undefined);
       setEndDate('');
       setImageUrl('');
@@ -235,6 +243,20 @@ export const CreateChallengeDialog = () => {
                 value={rewardAmount}
                 onChange={(e) => setRewardAmount(Number(e.target.value))}
                 min="1"
+                required
+              />
+            </div>
+          )}
+
+          {rewardType === 'file_download' && (
+            <div className="space-y-2">
+              <Label htmlFor="digitalUrl">Link da Entrega (URL)</Label>
+              <Input
+                id="digitalUrl"
+                type="url"
+                value={digitalUrl}
+                onChange={(e) => setDigitalUrl(e.target.value)}
+                placeholder="https://..."
                 required
               />
             </div>

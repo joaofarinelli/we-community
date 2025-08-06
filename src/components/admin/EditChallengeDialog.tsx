@@ -24,6 +24,7 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
   const [rewardType, setRewardType] = useState<string>('');
   const [targetValue, setTargetValue] = useState<number>(1);
   const [rewardAmount, setRewardAmount] = useState<number>(0);
+  const [digitalUrl, setDigitalUrl] = useState<string>('');
   const [maxParticipants, setMaxParticipants] = useState<number | undefined>();
   const [endDate, setEndDate] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -43,6 +44,7 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
       setRewardType(challenge.reward_type || '');
       setTargetValue((challenge.requirements as any)?.target_value || 1);
       setRewardAmount((challenge.reward_value as any)?.amount || 0);
+      setDigitalUrl((challenge.reward_value as any)?.url || '');
       setMaxParticipants(challenge.max_participants || undefined);
       setEndDate(challenge.end_date ? new Date(challenge.end_date).toISOString().slice(0, 16) : '');
       setImageUrl(challenge.image_url || '');
@@ -57,13 +59,19 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
     
     if (!title || !challengeType || !rewardType) return;
 
+    const rewardValue = rewardType === 'coins'
+      ? { amount: rewardAmount }
+      : rewardType === 'file_download'
+      ? { url: digitalUrl }
+      : {};
+
     const updates = {
       title,
       description,
       challenge_type: challengeType as any,
       requirements: { target_value: targetValue },
       reward_type: rewardType as any,
-      reward_value: { amount: rewardAmount },
+      reward_value: rewardValue,
       max_participants: maxParticipants,
       end_date: endDate || undefined,
       image_url: imageUrl || undefined,
@@ -223,6 +231,20 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
                 value={rewardAmount}
                 onChange={(e) => setRewardAmount(Number(e.target.value))}
                 min="1"
+                required
+              />
+            </div>
+          )}
+
+          {rewardType === 'file_download' && (
+            <div className="space-y-2">
+              <Label htmlFor="digitalUrl">Link da Entrega (URL)</Label>
+              <Input
+                id="digitalUrl"
+                type="url"
+                value={digitalUrl}
+                onChange={(e) => setDigitalUrl(e.target.value)}
+                placeholder="https://..."
                 required
               />
             </div>
