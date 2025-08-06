@@ -13,7 +13,19 @@ export const useCourseBanner = () => {
     queryKey: ['course-banner', company?.id],
     queryFn: async () => {
       if (!company?.id) return null;
-      return company.course_banner_url;
+      
+      const { data, error } = await supabase
+        .from('companies')
+        .select('course_banner_url')
+        .eq('id', company.id)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching course banner:', error);
+        return null;
+      }
+      
+      return data?.course_banner_url || null;
     },
     enabled: !!company?.id,
   });
