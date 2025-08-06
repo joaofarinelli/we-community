@@ -5,6 +5,7 @@ import { Send, Link2 } from 'lucide-react';
 import { useSendMessage } from '@/hooks/useMessages';
 import { useToast } from '@/components/ui/use-toast';
 import { ChatAttachmentButton } from './ChatAttachmentButton';
+import { EditorEmojiPicker } from '@/components/posts/EditorEmojiPicker';
 
 interface ChatInputProps {
   conversationId: string;
@@ -63,6 +64,10 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
     }
   };
 
+  const handleEmojiSelect = (emoji: string) => {
+    setMessage(prev => prev + emoji);
+  };
+
   return (
     <div className="space-y-2">
       {attachmentUrl && (
@@ -98,6 +103,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ conversationId }) => {
             type="document" 
             onAttachmentUpload={handleAttachmentUpload}
           />
+          <EditorEmojiPicker onEmojiSelect={handleEmojiSelect} />
         </div>
         
         <div className="flex-1">
