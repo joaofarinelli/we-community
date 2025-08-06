@@ -30,7 +30,7 @@ export const Dashboard = () => {
       {/* Feed Banner */}
       <FeedBanner />
       
-      <div className="h-full overflow-y-auto p-8">
+      <div className="p-8">
         <div className="max-w-4xl mx-auto">
           <div className="space-y-6">
 
