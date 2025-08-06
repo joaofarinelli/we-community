@@ -69,7 +69,7 @@ export const HiddenPostCard = ({ post }: HiddenPostCardProps) => {
   const canUnhide = isAdmin || user?.id === post.author_id;
 
   return (
-    <Card className="w-full opacity-60 border-dashed">
+    <Card className="w-full border-dashed border-muted-foreground/30 bg-muted/20">
       <CardContent className="p-6">
         {/* Header do Post */}
         <div className="flex items-start justify-between mb-4">
@@ -132,11 +132,11 @@ export const HiddenPostCard = ({ post }: HiddenPostCardProps) => {
         {/* Conteúdo do Post (limitado) */}
         <div className="mb-4">
           {post.title && (
-            <h3 className="text-lg font-semibold mb-2 text-foreground opacity-70">
+            <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
               {post.title}
             </h3>
           )}
-          <div className="text-sm text-muted-foreground opacity-70">
+          <div className="text-sm text-muted-foreground">
             <p className="line-clamp-2">
               {post.content.length > 100 
                 ? `${post.content.substring(0, 100)}...` 
