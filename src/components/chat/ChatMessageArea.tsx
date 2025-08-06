@@ -22,6 +22,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
   useMessagesRealtime(conversationId);
 
   const inputRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [inputHeight, setInputHeight] = useState(0);
 
   // Atualiza altura do input ao renderizar mensagens e ao redimensionar
@@ -36,10 +37,18 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // Recalcula altura sempre que as mensagens mudam
+  // Recalcula altura sempre que as mensagens mudam e rola para baixo
   useEffect(() => {
     if (inputRef.current) {
       setInputHeight(inputRef.current.getBoundingClientRect().height);
+    }
+    
+    // Scroll para a última mensagem quando novas mensagens chegarem
+    if (scrollAreaRef.current && messages.length > 0) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [messages.length]);
 
@@ -92,6 +101,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
 
       {/* Messages */}
       <ScrollArea
+        ref={scrollAreaRef}
         className="flex-1 min-h-0 p-4"
         style={{ paddingBottom: inputHeight }}
       >
@@ -123,7 +133,7 @@ export const ChatMessageArea: React.FC<ChatMessageAreaProps> = ({
       </ScrollArea>
 
       {/* Input fixo */}
-      <div className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
+      <div ref={inputRef} className="p-4 border-t border-border bg-background sticky bottom-0 z-10">
         <ChatInput conversationId={conversationId} />
       </div>
     </div>
