@@ -21,6 +21,7 @@ import { useIsAdmin } from '@/hooks/useUserRole';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
+import { HidePostDialog } from './HidePostDialog';
 
 interface Post {
   id: string;
@@ -30,11 +31,16 @@ interface Post {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
+  is_hidden?: boolean;
+  hidden_by?: string;
+  hidden_at?: string;
+  hidden_reason?: string;
   created_at: string;
   author_id: string;
   profiles?: {
     first_name: string;
     last_name: string;
+    avatar_url?: string;
   };
 }
 
@@ -49,6 +55,7 @@ export const PostCard = ({ post }: PostCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showHideDialog, setShowHideDialog] = useState(false);
 
   const handleToggleAuthorVisibility = async () => {
     try {
@@ -101,7 +108,7 @@ export const PostCard = ({ post }: PostCardProps) => {
                 className="h-10 w-10 transition-all cursor-pointer hover:ring-2 hover:ring-primary/50" 
                 onClick={handleUserClick}
               >
-                <AvatarImage src="" className="object-cover" />
+                <AvatarImage src={post.profiles?.avatar_url || ''} className="object-cover" />
                 <AvatarFallback className="bg-primary/10 text-primary font-medium">
                   {authorInitials}
                 </AvatarFallback>
@@ -157,6 +164,12 @@ export const PostCard = ({ post }: PostCardProps) => {
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                {isAuthor && (
+                  <DropdownMenuItem onClick={() => setShowHideDialog(true)}>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Ocultar Post
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
                     {post.hide_author ? (
@@ -217,6 +230,13 @@ export const PostCard = ({ post }: PostCardProps) => {
           userId={post.author_id}
           open={showUserProfile}
           onOpenChange={setShowUserProfile}
+        />
+
+        <HidePostDialog
+          open={showHideDialog}
+          onOpenChange={setShowHideDialog}
+          postId={post.id}
+          postTitle={post.title}
         />
       </CardContent>
     </Card>

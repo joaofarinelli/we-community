@@ -23,6 +23,7 @@ import { useIsAdmin } from '@/hooks/useUserRole';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
+import { HidePostDialog } from './HidePostDialog';
 
 interface FeedPost {
   id: string;
@@ -32,6 +33,10 @@ interface FeedPost {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
+  is_hidden?: boolean;
+  hidden_by?: string;
+  hidden_at?: string;
+  hidden_reason?: string;
   created_at: string;
   author_id: string;
   space_id: string;
@@ -59,6 +64,7 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showHideDialog, setShowHideDialog] = useState(false);
 
   const handleToggleAuthorVisibility = async () => {
     try {
@@ -198,6 +204,12 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                {isAuthor && (
+                  <DropdownMenuItem onClick={() => setShowHideDialog(true)}>
+                    <EyeOff className="h-4 w-4 mr-2" />
+                    Ocultar Post
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
                     {post.hide_author ? (
@@ -258,6 +270,13 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
           userId={post.author_id}
           open={showUserProfile}
           onOpenChange={setShowUserProfile}
+        />
+
+        <HidePostDialog
+          open={showHideDialog}
+          onOpenChange={setShowHideDialog}
+          postId={post.id}
+          postTitle={post.title}
         />
       </CardContent>
     </Card>
