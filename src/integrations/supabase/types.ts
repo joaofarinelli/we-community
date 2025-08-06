@@ -1557,9 +1557,13 @@ export type Database = {
           company_id: string
           content: string
           created_at: string
+          hidden_at: string | null
+          hidden_by: string | null
+          hidden_reason: string | null
           hide_author: boolean
           id: string
           is_announcement: boolean
+          is_hidden: boolean
           is_pinned: boolean
           space_id: string
           title: string | null
@@ -1571,9 +1575,13 @@ export type Database = {
           company_id: string
           content: string
           created_at?: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          hidden_reason?: string | null
           hide_author?: boolean
           id?: string
           is_announcement?: boolean
+          is_hidden?: boolean
           is_pinned?: boolean
           space_id: string
           title?: string | null
@@ -1585,9 +1593,13 @@ export type Database = {
           company_id?: string
           content?: string
           created_at?: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          hidden_reason?: string | null
           hide_author?: boolean
           id?: string
           is_announcement?: boolean
+          is_hidden?: boolean
           is_pinned?: boolean
           space_id?: string
           title?: string | null

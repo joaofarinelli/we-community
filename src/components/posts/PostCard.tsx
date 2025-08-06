@@ -21,6 +21,7 @@ import { useIsAdmin } from '@/hooks/useUserRole';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
 import { UserTagsDisplay } from './UserTagsDisplay';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
+import { PostModerationActions } from '@/components/admin/PostModerationActions';
 
 interface Post {
   id: string;
@@ -30,6 +31,10 @@ interface Post {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
+  is_hidden?: boolean;
+  hidden_by?: string;
+  hidden_at?: string;
+  hidden_reason?: string;
   created_at: string;
   author_id: string;
   profiles?: {
@@ -145,43 +150,53 @@ export const PostCard = ({ post }: PostCardProps) => {
           </div>
           
           {/* Menu de Ações - for author or admin */}
-          {canEditDelete && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
-                    {post.hide_author ? (
-                      <>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Mostrar Autor
-                      </>
-                    ) : (
-                      <>
-                        <EyeOff className="h-4 w-4 mr-2" />
-                        Ocultar Autor
-                      </>
-                    )}
+          <div className="flex items-center space-x-2">
+            {/* Ações de moderação para admins */}
+            <PostModerationActions 
+              postId={post.id}
+              isHidden={post.is_hidden || false}
+              hiddenReason={post.hidden_reason}
+            />
+            
+            {/* Menu principal para autor ou admin */}
+            {canEditDelete && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Editar
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem 
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Deletar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
+                      {post.hide_author ? (
+                        <>
+                          <Eye className="h-4 w-4 mr-2" />
+                          Mostrar Autor
+                        </>
+                      ) : (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          Ocultar Autor
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem 
+                    onClick={() => setShowDeleteDialog(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Deletar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
 
         {/* Conteúdo do Post */}
