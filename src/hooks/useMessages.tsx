@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { useEffect } from 'react';
-
 export const useMessages = (conversationId: string | null) => {
   const { user } = useAuth();
-
+  const { currentCompanyId } = useCompanyContext();
   return useQuery({
     queryKey: ['messages', conversationId],
     queryFn: async () => {
@@ -40,8 +40,8 @@ export const useMessages = (conversationId: string | null) => {
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email')
-        .in('user_id', senderIds);
-
+        .in('user_id', senderIds)
+        .eq('company_id', currentCompanyId);
       if (profilesError) {
         console.error('❌ Error fetching profiles:', profilesError);
         // Return messages without profile data if profiles fetch fails
@@ -57,14 +57,14 @@ export const useMessages = (conversationId: string | null) => {
       console.log('✅ Messages with profiles fetched:', messagesWithProfiles.length);
       return messagesWithProfiles;
     },
-    enabled: !!conversationId && !!user?.id,
+    enabled: !!conversationId && !!user?.id && !!currentCompanyId,
   });
 };
 
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-
+  const { currentCompanyId } = useCompanyContext();
   return useMutation({
     mutationFn: async ({ 
       conversationId, 
@@ -81,14 +81,7 @@ export const useSendMessage = () => {
     }) => {
       if (!user) throw new Error('User not authenticated');
 
-      // Get user's company ID
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) throw new Error('Profile not found');
+      if (!currentCompanyId) throw new Error('Company context not set');
 
       const messageType = attachmentUrl ? (attachmentType === 'image' ? 'image' : 'file') : 'text';
 
@@ -97,7 +90,7 @@ export const useSendMessage = () => {
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
-          company_id: profile.company_id,
+          company_id: currentCompanyId,
           content,
           message_type: messageType,
           attachment_url: attachmentUrl,
