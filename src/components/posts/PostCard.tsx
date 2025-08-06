@@ -159,7 +159,7 @@ export const PostCard = ({ post }: PostCardProps) => {
             />
             
             {/* Menu principal para autor ou admin */}
-            {canEditDelete && (
+            {canEditDelete && (isAuthor || isAdmin) && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -167,10 +167,12 @@ export const PostCard = ({ post }: PostCardProps) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Editar
-                  </DropdownMenuItem>
+                  {isAuthor && (
+                    <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </DropdownMenuItem>
+                  )}
                   {isAdmin && (
                     <DropdownMenuItem onClick={handleToggleAuthorVisibility}>
                       {post.hide_author ? (
@@ -186,13 +188,15 @@ export const PostCard = ({ post }: PostCardProps) => {
                       )}
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem 
-                    onClick={() => setShowDeleteDialog(true)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Deletar
-                  </DropdownMenuItem>
+                  {isAuthor && (
+                    <DropdownMenuItem 
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Deletar
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
