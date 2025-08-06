@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useAllPosts, SortOption } from '@/hooks/useAllPosts';
 import { FeedSortControls } from '@/components/posts/FeedSortControls';
 import { FeedPostCard } from '@/components/posts/FeedPostCard';
+import { HiddenPostCard } from '@/components/posts/HiddenPostCard';
 import { GlobalCreatePostForm } from '@/components/posts/GlobalCreatePostForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -76,9 +77,13 @@ export const Dashboard = () => {
                   ))}
                 </div>
               ) : posts && posts.length > 0 ? (
-                posts.map(post => (
-                  <FeedPostCard key={post.id} post={post} />
-                ))
+                posts.map(post => 
+                  post.is_hidden ? (
+                    <HiddenPostCard key={post.id} post={post} />
+                  ) : (
+                    <FeedPostCard key={post.id} post={post} />
+                  )
+                )
               ) : (
                 <Card>
                   <CardContent className="p-12 text-center">
