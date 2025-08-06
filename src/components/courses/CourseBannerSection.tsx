@@ -7,15 +7,18 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export const CourseBannerSection = () => {
-  const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving } = useCourseBanner();
+  const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = useCourseBanner();
   const { data: userRole } = useUserRole();
   const isOwner = userRole?.role === 'owner';
   
-  console.log('CourseBannerSection - userRole:', userRole);
-  console.log('CourseBannerSection - isOwner:', isOwner);
-  console.log('CourseBannerSection - bannerUrl:', bannerUrl);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg" />
+    );
+  }
 
   const handleFileSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -41,10 +44,10 @@ export const CourseBannerSection = () => {
     }
   };
 
-  // If there's a banner, display it
+  // If there's a banner, display it (always show if banner exists, regardless of role)
   if (bannerUrl) {
     return (
-      <div className="relative w-full h-[300px] overflow-hidden">
+      <div className="relative w-full h-[200px] overflow-hidden rounded-lg border">
         <img
           src={bannerUrl}
           alt="Banner de Cursos"
@@ -84,53 +87,53 @@ export const CourseBannerSection = () => {
     );
   }
 
-  // If no banner and user is not owner, don't show anything
+  // If no banner and user is not owner, show message
   if (!isOwner) {
-    return null;
+    return (
+      <div className="w-full h-[200px] border border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
+        <p className="text-muted-foreground">Nenhum banner configurado</p>
+      </div>
+    );
   }
 
   // Show upload area for owners when no banner exists
   return (
-    <Card className="mb-6">
-      <CardContent className="p-6">
-        <div
-          className={cn(
-            "border-2 border-dashed rounded-lg p-8 text-center transition-colors",
-            isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-            "hover:border-primary hover:bg-primary/5"
-          )}
-          onDrop={handleDrop}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragOver(true);
-          }}
-          onDragLeave={() => setIsDragOver(false)}
-        >
-          <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">Adicionar Banner de Cursos</h3>
-          <p className="text-muted-foreground mb-4">
-            Arraste uma imagem aqui ou clique para selecionar
-          </p>
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            variant="outline"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            {isUploading ? 'Enviando...' : 'Selecionar Imagem'}
-          </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
-          <p className="text-xs text-muted-foreground mt-2">
-            Formatos aceitos: JPG, PNG, WebP (máx. 5MB)
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <div
+      className={cn(
+        "border-2 border-dashed rounded-lg p-8 text-center transition-colors h-[200px] flex flex-col items-center justify-center",
+        isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+        "hover:border-primary hover:bg-primary/5"
+      )}
+      onDrop={handleDrop}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragOver(true);
+      }}
+      onDragLeave={() => setIsDragOver(false)}
+    >
+      <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+      <h3 className="text-lg font-semibold mb-2">Adicionar Banner de Cursos</h3>
+      <p className="text-muted-foreground mb-4">
+        Arraste uma imagem aqui ou clique para selecionar
+      </p>
+      <Button
+        onClick={() => fileInputRef.current?.click()}
+        disabled={isUploading}
+        variant="outline"
+      >
+        <Upload className="h-4 w-4 mr-2" />
+        {isUploading ? 'Enviando...' : 'Selecionar Imagem'}
+      </Button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileInputChange}
+        className="hidden"
+      />
+      <p className="text-xs text-muted-foreground mt-2">
+        Formatos aceitos: JPG, PNG, WebP (máx. 5MB)
+      </p>
+    </div>
   );
 };

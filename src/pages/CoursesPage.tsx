@@ -1,6 +1,7 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ModuleCard } from '@/components/courses/ModuleCard';
 import { PageBanner } from '@/components/ui/page-banner';
+import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
@@ -96,8 +97,8 @@ export const CoursesPage = () => {
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
         {/* Course Banner - Full Width */}
-        <div className="-mx-8 -mt-8">
-          <PageBanner bannerType="courses" />
+        <div className="-mx-8 -mt-8 mb-8">
+          <CourseBannerSection />
         </div>
 
         {/* Courses Showcase */}

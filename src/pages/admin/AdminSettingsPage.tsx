@@ -13,6 +13,7 @@ import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
 import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
 import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
 import { CoinNameSection } from '@/components/admin/CoinNameSection';
+import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -107,11 +108,17 @@ export const AdminSettingsPage = () => {
               <FeedBannerSection />
               <LoginBannerSection />
               
-              <PageBannerSection 
-                bannerType="courses" 
-                title="Banner da Página de Cursos" 
-                description="Configure o banner que aparecerá na página de cursos" 
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Banner da Página de Cursos</CardTitle>
+                  <CardDescription>
+                    Configure o banner que aparecerá na página de cursos
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <CourseBannerSection />
+                </CardContent>
+              </Card>
               <PageBannerSection 
                 bannerType="trails" 
                 title="Banner da Página de Trilhas" 

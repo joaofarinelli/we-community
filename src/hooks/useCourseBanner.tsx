@@ -69,6 +69,7 @@ export const useCourseBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['course-banner'] });
       queryClient.invalidateQueries({ queryKey: ['company'] });
+      queryClient.invalidateQueries({ queryKey: ['page-banner', 'courses'] });
       toast.success('Banner de cursos atualizado com sucesso!');
     },
     onError: (error: Error) => {
@@ -98,6 +99,7 @@ export const useCourseBanner = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['course-banner'] });
       queryClient.invalidateQueries({ queryKey: ['company'] });
+      queryClient.invalidateQueries({ queryKey: ['page-banner', 'courses'] });
       toast.success('Banner de cursos removido com sucesso!');
     },
     onError: (error: Error) => {
