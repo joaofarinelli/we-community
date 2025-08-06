@@ -128,6 +128,39 @@ export type Database = {
         }
         Relationships: []
       }
+      banned_words: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          severity: string
+          updated_at: string
+          word: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          severity?: string
+          updated_at?: string
+          word: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          severity?: string
+          updated_at?: string
+          word?: string
+        }
+        Relationships: []
+      }
       challenge_files: {
         Row: {
           challenge_id: string
@@ -425,6 +458,7 @@ export type Database = {
           cnpj: string | null
           coin_name: string | null
           course_banner_url: string | null
+          courses_banner_url: string | null
           created_at: string
           custom_domain: string | null
           custom_domain_status: string | null
@@ -462,6 +496,7 @@ export type Database = {
           cnpj?: string | null
           coin_name?: string | null
           course_banner_url?: string | null
+          courses_banner_url?: string | null
           created_at?: string
           custom_domain?: string | null
           custom_domain_status?: string | null
@@ -499,6 +534,7 @@ export type Database = {
           cnpj?: string | null
           coin_name?: string | null
           course_banner_url?: string | null
+          courses_banner_url?: string | null
           created_at?: string
           custom_domain?: string | null
           custom_domain_status?: string | null
@@ -1386,6 +1422,57 @@ export type Database = {
           },
         ]
       }
+      moderation_reports: {
+        Row: {
+          comment_id: string | null
+          company_id: string
+          confidence_score: number
+          content_type: string
+          created_at: string
+          flagged_words: string[]
+          id: string
+          original_content: string
+          post_id: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          comment_id?: string | null
+          company_id: string
+          confidence_score?: number
+          content_type: string
+          created_at?: string
+          flagged_words: string[]
+          id?: string
+          original_content: string
+          post_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          comment_id?: string | null
+          company_id?: string
+          confidence_score?: number
+          content_type?: string
+          created_at?: string
+          flagged_words?: string[]
+          id?: string
+          original_content?: string
+          post_id?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       monthly_rankings: {
         Row: {
           company_id: string
@@ -1498,30 +1585,42 @@ export type Database = {
       }
       post_interactions: {
         Row: {
+          auto_flagged: boolean
           comment_text: string | null
           company_id: string
           created_at: string
+          flagged_at: string | null
+          flagged_reason: string | null
           id: string
+          is_restricted: boolean
           parent_comment_id: string | null
           post_id: string
           type: string
           user_id: string
         }
         Insert: {
+          auto_flagged?: boolean
           comment_text?: string | null
           company_id: string
           created_at?: string
+          flagged_at?: string | null
+          flagged_reason?: string | null
           id?: string
+          is_restricted?: boolean
           parent_comment_id?: string | null
           post_id: string
           type: string
           user_id: string
         }
         Update: {
+          auto_flagged?: boolean
           comment_text?: string | null
           company_id?: string
           created_at?: string
+          flagged_at?: string | null
+          flagged_reason?: string | null
           id?: string
+          is_restricted?: boolean
           parent_comment_id?: string | null
           post_id?: string
           type?: string
@@ -1554,9 +1653,12 @@ export type Database = {
       posts: {
         Row: {
           author_id: string
+          auto_flagged: boolean
           company_id: string
           content: string
           created_at: string
+          flagged_at: string | null
+          flagged_reason: string | null
           hidden_at: string | null
           hidden_by: string | null
           hidden_reason: string | null
@@ -1565,6 +1667,7 @@ export type Database = {
           is_announcement: boolean
           is_hidden: boolean
           is_pinned: boolean
+          is_restricted: boolean
           space_id: string
           title: string | null
           type: string
@@ -1572,9 +1675,12 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          auto_flagged?: boolean
           company_id: string
           content: string
           created_at?: string
+          flagged_at?: string | null
+          flagged_reason?: string | null
           hidden_at?: string | null
           hidden_by?: string | null
           hidden_reason?: string | null
@@ -1583,6 +1689,7 @@ export type Database = {
           is_announcement?: boolean
           is_hidden?: boolean
           is_pinned?: boolean
+          is_restricted?: boolean
           space_id: string
           title?: string | null
           type?: string
@@ -1590,9 +1697,12 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          auto_flagged?: boolean
           company_id?: string
           content?: string
           created_at?: string
+          flagged_at?: string | null
+          flagged_reason?: string | null
           hidden_at?: string | null
           hidden_by?: string | null
           hidden_reason?: string | null
@@ -1601,6 +1711,7 @@ export type Database = {
           is_announcement?: boolean
           is_hidden?: boolean
           is_pinned?: boolean
+          is_restricted?: boolean
           space_id?: string
           title?: string | null
           type?: string
