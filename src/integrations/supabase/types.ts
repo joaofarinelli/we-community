@@ -1232,6 +1232,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          digital_delivery_url: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -1253,6 +1254,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          digital_delivery_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -1274,6 +1276,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          digital_delivery_url?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -1811,6 +1814,59 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_deliveries: {
+        Row: {
+          buyer_id: string
+          company_id: string
+          created_at: string
+          delivered_at: string | null
+          delivery_data: Json
+          delivery_status: string
+          delivery_type: string
+          id: string
+          purchase_id: string
+          seller_id: string | null
+          seller_type: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          company_id: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_data?: Json
+          delivery_status?: string
+          delivery_type: string
+          id?: string
+          purchase_id: string
+          seller_id?: string | null
+          seller_type: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          company_id?: string
+          created_at?: string
+          delivered_at?: string | null
+          delivery_data?: Json
+          delivery_status?: string
+          delivery_type?: string
+          id?: string
+          purchase_id?: string
+          seller_id?: string | null
+          seller_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_deliveries_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_purchases"
             referencedColumns: ["id"]
           },
         ]
@@ -3230,12 +3286,20 @@ export type Database = {
         Returns: Json
       }
       process_marketplace_purchase: {
-        Args: {
-          p_user_id: string
-          p_company_id: string
-          p_item_id: string
-          p_quantity?: number
-        }
+        Args:
+          | {
+              p_user_id: string
+              p_company_id: string
+              p_item_id: string
+              p_quantity?: number
+            }
+          | {
+              p_user_id: string
+              p_company_id: string
+              p_item_id: string
+              p_quantity?: number
+              p_delivery?: Json
+            }
         Returns: Json
       }
       process_streak_rewards: {
