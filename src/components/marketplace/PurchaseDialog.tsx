@@ -42,7 +42,7 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
     state: '',
     postal_code: '',
   });
-  const requiresDelivery = item.item_type === 'physical';
+  const requiresDelivery = item.item_type !== 'digital';
   const isDeliveryValid =
     !requiresDelivery ||
     (delivery.address && delivery.number && delivery.neighborhood && delivery.city && delivery.state && delivery.postal_code);
