@@ -1,5 +1,6 @@
 import { format, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface DayViewProps {
   date: Date;
@@ -11,6 +12,14 @@ const END_HOUR = 23;
 const MINUTE_HEIGHT = 1;
 const TOTAL_MINUTES = (END_HOUR - START_HOUR) * 60;
 const GRID_HEIGHT = TOTAL_MINUTES * MINUTE_HEIGHT;
+
+// Visual variants for events using design tokens
+const eventVariants = [
+  'bg-primary/10 text-primary',
+  'bg-accent/10 text-accent-foreground',
+  'bg-secondary/10 text-secondary-foreground',
+  'bg-destructive/10 text-destructive',
+];
 
 function minutesSinceStart(d: Date) {
   const h = d.getHours();
@@ -28,7 +37,7 @@ export const DayView = ({ date, events }: DayViewProps) => {
 
   return (
     <div className="w-full overflow-auto">
-      <div className="flex border rounded-md">
+      <div className="flex rounded-lg border bg-card">
         {/* Time column */}
         <div className="sticky left-0 z-10 w-16 border-r bg-background/80 backdrop-blur">
           <div className="relative" style={{ height: GRID_HEIGHT }}>
@@ -46,11 +55,11 @@ export const DayView = ({ date, events }: DayViewProps) => {
             <div key={h} className="absolute left-0 right-0 border-t border-dashed" style={{ top: (h - START_HOUR) * 60 * MINUTE_HEIGHT }} />
           ))}
 
-          <div className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium">
+          <div className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium bg-card/70 backdrop-blur">
             {format(date, 'EEEE, d', { locale: ptBR })}
           </div>
 
-          {dayEvents.map((e) => {
+          {dayEvents.map((e, idx) => {
             const start = new Date(e.start_date);
             const end = new Date(e.end_date);
             let topMin = minutesSinceStart(start);
@@ -70,13 +79,13 @@ export const DayView = ({ date, events }: DayViewProps) => {
             return (
               <div
                 key={e.id}
-                className="absolute left-1 right-1 rounded-md border bg-primary/10 p-2 text-xs shadow-sm hover-scale"
+                className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in', eventVariants[idx % eventVariants.length])}
                 style={{ top, height, marginLeft: offset * 8 }}
                 role="button"
                 title={`${e.title} • ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`}
                 aria-label={`Evento ${e.title}`}
               >
-                <div className="line-clamp-2 font-medium text-primary">{e.title}</div>
+                <div className="line-clamp-2 font-medium">{e.title}</div>
                 <div className="mt-1 text-[11px] text-muted-foreground">
                   {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
                 </div>

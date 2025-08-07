@@ -25,12 +25,20 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
   const gridEnd = endOfWeek(monthEnd, { locale: ptBR });
   const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
 
+  // Visual variants for events using design tokens
+  const eventVariants = [
+    'bg-primary/10 text-primary',
+    'bg-accent/10 text-accent-foreground',
+    'bg-secondary/10 text-secondary-foreground',
+    'bg-destructive/10 text-destructive',
+  ];
+
   const getEventsForDate = (date: Date) =>
     events.filter((e) => isSameDay(new Date(e.start_date), date));
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-7 gap-px mb-2 text-xs text-muted-foreground">
+      <div className="grid grid-cols-7 gap-px mb-2 text-xs text-muted-foreground select-none">
         {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((d) => (
           <div key={d} className="px-2 py-2 text-center font-medium">
             {d}
@@ -50,21 +58,24 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
               key={day.toISOString()}
               onClick={() => onSelectDate(isSelected ? null : day)}
               className={cn(
-                'min-h-[120px] p-2 text-left rounded-md border transition-colors',
-                'hover:bg-accent',
+                'min-h-[120px] p-2 text-left rounded-lg border bg-card/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring',
+                'hover:bg-accent/40',
                 !inMonth && 'opacity-60',
-                isSelected && 'bg-primary text-primary-foreground',
-                isToday && !isSelected && 'bg-accent border-primary'
+                isSelected && 'bg-primary/10 border-primary',
+                isToday && !isSelected && 'ring-2 ring-primary'
               )}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium">{format(day, 'd')}</span>
+                <span className="text-sm font-semibold">{format(day, 'd')}</span>
               </div>
               <div className="space-y-1">
-                {dayEvents.slice(0, 3).map((event) => (
+                {dayEvents.slice(0, 3).map((event, idx) => (
                   <div
                     key={event.id}
-                    className="text-xs px-2 py-1 rounded bg-primary/10 text-primary truncate"
+                    className={cn(
+                      'text-xs px-2 py-1 rounded truncate hover-scale animate-fade-in',
+                      eventVariants[idx % eventVariants.length]
+                    )}
                     title={event.title}
                     aria-label={`Evento: ${event.title}`}
                   >
@@ -72,7 +83,7 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-[11px] text-muted-foreground">+{dayEvents.length - 3} mais</div>
+                  <div className="text-[11px] text-muted-foreground/80">+{dayEvents.length - 3} mais</div>
                 )}
               </div>
             </button>

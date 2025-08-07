@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   format,
   startOfMonth,
@@ -40,6 +40,17 @@ export const CalendarPage = () => {
   const weekStart = startOfWeek(currentDate, { locale: ptBR });
   const weekEnd = endOfWeek(currentDate, { locale: ptBR });
   const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  // SEO: título dinâmico
+  useEffect(() => {
+    const period =
+      viewType === 'day'
+        ? format(selectedDate ?? currentDate, "d 'de' MMMM yyyy", { locale: ptBR })
+        : viewType === 'week'
+        ? `${format(weekStart, "d 'de' MMM", { locale: ptBR })} - ${format(weekEnd, "d 'de' MMM yyyy", { locale: ptBR })}`
+        : format(currentDate, 'MMMM yyyy', { locale: ptBR });
+    document.title = `Calendário — ${period}`;
+  }, [currentDate, selectedDate, viewType, weekStart, weekEnd]);
 
   const getEventsForDate = (date: Date) => {
     return events.filter((event) => isSameDay(new Date(event.start_date), date));
@@ -92,37 +103,40 @@ export const CalendarPage = () => {
     <DashboardLayout>
       <div className="w-full">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
-          <div className="flex items-center justify-between">
+          <header className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <CalendarIcon className="h-6 w-6" />
+              <CalendarIcon className="h-6 w-6" aria-hidden="true" />
               <h1 className="text-2xl font-bold">Calendário de Eventos</h1>
             </div>
-          </div>
+          </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-6">
             {/* Calendar */}
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <div className="relative flex items-center justify-between">
+                  <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Button variant="secondary" onClick={() => { setCurrentDate(new Date()); setSelectedDate(null); }}>
+                        Hoje
+                      </Button>
+                    </div>
                     <div className="flex items-center gap-3">
-                      <CardTitle>
+                      <Button variant="outline" size="icon" onClick={previousPeriod} aria-label="Período anterior">
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <div className="min-w-[220px] text-center text-lg font-semibold" aria-live="polite">
                         {viewType === 'day'
                           ? format(selectedDate ?? currentDate, "d 'de' MMMM yyyy", { locale: ptBR })
                           : viewType === 'week'
                           ? `${format(weekStart, "d 'de' MMM", { locale: ptBR })} - ${format(weekEnd, "d 'de' MMM yyyy", { locale: ptBR })}`
                           : format(currentDate, 'MMMM yyyy', { locale: ptBR })}
-                      </CardTitle>
-                    </div>
-                    <div className="absolute left-1/2 -translate-x-1/2 flex gap-2">
-                      <Button variant="outline" size="icon" onClick={previousPeriod}>
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={nextPeriod}>
+                      </div>
+                      <Button variant="outline" size="icon" onClick={nextPeriod} aria-label="Próximo período">
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <div className="flex justify-end">
                       <Tabs value={viewType} onValueChange={(v) => setViewType(v as 'day' | 'week' | 'month')}>
                         <TabsList>
                           <TabsTrigger value="day">Dia</TabsTrigger>
@@ -150,7 +164,7 @@ export const CalendarPage = () => {
             </div>
 
             {/* Events List */}
-            <div>
+            <div className="lg:sticky lg:top-24">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -192,7 +206,7 @@ export const CalendarPage = () => {
                     </div>
                   ) : (
                     selectedEvents.map((event) => (
-                      <div key={event.id} className="border rounded-lg p-3 space-y-2">
+                      <div key={event.id} className="rounded-lg border bg-card/50 p-3 space-y-2 hover:bg-accent/40 transition-colors">
                         <h4 className="font-medium">{event.title}</h4>
                         <div className="text-sm text-muted-foreground">
                           {format(new Date(event.start_date), 'HH:mm')} - {format(new Date(event.end_date), 'HH:mm')}

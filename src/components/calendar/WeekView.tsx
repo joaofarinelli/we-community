@@ -1,5 +1,6 @@
 import { eachDayOfInterval, endOfWeek, format, isSameDay, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 
 interface WeekViewProps {
@@ -28,9 +29,16 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
 
   const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
 
+  const eventVariants = [
+    'bg-primary/10 text-primary',
+    'bg-accent/10 text-accent-foreground',
+    'bg-secondary/10 text-secondary-foreground',
+    'bg-destructive/10 text-destructive',
+  ];
+
   return (
     <div className="w-full overflow-auto">
-      <div className="flex border rounded-md">
+      <div className="flex rounded-lg border bg-card">
         {/* Time column */}
         <div className="sticky left-0 z-10 w-16 border-r bg-background/80 backdrop-blur">
           <div className="relative" style={{ height: GRID_HEIGHT }}>
@@ -62,7 +70,7 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
                 {/* Day header */}
                 <button
                   onClick={() => onSelectDate(selectedDate && isSameDay(selectedDate, day) ? null : day)}
-                  className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium hover:bg-accent"
+                  className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium bg-card/70 hover:bg-accent/50 backdrop-blur"
                 >
                   {format(day, 'EEE d', { locale: ptBR })}
                 </button>
@@ -91,13 +99,13 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
                   return (
                     <div
                       key={e.id}
-                      className="absolute left-1 right-1 rounded-md border bg-primary/10 p-2 text-xs shadow-sm hover-scale"
+                      className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in', eventVariants[idx % eventVariants.length])}
                       style={{ top, height, marginLeft: offset * 8 }}
                       role="button"
                       title={`${e.title} • ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`}
                       aria-label={`Evento ${e.title}`}
                     >
-                      <div className="line-clamp-2 font-medium text-primary">{e.title}</div>
+                      <div className="line-clamp-2 font-medium">{e.title}</div>
                       <div className="mt-1 text-[11px] text-muted-foreground">
                         {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
                       </div>
