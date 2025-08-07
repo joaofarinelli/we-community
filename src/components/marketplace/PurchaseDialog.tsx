@@ -9,6 +9,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Coins, Package } from 'lucide-react';
 import { usePurchaseItem } from '@/hooks/useMarketplacePurchases';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
 
 interface MarketplaceItem {
   id: string;
@@ -17,6 +20,7 @@ interface MarketplaceItem {
   image_url: string | null;
   price_coins: number;
   stock_quantity: number | null;
+  item_type?: string;
 }
 
 interface PurchaseDialogProps {
@@ -30,10 +34,23 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
   const purchaseItem = usePurchaseItem();
   const canAfford = userCoins >= item.price_coins;
 
+  const [delivery, setDelivery] = useState({
+    address: '',
+    number: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    postal_code: '',
+  });
+  const requiresDelivery = item.item_type === 'physical';
+  const isDeliveryValid =
+    !requiresDelivery ||
+    (delivery.address && delivery.number && delivery.neighborhood && delivery.city && delivery.state && delivery.postal_code);
+
   const handlePurchase = async () => {
-    if (!canAfford) return;
+    if (!canAfford || (requiresDelivery && !isDeliveryValid)) return;
     
-    await purchaseItem.mutateAsync({ itemId: item.id });
+    await purchaseItem.mutateAsync({ itemId: item.id, delivery: requiresDelivery ? delivery : {} });
     onOpenChange(false);
   };
 
@@ -96,6 +113,67 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
               </div>
             </div>
           </div>
+          {requiresDelivery && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-medium">Endereço de entrega</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="sm:col-span-2">
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input
+                    id="address"
+                    value={delivery.address}
+                    onChange={(e) => setDelivery({ ...delivery, address: e.target.value })}
+                    placeholder="Rua/Avenida"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="number">Número</Label>
+                  <Input
+                    id="number"
+                    value={delivery.number}
+                    onChange={(e) => setDelivery({ ...delivery, number: e.target.value })}
+                    placeholder="123"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    value={delivery.neighborhood}
+                    onChange={(e) => setDelivery({ ...delivery, neighborhood: e.target.value })}
+                    placeholder="Bairro"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    value={delivery.city}
+                    onChange={(e) => setDelivery({ ...delivery, city: e.target.value })}
+                    placeholder="Cidade"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">Estado</Label>
+                  <Input
+                    id="state"
+                    value={delivery.state}
+                    onChange={(e) => setDelivery({ ...delivery, state: e.target.value })}
+                    placeholder="UF"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="postal_code">CEP</Label>
+                  <Input
+                    id="postal_code"
+                    value={delivery.postal_code}
+                    onChange={(e) => setDelivery({ ...delivery, postal_code: e.target.value })}
+                    placeholder="00000-000"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {!canAfford && (
             <p className="text-sm text-destructive">
@@ -114,7 +192,7 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
           </Button>
           <Button 
             onClick={handlePurchase}
-            disabled={!canAfford || purchaseItem.isPending}
+            disabled={!canAfford || purchaseItem.isPending || !isDeliveryValid}
           >
             {purchaseItem.isPending ? 'Processando...' : 'Confirmar Compra'}
           </Button>

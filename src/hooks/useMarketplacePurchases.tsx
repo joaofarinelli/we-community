@@ -33,7 +33,7 @@ export const usePurchaseItem = () => {
   const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
-    mutationFn: async ({ itemId, quantity = 1 }: { itemId: string; quantity?: number }) => {
+    mutationFn: async ({ itemId, quantity = 1, delivery = {} }: { itemId: string; quantity?: number; delivery?: Record<string, any> }) => {
       const { data: user } = await supabase.auth.getUser();
       
       if (!user.user?.id || !currentCompanyId) {
@@ -45,6 +45,7 @@ export const usePurchaseItem = () => {
         p_company_id: currentCompanyId,
         p_item_id: itemId,
         p_quantity: quantity,
+        p_delivery: delivery,
       });
 
       if (error) throw error;
