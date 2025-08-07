@@ -43,7 +43,7 @@ export const CalendarPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="p-6 md:p-8 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-6 w-6" />
