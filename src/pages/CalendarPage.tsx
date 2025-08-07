@@ -101,7 +101,7 @@ export const CalendarPage = () => {
             <div className="lg:col-span-2">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <CardTitle>
                         {viewType === 'day'
@@ -118,7 +118,7 @@ export const CalendarPage = () => {
                         </TabsList>
                       </Tabs>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="absolute left-1/2 -translate-x-1/2 flex gap-2">
                       <Button variant="outline" size="icon" onClick={previousPeriod}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
