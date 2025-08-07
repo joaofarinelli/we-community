@@ -110,13 +110,6 @@ export const CalendarPage = () => {
                           ? `${format(weekStart, "d 'de' MMM", { locale: ptBR })} - ${format(weekEnd, "d 'de' MMM yyyy", { locale: ptBR })}`
                           : format(currentDate, 'MMMM yyyy', { locale: ptBR })}
                       </CardTitle>
-                      <Tabs value={viewType} onValueChange={(v) => setViewType(v as 'day' | 'week' | 'month')}>
-                        <TabsList>
-                          <TabsTrigger value="day">Dia</TabsTrigger>
-                          <TabsTrigger value="week">Semana</TabsTrigger>
-                          <TabsTrigger value="month">Mês</TabsTrigger>
-                        </TabsList>
-                      </Tabs>
                     </div>
                     <div className="absolute left-1/2 -translate-x-1/2 flex gap-2">
                       <Button variant="outline" size="icon" onClick={previousPeriod}>
@@ -125,6 +118,15 @@ export const CalendarPage = () => {
                       <Button variant="outline" size="icon" onClick={nextPeriod}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
+                    </div>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                      <Tabs value={viewType} onValueChange={(v) => setViewType(v as 'day' | 'week' | 'month')}>
+                        <TabsList>
+                          <TabsTrigger value="day">Dia</TabsTrigger>
+                          <TabsTrigger value="week">Semana</TabsTrigger>
+                          <TabsTrigger value="month">Mês</TabsTrigger>
+                        </TabsList>
+                      </Tabs>
                     </div>
                   </div>
                 </CardHeader>
