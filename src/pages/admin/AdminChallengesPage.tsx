@@ -166,7 +166,7 @@ export const AdminChallengesPage = () => {
             return (
               <Card key={challenge.id} className="w-[291px] h-[380px] overflow-hidden flex flex-col">
                 {challenge.image_url && (
-                  <div className="w-full h-24 overflow-hidden rounded-t-lg">
+                  <div className="w-full h-32 overflow-hidden rounded-t-lg">
                     <img 
                       src={challenge.image_url} 
                       alt={challenge.title}
