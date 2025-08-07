@@ -21,7 +21,7 @@ export const useAllUserEvents = () => {
             name,
             visibility
           ),
-          event_participants(
+          event_participants!inner(
             id,
             user_id,
             status
@@ -29,6 +29,8 @@ export const useAllUserEvents = () => {
         `)
         .eq('company_id', currentCompanyId)
         .eq('status', 'active')
+        .eq('event_participants.user_id', user.id)
+        .eq('event_participants.status', 'confirmed')
         .order('start_date', { ascending: true });
 
       if (error) throw error;
