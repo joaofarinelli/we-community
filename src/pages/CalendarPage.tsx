@@ -23,6 +23,9 @@ import { Badge } from '@/components/ui/badge';
 import { useAllUserEvents } from '@/hooks/useAllUserEvents';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { MonthView } from '@/components/calendar/MonthView';
+import { WeekView } from '@/components/calendar/WeekView';
+import { DayView } from '@/components/calendar/DayView';
 
 export const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -132,115 +135,15 @@ export const CalendarPage = () => {
                 </CardHeader>
                 <CardContent>
                   {viewType === 'month' && (
-                    <>
-                      <div className="grid grid-cols-7 gap-1 mb-4">
-                        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
-                          <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                            {day}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-7 gap-1">
-                        {monthDays.map((day) => {
-                          const dayEvents = getEventsForDate(day);
-                          const isSelected = selectedDate && isSameDay(day, selectedDate);
-                          const isToday = isSameDay(day, new Date());
-
-                          return (
-                            <button
-                              key={day.toISOString()}
-                              onClick={() => setSelectedDate(isSelected ? null : day)}
-                              className={cn(
-                                'p-2 min-h-[80px] text-left border rounded-lg transition-colors',
-                                'hover:bg-accent',
-                                isSelected && 'bg-primary text-primary-foreground',
-                                isToday && !isSelected && 'bg-accent border-primary'
-                              )}
-                            >
-                              <div className="text-sm font-medium mb-1">{format(day, 'd')}</div>
-                              <div className="space-y-1">
-                                {dayEvents.slice(0, 2).map((event) => (
-                                  <div key={event.id} className="text-xs p-1 bg-primary/10 text-primary rounded truncate">
-                                    {event.title}
-                                  </div>
-                                ))}
-                                {dayEvents.length > 2 && (
-                                  <div className="text-xs text-muted-foreground">+{dayEvents.length - 2} mais</div>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
+                    <MonthView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={events as any[]} />
                   )}
 
                   {viewType === 'week' && (
-                    <>
-                      <div className="grid grid-cols-7 gap-1 mb-4">
-                        {weekDays.map((d) => (
-                          <div key={d.toISOString()} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                            {format(d, 'EEE', { locale: ptBR })} {format(d, 'd')}
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-7 gap-1">
-                        {weekDays.map((day) => {
-                          const dayEvents = getEventsForDate(day);
-                          const isSelected = selectedDate && isSameDay(day, selectedDate);
-                          const isToday = isSameDay(day, new Date());
-                          return (
-                            <button
-                              key={day.toISOString()}
-                              onClick={() => setSelectedDate(isSelected ? null : day)}
-                              className={cn(
-                                'p-2 min-h-[100px] text-left border rounded-lg transition-colors',
-                                'hover:bg-accent',
-                                isSelected && 'bg-primary text-primary-foreground',
-                                isToday && !isSelected && 'bg-accent border-primary'
-                              )}
-                            >
-                              <div className="text-sm font-medium mb-1">{format(day, 'd')}</div>
-                              <div className="space-y-1">
-                                {dayEvents.slice(0, 3).map((event) => (
-                                  <div key={event.id} className="text-xs p-1 bg-primary/10 text-primary rounded truncate">
-                                    {event.title}
-                                  </div>
-                                ))}
-                                {dayEvents.length > 3 && (
-                                  <div className="text-xs text-muted-foreground">+{dayEvents.length - 3} mais</div>
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
+                    <WeekView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={events as any[]} />
                   )}
 
                   {viewType === 'day' && (
-                    <div className="space-y-3">
-                      <div className="text-sm text-muted-foreground">
-                        {format(selectedDate ?? currentDate, "EEEE, d 'de' MMMM yyyy", { locale: ptBR })}
-                      </div>
-                      {getEventsForDate(selectedDate ?? currentDate).length === 0 ? (
-                        <div className="text-center text-muted-foreground py-6">Nenhum evento neste dia</div>
-                      ) : (
-                        getEventsForDate(selectedDate ?? currentDate).map((event) => (
-                          <div key={event.id} className="border rounded-lg p-3 space-y-2">
-                            <h4 className="font-medium">{event.title}</h4>
-                            <div className="text-sm text-muted-foreground">
-                              {format(new Date(event.start_date), 'HH:mm')} - {format(new Date(event.end_date), 'HH:mm')}
-                            </div>
-                            <div className="text-sm text-muted-foreground">Espaço: {(event as any).spaces?.name || 'N/A'}</div>
-                            <div className="text-sm">
-                              {event.event_participants?.length || 0} participante
-                              {(event.event_participants?.length || 0) !== 1 ? 's' : ''}
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
+                    <DayView date={selectedDate ?? currentDate} events={events as any[]} />
                   )}
                 </CardContent>
               </Card>
