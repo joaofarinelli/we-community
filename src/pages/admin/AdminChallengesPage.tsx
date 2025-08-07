@@ -164,7 +164,7 @@ export const AdminChallengesPage = () => {
             const challengeAnalytics = analytics?.find(a => a.id === challenge.id);
             
             return (
-              <Card key={challenge.id}>
+              <Card key={challenge.id} className="w-[291px] h-[345px] overflow-hidden">
                 {challenge.image_url && (
                   <div className="aspect-video w-full overflow-hidden rounded-t-lg">
                     <img 
