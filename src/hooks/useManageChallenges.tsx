@@ -48,6 +48,8 @@ export const useCreateChallenge = () => {
       end_date?: string;
       max_participants?: number;
       challenge_duration_days?: number;
+      challenge_duration_hours?: number;
+      deadline_type?: 'duration' | 'fixed_date';
       image_url?: string;
       is_available_for_all_levels?: boolean;
       required_level_id?: string;
@@ -99,6 +101,9 @@ export const useUpdateChallenge = () => {
         start_date: string;
         end_date: string;
         max_participants: number;
+        challenge_duration_days: number;
+        challenge_duration_hours: number;
+        deadline_type: 'duration' | 'fixed_date';
       }>
     }) => {
       const { data, error } = await supabase

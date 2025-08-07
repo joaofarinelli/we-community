@@ -14,7 +14,10 @@ interface Challenge {
   reward_type: string;
   reward_value: Record<string, any>;
   image_url?: string;
-  challenge_duration_days: number;
+  challenge_duration_days?: number;
+  challenge_duration_hours?: number;
+  deadline_type?: 'duration' | 'fixed_date';
+  end_date?: string;
   requirements: Record<string, any>;
 }
 
@@ -35,7 +38,6 @@ export const AcceptChallengeDialog = ({ challenge, open, onOpenChange }: AcceptC
     try {
       await acceptChallenge.mutateAsync({
         challengeId: challenge.id,
-        durationDays: challenge.challenge_duration_days
       });
       onOpenChange(false);
     } catch (error) {
@@ -46,8 +48,14 @@ export const AcceptChallengeDialog = ({ challenge, open, onOpenChange }: AcceptC
   };
 
   const getExpirationDate = () => {
+    if (challenge.deadline_type === 'fixed_date' && challenge.end_date) {
+      return new Date(challenge.end_date).toLocaleDateString('pt-BR');
+    }
     const expireDate = new Date();
-    expireDate.setDate(expireDate.getDate() + challenge.challenge_duration_days);
+    const days = challenge.challenge_duration_days ?? 0;
+    const hours = challenge.challenge_duration_hours ?? 0;
+    if (days) expireDate.setDate(expireDate.getDate() + days);
+    if (hours) expireDate.setHours(expireDate.getHours() + hours);
     return expireDate.toLocaleDateString('pt-BR');
   };
 
@@ -118,7 +126,9 @@ export const AcceptChallengeDialog = ({ challenge, open, onOpenChange }: AcceptC
                   <span className="font-medium">Prazo</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {challenge.challenge_duration_days} dias para completar
+                  {challenge.deadline_type === 'fixed_date'
+                    ? 'Até ' + getExpirationDate()
+                    : `${challenge.challenge_duration_days ?? 0} dias${(challenge.challenge_duration_hours ?? 0) > 0 ? ` e ${challenge.challenge_duration_hours} horas` : ''} para completar`}
                 </p>
               </CardContent>
             </Card>

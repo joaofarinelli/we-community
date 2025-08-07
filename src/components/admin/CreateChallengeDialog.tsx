@@ -23,12 +23,17 @@ export const CreateChallengeDialog = () => {
   const [rewardAmount, setRewardAmount] = useState<number>(0);
   const [digitalUrl, setDigitalUrl] = useState<string>('');
   const [maxParticipants, setMaxParticipants] = useState<number | undefined>();
-  const [endDate, setEndDate] = useState<string>('');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isAvailableForAllLevels, setIsAvailableForAllLevels] = useState<boolean>(true);
   const [requiredLevelId, setRequiredLevelId] = useState<string>('');
   const [accessTags, setAccessTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string>('');
+
+  // Deadline configuration
+  const [deadlineType, setDeadlineType] = useState<'duration' | 'fixed_date'>('duration');
+  const [durationDays, setDurationDays] = useState<number>(7);
+  const [durationHours, setDurationHours] = useState<number>(0);
+  const [endDate, setEndDate] = useState<string>('');
 
   const createChallenge = useCreateChallenge();
   const { data: levels } = useCompanyLevels();
@@ -53,7 +58,11 @@ export const CreateChallengeDialog = () => {
       reward_type: rewardType as any,
       reward_value: rewardValue,
       max_participants: maxParticipants,
-      end_date: endDate || undefined,
+      // Deadline fields
+      deadline_type: deadlineType,
+      challenge_duration_days: deadlineType === 'duration' ? durationDays : undefined,
+      challenge_duration_hours: deadlineType === 'duration' ? durationHours : undefined,
+      end_date: deadlineType === 'fixed_date' ? (endDate || undefined) : undefined,
       image_url: imageUrl || undefined,
       is_available_for_all_levels: isAvailableForAllLevels,
       required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined,
@@ -72,12 +81,15 @@ export const CreateChallengeDialog = () => {
       setRewardAmount(0);
       setDigitalUrl('');
       setMaxParticipants(undefined);
-      setEndDate('');
       setImageUrl('');
       setIsAvailableForAllLevels(true);
       setRequiredLevelId('');
       setAccessTags([]);
       setSelectedTag('');
+      setDeadlineType('duration');
+      setDurationDays(7);
+      setDurationHours(0);
+      setEndDate('');
     } catch (error) {
       console.error('Error creating challenge:', error);
     }
@@ -370,6 +382,63 @@ export const CreateChallengeDialog = () => {
             )}
           </div>
 
+          <div className="space-y-4 border rounded-lg p-4">
+            <Label>Prazo do Desafio</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Tipo de Prazo</Label>
+                <Select value={deadlineType} onValueChange={(v: 'duration' | 'fixed_date') => setDeadlineType(v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo de prazo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="duration">Após aceitar (dias/horas)</SelectItem>
+                    <SelectItem value="fixed_date">Data fixa máxima</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {deadlineType === 'duration' && (
+                <div className="grid grid-cols-2 gap-4 md:col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="durationDays">Dias</Label>
+                    <Input
+                      id="durationDays"
+                      type="number"
+                      min="0"
+                      value={durationDays}
+                      onChange={(e) => setDurationDays(Number(e.target.value))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="durationHours">Horas</Label>
+                    <Input
+                      id="durationHours"
+                      type="number"
+                      min="0"
+                      max="23"
+                      value={durationHours}
+                      onChange={(e) => setDurationHours(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {deadlineType === 'fixed_date' && (
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="endDate">Data de Término</Label>
+                  <Input
+                    id="endDate"
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="maxParticipants">Máximo de Participantes (opcional)</Label>
@@ -380,15 +449,6 @@ export const CreateChallengeDialog = () => {
                 onChange={(e) => setMaxParticipants(e.target.value ? Number(e.target.value) : undefined)}
                 min="1"
                 placeholder="Ilimitado"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">Data de Término (opcional)</Label>
-              <Input
-                id="endDate"
-                type="datetime-local"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
               />
             </div>
           </div>

@@ -32,6 +32,8 @@ export const useChallenges = () => {
           end_date,
           requirements,
           challenge_duration_days,
+          challenge_duration_hours,
+          deadline_type,
           access_tags
         `)
         .eq('is_active', true)

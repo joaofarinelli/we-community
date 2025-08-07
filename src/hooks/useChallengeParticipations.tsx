@@ -43,11 +43,37 @@ export const useAcceptChallenge = () => {
   const { data: company } = useCompany();
 
   return useMutation({
-    mutationFn: async ({ challengeId, durationDays }: { challengeId: string; durationDays: number }) => {
+    mutationFn: async ({ challengeId, durationDays }: { challengeId: string; durationDays?: number }) => {
       if (!user?.id || !company?.id) throw new Error('User not authenticated or company not found');
 
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + durationDays);
+      // Fetch challenge to determine deadline behavior
+      const { data: challenge, error: challengeError } = await supabase
+        .from('challenges')
+        .select('id, end_date, challenge_duration_days, challenge_duration_hours, deadline_type, is_active')
+        .eq('id', challengeId)
+        .single();
+
+      if (challengeError) throw challengeError;
+      if (!challenge?.is_active) throw new Error('Desafio inativo');
+
+      const now = new Date();
+      let expiresAt: Date | null = null;
+
+      if (challenge.deadline_type === 'fixed_date' && challenge.end_date) {
+        const end = new Date(challenge.end_date as string);
+        if (end <= now) throw new Error('Data limite já passou');
+        expiresAt = end;
+      } else {
+        const days = (challenge.challenge_duration_days ?? durationDays ?? 0) as number;
+        const hours = (challenge.challenge_duration_hours ?? 0) as number;
+        if ((days || 0) === 0 && (hours || 0) === 0) {
+          throw new Error('Prazo inválido para o desafio');
+        }
+        const exp = new Date(now);
+        if (days) exp.setDate(exp.getDate() + days);
+        if (hours) exp.setHours(exp.getHours() + hours);
+        expiresAt = exp;
+      }
 
       const { data, error } = await supabase
         .from('user_challenge_participations')
@@ -55,7 +81,7 @@ export const useAcceptChallenge = () => {
           challenge_id: challengeId,
           user_id: user.id,
           company_id: company.id,
-          expires_at: expiresAt.toISOString()
+          expires_at: (expiresAt as Date).toISOString()
         })
         .select()
         .single();

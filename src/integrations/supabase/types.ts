@@ -365,10 +365,12 @@ export type Database = {
         Row: {
           access_tags: string[] | null
           challenge_duration_days: number | null
+          challenge_duration_hours: number
           challenge_type: Database["public"]["Enums"]["challenge_type"]
           company_id: string
           created_at: string
           created_by: string
+          deadline_type: string
           description: string | null
           end_date: string | null
           id: string
@@ -388,10 +390,12 @@ export type Database = {
         Insert: {
           access_tags?: string[] | null
           challenge_duration_days?: number | null
+          challenge_duration_hours?: number
           challenge_type: Database["public"]["Enums"]["challenge_type"]
           company_id: string
           created_at?: string
           created_by: string
+          deadline_type?: string
           description?: string | null
           end_date?: string | null
           id?: string
@@ -411,10 +415,12 @@ export type Database = {
         Update: {
           access_tags?: string[] | null
           challenge_duration_days?: number | null
+          challenge_duration_hours?: number
           challenge_type?: Database["public"]["Enums"]["challenge_type"]
           company_id?: string
           created_at?: string
           created_by?: string
+          deadline_type?: string
           description?: string | null
           end_date?: string | null
           id?: string
