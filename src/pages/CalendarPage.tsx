@@ -43,7 +43,8 @@ export const CalendarPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-8 space-y-6">
+      <div className="w-full">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-6 w-6" />
@@ -173,6 +174,7 @@ export const CalendarPage = () => {
           </div>
         </div>
       </div>
+    </div>
     </DashboardLayout>
   );
 };
