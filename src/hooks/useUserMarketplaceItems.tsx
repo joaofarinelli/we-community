@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { useCompanyContext } from './useCompanyContext';
 
 interface CreateUserItemData {
   category_id: string;
@@ -16,11 +17,12 @@ interface CreateUserItemData {
 
 export const useUserMarketplaceItems = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['userMarketplaceItems', user?.id],
+    queryKey: ['userMarketplaceItems', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('marketplace_items')
@@ -30,37 +32,31 @@ export const useUserMarketplaceItems = () => {
         `)
         .eq('seller_id', user.id)
         .eq('seller_type', 'user')
+        .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentCompanyId,
   });
 };
 
 export const useCreateUserMarketplaceItem = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
     mutationFn: async (data: CreateUserItemData) => {
       if (!user?.id) throw new Error('User not authenticated');
-
-      // Get user's company ID
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) throw new Error('User company not found');
+      if (!currentCompanyId) throw new Error('Company context not available');
 
       const { data: result, error } = await supabase
         .from('marketplace_items')
         .insert({
           ...data,
-          company_id: profile.company_id,
+          company_id: currentCompanyId,
           created_by: user.id,
           seller_id: user.id,
           seller_type: 'user',
