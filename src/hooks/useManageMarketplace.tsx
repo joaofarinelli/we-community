@@ -22,6 +22,7 @@ interface CreateItemData {
   seller_type?: string;
   access_tags?: string[];
   item_type?: string;
+  digital_delivery_url?: string;
 }
 
 export const useCreateMarketplaceCategory = () => {

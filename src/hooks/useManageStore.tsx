@@ -13,6 +13,7 @@ interface CreateStoreItemData {
   is_featured?: boolean;
   access_tags?: string[];
   item_type?: string;
+  digital_delivery_url?: string;
   store_type: 'store';
   seller_type: 'company';
 }

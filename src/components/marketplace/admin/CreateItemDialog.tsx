@@ -32,6 +32,7 @@ interface MarketplaceItem {
   is_featured?: boolean;
   access_tags?: string[];
   item_type?: 'physical' | 'digital';
+  digital_delivery_url?: string;
 }
 
 interface CreateItemDialogProps {
@@ -51,6 +52,7 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
     is_featured: item?.is_featured || false,
     access_tags: item?.access_tags || [],
     item_type: item?.item_type || 'physical',
+    digital_delivery_url: (item as any)?.digital_delivery_url || '',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -60,28 +62,32 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
 
   const isEditing = !!item?.id;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.category_id || !formData.name || formData.price_coins === undefined) {
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  if (!formData.category_id || !formData.name || formData.price_coins === undefined) {
+    return;
+  }
+  if (formData.item_type === 'digital' && !formData.digital_delivery_url) {
+    import('sonner').then(({ toast }) => toast.error('Informe o link de entrega para produtos digitais.'));
+    return;
+  }
 
-    try {
-      if (isEditing && item?.id) {
-        await updateItem.mutateAsync({ 
-          id: item.id, 
-          data: formData as any 
-        });
-      } else {
-        await createItem.mutateAsync(formData as any);
-      }
-      onOpenChange(false);
-      setFormData({});
-    } catch (error) {
-      // Error is handled by the mutation
+  try {
+    if (isEditing && item?.id) {
+      await updateItem.mutateAsync({ 
+        id: item.id, 
+        data: formData as any 
+      });
+    } else {
+      await createItem.mutateAsync(formData as any);
     }
-  };
+    onOpenChange(false);
+    setFormData({});
+  } catch (error) {
+    // Error is handled by the mutation
+  }
+};
 
   const addTag = (tagName: string) => {
     if (!formData.access_tags?.includes(tagName)) {
@@ -99,22 +105,22 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
     }));
   };
 
-  const isLoading = createItem.isPending || updateItem.isPending;
+const isLoading = createItem.isPending || updateItem.isPending;
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? 'Editar Item' : 'Criar Novo Item'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing 
-              ? 'Edite as informações do item do marketplace.'
-              : 'Adicione um novo item ao marketplace para venda com WomanCoins.'
-            }
-          </DialogDescription>
-        </DialogHeader>
+return (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>
+          {isEditing ? 'Editar Item' : 'Criar Novo Item'}
+        </DialogTitle>
+        <DialogDescription>
+          {isEditing 
+            ? 'Edite as informações do item do marketplace.'
+            : 'Adicione um novo item ao marketplace para venda com WomanCoins.'
+          }
+        </DialogDescription>
+      </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -192,26 +198,40 @@ export const CreateItemDialog = ({ open, onOpenChange, item }: CreateItemDialogP
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Tipo de Item *</Label>
-            <RadioGroup
-              value={formData.item_type || 'physical'}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, item_type: value as 'physical' | 'digital' }))}
-              className="flex gap-6"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="physical" id="physical-admin" />
-                <Label htmlFor="physical-admin">Físico</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="digital" id="digital-admin" />
-                <Label htmlFor="digital-admin">Digital</Label>
-              </div>
-            </RadioGroup>
-            <p className="text-xs text-muted-foreground">
-              Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
-            </p>
-          </div>
+<div className="space-y-2">
+  <Label>Tipo de Item *</Label>
+  <RadioGroup
+    value={formData.item_type || 'physical'}
+    onValueChange={(value) => setFormData(prev => ({ ...prev, item_type: value as 'physical' | 'digital' }))}
+    className="flex gap-6"
+  >
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="physical" id="physical-admin" />
+      <Label htmlFor="physical-admin">Físico</Label>
+    </div>
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="digital" id="digital-admin" />
+      <Label htmlFor="digital-admin">Digital</Label>
+    </div>
+  </RadioGroup>
+  <p className="text-xs text-muted-foreground">
+    Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
+  </p>
+</div>
+
+{formData.item_type === 'digital' && (
+  <div className="space-y-2">
+    <Label htmlFor="digital_delivery_url">Link de entrega (URL) *</Label>
+    <Input
+      id="digital_delivery_url"
+      type="url"
+      value={formData.digital_delivery_url || ''}
+      onChange={(e) => setFormData(prev => ({ ...prev, digital_delivery_url: e.target.value }))}
+      placeholder="https://exemplo.com/entrega"
+      required={formData.item_type === 'digital'}
+    />
+  </div>
+)}
 
           <ImageUploader
             value={formData.image_url}

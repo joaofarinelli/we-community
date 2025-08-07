@@ -20,6 +20,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
 import { useCreateUserMarketplaceItem, useUpdateUserMarketplaceItem } from '@/hooks/useUserMarketplaceItems';
 import { ImageUploader } from '@/components/ui/image-uploader';
+import { toast } from 'sonner';
 
 interface MarketplaceItem {
   id: string;
@@ -30,6 +31,7 @@ interface MarketplaceItem {
   price_coins: number;
   stock_quantity?: number;
   item_type?: 'physical' | 'digital';
+  digital_delivery_url?: string;
 }
 
 interface CreateUserItemDialogProps {
@@ -48,6 +50,7 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
     price_coins: item?.price_coins || 0,
     stock_quantity: item?.stock_quantity || undefined,
     item_type: item?.item_type || 'physical' as 'physical' | 'digital',
+    digital_delivery_url: (item as any)?.digital_delivery_url || '',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -58,6 +61,10 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
     e.preventDefault();
     
     if (!formData.name || !formData.category_id || formData.price_coins <= 0) {
+      return;
+    }
+    if (formData.item_type === 'digital' && !formData.digital_delivery_url) {
+      toast.error('Informe o link de entrega para produtos digitais.');
       return;
     }
 
@@ -76,6 +83,7 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
         price_coins: 0,
         stock_quantity: undefined,
         item_type: 'physical',
+        digital_delivery_url: '',
       });
     } catch (error) {
       console.error('Error creating/updating item:', error);
@@ -168,6 +176,20 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
               Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
             </p>
           </div>
+
+          {formData.item_type === 'digital' && (
+            <div className="space-y-2">
+              <Label htmlFor="digital_delivery_url">Link de entrega (URL) *</Label>
+              <Input
+                id="digital_delivery_url"
+                type="url"
+                value={formData.digital_delivery_url}
+                onChange={(e) => setFormData({ ...formData, digital_delivery_url: e.target.value })}
+                placeholder="https://exemplo.com/meu-produto"
+                required={formData.item_type === 'digital'}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="stock">

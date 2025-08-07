@@ -25,6 +25,7 @@ interface MarketplaceItem {
   is_featured: boolean;
   access_tags?: string[];
   item_type?: 'physical' | 'digital';
+  digital_delivery_url?: string;
 }
 
 interface CreateStoreItemDialogProps {
@@ -44,6 +45,7 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     is_featured: false,
     access_tags: [] as string[],
     item_type: 'physical' as 'physical' | 'digital',
+    digital_delivery_url: '',
   });
 
   const { data: categories = [] } = useMarketplaceCategories();
@@ -53,59 +55,65 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
 
   const isLoading = createItem.isPending || updateItem.isPending;
 
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        category_id: item.category_id,
-        name: item.name,
-        description: item.description,
-        image_url: item.image_url,
-        price_coins: item.price_coins,
-        stock_quantity: item.stock_quantity,
-        is_featured: item.is_featured,
-        access_tags: item.access_tags || [],
-        item_type: item.item_type || 'physical',
-      });
+useEffect(() => {
+  if (item) {
+    setFormData({
+      category_id: item.category_id,
+      name: item.name,
+      description: item.description,
+      image_url: item.image_url,
+      price_coins: item.price_coins,
+      stock_quantity: item.stock_quantity,
+      is_featured: item.is_featured,
+      access_tags: item.access_tags || [],
+      item_type: item.item_type || 'physical',
+      digital_delivery_url: (item as any).digital_delivery_url || '',
+    });
+  } else {
+    setFormData({
+      category_id: '',
+      name: '',
+      description: '',
+      image_url: '',
+      price_coins: 0,
+      stock_quantity: null,
+      is_featured: false,
+      access_tags: [],
+      item_type: 'physical',
+      digital_delivery_url: '',
+    });
+  }
+}, [item, open]);
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  if (!formData.name || !formData.category_id || formData.price_coins <= 0) {
+    return;
+  }
+  if (formData.item_type === 'digital' && !formData.digital_delivery_url) {
+    import('sonner').then(({ toast }) => toast.error('Informe o link de entrega para produtos digitais.'));
+    return;
+  }
+
+  try {
+    const itemData = {
+      ...formData,
+      store_type: 'store' as const,
+      seller_type: 'company' as const,
+    };
+
+    if (item?.id) {
+      await updateItem.mutateAsync({ id: item.id, data: itemData });
     } else {
-      setFormData({
-        category_id: '',
-        name: '',
-        description: '',
-        image_url: '',
-        price_coins: 0,
-        stock_quantity: null,
-        is_featured: false,
-        access_tags: [],
-        item_type: 'physical',
-      });
+      await createItem.mutateAsync(itemData);
     }
-  }, [item, open]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
     
-    if (!formData.name || !formData.category_id || formData.price_coins <= 0) {
-      return;
-    }
-
-    try {
-      const itemData = {
-        ...formData,
-        store_type: 'store' as const,
-        seller_type: 'company' as const,
-      };
-
-      if (item?.id) {
-        await updateItem.mutateAsync({ id: item.id, data: itemData });
-      } else {
-        await createItem.mutateAsync(itemData);
-      }
-      
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error saving store item:', error);
-    }
-  };
+    onOpenChange(false);
+  } catch (error) {
+    console.error('Error saving store item:', error);
+  }
+};
 
   const addTag = (tagName: string) => {
     if (!formData.access_tags.includes(tagName)) {
@@ -123,18 +131,18 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
     }));
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Store className="h-5 w-5" />
-            {item ? 'Editar Produto da Loja' : 'Novo Produto da Loja'}
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            {item ? 'Edite as informações do produto da loja.' : 'Adicione um novo produto à loja oficial para venda com moedas.'}
-          </p>
-        </DialogHeader>
+return (
+  <Dialog open={open} onOpenChange={onOpenChange}>
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle className="flex items-center gap-2">
+          <Store className="h-5 w-5" />
+          {item ? 'Editar Produto da Loja' : 'Novo Produto da Loja'}
+        </DialogTitle>
+        <p className="text-sm text-muted-foreground">
+          {item ? 'Edite as informações do produto da loja.' : 'Adicione um novo produto à loja oficial para venda com moedas.'}
+        </p>
+      </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -191,26 +199,40 @@ export const CreateStoreItemDialog = ({ open, onOpenChange, item }: CreateStoreI
             />
           </div>
 
-          <div>
-            <Label>Tipo de Produto *</Label>
-            <RadioGroup
-              value={formData.item_type}
-              onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
-              className="flex gap-6 mt-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="physical" id="physical-store" />
-                <Label htmlFor="physical-store">Físico</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="digital" id="digital-store" />
-                <Label htmlFor="digital-store">Digital</Label>
-              </div>
-            </RadioGroup>
-            <p className="text-xs text-muted-foreground mt-1">
-              Produtos físicos requerem endereço de entrega. Produtos digitais são entregues instantaneamente.
-            </p>
-          </div>
+<div>
+  <Label>Tipo de Produto *</Label>
+  <RadioGroup
+    value={formData.item_type}
+    onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
+    className="flex gap-6 mt-2"
+  >
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="physical" id="physical-store" />
+      <Label htmlFor="physical-store">Físico</Label>
+    </div>
+    <div className="flex items-center space-x-2">
+      <RadioGroupItem value="digital" id="digital-store" />
+      <Label htmlFor="digital-store">Digital</Label>
+    </div>
+  </RadioGroup>
+  <p className="text-xs text-muted-foreground mt-1">
+    Produtos físicos requerem endereço de entrega. Produtos digitais são entregues instantaneamente.
+  </p>
+</div>
+
+{formData.item_type === 'digital' && (
+  <div>
+    <Label htmlFor="digital_delivery_url">Link de entrega (URL) *</Label>
+    <Input
+      id="digital_delivery_url"
+      type="url"
+      value={formData.digital_delivery_url}
+      onChange={(e) => setFormData({ ...formData, digital_delivery_url: e.target.value })}
+      placeholder="https://exemplo.com/entrega"
+      required={formData.item_type === 'digital'}
+    />
+  </div>
+)}
 
           <div>
             <Label htmlFor="stock">

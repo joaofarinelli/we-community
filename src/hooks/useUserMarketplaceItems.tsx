@@ -11,6 +11,7 @@ interface CreateUserItemData {
   price_coins: number;
   stock_quantity?: number;
   item_type?: string;
+  digital_delivery_url?: string;
 }
 
 export const useUserMarketplaceItems = () => {
