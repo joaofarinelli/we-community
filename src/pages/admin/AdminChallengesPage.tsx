@@ -164,9 +164,9 @@ export const AdminChallengesPage = () => {
             const challengeAnalytics = analytics?.find(a => a.id === challenge.id);
             
             return (
-              <Card key={challenge.id} className="w-[291px] h-[345px] overflow-hidden">
+              <Card key={challenge.id} className="w-[291px] h-[345px] overflow-hidden flex flex-col">
                 {challenge.image_url && (
-                  <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+                  <div className="w-full h-24 overflow-hidden rounded-t-lg">
                     <img 
                       src={challenge.image_url} 
                       alt={challenge.title}
@@ -216,7 +216,7 @@ export const AdminChallengesPage = () => {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 flex-1 overflow-y-auto pr-2">
                   {challenge.description && (
                     <p className="text-sm text-muted-foreground">{challenge.description}</p>
                   )}
