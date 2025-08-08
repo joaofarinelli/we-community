@@ -210,7 +210,7 @@ export const UserProfileDialog = ({
                 <div>
                   <h3 className="text-base md:text-lg font-semibold mb-2 md:mb-3">Biografia</h3>
                   <p className="text-sm md:text-base text-muted-foreground">
-                    {userProfile?.first_name && userProfile?.last_name ? `${userProfile.first_name} ${userProfile.last_name}` : 'Nenhuma biografia adicionada ainda.'}
+                    {userProfile?.bio?.trim() ? userProfile.bio : 'Nenhuma biografia adicionada ainda.'}
                   </p>
                 </div>
 
