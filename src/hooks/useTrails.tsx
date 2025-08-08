@@ -188,28 +188,78 @@ export const useJoinTrail = () => {
     }) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
+      // Ensure company context is set for multi-company users
+      console.debug('useJoinTrail: setting context', {
+        userId: user.id,
+        companyId: currentCompanyId,
+        templateId: trailData.template_id,
+      });
+      try {
+        await supabase.rpc('set_current_company_context', {
+          p_company_id: currentCompanyId,
+        });
+      } catch (e) {
+        console.warn('useJoinTrail: set_current_company_context failed (continuing)', e);
+      }
+
+      // Pre-check to avoid duplicate start for same template/company/user
+      const { data: existing } = await supabase
+        .from('trails')
+        .select('id, status, created_at')
+        .eq('company_id', currentCompanyId)
+        .eq('user_id', user.id)
+        .eq('template_id', trailData.template_id)
+        .limit(1)
+        .maybeSingle();
+
+      if (existing) {
+        // Already started in this company
+        return { trail: existing, alreadyExisted: true } as const;
+      }
+
+      // Idempotent insert: if a race happens, upsert will update the existing row
       const { data, error } = await supabase
         .from('trails')
-        .insert({
-          ...trailData,
-          company_id: currentCompanyId,
-          user_id: user.id,
-          created_by: user.id,
-          status: 'active',
-        })
+        .upsert(
+          {
+            ...trailData,
+            company_id: currentCompanyId,
+            user_id: user.id,
+            created_by: user.id,
+            status: 'active',
+          },
+          { onConflict: 'user_id,template_id,company_id' }
+        )
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+      return { trail: data, alreadyExisted: false } as const;
     },
-    onSuccess: () => {
+    onSuccess: (result: any) => {
       queryClient.invalidateQueries({ queryKey: ['trails'] });
       queryClient.invalidateQueries({ queryKey: ['user-trail-participations'] });
-      toast.success('Você iniciou a trilha com sucesso!');
+      if (result?.alreadyExisted) {
+        toast.info('Você já iniciou esta trilha nesta empresa.');
+      } else {
+        toast.success('Você iniciou a trilha com sucesso!');
+      }
     },
     onError: (error: any) => {
-      toast.error('Erro ao iniciar trilha: ' + error.message);
+      const msg = String(error?.message || '');
+      if (error?.code === '23505' || /duplicate key value|unique_user_trail_template/i.test(msg)) {
+        toast.info('Você já iniciou esta trilha nesta empresa.');
+        console.debug('useJoinTrail duplicate detected', {
+          userId: user?.id,
+          companyId: currentCompanyId,
+        });
+        return;
+      }
+      toast.error('Erro ao iniciar trilha: ' + msg);
+      console.debug('useJoinTrail error context', {
+        userId: user?.id,
+        companyId: currentCompanyId,
+      });
     },
   });
 };
