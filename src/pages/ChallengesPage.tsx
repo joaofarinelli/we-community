@@ -240,11 +240,11 @@ export const ChallengesPage = () => {
                     >
                       <CardContent className="p-3 flex-1 overflow-hidden">
                         {challenge.image_url && (
-                          <div className="h-24 bg-muted rounded-md mb-2 overflow-hidden">
-                            <img
-                              src={challenge.image_url}
+                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={challenge.image_url} 
                               alt={challenge.title}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover rounded-lg"
                             />
                           </div>
                         )}
@@ -286,7 +286,20 @@ export const ChallengesPage = () => {
                           </div>
                         </div>
                       </CardContent>
-                      
+                      <CardFooter className="p-3 pt-0">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewChallenge(challenge);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
+                      </CardFooter>
                     </Card>
                   );
                 })}
@@ -318,11 +331,11 @@ export const ChallengesPage = () => {
                     >
                       <CardContent className="p-3 flex-1 overflow-hidden">
                         {challenge.image_url && (
-                          <div className="h-24 bg-muted rounded-md mb-2 overflow-hidden">
+                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             <img
                               src={challenge.image_url}
                               alt={challenge.title}
-                              className="w-full h-full object-cover opacity-75"
+                              className="w-full h-full object-cover rounded-lg opacity-75"
                             />
                           </div>
                         )}
@@ -362,7 +375,20 @@ export const ChallengesPage = () => {
 
                         </div>
                       </CardContent>
-                      
+                      <CardFooter className="p-3 pt-0">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewChallenge(challenge);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
+                      </CardFooter>
                     </Card>
                   );
                 })}
