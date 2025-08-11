@@ -28,7 +28,7 @@ import { AdminUserEditPage } from "./pages/admin/AdminUserEditPage";
 import { AdminProfileFieldsPage } from "./pages/admin/AdminProfileFieldsPage";
 import { CoursesPage } from "./pages/CoursesPage";
 import { InviteAcceptPage } from "./pages/InviteAcceptPage";
-
+import { CertificatesPage } from "./pages/CertificatesPage";
 import { ModuleDetailPage } from "./pages/ModuleDetailPage";
 import { LessonPlayerPage } from "./pages/LessonPlayerPage";
 import { AdminCoursesPage } from "./pages/admin/AdminCoursesPage";
@@ -129,6 +129,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/trails" element={<AuthGuard><TrailsPage /></AuthGuard>} />
         <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
         <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
+        <Route path="/dashboard/certificates" element={<AuthGuard><CertificatesPage /></AuthGuard>} />
         <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
         <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
         <Route path="/admin/content/posts" element={<AuthGuard><AdminContentPostsPage /></AuthGuard>} />
