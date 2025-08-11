@@ -19,6 +19,7 @@ import { CourseSidebar } from '@/components/courses/CourseSidebar';
 import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
 import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton';
 import { LessonCompletionReward } from '@/components/courses/LessonCompletionReward';
+import { CertificateDialog } from '@/components/courses/CertificateDialog';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -30,6 +31,7 @@ export const LessonPlayerPage = () => {
   const [isCompleting, setIsCompleting] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [completionRewards, setCompletionRewards] = useState<any>(null);
+  const [certificateOpen, setCertificateOpen] = useState(false);
   
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
@@ -45,6 +47,10 @@ export const LessonPlayerPage = () => {
   const currentLessonIndex = lessons?.findIndex(l => l.id === lessonId) ?? -1;
   const nextLesson = lessons?.[currentLessonIndex + 1];
   const prevLesson = lessons?.[currentLessonIndex - 1];
+
+  const isLastLessonInModule = !!lessons && lessons.length > 0 && currentLessonIndex === lessons.length - 1;
+  const isLastModuleInCourse = !!modules && modules.length > 0 && modules[modules.length - 1]?.id === moduleId;
+  const isLastLessonOfCourse = Boolean(isLastLessonInModule && isLastModuleInCourse);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -203,14 +209,34 @@ export const LessonPlayerPage = () => {
                     </Badge>
                   )}
                   
-                  <Button
-                    onClick={handleNextLesson}
-                    disabled={!nextLesson}
-                    variant="outline"
-                  >
-                    Próxima
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  {isLastLessonOfCourse ? (
+                    course?.certificate_enabled ? (
+                      <Button
+                        onClick={() => setCertificateOpen(true)}
+                        variant="outline"
+                      >
+                        Emitir Certificado
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => navigate('/courses')}
+                        variant="outline"
+                      >
+                        Finalizar
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    )
+                  ) : (
+                    <Button
+                      onClick={handleNextLesson}
+                      disabled={!nextLesson}
+                      variant="outline"
+                    >
+                      Próxima
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -305,6 +331,13 @@ export const LessonPlayerPage = () => {
             rewards={completionRewards}
           />
         )}
+
+        {/* Certificate Dialog */}
+        <CertificateDialog
+          open={certificateOpen}
+          onOpenChange={setCertificateOpen}
+          courseId={courseId!}
+        />
       </div>
     </DashboardLayout>
   );
