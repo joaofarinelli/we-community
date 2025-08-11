@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from '@/components/ui/use-toast';
 
 interface TransferCoinsParams {
@@ -11,26 +12,30 @@ interface TransferCoinsParams {
 
 export const useTransferCoins = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ toUserId, amount, message }: TransferCoinsParams) => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user) throw new Error('Usuário não autenticado');
+      if (!currentCompanyId) throw new Error('Selecione uma empresa para realizar a transferência.');
 
-      // Get user's company ID
-      const { data: profile } = await supabase
+      // Validate that the user has a profile in the current company
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('company_id')
+        .select('id, company_id')
         .eq('user_id', user.id)
-        .single();
+        .eq('company_id', currentCompanyId)
+        .maybeSingle();
 
-      if (!profile) throw new Error('Profile not found');
+      if (profileError) throw profileError;
+      if (!profile) throw new Error('Perfil não encontrado para a empresa atual.');
 
       // Call the transfer function
       const { data, error } = await supabase.rpc('transfer_user_coins', {
         p_from_user_id: user.id,
         p_to_user_id: toUserId,
-        p_company_id: profile.company_id,
+        p_company_id: currentCompanyId,
         p_coins: amount,
         p_reference_id: null
       });
