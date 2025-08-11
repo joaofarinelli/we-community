@@ -3146,6 +3146,10 @@ export type Database = {
         Args: { space_id: string; user_id: string }
         Returns: boolean
       }
+      check_course_completion: {
+        Args: { p_user_id: string; p_course_id: string }
+        Returns: boolean
+      }
       check_module_completion: {
         Args: { p_user_id: string; p_module_id: string }
         Returns: boolean

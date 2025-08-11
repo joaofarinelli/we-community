@@ -1,9 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
 export const useUserCourseProgress = (courseId?: string) => {
   const { user } = useAuth();
+  useSupabaseContext();
   
   return useQuery({
     queryKey: ['user-course-progress', user?.id, courseId],
@@ -39,6 +41,7 @@ export const useUserCourseProgress = (courseId?: string) => {
 export const useMarkLessonComplete = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  useSupabaseContext();
 
   return useMutation({
     mutationFn: async ({ lessonId, moduleId, courseId }: { 
@@ -119,9 +122,9 @@ const calculateCompletionRewards = async (
 
     // Check if course is now completed  
     const { data: courseCompleted } = await supabase
-      .rpc('check_module_completion', {
+      .rpc('check_course_completion', {
         p_user_id: userId,
-        p_module_id: courseId
+        p_course_id: courseId
       });
 
     if (courseCompleted) {
