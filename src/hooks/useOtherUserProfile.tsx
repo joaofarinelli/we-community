@@ -30,7 +30,7 @@ export const useOtherUserProfile = (userId: string) => {
   return useQuery({
     queryKey: ['other-user-profile', userId, user?.id, currentCompanyId],
     queryFn: async (): Promise<OtherUserProfile | null> => {
-      if (!user || !userId || userId === user.id || !currentCompanyId) return null;
+      if (!user || !userId || !currentCompanyId) return null;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -64,13 +64,17 @@ export const useOtherUserProfile = (userId: string) => {
 
       // Apply privacy settings
       if (data) {
+        const isSelf = user.id === userId;
+        if (isSelf) {
+          return data;
+        }
         // Check if user is admin/owner to bypass privacy settings
         const { data: currentUserProfile } = await supabase
           .from('profiles')
           .select('role')
           .eq('user_id', user.id)
           .eq('company_id', currentCompanyId)
-          .single();
+          .maybeSingle();
         
         const isAdmin = currentUserProfile?.role === 'admin' || currentUserProfile?.role === 'owner';
         
@@ -84,7 +88,7 @@ export const useOtherUserProfile = (userId: string) => {
 
       return data;
     },
-    enabled: !!user && !!userId && userId !== user.id && !!currentCompanyId,
+    enabled: !!user && !!userId && !!currentCompanyId,
   });
 };
 
