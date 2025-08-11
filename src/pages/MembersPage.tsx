@@ -90,75 +90,77 @@ export const MembersPage = () => {
   );
 
   const MemberCard = ({ member }: { member: any }) => (
-    <MemberHoverCard member={member}>
-      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center text-center space-y-4">
-            <Avatar className="h-20 w-20">
-              <AvatarImage 
-                src={member.avatar_url || ''} 
-                alt={member.display_name}
-                className="object-cover"
-              />
-              <AvatarFallback className="text-lg">
-                {getUserInitials(member.display_name, member.email)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="space-y-2">
-              <h3 className="font-semibold text-lg">
-                {member.display_name || 'Nome não disponível'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {member.profession || 'Profissão não informada'}
-              </p>
-            </div>
-
-            <div className="text-xs text-muted-foreground">
-              Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
-            </div>
+    <Card
+      className="overflow-hidden cursor-pointer"
+      onClick={() => handleViewProfile(member.user_id)}
+    >
+      <CardContent className="p-6">
+        <div className="flex flex-col items-center text-center space-y-4">
+          <Avatar className="h-20 w-20">
+            <AvatarImage 
+              src={member.avatar_url || ''} 
+              alt={member.display_name}
+              className="object-cover"
+            />
+            <AvatarFallback className="text-lg">
+              {getUserInitials(member.display_name, member.email)}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg">
+              {member.display_name || 'Nome não disponível'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {member.profession || 'Profissão não informada'}
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </MemberHoverCard>
+
+          <div className="text-xs text-muted-foreground">
+            Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   const MemberListItem = ({ member }: { member: any }) => (
-    <MemberHoverCard member={member}>
-      <Card className="cursor-pointer hover:shadow-md transition-shadow">
-        <CardContent className="p-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage 
-                src={member.avatar_url} 
-                alt={member.display_name}
-                className="object-cover"
-              />
-              <AvatarFallback>
-                {getUserInitials(member.display_name, member.email)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium truncate">
-                    {member.display_name || 'Nome não disponível'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {member.profession || 'Profissão não informada'}
-                  </p>
-                </div>
-                
-                <div className="text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(member.created_at).toLocaleDateString('pt-BR')}
-                </div>
+    <Card
+      className="cursor-pointer"
+      onClick={() => handleViewProfile(member.user_id)}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-12 w-12">
+            <AvatarImage 
+              src={member.avatar_url} 
+              alt={member.display_name}
+              className="object-cover"
+            />
+            <AvatarFallback>
+              {getUserInitials(member.display_name, member.email)}
+            </AvatarFallback>
+          </Avatar>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium truncate">
+                  {member.display_name || 'Nome não disponível'}
+                </h3>
+                <p className="text-sm text-muted-foreground truncate">
+                  {member.profession || 'Profissão não informada'}
+                </p>
+              </div>
+              
+              <div className="text-xs text-muted-foreground whitespace-nowrap">
+                {new Date(member.created_at).toLocaleDateString('pt-BR')}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </MemberHoverCard>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   return (
