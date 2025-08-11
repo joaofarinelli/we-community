@@ -141,7 +141,7 @@ export const LessonPlayerPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex gap-4">
+        <div className="flex gap-4">
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Video/Content Player */}
@@ -216,7 +216,7 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Tabs Content */}
-            <div className="flex-1">
+            <div>
               <Tabs defaultValue="description" className="flex flex-col">
                 <TabsList className="w-full justify-start rounded-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-12 sticky top-0 z-10">
                   <TabsTrigger value="description" className="gap-2">
