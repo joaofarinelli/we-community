@@ -112,7 +112,7 @@ export const LessonPlayerPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex flex-col min-h-[calc(100vh-4rem)]">
         {/* Fixed Header */}
         <div className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between p-4">
@@ -141,7 +141,7 @@ export const LessonPlayerPage = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden gap-4">
+        <div className="flex-1 flex gap-4">
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Video/Content Player */}
@@ -216,9 +216,9 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Tabs Content */}
-            <div className="flex-1 overflow-hidden">
-              <Tabs defaultValue="description" className="h-full flex flex-col">
-                <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12">
+            <div className="flex-1">
+              <Tabs defaultValue="description" className="flex flex-col">
+                <TabsList className="w-full justify-start rounded-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-12 sticky top-0 z-10">
                   <TabsTrigger value="description" className="gap-2">
                     <BookOpen className="h-4 w-4" />
                     Descrição
@@ -237,7 +237,7 @@ export const LessonPlayerPage = () => {
                   </TabsTrigger>
                 </TabsList>
                 
-                <div className="flex-1 overflow-y-auto">
+                <div>
                   <TabsContent value="description" className="p-4 m-0">
                     <div className="space-y-4">
                       {lesson.description && (
@@ -281,8 +281,8 @@ export const LessonPlayerPage = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-80 border-l bg-background/50 hidden lg:block">
-            <div className="h-full overflow-y-auto p-4">
+          <div className="w-80 border-l bg-background/50 hidden lg:block sticky top-4 self-start">
+            <div className="p-4">
               <div className="mb-4">
                 <h3 className="font-semibold text-sm mb-2">Módulos do Curso</h3>
                 <p className="text-xs text-muted-foreground mb-4">{course.title}</p>
