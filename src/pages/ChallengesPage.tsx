@@ -170,7 +170,7 @@ export const ChallengesPage = () => {
             <div className="flex flex-wrap gap-6">
               {[...Array(6)].map((_, i) => (
                 <Card key={i} className="animate-pulse w-[291px] h-[345px]">
-                  <CardContent className="p-6">
+                  <CardContent className="p-4">
                     <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
                     <div className="h-3 bg-muted rounded w-1/2"></div>
                   </CardContent>
@@ -238,7 +238,7 @@ export const ChallengesPage = () => {
                       className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-3 flex-1 overflow-hidden">
+                      <CardContent className="p-4 flex-1 overflow-hidden">
                         {challenge.image_url && (
                           <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             <img 
@@ -286,7 +286,7 @@ export const ChallengesPage = () => {
                           </div>
                         </div>
                       </CardContent>
-                      <CardFooter className="p-3 pt-0">
+                      <CardFooter className="p-4 pt-0">
                         <Button 
                           variant="outline" 
                           size="sm" 
@@ -329,7 +329,7 @@ export const ChallengesPage = () => {
                       className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow border-green-200 bg-green-50/50"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-3 flex-1 overflow-hidden">
+                      <CardContent className="p-4 flex-1 overflow-hidden">
                         {challenge.image_url && (
                           <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             <img
@@ -375,7 +375,7 @@ export const ChallengesPage = () => {
 
                         </div>
                       </CardContent>
-                      <CardFooter className="p-3 pt-0">
+                      <CardFooter className="p-4 pt-0">
                         <Button 
                           variant="outline" 
                           size="sm" 
