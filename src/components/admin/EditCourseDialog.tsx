@@ -22,7 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { BookOpen, Loader2, Settings } from 'lucide-react';
+import { BookOpen, Loader2, Settings, Stamp } from 'lucide-react';
 import { useUpdateCourse } from '@/hooks/useManageCourses';
 
 const courseSchema = z.object({
@@ -30,6 +30,12 @@ const courseSchema = z.object({
   description: z.string().optional(),
   thumbnail_url: z.string().optional(),
   is_active: z.boolean(),
+  certificate_enabled: z.boolean().optional(),
+  mentor_name: z.string().optional(),
+  mentor_role: z.string().optional(),
+  mentor_signature_url: z.string().optional(),
+  certificate_background_url: z.string().optional(),
+  certificate_footer_text: z.string().optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -51,6 +57,12 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
       description: '',
       thumbnail_url: '',
       is_active: true,
+      certificate_enabled: false,
+      mentor_name: '',
+      mentor_role: '',
+      mentor_signature_url: '',
+      certificate_background_url: '',
+      certificate_footer_text: '',
     }
   });
 
@@ -61,6 +73,12 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         description: course.description || '',
         thumbnail_url: course.thumbnail_url || '',
         is_active: course.is_active ?? true,
+        certificate_enabled: course.certificate_enabled ?? false,
+        mentor_name: course.mentor_name || '',
+        mentor_role: course.mentor_role || '',
+        mentor_signature_url: course.mentor_signature_url || '',
+        certificate_background_url: course.certificate_background_url || '',
+        certificate_footer_text: course.certificate_footer_text || '',
       });
     }
   }, [course, form]);
@@ -76,7 +94,13 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         description: data.description || undefined,
         thumbnail_url: data.thumbnail_url || undefined,
         is_active: data.is_active,
-      });
+        certificate_enabled: data.certificate_enabled ?? false,
+        mentor_name: data.mentor_name || null,
+        mentor_role: data.mentor_role || null,
+        mentor_signature_url: data.mentor_signature_url || null,
+        certificate_background_url: data.certificate_background_url || null,
+        certificate_footer_text: data.certificate_footer_text || null,
+      } as any);
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating course:', error);
@@ -87,7 +111,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -101,7 +125,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Basic Information Section */}
             <div className="space-y-4">
               <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
@@ -175,6 +199,119 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
                   </FormItem>
                 )}
               />
+            </div>
+
+            {/* Certificado */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <Stamp className="h-4 w-4" />
+                Certificado
+              </div>
+
+              <FormField
+                control={form.control}
+                name="certificate_enabled"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-medium">Habilitar Certificado</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Ao habilitar, usuárias que concluírem o curso poderão emitir um certificado.
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {form.watch('certificate_enabled') && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="mentor_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nome do Mentor(a)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Maria Silva" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="mentor_role"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cargo/Título do Mentor(a)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Coordenadora de Formação" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="mentor_signature_url"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Assinatura do Mentor(a)</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            onRemove={() => field.onChange('')}
+                            bucketName="course-thumbnails"
+                            maxSizeKB={2048}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="certificate_background_url"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Fundo do Certificado (opcional)</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value || ''}
+                            onChange={field.onChange}
+                            onRemove={() => field.onChange('')}
+                            bucketName="course-thumbnails"
+                            maxSizeKB={4096}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="certificate_footer_text"
+                    render={({ field }) => (
+                      <FormItem className="sm:col-span-2">
+                        <FormLabel>Texto de Rodapé (opcional)</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Informações adicionais, observações legais, etc."
+                            rows={3}
+                            className="resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Settings Section */}

@@ -8,6 +8,7 @@ import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
 import { ArrowLeft, BookOpen, Clock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import CertificateDialog from '@/components/courses/CertificateDialog';
 
 export const ModuleDetailPage = () => {
   const { courseId, moduleId } = useParams<{ courseId: string; moduleId: string }>();
@@ -41,10 +42,12 @@ export const ModuleDetailPage = () => {
     );
   }
 
+  // Local state for dialog
+  const [certOpen, setCertOpen] = useState(false);
+
   return (
     <DashboardLayout>
       <div className="p-8 space-y-6">
-
         {/* Back Button */}
         <div className="flex items-center gap-4">
           <Button
@@ -56,6 +59,13 @@ export const ModuleDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Voltar ao Curso
           </Button>
+
+          {/* Mostrar ação de certificado quando habilitado no curso */}
+          {(course as any)?.certificate_enabled && (
+            <Button variant="outline" size="sm" onClick={() => setCertOpen(true)}>
+              Certificado
+            </Button>
+          )}
         </div>
 
         {/* Module Info */}
@@ -133,6 +143,15 @@ export const ModuleDetailPage = () => {
             </div>
           )}
         </div>
+
+        {/* Certificate Dialog */}
+        {(course as any)?.certificate_enabled && courseId && (
+          <CertificateDialog
+            open={certOpen}
+            onOpenChange={setCertOpen}
+            courseId={courseId}
+          />
+        )}
       </div>
     </DashboardLayout>
   );
