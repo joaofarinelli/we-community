@@ -167,9 +167,9 @@ export const ChallengesPage = () => {
                 Complete desafios e ganhe recompensas incríveis!
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex flex-wrap gap-6">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="animate-pulse w-[291px] h-[345px]">
                   <CardContent className="p-6">
                     <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
                     <div className="h-3 bg-muted rounded w-1/2"></div>
@@ -225,7 +225,7 @@ export const ChallengesPage = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex flex-wrap gap-6">
                 {activeChallenges.map((challenge) => {
                   const userProgress = progressMap[challenge.id];
                   const progressValue = userProgress?.progress_value || 0;
@@ -235,10 +235,10 @@ export const ChallengesPage = () => {
                   return (
                     <Card 
                       key={challenge.id} 
-                      className="h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+                      className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-4 flex-1">
+                      <CardContent className="p-4 flex-1 overflow-auto">
                         {challenge.image_url && (
                           <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             <img 
@@ -337,17 +337,17 @@ export const ChallengesPage = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex flex-wrap gap-6">
                 {completedChallenges.map((challenge) => {
                   const userProgress = progressMap[challenge.id];
 
                   return (
                     <Card 
                       key={challenge.id} 
-                      className="h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow border-green-200 bg-green-50/50"
+                      className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow border-green-200 bg-green-50/50"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-4 flex-1">
+                      <CardContent className="p-4 flex-1 overflow-auto">
                         {challenge.image_url && (
                           <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
                             <img 
