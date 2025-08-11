@@ -14,27 +14,36 @@ export const useAccountStats = () => {
 
       // Using current company context; no profile lookup needed
 
-      // Get transactions for the last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
+      // Fetch all transactions for the user/company (lifetime)
       const { data: transactions, error } = await supabase
         .from('point_transactions')
         .select('coins, action_type, created_at')
         .eq('user_id', user.id)
         .eq('company_id', currentCompanyId)
-        .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Calculate stats
-      const totalEarned = transactions
+      // Lifetime totals
+      const totalIn = transactions
         ?.filter(t => t.coins > 0)
         .reduce((sum, t) => sum + t.coins, 0) || 0;
 
-      const totalSpent = transactions
+      const totalOut = transactions
         ?.filter(t => t.coins < 0)
+        .reduce((sum, t) => sum + Math.abs(t.coins), 0) || 0;
+
+      // Last 30 days metrics (for header trend)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recent = transactions?.filter(t => new Date(t.created_at) >= thirtyDaysAgo) || [];
+
+      const totalEarned = recent
+        .filter(t => t.coins > 0)
+        .reduce((sum, t) => sum + t.coins, 0) || 0;
+
+      const totalSpent = recent
+        .filter(t => t.coins < 0)
         .reduce((sum, t) => sum + Math.abs(t.coins), 0) || 0;
 
       const transfersSent = transactions
@@ -46,6 +55,8 @@ export const useAccountStats = () => {
         .reduce((sum, t) => sum + t.coins, 0) || 0;
 
       return {
+        totalIn,
+        totalOut,
         totalEarned,
         totalSpent,
         transfersSent,

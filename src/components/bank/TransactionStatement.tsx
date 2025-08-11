@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 export const TransactionStatement = () => {
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [period, setPeriod] = useState('30');
+  const [period, setPeriod] = useState('month');
   
   const { data: transactions, isLoading } = usePointsHistory(undefined, 100);
 
@@ -64,12 +64,37 @@ export const TransactionStatement = () => {
     }
 
     // Period filter
-    const daysAgo = parseInt(period);
     const transactionDate = new Date(transaction.created_at);
-    const limitDate = new Date();
-    limitDate.setDate(limitDate.getDate() - daysAgo);
-    
-    if (transactionDate < limitDate) return false;
+    let startDate: Date | null = null;
+
+    switch (period) {
+      case 'month': {
+        const d = new Date();
+        startDate = new Date(d.getFullYear(), d.getMonth(), 1);
+        break;
+      }
+      case '60': {
+        const d = new Date();
+        d.setDate(d.getDate() - 60);
+        startDate = d;
+        break;
+      }
+      case '90': {
+        const d = new Date();
+        d.setDate(d.getDate() - 90);
+        startDate = d;
+        break;
+      }
+      case 'year': {
+        const d = new Date();
+        startDate = new Date(d.getFullYear(), 0, 1);
+        break;
+      }
+      default:
+        startDate = null;
+    }
+
+    if (startDate && transactionDate < startDate) return false;
 
     return true;
   }) || [];
@@ -131,10 +156,10 @@ export const TransactionStatement = () => {
                 <SelectValue placeholder="Período" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7">Últimos 7 dias</SelectItem>
-                <SelectItem value="30">Últimos 30 dias</SelectItem>
+                <SelectItem value="month">Mês atual</SelectItem>
+                <SelectItem value="60">Últimos 60 dias</SelectItem>
                 <SelectItem value="90">Últimos 90 dias</SelectItem>
-                <SelectItem value="365">Último ano</SelectItem>
+                <SelectItem value="year">Ano atual</SelectItem>
               </SelectContent>
             </Select>
           </div>

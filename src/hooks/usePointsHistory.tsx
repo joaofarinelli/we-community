@@ -1,27 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const usePointsHistory = (userId?: string, limit: number = 20) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['pointsHistory', targetUserId, limit],
+    queryKey: ['pointsHistory', targetUserId, currentCompanyId, limit],
     queryFn: async () => {
-      if (!targetUserId) return [];
+      if (!targetUserId || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('point_transactions')
         .select('*')
         .eq('user_id', targetUserId)
+        .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false })
         .limit(limit);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && !!currentCompanyId,
   });
 };
 

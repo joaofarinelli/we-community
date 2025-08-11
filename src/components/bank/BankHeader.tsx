@@ -78,7 +78,7 @@ export const BankHeader = () => {
                 <div>
                   <p className="text-sm font-medium text-green-800">Recebido</p>
                   <p className="text-lg font-bold text-green-700">
-                    {stats?.transfersReceived.toLocaleString() || 0}
+                    {(stats?.totalIn ?? 0).toLocaleString()}
                   </p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export const BankHeader = () => {
                 <div>
                   <p className="text-sm font-medium text-blue-800">Enviado</p>
                   <p className="text-lg font-bold text-blue-700">
-                    {stats?.transfersSent.toLocaleString() || 0}
+                    {(stats?.totalOut ?? 0).toLocaleString()}
                   </p>
                 </div>
               </div>
