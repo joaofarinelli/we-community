@@ -238,18 +238,18 @@ export const ChallengesPage = () => {
                       className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-4 flex-1 overflow-auto">
+                      <CardContent className="p-3 flex-1 overflow-hidden">
                         {challenge.image_url && (
-                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                            <img 
-                              src={challenge.image_url} 
+                          <div className="h-24 bg-muted rounded-md mb-2 overflow-hidden">
+                            <img
+                              src={challenge.image_url}
                               alt={challenge.title}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                             />
                           </div>
                         )}
                         
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-2">
                               <div className="p-1.5 bg-primary/10 rounded-lg">
@@ -280,44 +280,13 @@ export const ChallengesPage = () => {
                             </div>
                           </div>
 
-                          {challenge.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">{challenge.description}</p>
-                          )}
-
                           <div className="space-y-2">
-                            <div className="flex justify-between text-xs">
-                              <span>Progresso</span>
-                              <span>{progressValue}/{targetValue}</span>
-                            </div>
-                            <Progress value={progressPercent} className="h-2" />
-                            <p className="text-xs text-muted-foreground">
-                              {progressPercent.toFixed(1)}% concluído
-                            </p>
+                            <Progress value={progressPercent} className="h-1.5" />
+                            <div className="text-[11px] text-muted-foreground">{progressPercent.toFixed(1)}%</div>
                           </div>
-
-                          {challenge.end_date && (
-                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>Termina em {new Date(challenge.end_date).toLocaleDateString()}</span>
-                            </div>
-                          )}
                         </div>
                       </CardContent>
                       
-                      <CardFooter className="p-4 pt-0">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewChallenge(challenge);
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver Detalhes
-                        </Button>
-                      </CardFooter>
                     </Card>
                   );
                 })}
@@ -347,18 +316,18 @@ export const ChallengesPage = () => {
                       className="w-[291px] h-[345px] flex flex-col cursor-pointer hover:shadow-md transition-shadow border-green-200 bg-green-50/50"
                       onClick={() => handleViewChallenge(challenge)}
                     >
-                      <CardContent className="p-4 flex-1 overflow-auto">
+                      <CardContent className="p-3 flex-1 overflow-hidden">
                         {challenge.image_url && (
-                          <div className="aspect-video bg-muted rounded-lg mb-3 flex items-center justify-center overflow-hidden">
-                            <img 
-                              src={challenge.image_url} 
+                          <div className="h-24 bg-muted rounded-md mb-2 overflow-hidden">
+                            <img
+                              src={challenge.image_url}
                               alt={challenge.title}
-                              className="w-full h-full object-cover rounded-lg opacity-75"
+                              className="w-full h-full object-cover opacity-75"
                             />
                           </div>
                         )}
                         
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <div className="flex items-start justify-between">
                             <div className="flex items-center space-x-2">
                               <div className="p-1.5 bg-green-100 rounded-lg">
@@ -389,40 +358,11 @@ export const ChallengesPage = () => {
                             </div>
                           </div>
 
-                          {challenge.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">{challenge.description}</p>
-                          )}
+                          <div className="text-[11px] text-green-600 font-medium">✓ Desafio concluído</div>
 
-                          <div className="space-y-2">
-                            <Progress value={100} className="h-2" />
-                            <p className="text-xs text-green-600 font-medium">
-                              ✓ Desafio concluído!
-                            </p>
-                          </div>
-
-                          {userProgress?.completed_at && (
-                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>Concluído em {new Date(userProgress.completed_at).toLocaleDateString()}</span>
-                            </div>
-                          )}
                         </div>
                       </CardContent>
                       
-                      <CardFooter className="p-4 pt-0">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewChallenge(challenge);
-                          }}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          Ver Detalhes
-                        </Button>
-                      </CardFooter>
                     </Card>
                   );
                 })}
