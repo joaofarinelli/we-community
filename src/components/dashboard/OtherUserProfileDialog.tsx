@@ -236,7 +236,7 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                   {userProfile.is_active ? 'Ativo' : 'Inativo'}
                 </Badge>
                 
-                {userProfile.role && (
+                {userProfile.role && userProfile.role !== 'owner' && (
                   <Badge variant="secondary" className="mt-2">
                     {getRoleLabel(userProfile.role)}
                   </Badge>
