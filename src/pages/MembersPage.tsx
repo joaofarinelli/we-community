@@ -120,6 +120,18 @@ export const MembersPage = () => {
             Membro desde {new Date(member.created_at).toLocaleDateString('pt-BR')}
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full mt-4"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleViewProfile(member.user_id);
+          }}
+        >
+          <User className="h-4 w-4 mr-2" />
+          Ver perfil
+        </Button>
       </CardContent>
     </Card>
   );
@@ -158,6 +170,19 @@ export const MembersPage = () => {
               </div>
             </div>
           </div>
+        </div>
+        <div className="mt-3 flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewProfile(member.user_id);
+            }}
+          >
+            <User className="h-4 w-4 mr-2" />
+            Ver perfil
+          </Button>
         </div>
       </CardContent>
     </Card>
