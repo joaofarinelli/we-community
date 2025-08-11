@@ -1,23 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export const useAccountStats = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['accountStats', user?.id],
+    queryKey: ['accountStats', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user) return null;
+      if (!user || !currentCompanyId) return null;
 
-      // Get user's company ID
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile) return null;
+      // Using current company context; no profile lookup needed
 
       // Get transactions for the last 30 days
       const thirtyDaysAgo = new Date();
@@ -27,7 +22,7 @@ export const useAccountStats = () => {
         .from('point_transactions')
         .select('coins, action_type, created_at')
         .eq('user_id', user.id)
-        .eq('company_id', profile.company_id)
+        .eq('company_id', currentCompanyId)
         .gte('created_at', thirtyDaysAgo.toISOString())
         .order('created_at', { ascending: false });
 
@@ -58,6 +53,6 @@ export const useAccountStats = () => {
         transactionCount: transactions?.length || 0,
       };
     },
-    enabled: !!user,
+    enabled: !!user && !!currentCompanyId,
   });
 };

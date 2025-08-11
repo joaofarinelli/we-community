@@ -49,6 +49,7 @@ export const useTransferCoins = () => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['userCoins'] });
       queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
+      queryClient.invalidateQueries({ queryKey: ['accountStats'] });
       
       toast({
         title: "Transferência realizada!",
