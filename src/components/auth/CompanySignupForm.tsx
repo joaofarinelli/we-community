@@ -169,7 +169,7 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
 
       toast({
         title: "Cadastro realizado!",
-        description: "Sua empresa foi criada com sucesso. Bem-vindo ao CommunityHub!",
+        description: `Sua empresa foi criada com sucesso. Bem-vindo ao ${data.companyName}!`,
       });
 
     } catch (error) {

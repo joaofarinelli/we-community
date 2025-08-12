@@ -139,7 +139,9 @@ export const LoginForm = ({
       sessionStorage.removeItem('expected_company_id');
       toast({
         title: "Login realizado!",
-        description: "Bem-vindo de volta ao CommunityHub"
+        description: targetCompany?.name
+          ? `Bem-vindo de volta à ${targetCompany.name}`
+          : "Bem-vindo de volta!",
       });
     } catch (error) {
       console.error('Login error:', error);
