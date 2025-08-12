@@ -12,15 +12,19 @@ export const useDeletePost = () => {
     mutationFn: async (postId: string) => {
       // Ensure company context is set for RLS when user belongs to multiple companies
       if (currentCompanyId) {
-        await supabase.rpc('set_current_company_context', {
+        const { error: ctxError } = await supabase.rpc('set_current_company_context', {
           p_company_id: currentCompanyId,
         });
+        if (ctxError) {
+          console.warn('Failed to set company context before deleting post:', ctxError);
+        }
       }
 
-      const { error } = await supabase
-        .from('posts')
-        .delete()
-        .eq('id', postId);
+      let query = supabase.from('posts').delete().eq('id', postId);
+      if (currentCompanyId) {
+        query = query.eq('company_id', currentCompanyId);
+      }
+      const { error } = await query;
 
       if (error) throw error;
     },
@@ -31,15 +35,15 @@ export const useDeletePost = () => {
       queryClient.invalidateQueries({ queryKey: ['userCoins'] });
       queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
       toast({
-        title: "Post deletado",
-        description: "O post foi deletado com sucesso.",
+        title: 'Post deletado',
+        description: 'O post foi deletado com sucesso.',
       });
     },
     onError: (error) => {
       toast({
-        title: "Erro ao deletar post",
-        description: "Não foi possível deletar o post. Tente novamente.",
-        variant: "destructive",
+        title: 'Erro ao deletar post',
+        description: 'Não foi possível deletar o post. Tente novamente.',
+        variant: 'destructive',
       });
       console.error('Error deleting post:', error);
     },
