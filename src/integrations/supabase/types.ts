@@ -3278,6 +3278,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_invite_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          email: string
+          role: string
+          course_access: Json
+          status: string
+          expires_at: string
+          company_name: string
+        }[]
+      }
+      get_jwt_email: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string }
         Returns: {
