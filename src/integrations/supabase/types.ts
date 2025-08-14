@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -3166,32 +3166,32 @@ export type Database = {
       }
       add_user_coins: {
         Args: {
-          p_user_id: string
-          p_company_id: string
           p_action_type: string
+          p_company_id: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: undefined
       }
       add_user_points: {
         Args: {
-          p_user_id: string
-          p_company_id: string
           p_action_type: string
+          p_company_id: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: undefined
       }
       add_user_to_public_spaces: {
-        Args: { p_user_id: string; p_company_id: string }
+        Args: { p_company_id: string; p_user_id: string }
         Returns: undefined
       }
       award_trail_badge: {
         Args: {
-          p_user_id: string
+          p_badge_type: string
           p_company_id: string
           p_trail_id: string
-          p_badge_type: string
+          p_user_id: string
         }
         Returns: undefined
       }
@@ -3208,7 +3208,7 @@ export type Database = {
         Returns: number
       }
       calculate_user_level: {
-        Args: { p_user_id: string; p_company_id: string; p_coins: number }
+        Args: { p_coins: number; p_company_id: string; p_user_id: string }
         Returns: string
       }
       can_user_see_space: {
@@ -3216,11 +3216,11 @@ export type Database = {
         Returns: boolean
       }
       check_course_completion: {
-        Args: { p_user_id: string; p_course_id: string }
+        Args: { p_course_id: string; p_user_id: string }
         Returns: boolean
       }
       check_module_completion: {
-        Args: { p_user_id: string; p_module_id: string }
+        Args: { p_module_id: string; p_user_id: string }
         Returns: boolean
       }
       create_default_levels: {
@@ -3229,21 +3229,21 @@ export type Database = {
       }
       create_user_profile_for_company: {
         Args: {
-          p_user_id: string
           p_company_id: string
+          p_email?: string
           p_first_name: string
           p_last_name: string
-          p_email?: string
           p_role?: string
+          p_user_id: string
         }
         Returns: string
       }
       deduct_user_coins: {
         Args: {
-          p_user_id: string
-          p_company_id: string
           p_coins: number
+          p_company_id: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: boolean
       }
@@ -3252,7 +3252,7 @@ export type Database = {
         Returns: undefined
       }
       find_or_create_direct_conversation: {
-        Args: { p_user1_id: string; p_user2_id: string; p_company_id: string }
+        Args: { p_company_id: string; p_user1_id: string; p_user2_id: string }
         Returns: string
       }
       generate_invite_token: {
@@ -3262,16 +3262,16 @@ export type Database = {
       get_all_companies_for_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: {
+          created_at: string
+          custom_domain: string
           id: string
           name: string
-          subdomain: string
-          custom_domain: string
-          status: string
           plan: string
-          created_at: string
-          total_users: number
-          total_spaces: number
+          status: string
+          subdomain: string
           total_posts: number
+          total_spaces: number
+          total_users: number
         }[]
       }
       get_global_metrics_for_super_admin: {
@@ -3281,12 +3281,12 @@ export type Database = {
       get_invite_by_token: {
         Args: { p_token: string }
         Returns: {
-          email: string
-          role: string
-          course_access: Json
-          status: string
-          expires_at: string
           company_name: string
+          course_access: Json
+          email: string
+          expires_at: string
+          role: string
+          status: string
         }[]
       }
       get_jwt_email: {
@@ -3296,26 +3296,26 @@ export type Database = {
       get_user_accessible_companies: {
         Args: { p_user_email: string }
         Returns: {
+          company_custom_domain: string
           company_id: string
+          company_logo_url: string
           company_name: string
           company_subdomain: string
-          company_custom_domain: string
-          company_logo_url: string
-          user_role: string
           profile_created_at: string
           user_id: string
+          user_role: string
         }[]
       }
       get_user_companies: {
         Args: { p_user_id: string }
         Returns: {
+          company_custom_domain: string
           company_id: string
+          company_logo_url: string
           company_name: string
           company_subdomain: string
-          company_custom_domain: string
-          company_logo_url: string
-          user_role: string
           profile_created_at: string
+          user_role: string
         }[]
       }
       get_user_company_id: {
@@ -3327,23 +3327,23 @@ export type Database = {
         Returns: string
       }
       get_user_profile_for_company: {
-        Args: { p_user_id: string; p_company_id: string }
+        Args: { p_company_id: string; p_user_id: string }
         Returns: {
-          id: string
-          user_id: string
           company_id: string
-          first_name: string
-          last_name: string
+          created_at: string
           email: string
+          first_name: string
+          id: string
+          is_active: boolean
+          last_name: string
           phone: string
           role: string
-          is_active: boolean
-          created_at: string
           updated_at: string
+          user_id: string
         }[]
       }
       hide_post: {
-        Args: { post_id: string; hidden_by_user: string; hide_reason?: string }
+        Args: { hidden_by_user: string; hide_reason?: string; post_id: string }
         Returns: undefined
       }
       is_company_owner: {
@@ -3363,53 +3363,53 @@ export type Database = {
         Returns: boolean
       }
       issue_course_certificate: {
-        Args: { p_user_id: string; p_course_id: string }
+        Args: { p_course_id: string; p_user_id: string }
         Returns: Json
       }
       process_challenge_reward: {
         Args: {
           p_challenge_id: string
-          p_user_id: string
           p_company_id: string
+          p_user_id: string
         }
         Returns: undefined
       }
       process_invite_acceptance: {
         Args: {
-          p_token: string
-          p_user_id: string
           p_first_name: string
           p_last_name: string
+          p_token: string
+          p_user_id: string
         }
         Returns: Json
       }
       process_marketplace_purchase: {
         Args:
           | {
-              p_user_id: string
               p_company_id: string
+              p_delivery?: Json
               p_item_id: string
               p_quantity?: number
+              p_user_id: string
             }
           | {
-              p_user_id: string
               p_company_id: string
               p_item_id: string
               p_quantity?: number
-              p_delivery?: Json
+              p_user_id: string
             }
         Returns: Json
       }
       process_streak_rewards: {
-        Args: { p_user_id: string; p_company_id: string; p_streak_days: number }
+        Args: { p_company_id: string; p_streak_days: number; p_user_id: string }
         Returns: undefined
       }
       remove_user_coins: {
         Args: {
-          p_user_id: string
-          p_company_id: string
           p_action_type: string
+          p_company_id: string
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: undefined
       }
@@ -3427,11 +3427,11 @@ export type Database = {
       }
       transfer_user_coins: {
         Args: {
-          p_from_user_id: string
-          p_to_user_id: string
-          p_company_id: string
           p_coins: number
+          p_company_id: string
+          p_from_user_id: string
           p_reference_id?: string
+          p_to_user_id: string
         }
         Returns: boolean
       }
@@ -3441,20 +3441,20 @@ export type Database = {
       }
       update_challenge_progress: {
         Args: {
-          p_user_id: string
-          p_company_id: string
           p_challenge_type: Database["public"]["Enums"]["challenge_type"]
+          p_company_id: string
           p_increment?: number
           p_reference_id?: string
+          p_user_id: string
         }
         Returns: undefined
       }
       update_user_streak: {
-        Args: { p_user_id: string; p_company_id: string }
+        Args: { p_company_id: string; p_user_id: string }
         Returns: undefined
       }
       user_has_course_access: {
-        Args: { p_user_id: string; p_course_id: string }
+        Args: { p_course_id: string; p_user_id: string }
         Returns: boolean
       }
     }
