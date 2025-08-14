@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCompanyContext } from './useCompanyContext';
 
 interface InviteUserData {
   email: string;
@@ -11,11 +12,15 @@ interface InviteUserData {
 export const useInviteUser = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
     mutationFn: async (data: InviteUserData) => {
       const { data: result, error } = await supabase.functions.invoke('invite-user', {
-        body: data
+        body: data,
+        headers: {
+          'x-company-id': currentCompanyId || ''
+        }
       });
 
       if (error) throw error;

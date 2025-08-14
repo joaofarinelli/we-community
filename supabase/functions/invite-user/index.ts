@@ -40,10 +40,38 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Get user's company and verify admin status
+    // For multi-company users, we need to get the company_id from the request context
+    const userAgent = req.headers.get('user-agent') || '';
+    let companyId: string | null = null;
+    
+    // Extract company_id from request headers if available
+    const companyHeader = req.headers.get('x-company-id');
+    if (companyHeader) {
+      companyId = companyHeader;
+    } else {
+      // Fallback: get the first company for single-company users
+      const { data: profiles, error: profilesError } = await supabaseClient
+        .from("profiles")
+        .select("company_id, role")
+        .eq("user_id", user.id)
+        .eq("is_active", true);
+      
+      if (profilesError || !profiles || profiles.length === 0) {
+        return new Response(JSON.stringify({ error: "No active profile found" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      companyId = profiles[0].company_id;
+    }
+
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("company_id, role")
       .eq("user_id", user.id)
+      .eq("company_id", companyId)
+      .eq("is_active", true)
       .single();
 
     if (profileError || !profile || !['owner', 'admin'].includes(profile.role)) {
