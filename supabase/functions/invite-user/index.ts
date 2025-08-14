@@ -142,8 +142,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email using Resend
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-    const inviteUrl = `${Deno.env.get("SUPABASE_URL")?.replace('https://', 'https://').replace('.supabase.co', '.netlify.app') || 'https://your-app.netlify.app'}/invite/accept/${token}`;
+    
+    if (!Deno.env.get("RESEND_API_KEY")) {
+      throw new Error("RESEND_API_KEY not configured");
+    }
+    
+    // Build the invite URL based on the current request origin
+    const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://app.lovable.dev';
+    const inviteUrl = `${origin}/invite/accept/${token}`;
 
+    console.log("Sending email to:", email);
+    console.log("Invite URL:", inviteUrl);
+    
     const emailResponse = await resend.emails.send({
       from: "Convite <onboarding@resend.dev>",
       to: [email],
