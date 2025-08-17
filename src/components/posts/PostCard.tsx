@@ -36,6 +36,7 @@ interface Post {
   hidden_at?: string;
   hidden_reason?: string;
   created_at: string;
+  updated_at?: string;
   author_id: string;
   profiles?: {
     first_name: string;
@@ -204,7 +205,10 @@ export const PostCard = ({ post }: PostCardProps) => {
               {post.title}
             </h3>
           )}
-          <PostContent content={post.content} />
+          <PostContent 
+            content={post.content} 
+            key={`${post.id}-${post.updated_at || post.created_at}`}
+          />
         </div>
 
         {/* Interações */}

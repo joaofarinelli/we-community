@@ -25,13 +25,31 @@ export const useRealtimePosts = () => {
         (payload) => {
           console.log('Global posts realtime update:', payload);
           
-          // Invalidate all post-related queries
-          queryClient.invalidateQueries({ queryKey: ['allPosts'] });
-          queryClient.invalidateQueries({ queryKey: ['spacePosts'] });
+          // Force invalidation and refetch for all events to ensure UI updates
+          queryClient.invalidateQueries({ 
+            queryKey: ['allPosts'], 
+            refetchType: 'all' 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['spacePosts'], 
+            refetchType: 'all' 
+          });
+          
+          // Force refetch for UPDATE events to ensure content changes are reflected
+          if (payload.eventType === 'UPDATE') {
+            queryClient.refetchQueries({ 
+              predicate: (query) => 
+                query.queryKey[0] === 'allPosts' || 
+                query.queryKey[0] === 'spacePosts'
+            });
+          }
           
           // If it's a new post, also invalidate user posts
           if (payload.eventType === 'INSERT') {
-            queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+            queryClient.invalidateQueries({ 
+              queryKey: ['userPosts'], 
+              refetchType: 'all' 
+            });
           }
         }
       )
@@ -45,15 +63,30 @@ export const useRealtimePosts = () => {
         (payload) => {
           console.log('Global post interactions realtime update:', payload);
           
-          // Invalidate interaction and post queries
-          queryClient.invalidateQueries({ queryKey: ['postInteractions'] });
-          queryClient.invalidateQueries({ queryKey: ['allPosts'] });
-          queryClient.invalidateQueries({ queryKey: ['spacePosts'] });
+          // Force invalidation and refetch of interaction and post queries
+          queryClient.invalidateQueries({ 
+            queryKey: ['postInteractions'], 
+            refetchType: 'all' 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['allPosts'], 
+            refetchType: 'all' 
+          });
+          queryClient.invalidateQueries({ 
+            queryKey: ['spacePosts'], 
+            refetchType: 'all' 
+          });
           
           // Also invalidate points/coins if it's a like or comment
           if (payload.eventType === 'INSERT' || payload.eventType === 'DELETE') {
-            queryClient.invalidateQueries({ queryKey: ['userCoins'] });
-            queryClient.invalidateQueries({ queryKey: ['pointsHistory'] });
+            queryClient.invalidateQueries({ 
+              queryKey: ['userCoins'], 
+              refetchType: 'all' 
+            });
+            queryClient.invalidateQueries({ 
+              queryKey: ['pointsHistory'], 
+              refetchType: 'all' 
+            });
           }
         }
       )

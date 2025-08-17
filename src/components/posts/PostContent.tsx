@@ -95,6 +95,13 @@ export const PostContent = ({ content, className }: PostContentProps) => {
     };
   }, [editor]);
 
+  // Update editor content when content prop changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
+
   return (
     <div className="w-full">
       <EditorContent editor={editor} />

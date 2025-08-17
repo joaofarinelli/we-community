@@ -38,6 +38,7 @@ interface FeedPost {
   hidden_at?: string;
   hidden_reason?: string;
   created_at: string;
+  updated_at?: string;
   author_id: string;
   space_id: string;
   profiles?: {
@@ -244,7 +245,10 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
               {post.title}
             </h3>
           )}
-          <PostContent content={post.content} />
+          <PostContent 
+            content={post.content} 
+            key={`${post.id}-${post.updated_at || post.created_at}`}
+          />
         </div>
 
         {/* Interações */}

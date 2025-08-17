@@ -53,9 +53,33 @@ export const useUpdatePost = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['allPosts'] });
-      queryClient.invalidateQueries({ queryKey: ['spacePosts'] });
+      // Force invalidation and refetch of all post-related queries
+      queryClient.invalidateQueries({ 
+        queryKey: ['posts'], 
+        refetchType: 'all' 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['allPosts'], 
+        refetchType: 'all' 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['spacePosts'], 
+        refetchType: 'all' 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ['userPosts'], 
+        refetchType: 'all' 
+      });
+      
+      // Force refetch of all queries to ensure UI updates
+      queryClient.refetchQueries({ 
+        predicate: (query) => 
+          query.queryKey[0] === 'posts' || 
+          query.queryKey[0] === 'allPosts' || 
+          query.queryKey[0] === 'spacePosts' ||
+          query.queryKey[0] === 'userPosts'
+      });
+      
       toast({
         title: "Post atualizado",
         description: "O post foi atualizado com sucesso.",
