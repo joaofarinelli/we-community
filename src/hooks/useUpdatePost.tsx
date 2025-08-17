@@ -7,6 +7,7 @@ interface UpdatePostData {
   title?: string;
   content?: string;
   hide_author?: boolean;
+  is_pinned?: boolean;
 }
 
 export const useUpdatePost = () => {
@@ -23,6 +24,7 @@ export const useUpdatePost = () => {
       if (data.title !== undefined) updateData.title = data.title;
       if (data.content !== undefined) updateData.content = data.content;
       if (data.hide_author !== undefined) updateData.hide_author = data.hide_author;
+      if (data.is_pinned !== undefined) updateData.is_pinned = data.is_pinned;
 
       // Check content moderation if content is being updated
       if (data.content !== undefined) {

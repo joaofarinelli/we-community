@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Pin, MessageCircle, MapPin, MoreHorizontal, Edit, Trash2, EyeOff, Eye } from 'lucide-react';
+import { Pin, MessageCircle, MapPin, MoreHorizontal, Edit, Trash2, EyeOff, Eye, PinOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -75,6 +75,17 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
       });
     } catch (error) {
       console.error('Error toggling author visibility:', error);
+    }
+  };
+
+  const handleTogglePin = async () => {
+    try {
+      await updatePost.mutateAsync({
+        postId: post.id,
+        data: { is_pinned: !post.is_pinned }
+      });
+    } catch (error) {
+      console.error('Error toggling pin status:', error);
     }
   };
   
@@ -205,6 +216,21 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={handleTogglePin}>
+                    {post.is_pinned ? (
+                      <>
+                        <PinOff className="h-4 w-4 mr-2" />
+                        Desfixar Post
+                      </>
+                    ) : (
+                      <>
+                        <Pin className="h-4 w-4 mr-2" />
+                        Fixar Post
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                )}
                 {isAuthor && (
                   <DropdownMenuItem onClick={() => setShowHideDialog(true)}>
                     <EyeOff className="h-4 w-4 mr-2" />
