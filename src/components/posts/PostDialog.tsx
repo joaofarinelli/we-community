@@ -150,7 +150,14 @@ export const PostDialog = ({
           <DialogTitle className="font-semibold text-2xl">
             {mode === 'create' ? 'Criar publicação' : 'Editar publicação'}
           </DialogTitle>
-          
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onOpenChange(false)}
+            className="h-8 w-8 p-0 hover:bg-muted"
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </DialogHeader>
 
         <div className="flex flex-col h-full">
