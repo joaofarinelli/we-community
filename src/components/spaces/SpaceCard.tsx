@@ -18,6 +18,9 @@ interface SpaceCardProps {
     custom_icon_value?: string;
     space_members?: Array<{ role: string; joined_at: string }>;
     space_categories?: { id: string; name: string } | null;
+    isMember?: boolean;
+    userRole?: string | null;
+    memberCount?: number;
   };
   onClick?: () => void;
   className?: string;
@@ -26,9 +29,11 @@ interface SpaceCardProps {
 
 export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: SpaceCardProps) => {
   const { joinSpace, leaveSpace } = useManageSpaceMembers();
-  const memberCount = space.space_members?.length || 0;
-  const userRole = space.space_members?.[0]?.role || 'member';
-  const isMember = space.space_members && space.space_members.length > 0;
+  
+  // Use the new properties if available, fallback to old logic
+  const memberCount = space.memberCount ?? (space.space_members?.length || 0);
+  const userRole = space.userRole ?? (space.space_members?.[0]?.role || 'member');
+  const isMember = space.isMember ?? (space.space_members && space.space_members.length > 0);
   
   const getVisibilityIcon = () => {
     switch (space.visibility) {
@@ -152,7 +157,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
               ) : (
                 <Button 
                   size="sm" 
-                  variant="outline"
+                  variant="default"
                   onClick={(e) => {
                     e.stopPropagation();
                     joinSpace.mutate(space.id);
@@ -161,23 +166,36 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                   className="flex-1"
                 >
                   <UserPlus className="h-3 w-3 mr-1" />
-                  Entrar
+                  {joinSpace.isPending ? 'Entrando...' : 'Entrar'}
                 </Button>
               )}
             </>
           )}
           
-          <Button 
-            size="sm" 
-            variant="outline"
-            className={showJoinLeave && space.visibility === 'public' ? "flex-1" : "w-full"}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick?.();
-            }}
-          >
-            Acessar
-          </Button>
+          {/* Only show access button if user is a member or if it's accessible to them */}
+          {(isMember || space.visibility === 'public') && (
+            <Button 
+              size="sm" 
+              variant={isMember ? "default" : "outline"}
+              className={showJoinLeave && space.visibility === 'public' ? "flex-1" : "w-full"}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick?.();
+              }}
+              disabled={!isMember && space.visibility !== 'public'}
+            >
+              {isMember ? 'Acessar' : 'Visualizar'}
+            </Button>
+          )}
+          
+          {/* Show restricted message for private/secret spaces where user is not a member */}
+          {!isMember && space.visibility !== 'public' && (
+            <div className="flex-1 text-center">
+              <span className="text-xs text-muted-foreground">
+                {space.visibility === 'private' ? 'Acesso restrito' : 'Espaço secreto'}
+              </span>
+            </div>
+          )}
         </div>
       </CardFooter>
     </Card>
