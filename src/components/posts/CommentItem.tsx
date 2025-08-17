@@ -61,7 +61,7 @@ export const CommentItem = ({
     }
   };
 
-  const maxLevel = 2; // Limitar a profundidade máxima
+  const maxLevel = 4; // Limitar a profundidade máxima
 
   return (
     <div className={`${level > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
