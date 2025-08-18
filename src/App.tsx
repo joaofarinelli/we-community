@@ -64,6 +64,7 @@ import { AdminContentCategoriesPage } from "./pages/admin/AdminContentCategories
 import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import NotFound from "./pages/NotFound";
+import { FaviconApplier } from '@/components/FaviconApplier';
 
 const queryClient = new QueryClient();
 
@@ -164,6 +165,8 @@ const App = () => (
               <TooltipProvider>
                 <Toaster />
                 <Sonner />
+                {/* Apply favicon dynamically per company */}
+                <FaviconApplier />
                 <AppRoutes />
               </TooltipProvider>
             </ThemeProvider>

@@ -14,6 +14,7 @@ import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
 import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
 import { CoinNameSection } from '@/components/admin/CoinNameSection';
 import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
+import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -38,6 +39,7 @@ export const AdminSettingsPage = () => {
           <TabsContent value="geral" className="space-y-6 mt-6">
             <div className="grid gap-6">
               <CompanyLogoSection />
+              <CompanyFaviconSection />
               
               <Card>
                 <CardHeader>
