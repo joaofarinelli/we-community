@@ -1,3 +1,4 @@
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -34,7 +35,7 @@ export const useHidePost = () => {
           is_hidden: true,
           hidden_at: new Date().toISOString(),
           hidden_by: user.data.user.id,
-          hide_reason: reason || null
+          hidden_reason: reason || null
         })
         .eq('id', postId);
 
@@ -75,7 +76,7 @@ export const useUnhidePost = () => {
           is_hidden: false,
           hidden_at: null,
           hidden_by: null,
-          hide_reason: null
+          hidden_reason: null
         })
         .eq('id', postId);
 
