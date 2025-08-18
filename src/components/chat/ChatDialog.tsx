@@ -10,12 +10,23 @@ import { useConversations } from '@/hooks/useConversations';
 
 interface ChatDialogProps {
   children?: React.ReactNode;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialConversationId?: string;
 }
 
-export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+export const ChatDialog: React.FC<ChatDialogProps> = ({ 
+  children, 
+  isOpen: externalIsOpen, 
+  onOpenChange: externalOnOpenChange,
+  initialConversationId 
+}) => {
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(initialConversationId || null);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = externalOnOpenChange || setInternalIsOpen;
   
   const { data: conversations = [], refetch: refetchConversations } = useConversations();
   
@@ -24,6 +35,13 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
 
   const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
 
+  // Set initial conversation when provided
+  useEffect(() => {
+    if (initialConversationId && initialConversationId !== selectedConversationId) {
+      setSelectedConversationId(initialConversationId);
+    }
+  }, [initialConversationId]);
+
   // Refetch conversations when a new conversation is selected to ensure it's in the list
   useEffect(() => {
     if (selectedConversationId && !selectedConversation) {
@@ -31,6 +49,13 @@ export const ChatDialog: React.FC<ChatDialogProps> = ({ children }) => {
       refetchConversations();
     }
   }, [selectedConversationId, selectedConversation, refetchConversations]);
+
+  // Auto-select user when conversation is found
+  useEffect(() => {
+    if (selectedConversation && !selectedUserId && selectedConversation.otherParticipant) {
+      setSelectedUserId(selectedConversation.otherParticipant.user_id);
+    }
+  }, [selectedConversation, selectedUserId]);
 
   return (
     <Drawer open={isOpen} onOpenChange={setIsOpen}>

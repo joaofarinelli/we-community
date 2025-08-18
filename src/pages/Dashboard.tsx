@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
@@ -12,12 +13,28 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from 'lucide-react';
 import { FeedBanner } from '@/components/feed/FeedBanner';
+import { ChatDialog } from '@/components/chat/ChatDialog';
 
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const { data: userProfile } = useUserProfile();
   const [sortBy, setSortBy] = useState<SortOption>('recent');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatConversationId, setChatConversationId] = useState<string | null>(null);
+  
+  // Handle chat parameter from URL
+  useEffect(() => {
+    const chatParam = searchParams.get('chat');
+    if (chatParam) {
+      setChatConversationId(chatParam);
+      setChatOpen(true);
+      // Remove the chat parameter from URL
+      searchParams.delete('chat');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   const userName = userProfile?.first_name 
     ? `${userProfile.first_name} ${userProfile.last_name || ''}`.trim()
@@ -103,6 +120,13 @@ export const Dashboard = () => {
           </div>
         </div>
       </div>
+      
+      {/* Chat Dialog */}
+      <ChatDialog 
+        isOpen={chatOpen}
+        onOpenChange={setChatOpen}
+        initialConversationId={chatConversationId}
+      />
     </DashboardLayout>
   );
 };
