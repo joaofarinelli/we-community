@@ -21,6 +21,8 @@ export const useMarketplaceItems = (categoryId?: string) => {
           is_featured,
           is_active,
           order_index,
+          item_type,
+          digital_delivery_url,
           created_at
         `)
         .eq('is_active', true)

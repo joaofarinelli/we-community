@@ -45,6 +45,7 @@ interface MarketplaceItem {
   category_id: string;
   access_tags?: string[];
   item_type?: string;
+  digital_delivery_url?: string;
   created_at: string;
 }
 

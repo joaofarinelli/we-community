@@ -21,6 +21,7 @@ interface MarketplaceItem {
   price_coins: number;
   stock_quantity: number | null;
   item_type?: string;
+  digital_delivery_url?: string;
 }
 
 interface PurchaseDialogProps {
