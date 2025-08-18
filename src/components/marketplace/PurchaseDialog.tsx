@@ -12,6 +12,7 @@ import { usePurchaseItem } from '@/hooks/useMarketplacePurchases';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
+import { DigitalDeliveryDialog } from './DigitalDeliveryDialog';
 
 interface MarketplaceItem {
   id: string;
@@ -34,6 +35,7 @@ interface PurchaseDialogProps {
 export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: PurchaseDialogProps) => {
   const purchaseItem = usePurchaseItem();
   const canAfford = userCoins >= item.price_coins;
+  const [showDigitalDelivery, setShowDigitalDelivery] = useState(false);
 
   const [delivery, setDelivery] = useState({
     address: '',
@@ -51,8 +53,21 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
   const handlePurchase = async () => {
     if (!canAfford || (requiresDelivery && !isDeliveryValid)) return;
     
-    await purchaseItem.mutateAsync({ itemId: item.id, delivery: requiresDelivery ? delivery : {} });
-    onOpenChange(false);
+    try {
+      const result = await purchaseItem.mutateAsync({ 
+        itemId: item.id, 
+        delivery: requiresDelivery ? delivery : {} 
+      });
+      
+      onOpenChange(false);
+      
+      // Se for produto digital e tiver link de entrega, abrir dialog de entrega
+      if (item.item_type === 'digital' && item.digital_delivery_url) {
+        setShowDigitalDelivery(true);
+      }
+    } catch (error) {
+      // Error handling is done in the mutation
+    }
   };
 
   return (
@@ -228,6 +243,13 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
           </Button>
         </DialogFooter>
       </DialogContent>
+      
+      <DigitalDeliveryDialog
+        open={showDigitalDelivery}
+        onOpenChange={setShowDigitalDelivery}
+        productName={item.name}
+        deliveryUrl={item.digital_delivery_url || ''}
+      />
     </Dialog>
   );
 };

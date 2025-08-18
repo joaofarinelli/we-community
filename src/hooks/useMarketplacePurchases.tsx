@@ -58,6 +58,9 @@ export const usePurchaseItem = () => {
         queryClient.invalidateQueries({ queryKey: ['marketplacePurchases'] });
         queryClient.invalidateQueries({ queryKey: ['userCoins'] });
         queryClient.invalidateQueries({ queryKey: ['marketplaceItems'] });
+        
+        // Return the purchase data for the component to handle
+        return data;
       } else {
         toast.error(data?.error || 'Erro ao processar compra');
       }
