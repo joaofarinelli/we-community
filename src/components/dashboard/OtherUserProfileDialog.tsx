@@ -10,6 +10,9 @@ import { useOtherUserMarketplaceItems } from '@/hooks/useOtherUserMarketplaceIte
 import { useUserTags } from '@/hooks/useUserTags';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { useAuth } from '@/hooks/useAuth';
+import { useCreateConversation } from '@/hooks/useConversations';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { UserPostItem } from './UserPostItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
@@ -38,6 +41,7 @@ interface OtherUserProfileDialogProps {
 
 export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUserProfileDialogProps) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: userProfile, isLoading } = useOtherUserProfile(userId || '');
   const { data: userPoints } = useOtherUserPoints(userId || '');
   const { data: userLevel } = useOtherUserLevel(userId || '');
@@ -47,8 +51,31 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
   const { data: userMarketplaceItems = [] } = useOtherUserMarketplaceItems(userId || '');
   
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const createConversationMutation = useCreateConversation();
   
   const isOwnProfile = user?.id === userId;
+
+  const handleSendMessage = async () => {
+    if (!userId || !user) {
+      toast.error('Erro ao iniciar conversa');
+      return;
+    }
+
+    try {
+      const conversationId = await createConversationMutation.mutateAsync(userId);
+      
+      // Close the profile dialog
+      onOpenChange(false);
+      
+      // Navigate to chat with the conversation
+      navigate(`/dashboard?chat=${conversationId}`);
+      
+      toast.success('Conversa iniciada!');
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      toast.error('Erro ao iniciar conversa');
+    }
+  };
 
   const getUserInitials = () => {
     if (!userProfile) return 'U';
@@ -262,9 +289,14 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                   Editar Perfil
                 </Button>
               ) : (
-                <Button className="w-full" variant="outline">
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={handleSendMessage}
+                  disabled={createConversationMutation.isPending}
+                >
                   <MessageSquare className="h-4 w-4 mr-2" />
-                  Enviar Mensagem
+                  {createConversationMutation.isPending ? 'Iniciando...' : 'Enviar Mensagem'}
                 </Button>
               )}
             </div>
