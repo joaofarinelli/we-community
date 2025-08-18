@@ -5,10 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { OtherUserProfileDialog } from '@/components/dashboard/OtherUserProfileDialog';
 import { PageBanner } from '@/components/ui/page-banner';
 import { useCompanyMembers } from '@/hooks/useCompanyMembers';
-import { Search, Users, Grid, List, Filter, User, Calendar } from 'lucide-react';
+import { Search, Users, Grid, List, Filter, User, Calendar, X, SortAsc, SortDesc } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -17,12 +20,85 @@ export const MembersPage = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  
+  // Filter states
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
   const { data: members, isLoading } = useCompanyMembers();
 
-  const filteredMembers = members?.filter(member =>
-    member.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredMembers = members?.filter(member => {
+    // Search filter
+    const matchesSearch = member.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.profession?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.location?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Role filter
+    const matchesRole = roleFilter === 'all' || member.role === roleFilter;
+    
+    // Status filter  
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && member.is_active) ||
+      (statusFilter === 'inactive' && !member.is_active);
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  }).sort((a, b) => {
+    let aValue: any;
+    let bValue: any;
+    
+    switch (sortBy) {
+      case 'name':
+        aValue = a.display_name?.toLowerCase() || '';
+        bValue = b.display_name?.toLowerCase() || '';
+        break;
+      case 'email':
+        aValue = a.email?.toLowerCase() || '';
+        bValue = b.email?.toLowerCase() || '';
+        break;
+      case 'role':
+        aValue = a.role || 'member';
+        bValue = b.role || 'member';
+        break;
+      case 'created_at':
+        aValue = new Date(a.created_at);
+        bValue = new Date(b.created_at);
+        break;
+      case 'profession':
+        aValue = a.profession?.toLowerCase() || '';
+        bValue = b.profession?.toLowerCase() || '';
+        break;
+      default:
+        return 0;
+    }
+    
+    if (sortOrder === 'asc') {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  }) || [];
+
+  const clearFilters = () => {
+    setRoleFilter('all');
+    setStatusFilter('all');
+    setSortBy('name');
+    setSortOrder('asc');
+    setSearchTerm('');
+  };
+
+  const hasActiveFilters = roleFilter !== 'all' || statusFilter !== 'all' || sortBy !== 'name' || sortOrder !== 'asc' || searchTerm !== '';
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'owner': return 'Proprietário';
+      case 'admin': return 'Administrador'; 
+      case 'moderator': return 'Moderador';
+      default: return 'Membro';
+    }
+  };
 
   const getUserInitials = (displayName?: string | null, email?: string) => {
     if (displayName) {
@@ -114,6 +190,9 @@ export const MembersPage = () => {
             <p className="text-sm text-muted-foreground">
               {member.profession || 'Profissão não informada'}
             </p>
+            <Badge variant="outline" className="mt-2">
+              {getRoleLabel(member.role || 'member')}
+            </Badge>
           </div>
 
           <div className="text-xs text-muted-foreground">
@@ -163,6 +242,9 @@ export const MembersPage = () => {
                 <p className="text-sm text-muted-foreground truncate">
                   {member.profession || 'Profissão não informada'}
                 </p>
+                <Badge variant="outline" className="mt-1">
+                  {getRoleLabel(member.role || 'member')}
+                </Badge>
               </div>
               
               <div className="text-xs text-muted-foreground whitespace-nowrap">
@@ -228,17 +310,98 @@ export const MembersPage = () => {
           <div className="relative max-w-md flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Buscar membros por nome ou email..."
+              placeholder="Buscar membros por nome, email, profissão..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>
 
-          <Button variant="outline" size="sm">
-            <Filter className="h-4 w-4 mr-2" />
-            Filtros
-          </Button>
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filtros
+                  {hasActiveFilters && (
+                    <Badge variant="secondary" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                      !
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-medium">Filtros</h4>
+                    {hasActiveFilters && (
+                      <Button variant="ghost" size="sm" onClick={clearFilters}>
+                        <X className="h-4 w-4 mr-1" />
+                        Limpar
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Cargo</label>
+                      <Select value={roleFilter} onValueChange={setRoleFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Todos os cargos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos os cargos</SelectItem>
+                          <SelectItem value="owner">Proprietário</SelectItem>
+                          <SelectItem value="admin">Administrador</SelectItem>
+                          <SelectItem value="moderator">Moderador</SelectItem>
+                          <SelectItem value="member">Membro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Status</label>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Todos os status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todos os status</SelectItem>
+                          <SelectItem value="active">Ativo</SelectItem>
+                          <SelectItem value="inactive">Inativo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Ordenar por</label>
+                      <div className="flex gap-2">
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                          <SelectTrigger className="flex-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="name">Nome</SelectItem>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="role">Cargo</SelectItem>
+                            <SelectItem value="profession">Profissão</SelectItem>
+                            <SelectItem value="created_at">Data de entrada</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                        >
+                          {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         {/* Members Grid/List */}

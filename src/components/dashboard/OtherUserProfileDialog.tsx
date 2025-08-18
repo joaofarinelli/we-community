@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,9 +9,11 @@ import { useOtherUserProfile, useOtherUserPoints, useOtherUserLevel } from '@/ho
 import { useOtherUserMarketplaceItems } from '@/hooks/useOtherUserMarketplaceItems';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
+import { useAuth } from '@/hooks/useAuth';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { UserPostItem } from './UserPostItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
+import { EditProfileDialog } from './EditProfileDialog';
 import { 
   User, 
   Mail, 
@@ -23,7 +26,8 @@ import {
   Phone,
   ShoppingBag,
   MapPin,
-  Briefcase
+  Briefcase,
+  Edit
 } from 'lucide-react';
 
 interface OtherUserProfileDialogProps {
@@ -33,6 +37,7 @@ interface OtherUserProfileDialogProps {
 }
 
 export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUserProfileDialogProps) => {
+  const { user } = useAuth();
   const { data: userProfile, isLoading } = useOtherUserProfile(userId || '');
   const { data: userPoints } = useOtherUserPoints(userId || '');
   const { data: userLevel } = useOtherUserLevel(userId || '');
@@ -40,6 +45,10 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
   const { data: userPosts = [] } = useUserPosts(userId || '');
   const { data: userStats } = useUserStats(userId || '');
   const { data: userMarketplaceItems = [] } = useOtherUserMarketplaceItems(userId || '');
+  
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  
+  const isOwnProfile = user?.id === userId;
 
   const getUserInitials = () => {
     if (!userProfile) return 'U';
@@ -243,10 +252,21 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                 )}
               </div>
 
-              <Button className="w-full" variant="outline">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Enviar Mensagem
-              </Button>
+              {isOwnProfile ? (
+                <Button 
+                  className="w-full" 
+                  variant="outline"
+                  onClick={() => setShowEditProfile(true)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar Perfil
+                </Button>
+              ) : (
+                <Button className="w-full" variant="outline">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Enviar Mensagem
+                </Button>
+              )}
             </div>
           </div>
 
@@ -402,6 +422,14 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
           </div>
         </div>
       </DialogContent>
+      
+      {/* Edit Profile Dialog */}
+      {isOwnProfile && (
+        <EditProfileDialog 
+          open={showEditProfile}
+          onOpenChange={setShowEditProfile}
+        />
+      )}
     </Dialog>
   );
 };
