@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export interface UserPost {
   id: string;
@@ -19,20 +20,12 @@ export interface UserPost {
 
 export const useUserPosts = (userId: string, limit = 10) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['user-posts', userId, user?.id, limit],
+    queryKey: ['user-posts', userId, currentCompanyId, limit],
     queryFn: async (): Promise<UserPost[]> => {
-      if (!user || !userId) return [];
-
-      // Get user's company ID first
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) return [];
+      if (!user || !userId || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('posts')
@@ -48,7 +41,7 @@ export const useUserPosts = (userId: string, limit = 10) => {
           spaces!posts_space_id_fkey(name, type)
         `)
         .eq('author_id', userId)
-        .eq('company_id', profile.company_id)
+        .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false })
         .limit(limit);
 
@@ -59,33 +52,25 @@ export const useUserPosts = (userId: string, limit = 10) => {
 
       return data || [];
     },
-    enabled: !!user && !!userId,
+    enabled: !!user && !!userId && !!currentCompanyId,
   });
 };
 
 export const useUserStats = (userId: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['user-stats', userId, user?.id],
+    queryKey: ['user-stats', userId, currentCompanyId],
     queryFn: async () => {
-      if (!user || !userId) return { postsCount: 0, commentsCount: 0 };
-
-      // Get user's company ID first
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!profile?.company_id) return { postsCount: 0, commentsCount: 0 };
+      if (!user || !userId || !currentCompanyId) return { postsCount: 0, commentsCount: 0 };
 
       // Count posts
       const { count: postsCount } = await supabase
         .from('posts')
         .select('*', { count: 'exact', head: true })
         .eq('author_id', userId)
-        .eq('company_id', profile.company_id);
+        .eq('company_id', currentCompanyId);
 
       // Count comments
       const { count: commentsCount } = await supabase
@@ -100,6 +85,6 @@ export const useUserStats = (userId: string) => {
         commentsCount: commentsCount || 0
       };
     },
-    enabled: !!user && !!userId,
+    enabled: !!user && !!userId && !!currentCompanyId,
   });
 };

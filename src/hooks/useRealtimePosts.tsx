@@ -47,7 +47,7 @@ export const useRealtimePosts = () => {
           // If it's a new post, also invalidate user posts
           if (payload.eventType === 'INSERT') {
             queryClient.invalidateQueries({ 
-              queryKey: ['userPosts'], 
+              queryKey: ['user-posts'], 
               refetchType: 'all' 
             });
           }
