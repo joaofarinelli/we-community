@@ -167,7 +167,36 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
                   <Input
                     id="postal_code"
                     value={delivery.postal_code}
-                    onChange={(e) => setDelivery({ ...delivery, postal_code: e.target.value })}
+                    maxLength={9}
+                    onChange={async (e) => {
+                      // Format CEP as user types
+                      let value = e.target.value.replace(/\D/g, '');
+                      if (value.length >= 5) {
+                        value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                      }
+                      setDelivery({ ...delivery, postal_code: value });
+                      
+                      // Auto-fill address when CEP is complete
+                      if (value.replace(/\D/g, '').length === 8) {
+                        try {
+                          const cleanCep = value.replace(/\D/g, '');
+                          const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+                          const data = await response.json();
+                          
+                          if (data && !data.erro) {
+                            setDelivery(prev => ({
+                              ...prev,
+                              address: data.logradouro || '',
+                              neighborhood: data.bairro || '',
+                              city: data.localidade || '',
+                              state: data.uf || ''
+                            }));
+                          }
+                        } catch (error) {
+                          console.error('Erro ao buscar CEP:', error);
+                        }
+                      }
+                    }}
                     placeholder="00000-000"
                   />
                 </div>

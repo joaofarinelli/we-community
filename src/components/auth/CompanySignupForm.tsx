@@ -246,6 +246,51 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
 
               <FormField
                 control={form.control}
+                name="postalCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>CEP</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input 
+                          placeholder="00000-000" 
+                          {...field}
+                          maxLength={9}
+                          onChange={async (e) => {
+                            // Format CEP as user types
+                            let value = e.target.value.replace(/\D/g, '');
+                            if (value.length >= 5) {
+                              value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                            }
+                            field.onChange(value);
+                            
+                            // Auto-fill address when CEP is complete
+                            if (value.replace(/\D/g, '').length === 8) {
+                              try {
+                                const cleanCep = value.replace(/\D/g, '');
+                                const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+                                const data = await response.json();
+                                
+                                if (data && !data.erro) {
+                                  form.setValue('address', data.logradouro || '');
+                                  form.setValue('city', data.localidade || '');
+                                  form.setValue('state', data.uf || '');
+                                }
+                              } catch (error) {
+                                console.error('Erro ao buscar CEP:', error);
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="address"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
