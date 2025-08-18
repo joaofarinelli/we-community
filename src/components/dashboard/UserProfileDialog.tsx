@@ -12,8 +12,10 @@ import { useUserLevel } from '@/hooks/useUserLevel';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useUserMarketplaceItems } from '@/hooks/useUserMarketplaceItems';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
+import { useUserComments } from '@/hooks/useUserComments';
 import { useUserTrailBadges } from '@/hooks/useTrailProgress';
 import { UserPostItem } from './UserPostItem';
+import { UserCommentItem } from './UserCommentItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { TrailBadgesDisplay } from '@/components/trails/TrailBadgesDisplay';
 import { EditProfileDialog } from './EditProfileDialog';
@@ -46,6 +48,9 @@ export const UserProfileDialog = ({
   const {
     data: userPosts = []
   } = useUserPosts(user?.id || '');
+  const {
+    data: userComments = []
+  } = useUserComments(user?.id || '');
   const {
     data: userStats
   } = useUserStats(user?.id || '');
@@ -302,10 +307,27 @@ export const UserProfileDialog = ({
               </TabsContent>
 
               <TabsContent value="comentarios" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
-                <div className="text-center py-8 md:py-12 text-muted-foreground">
-                  <MessageSquare className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
-                  <p className="text-sm md:text-base">Seus comentários aparecerão aqui</p>
-                </div>
+                {userComments.length > 0 ? (
+                  <div className="space-y-3">
+                    {userComments.map(comment => (
+                      <UserCommentItem 
+                        key={comment.id} 
+                        comment={comment} 
+                        onClick={() => {
+                          // Navigate to post in space
+                          if (comment.posts?.space_id) {
+                            window.location.href = `/dashboard/space/${comment.posts.space_id}`;
+                          }
+                        }} 
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 md:py-12 text-muted-foreground">
+                    <MessageSquare className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                    <p className="text-sm md:text-base">Você ainda não fez nenhum comentário</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="espacos" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">

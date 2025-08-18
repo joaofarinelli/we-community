@@ -1,21 +1,21 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Pin, MessageCircle } from 'lucide-react';
-import { UserPost } from '@/hooks/useUserPosts';
+import { MessageSquare } from 'lucide-react';
+import { UserComment } from '@/hooks/useUserComments';
 import { getSpaceTypeInfo } from '@/lib/spaceUtils';
 
-interface UserPostItemProps {
-  post: UserPost;
+interface UserCommentItemProps {
+  comment: UserComment;
   onClick?: () => void;
 }
 
-export const UserPostItem = ({ post, onClick }: UserPostItemProps) => {
-  const spaceName = post.spaces?.name || 'Espaço';
-  const spaceType = post.spaces?.type || 'text';
+export const UserCommentItem = ({ comment, onClick }: UserCommentItemProps) => {
+  const spaceName = comment.posts?.spaces?.name || 'Espaço';
+  const spaceType = comment.posts?.spaces?.type || 'text';
   const spaceTypeInfo = getSpaceTypeInfo(spaceType as any);
   const SpaceIcon = spaceTypeInfo.icon;
+  const postTitle = comment.posts?.title;
 
   const truncateContent = (content: string, maxLength = 100) => {
     // Remove HTML tags and truncate
@@ -31,41 +31,32 @@ export const UserPostItem = ({ post, onClick }: UserPostItemProps) => {
     >
       <CardContent className="p-4">
         <div className="space-y-2">
-          {/* Post Header */}
+          {/* Comment Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MessageSquare className="h-3 w-3" />
+              <span>Comentário em</span>
               <SpaceIcon className="h-3 w-3" />
               <span>{spaceName}</span>
               <span>•</span>
               <span>
-                {formatDistanceToNow(new Date(post.created_at), {
+                {formatDistanceToNow(new Date(comment.created_at), {
                   addSuffix: true,
                   locale: ptBR,
                 })}
               </span>
             </div>
-            
-            <div className="flex items-center gap-1">
-              {post.is_pinned && (
-                <Pin className="h-3 w-3 text-primary" />
-              )}
-              {post.is_announcement && (
-                <Badge variant="secondary" className="text-xs px-1 py-0">
-                  Anúncio
-                </Badge>
-              )}
-            </div>
           </div>
 
-          {/* Post Content */}
+          {/* Comment Content */}
           <div>
-            {post.title && (
-              <h4 className="font-medium text-sm mb-1 line-clamp-1">
-                {post.title}
+            {postTitle && (
+              <h4 className="font-medium text-sm mb-1 line-clamp-1 text-muted-foreground">
+                Post: {postTitle}
               </h4>
             )}
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {truncateContent(post.content)}
+            <p className="text-sm line-clamp-2">
+              {truncateContent(comment.comment_text)}
             </p>
           </div>
         </div>
