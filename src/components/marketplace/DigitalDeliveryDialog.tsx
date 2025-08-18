@@ -51,7 +51,7 @@ export const DigitalDeliveryDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg w-[95vw] max-w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
@@ -77,17 +77,19 @@ export const DigitalDeliveryDialog = ({
                 Seu produto está disponível através do link abaixo. Clique para acessar ou copie o link para usar posteriormente.
               </p>
               
-              <div className="bg-white border border-green-200 rounded-lg p-3">
+              <div className="bg-white border border-green-200 rounded-lg p-3 overflow-hidden">
                 <p className="text-xs text-muted-foreground mb-2">Link de acesso:</p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-xs bg-muted px-2 py-1 rounded truncate">
-                    {deliveryUrl}
-                  </code>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex-1 min-w-0 bg-muted px-2 py-1 rounded">
+                    <code className="text-xs break-all whitespace-pre-wrap word-break">
+                      {deliveryUrl}
+                    </code>
+                  </div>
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={handleCopyLink}
-                    className="shrink-0"
+                    className="shrink-0 self-start"
                   >
                     {copied ? (
                       <CheckCircle className="h-3 w-3 text-green-500" />
@@ -100,24 +102,24 @@ export const DigitalDeliveryDialog = ({
             </CardContent>
           </Card>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Button 
               variant="outline" 
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="w-full sm:flex-1 order-2 sm:order-1"
             >
               Fechar
             </Button>
             <Button 
               onClick={handleOpenLink}
-              className="flex-1"
+              className="w-full sm:flex-1 order-1 sm:order-2"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Acessar Produto
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground text-center">
+          <p className="text-xs text-muted-foreground text-center px-2">
             Guarde este link com segurança. Você pode acessá-lo a qualquer momento através do histórico de compras.
           </p>
         </div>
