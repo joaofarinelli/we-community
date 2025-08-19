@@ -22,15 +22,13 @@ export const AuthPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex">
         {/* Left Banner */}
-        <div 
-          className="hidden md:flex md:min-w-[500px] md:max-w-[500px] lg:max-w-[600px] relative"
-          style={{
-            background: `url(${company.login_banner_url}) center center / contain no-repeat`,
-            minHeight: '400px',
-            height: '100vh',
-            maxHeight: '100vh'
-          }}
-        >
+        <div className="hidden md:flex md:w-auto md:min-w-[400px] md:max-w-[50vw] lg:max-w-[45vw] relative overflow-hidden">
+          <img
+            src={company.login_banner_url}
+            alt="Login Banner"
+            className="w-full h-screen object-cover"
+            style={{ minHeight: '600px' }}
+          />
           {/* Gradient overlay for better branding integration */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-background/20 z-10" />
         </div>
