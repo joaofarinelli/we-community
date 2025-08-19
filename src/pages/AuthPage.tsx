@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { TwoStepSignupForm } from '@/components/auth/TwoStepSignupForm';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
@@ -9,6 +9,7 @@ import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
 export const AuthPage = () => {
   const [authView, setAuthView] = useState<'login' | 'signup' | 'forgot'>('login');
+  const [bannerAspectRatio, setBannerAspectRatio] = useState<number | null>(null);
   const { data: company } = useCompanyByDomain();
   
   // Initialize Supabase context for multi-company users
@@ -17,17 +18,31 @@ export const AuthPage = () => {
   // Apply company theme
   useLoginPageTheme();
 
+  // Preload banner image to get aspect ratio
+  useEffect(() => {
+    if (company?.login_banner_url) {
+      const img = new Image();
+      img.onload = () => {
+        setBannerAspectRatio(img.width / img.height);
+      };
+      img.src = company.login_banner_url;
+    }
+  }, [company?.login_banner_url]);
+
   // If we have a company with login banner, show the banner layout
   if (company?.login_banner_url) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex">
         {/* Left Banner */}
         <div 
-          className="hidden md:flex md:min-w-[400px] md:max-w-[50vw] lg:max-w-[45vw] relative"
+          className="hidden md:flex shrink-0 lg:max-w-[45vw] relative"
           style={{
-            background: `url(${company.login_banner_url}) center center / cover no-repeat`,
+            width: bannerAspectRatio 
+              ? `clamp(280px, calc(100vh * ${bannerAspectRatio}), 50vw)` 
+              : '400px',
+            height: '100vh',
             minHeight: '600px',
-            height: '100vh'
+            background: `url(${company.login_banner_url}) left center / contain no-repeat`
           }}
         >
           {/* Gradient overlay for better branding integration */}
