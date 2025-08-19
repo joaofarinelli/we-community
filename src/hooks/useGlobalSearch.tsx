@@ -39,7 +39,7 @@ export const useGlobalSearch = (query: string) => {
         const { data: posts } = await supabase
           .from('posts')
           .select(`
-            id, title, content, created_at,
+            id, title, content, space_id, created_at,
             profiles!posts_author_profile_fkey(first_name, last_name)
           `)
           .eq('company_id', currentCompanyId)
@@ -53,8 +53,8 @@ export const useGlobalSearch = (query: string) => {
             title: post.title || 'Post sem título',
             content: post.content ? stripHtml(post.content).substring(0, 100) + '...' : '',
             author: post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Usuário',
-            created_at: post.created_at
-            // Remove URL since posts are displayed in dialogs, not separate pages
+            created_at: post.created_at,
+            url: `/dashboard/space/${post.space_id}/post/${post.id}`
           })));
         }
 
