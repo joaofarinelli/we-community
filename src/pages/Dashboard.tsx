@@ -11,7 +11,6 @@ import { HiddenPostCard } from '@/components/posts/HiddenPostCard';
 import { GlobalCreatePostForm } from '@/components/posts/GlobalCreatePostForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare } from 'lucide-react';
 import { FeedBanner } from '@/components/feed/FeedBanner';
 import { ChatDialog } from '@/components/chat/ChatDialog';
 
@@ -105,9 +104,6 @@ export const Dashboard = () => {
                 <Card>
                   <CardContent className="p-12 text-center">
                     <div className="space-y-3">
-                      <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
-                        <MessageSquare className="h-8 w-8 text-muted-foreground" />
-                      </div>
                       <h3 className="text-lg font-medium">Nenhum post ainda</h3>
                       <p className="text-muted-foreground max-w-md mx-auto">
                         Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
