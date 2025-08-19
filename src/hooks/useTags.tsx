@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompany } from './useCompany';
 import { toast } from 'sonner';
 
 export interface Tag {
@@ -30,25 +31,17 @@ export interface UpdateTagData extends CreateTagData {
 
 export const useTags = () => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
 
   return useQuery({
-    queryKey: ['tags', user?.id],
+    queryKey: ['tags', user?.id, company?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
-
-      // Buscar a empresa do usuário
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!userProfile?.company_id) return [];
+      if (!user?.id || !company?.id) return [];
 
       const { data, error } = await supabase
         .from('tags')
         .select('*')
-        .eq('company_id', userProfile.company_id)
+        .eq('company_id', company.id)
         .order('name');
 
       if (error) {
@@ -58,32 +51,25 @@ export const useTags = () => {
 
       return data as Tag[];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!company?.id,
   });
 };
 
 export const useCreateTag = () => {
   const { user } = useAuth();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagData: CreateTagData) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      // Buscar a empresa do usuário
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!userProfile?.company_id) throw new Error('User company not found');
+      if (!user?.id) throw new Error('Usuário não autenticado');
+      if (!company?.id) throw new Error('Nenhuma empresa selecionada');
 
       const { data, error } = await supabase
         .from('tags')
         .insert({
           ...tagData,
-          company_id: userProfile.company_id,
+          company_id: company.id,
           created_by: user.id,
         })
         .select()
@@ -93,7 +79,7 @@ export const useCreateTag = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags'] });
+      queryClient.invalidateQueries({ queryKey: ['tags', user?.id, company?.id] });
       toast.success('Tag criada com sucesso!');
     },
     onError: (error: any) => {
