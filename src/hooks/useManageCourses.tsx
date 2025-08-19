@@ -28,7 +28,12 @@ export const useCreateCourse = () => {
         logic?: 'any' | 'all';
       };
     }) => {
-      if (!user?.id || !company?.id) throw new Error('User or company not found');
+      if (!user?.id || !company?.id) throw new Error('Usuário ou empresa não encontrados');
+
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
 
       const { access_criteria, ...courseData } = course;
 
@@ -137,6 +142,7 @@ export const useDeleteCourse = () => {
 };
 
 export const useCreateModule = () => {
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -147,6 +153,13 @@ export const useCreateModule = () => {
       thumbnail_url?: string;
       order_index?: number;
     }) => {
+      if (!company?.id) throw new Error('Empresa não encontrada');
+      
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
       const { data, error } = await supabase
         .from('course_modules')
         .insert(module)
@@ -224,6 +237,7 @@ export const useDeleteModule = () => {
 };
 
 export const useCreateLesson = () => {
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -237,6 +251,13 @@ export const useCreateLesson = () => {
       order_index?: number;
       difficulty_level?: string;
     }) => {
+      if (!company?.id) throw new Error('Empresa não encontrada');
+      
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
       const { data, error } = await supabase
         .from('course_lessons')
         .insert(lesson)

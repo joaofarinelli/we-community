@@ -65,6 +65,11 @@ export const useCreateTag = () => {
       if (!user?.id) throw new Error('Usuário não autenticado');
       if (!company?.id) throw new Error('Nenhuma empresa selecionada');
 
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
       const { data, error } = await supabase
         .from('tags')
         .insert({
@@ -90,10 +95,18 @@ export const useCreateTag = () => {
 };
 
 export const useUpdateTag = () => {
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagData: UpdateTagData) => {
+      if (!company?.id) throw new Error('Empresa não encontrada');
+      
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
       const { id, ...updateData } = tagData;
       
       const { data, error } = await supabase
@@ -118,10 +131,18 @@ export const useUpdateTag = () => {
 };
 
 export const useDeleteTag = () => {
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagId: string) => {
+      if (!company?.id) throw new Error('Empresa não encontrada');
+      
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
       const { error } = await supabase
         .from('tags')
         .delete()
