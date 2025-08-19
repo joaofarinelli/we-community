@@ -95,6 +95,8 @@ export const useAllPosts = (sortBy: SortOption = 'recent') => {
             .eq('company_id', currentCompanyId);
           
           orderQuery = queryBuilder
+            .order('is_pinned', { ascending: false })
+            .order('is_announcement', { ascending: false })
             .order('created_at', { ascending: false });
           break;
       }
