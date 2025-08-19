@@ -14,6 +14,7 @@ import { useUserMarketplaceItems } from '@/hooks/useUserMarketplaceItems';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { useUserComments } from '@/hooks/useUserComments';
 import { useUserTrailBadges } from '@/hooks/useTrailProgress';
+import { useUserMemberSpaces } from '@/hooks/useUserMemberSpaces';
 import { UserPostItem } from './UserPostItem';
 import { UserCommentItem } from './UserCommentItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
@@ -60,6 +61,9 @@ export const UserProfileDialog = ({
   const {
     data: userBadges = []
   } = useUserTrailBadges();
+  const {
+    data: userSpaces = []
+  } = useUserMemberSpaces();
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
@@ -202,6 +206,7 @@ export const UserProfileDialog = ({
                 </TabsTrigger>
                 <TabsTrigger value="espacos" className="px-2 hidden md:block">
                   Espaços
+                  <span className="ml-1">({userSpaces.length})</span>
                 </TabsTrigger>
                 <TabsTrigger value="marketplace" className="px-2 hidden md:block">
                   <span className="hidden lg:inline">Marketplace</span>
@@ -331,10 +336,48 @@ export const UserProfileDialog = ({
               </TabsContent>
 
               <TabsContent value="espacos" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
-                <div className="text-center py-8 md:py-12 text-muted-foreground">
-                  <Users className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
-                  <p className="text-sm md:text-base">Os espaços que você participa aparecerão aqui</p>
-                </div>
+                {userSpaces.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    {userSpaces.map((space) => (
+                      <Card 
+                        key={space.id} 
+                        className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => {
+                          window.location.href = `/dashboard/space/${space.id}`;
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm md:text-base mb-1">{space.name}</h4>
+                              {space.description && (
+                                <p className="text-xs md:text-sm text-muted-foreground mb-2 line-clamp-2">
+                                  {space.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {space.visibility === 'public' ? 'Público' : 
+                                   space.visibility === 'private' ? 'Privado' : 'Secreto'}
+                                </Badge>
+                                {space.space_members && space.space_members.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {space.space_members[0].role === 'admin' ? 'Admin' : 'Membro'}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 md:py-12 text-muted-foreground">
+                    <Users className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
+                    <p className="text-sm md:text-base">Você ainda não participa de nenhum espaço</p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="marketplace" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
