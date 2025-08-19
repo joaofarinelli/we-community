@@ -38,8 +38,8 @@ export const AuthPage = () => {
           className="hidden md:flex shrink-0 lg:max-w-[45vw] relative"
           style={{
             width: bannerAspectRatio 
-              ? `clamp(280px, calc(100vh * ${bannerAspectRatio}), 50vw)` 
-              : '400px',
+              ? `clamp(500px, calc(100vh * ${bannerAspectRatio}), 50vw)` 
+              : '500px',
             height: '100vh',
             minHeight: '600px',
             background: `url(${company.login_banner_url}) left center / contain no-repeat`
