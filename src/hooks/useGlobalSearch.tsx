@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 
 export interface SearchResult {
   id: string;
@@ -15,24 +16,17 @@ export interface SearchResult {
 
 export const useGlobalSearch = (query: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['global-search', query, user?.id],
+    queryKey: ['global-search', query, user?.id, currentCompanyId],
     queryFn: async (): Promise<SearchResult[]> => {
-      if (!user || !query || query.length < 2) return [];
+      if (!user || !query || query.length < 2 || !currentCompanyId) return [];
 
       const results: SearchResult[] = [];
       const searchTerm = `%${query}%`;
 
       try {
-        // Get user's company ID
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('company_id')
-          .eq('user_id', user.id)
-          .single();
-
-        if (!profile?.company_id) return [];
 
         // Search Posts
         const { data: posts } = await supabase
@@ -41,7 +35,7 @@ export const useGlobalSearch = (query: string) => {
             id, title, content, created_at,
             profiles!posts_author_profile_fkey(first_name, last_name)
           `)
-          .eq('company_id', profile.company_id)
+          .eq('company_id', currentCompanyId)
           .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
           .limit(10);
 
@@ -85,7 +79,7 @@ export const useGlobalSearch = (query: string) => {
         const { data: users } = await supabase
           .from('profiles')
           .select('user_id, first_name, last_name, created_at')
-          .eq('company_id', profile.company_id)
+          .eq('company_id', currentCompanyId)
           .or(`first_name.ilike.${searchTerm},last_name.ilike.${searchTerm}`)
           .limit(10);
 
@@ -104,7 +98,7 @@ export const useGlobalSearch = (query: string) => {
         const { data: courses } = await supabase
           .from('courses')
           .select('id, title, description, created_at')
-          .eq('company_id', profile.company_id)
+          .eq('company_id', currentCompanyId)
           .eq('is_active', true)
           .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
           .limit(10);
@@ -132,7 +126,7 @@ export const useGlobalSearch = (query: string) => {
 
         if (modules) {
           const filteredModules = modules.filter(module => 
-            module.courses?.company_id === profile.company_id
+            module.courses?.company_id === currentCompanyId
           );
           
           results.push(...filteredModules.map(module => ({
@@ -160,7 +154,7 @@ export const useGlobalSearch = (query: string) => {
 
         if (lessons) {
           const filteredLessons = lessons.filter(lesson => 
-            lesson.course_modules?.courses?.company_id === profile.company_id
+            lesson.course_modules?.courses?.company_id === currentCompanyId
           );
           
           results.push(...filteredLessons.map(lesson => ({
@@ -183,6 +177,6 @@ export const useGlobalSearch = (query: string) => {
         return [];
       }
     },
-    enabled: !!user && query.length >= 2,
+    enabled: !!user && query.length >= 2 && !!currentCompanyId,
   });
 };
