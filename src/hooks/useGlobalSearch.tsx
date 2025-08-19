@@ -53,8 +53,8 @@ export const useGlobalSearch = (query: string) => {
             title: post.title || 'Post sem título',
             content: post.content ? stripHtml(post.content).substring(0, 100) + '...' : '',
             author: post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Usuário',
-            created_at: post.created_at,
-            url: `/dashboard/post/${post.id}`
+            created_at: post.created_at
+            // Remove URL since posts are displayed in dialogs, not separate pages
           })));
         }
 

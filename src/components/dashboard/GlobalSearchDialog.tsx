@@ -13,6 +13,7 @@ import { useGlobalSearch, SearchResult } from '@/hooks/useGlobalSearch';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 interface GlobalSearchDialogProps {
   open: boolean;
@@ -82,6 +83,12 @@ export const GlobalSearchDialog = ({ open, onOpenChange }: GlobalSearchDialogPro
   };
 
   const handleResultClick = (result: SearchResult) => {
+    if (result.type === 'post') {
+      // Posts are shown in their original context, not as separate pages
+      toast.info('Para visualizar este post, navegue até o espaço onde ele foi publicado.');
+      return;
+    }
+    
     if (result.url) {
       navigate(result.url);
       onOpenChange(false);
@@ -134,12 +141,16 @@ export const GlobalSearchDialog = ({ open, onOpenChange }: GlobalSearchDialogPro
               </div>
             ) : results.length > 0 ? (
               <div className="space-y-2">
-                {results.map((result) => (
-                  <div
-                    key={`${result.type}-${result.id}`}
-                    className="flex items-start gap-3 p-3 rounded-lg border border-border/50 hover:bg-muted/50 cursor-pointer transition-colors"
-                    onClick={() => handleResultClick(result)}
-                  >
+                 {results.map((result) => (
+                   <div
+                     key={`${result.type}-${result.id}`}
+                     className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 transition-colors ${
+                       result.type === 'post' 
+                         ? 'cursor-default hover:bg-muted/30' 
+                         : 'cursor-pointer hover:bg-muted/50'
+                     }`}
+                     onClick={() => handleResultClick(result)}
+                   >
                     <div className="flex-shrink-0 mt-1">
                       {getTypeIcon(result.type)}
                     </div>
