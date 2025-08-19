@@ -12,23 +12,38 @@ export const useCompanyRanking = (limit: number = 10) => {
     queryFn: async () => {
       if (!user || !company?.id) return [];
 
-      const { data, error } = await supabase
+      // First, fetch user_points data
+      const { data: pointsData, error: pointsError } = await supabase
         .from('user_points')
-        .select(`
-          *,
-          profiles!user_points_user_id_fkey(first_name, last_name, user_id)
-        `)
+        .select('user_id, monthly_coins, last_monthly_reset')
         .eq('company_id', company.id)
         .order('monthly_coins', { ascending: false })
         .limit(limit);
 
-      if (error) throw error;
+      if (pointsError) throw pointsError;
+      if (!pointsData || pointsData.length === 0) return [];
 
-      // Add ranking position to each user
-      const rankedData = data?.map((user, index) => ({
-        ...user,
-        rank: index + 1
-      })) || [];
+      // Extract user IDs
+      const userIds = pointsData.map(p => p.user_id);
+
+      // Fetch profiles for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .eq('company_id', company.id)
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Merge the data
+      const rankedData = pointsData.map((pointsItem, index) => {
+        const profile = profilesData?.find(p => p.user_id === pointsItem.user_id);
+        return {
+          ...pointsItem,
+          profiles: profile || { first_name: '', last_name: '', user_id: pointsItem.user_id },
+          rank: index + 1
+        };
+      });
 
       return rankedData;
     },
