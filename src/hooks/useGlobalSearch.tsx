@@ -26,6 +26,13 @@ export const useGlobalSearch = (query: string) => {
       const results: SearchResult[] = [];
       const searchTerm = `%${query}%`;
 
+      // Helper function to strip HTML tags and decode entities
+      const stripHtml = (html: string) => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+      };
+
       try {
 
         // Search Posts
@@ -44,7 +51,7 @@ export const useGlobalSearch = (query: string) => {
             id: post.id,
             type: 'post' as const,
             title: post.title || 'Post sem título',
-            content: post.content?.substring(0, 100) + '...',
+            content: post.content ? stripHtml(post.content).substring(0, 100) + '...' : '',
             author: post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Usuário',
             created_at: post.created_at,
             url: `/dashboard/post/${post.id}`
@@ -69,7 +76,7 @@ export const useGlobalSearch = (query: string) => {
             id: comment.id,
             type: 'comment' as const,
             title: `Comentário em: ${comment.posts?.title || 'Post'}`,
-            content: comment.comment_text?.substring(0, 100) + '...',
+            content: comment.comment_text ? stripHtml(comment.comment_text).substring(0, 100) + '...' : '',
             author: comment.profiles ? `${comment.profiles.first_name} ${comment.profiles.last_name}` : 'Usuário',
             created_at: comment.created_at
           })));
