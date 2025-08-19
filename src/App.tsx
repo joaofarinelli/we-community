@@ -17,7 +17,8 @@ import { AuthPage } from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
 import { RankingPage } from "./pages/RankingPage";
 import { SpaceView } from "./pages/SpaceView";
-import { AdminUsersPage } from "./pages/admin/AdminUsersPage";
+import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
+import { AdminUserViewPage } from '@/pages/admin/AdminUserViewPage';
 import { AdminSettingsPage } from "./pages/admin/AdminSettingsPage";
 import { AdminLevelsPage } from "./pages/admin/AdminLevelsPage";
 import { AdminAccessGroupsPage } from "./pages/admin/AdminAccessGroupsPage";
@@ -100,6 +101,7 @@ const AppRoutes = () => {
         <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
         <Route path="/dashboard/space/:spaceId/post/:postId" element={<AuthGuard><PostDetailPage /></AuthGuard>} />
         <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
+        <Route path="/admin/users/:userId" element={<AuthGuard><AdminUserViewPage /></AuthGuard>} />
         <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
         <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
         <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />

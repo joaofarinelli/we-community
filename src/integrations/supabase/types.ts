@@ -3277,6 +3277,31 @@ export type Database = {
           total_users: number
         }[]
       }
+      get_company_users_with_filters: {
+        Args: {
+          p_company_id: string
+          p_course_ids?: string[]
+          p_joined_end?: string
+          p_joined_start?: string
+          p_limit?: number
+          p_offset?: number
+          p_roles?: string[]
+          p_search?: string
+          p_tag_ids?: string[]
+        }
+        Returns: {
+          courses_count: number
+          email: string
+          first_name: string
+          joined_at: string
+          last_name: string
+          posts_count: number
+          role: string
+          tag_ids: string[]
+          tag_names: string[]
+          user_id: string
+        }[]
+      }
       get_global_metrics_for_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -3328,6 +3353,24 @@ export type Database = {
       get_user_company_id_for_context: {
         Args: { p_company_id?: string }
         Returns: string
+      }
+      get_user_course_progress_summary: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: {
+          certificate_code: string
+          certificate_issued: boolean
+          certificate_issued_at: string
+          completed_lessons: number
+          course_id: string
+          course_title: string
+          is_completed: boolean
+          progress_percent: number
+          total_lessons: number
+        }[]
+      }
+      get_user_overview: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: Json
       }
       get_user_profile_for_company: {
         Args: { p_company_id: string; p_user_id: string }
