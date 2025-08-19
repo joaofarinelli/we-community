@@ -221,17 +221,21 @@ export const AdminUsersPage = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Função</label>
                     <Select
-                      value={selectedRoles.join(',')}
+                      value={selectedRoles.length === 0 ? "all" : selectedRoles.join(',')}
                       onValueChange={(value) => {
-                        const roles = value ? value.split(',') : [];
-                        setSelectedRoles(roles);
+                        if (value === "all") {
+                          setSelectedRoles([]);
+                        } else {
+                          const roles = value ? value.split(',') : [];
+                          setSelectedRoles(roles);
+                        }
                       }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todas as funções" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas as funções</SelectItem>
+                        <SelectItem value="all">Todas as funções</SelectItem>
                         <SelectItem value="owner">Proprietário</SelectItem>
                         <SelectItem value="admin">Administrador</SelectItem>
                         <SelectItem value="member">Membro</SelectItem>
@@ -243,17 +247,21 @@ export const AdminUsersPage = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Tags</label>
                     <Select
-                      value={selectedTags.join(',')}
+                      value={selectedTags.length === 0 ? "all" : selectedTags.join(',')}
                       onValueChange={(value) => {
-                        const tagIds = value ? value.split(',') : [];
-                        setSelectedTags(tagIds);
+                        if (value === "all") {
+                          setSelectedTags([]);
+                        } else {
+                          const tagIds = value ? value.split(',') : [];
+                          setSelectedTags(tagIds);
+                        }
                       }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todas as tags" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas as tags</SelectItem>
+                        <SelectItem value="all">Todas as tags</SelectItem>
                         {tags.map((tag) => (
                           <SelectItem key={tag.id} value={tag.id}>
                             {tag.name}
@@ -304,17 +312,21 @@ export const AdminUsersPage = () => {
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Acesso a cursos</label>
                     <Select
-                      value={selectedCourses.join(',')}
+                      value={selectedCourses.length === 0 ? "all" : selectedCourses.join(',')}
                       onValueChange={(value) => {
-                        const courseIds = value ? value.split(',') : [];
-                        setSelectedCourses(courseIds);
+                        if (value === "all") {
+                          setSelectedCourses([]);
+                        } else {
+                          const courseIds = value ? value.split(',') : [];
+                          setSelectedCourses(courseIds);
+                        }
                       }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Todos os cursos" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos os cursos</SelectItem>
+                        <SelectItem value="all">Todos os cursos</SelectItem>
                         {courses.map((course) => (
                           <SelectItem key={course.id} value={course.id}>
                             {course.title}
