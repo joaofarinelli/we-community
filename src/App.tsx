@@ -65,6 +65,7 @@ import { AdminContentPostsPage } from "./pages/admin/AdminContentPostsPage";
 import { AdminContentCategoriesPage } from "./pages/admin/AdminContentCategoriesPage";
 import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
+import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 
@@ -141,6 +142,7 @@ const AppRoutes = () => {
         <Route path="/admin/content/categories" element={<AuthGuard><AdminContentCategoriesPage /></AuthGuard>} />
         <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
         <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
+        <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
         <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
         <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
