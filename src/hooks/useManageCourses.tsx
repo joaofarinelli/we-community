@@ -15,25 +15,63 @@ export const useCreateCourse = () => {
       description?: string;
       thumbnail_url?: string;
       order_index?: number;
+      certificate_enabled?: boolean;
+      mentor_name?: string | null;
+      mentor_role?: string | null;
+      mentor_signature_url?: string | null;
+      certificate_background_url?: string | null;
+      certificate_footer_text?: string | null;
+      access_criteria?: {
+        tag_ids?: string[];
+        level_ids?: string[];
+        badge_ids?: string[];
+        logic?: 'any' | 'all';
+      };
     }) => {
       if (!user?.id || !company?.id) throw new Error('User or company not found');
+
+      const { access_criteria, ...courseData } = course;
 
       const { data, error } = await supabase
         .from('courses')
         .insert({
-          ...course,
+          ...courseData,
           company_id: company.id,
-          created_by: user.id
+          created_by: user.id,
+          access_criteria: access_criteria || {}
         })
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Grant access to users based on criteria
+      if (access_criteria && (
+        (access_criteria.tag_ids && access_criteria.tag_ids.length > 0) ||
+        (access_criteria.level_ids && access_criteria.level_ids.length > 0) ||
+        (access_criteria.badge_ids && access_criteria.badge_ids.length > 0)
+      )) {
+        const { data: affectedUsers } = await supabase.rpc('grant_course_access', {
+          p_company_id: company.id,
+          p_course_id: data.id,
+          p_tag_ids: access_criteria.tag_ids || null,
+          p_level_ids: access_criteria.level_ids || null,
+          p_badge_ids: access_criteria.badge_ids || null,
+          p_logic: access_criteria.logic || 'any'
+        });
+
+        return { course: data, affectedUsers: affectedUsers || 0 };
+      }
+
+      return { course: data, affectedUsers: 0 };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });
-      toast.success('Curso criado com sucesso!');
+      if (result.affectedUsers > 0) {
+        toast.success(`Curso criado com sucesso! Acesso concedido para ${result.affectedUsers} usuária(s).`);
+      } else {
+        toast.success('Curso criado com sucesso!');
+      }
     },
     onError: (error) => {
       toast.error('Erro ao criar curso');
@@ -274,6 +312,48 @@ export const useDeleteLesson = () => {
     onError: (error) => {
       toast.error('Erro ao excluir aula');
       console.error('Error deleting lesson:', error);
+    }
+  });
+};
+
+// Hook for reapplying course access criteria
+export const useReapplyCourseAccess = () => {
+  const { data: company } = useCompany();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ 
+      courseId, 
+      accessCriteria 
+    }: {
+      courseId: string;
+      accessCriteria: {
+        tag_ids?: string[];
+        level_ids?: string[];
+        badge_ids?: string[];
+        logic?: 'any' | 'all';
+      };
+    }) => {
+      if (!company?.id) throw new Error('Company not found');
+
+      const { data: affectedUsers } = await supabase.rpc('grant_course_access', {
+        p_company_id: company.id,
+        p_course_id: courseId,
+        p_tag_ids: accessCriteria.tag_ids || null,
+        p_level_ids: accessCriteria.level_ids || null,
+        p_badge_ids: accessCriteria.badge_ids || null,
+        p_logic: accessCriteria.logic || 'any'
+      });
+
+      return affectedUsers || 0;
+    },
+    onSuccess: (affectedUsers) => {
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      toast.success(`Acesso reaplicado! ${affectedUsers} usuária(s) receberam acesso ao curso.`);
+    },
+    onError: (error) => {
+      toast.error('Erro ao reaplicar acesso ao curso');
+      console.error('Error reapplying course access:', error);
     }
   });
 };

@@ -732,6 +732,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          access_criteria: Json | null
           certificate_background_url: string | null
           certificate_enabled: boolean
           certificate_footer_text: string | null
@@ -750,6 +751,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_criteria?: Json | null
           certificate_background_url?: string | null
           certificate_enabled?: boolean
           certificate_footer_text?: string | null
@@ -768,6 +770,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_criteria?: Json | null
           certificate_background_url?: string | null
           certificate_enabled?: boolean
           certificate_footer_text?: string | null
@@ -3387,6 +3390,17 @@ export type Database = {
           updated_at: string
           user_id: string
         }[]
+      }
+      grant_course_access: {
+        Args: {
+          p_badge_ids?: string[]
+          p_company_id: string
+          p_course_id: string
+          p_level_ids?: string[]
+          p_logic?: string
+          p_tag_ids?: string[]
+        }
+        Returns: number
       }
       hide_post: {
         Args: { hidden_by_user: string; hide_reason?: string; post_id: string }
