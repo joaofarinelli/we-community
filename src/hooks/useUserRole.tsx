@@ -10,7 +10,19 @@ export const useUserRole = () => {
   return useQuery({
     queryKey: ['user-role', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !currentCompanyId) return null;
+      if (!user?.id || !currentCompanyId) {
+        console.log('useUserRole: Missing user or company context, returning null');
+        return null;
+      }
+
+      console.log('useUserRole: Setting context for company:', currentCompanyId);
+
+      // Definir explicitamente o contexto da empresa antes da consulta
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: currentCompanyId
+      });
+
+      console.log('useUserRole: Fetching role for user:', user.id, 'in company:', currentCompanyId);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -20,13 +32,17 @@ export const useUserRole = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
+        console.error('useUserRole: Error fetching user role:', error);
+        throw error;
       }
 
+      console.log('useUserRole: Successfully fetched role:', data?.role);
       return data;
     },
     enabled: !!user?.id && !!currentCompanyId,
+    retry: 0,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
