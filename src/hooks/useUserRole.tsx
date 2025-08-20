@@ -2,24 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
-import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
-export const useUserRole = (contextReady = true) => {
+export const useUserRole = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
     queryKey: ['user-role', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !currentCompanyId) {
-        console.debug('useUserRole: Missing user or company context, returning null');
-        return null;
-      }
-
-      console.debug('useUserRole: Starting query for user:', user.id, 'in company:', currentCompanyId);
-
-      // Ensure company context is set before the query
-      await ensureCompanyContext(currentCompanyId);
+      if (!user?.id || !currentCompanyId) return null;
 
       const { data, error } = await supabase
         .from('profiles')
@@ -29,22 +20,13 @@ export const useUserRole = (contextReady = true) => {
         .maybeSingle();
 
       if (error) {
-        console.error('useUserRole: Error fetching user role:', error);
-        // Handle "no rows returned" as null instead of error
-        if (error.code === 'PGRST116') {
-          return null;
-        }
-        throw error;
+        console.error('Error fetching user role:', error);
+        return null;
       }
 
-      console.debug('useUserRole: Successfully fetched role:', data?.role);
       return data;
     },
-    enabled: !!user?.id && !!currentCompanyId && contextReady,
-    retry: 0,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!user?.id && !!currentCompanyId,
   });
 };
 

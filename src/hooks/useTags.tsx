@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useCompanyContext } from './useCompanyContext';
+import { useCompany } from './useCompany';
 import { toast } from 'sonner';
-import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
 export interface Tag {
   id: string;
@@ -30,59 +29,52 @@ export interface UpdateTagData extends CreateTagData {
   id: string;
 }
 
-export const useTags = (contextReady = true) => {
+export const useTags = () => {
   const { user } = useAuth();
-  const { currentCompanyId } = useCompanyContext();
+  const { data: company } = useCompany();
 
   return useQuery({
-    queryKey: ['tags', user?.id, currentCompanyId],
+    queryKey: ['tags', user?.id, company?.id],
     queryFn: async () => {
-      if (!user?.id || !currentCompanyId) return [];
-
-      console.debug('useTags: Starting query for company:', currentCompanyId);
-
-      // Ensure company context is set before the query
-      await ensureCompanyContext(currentCompanyId);
+      if (!user?.id || !company?.id) return [];
 
       const { data, error } = await supabase
         .from('tags')
         .select('*')
-        .eq('company_id', currentCompanyId)
+        .eq('company_id', company.id)
         .order('name');
 
       if (error) {
-        console.error('useTags: Error fetching tags:', error);
-        throw error;
+        console.error('Error fetching tags:', error);
+        return [];
       }
 
-      console.debug('useTags: Successfully fetched', data?.length || 0, 'tags');
       return data as Tag[];
     },
-    enabled: !!user?.id && !!currentCompanyId && contextReady,
-    retry: 0,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    enabled: !!user?.id && !!company?.id,
   });
 };
 
 export const useCreateTag = () => {
   const { user } = useAuth();
-  const { currentCompanyId } = useCompanyContext();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagData: CreateTagData) => {
       if (!user?.id) throw new Error('Usuário não autenticado');
-      if (!currentCompanyId) throw new Error('Nenhuma empresa selecionada');
+      if (!company?.id) throw new Error('Nenhuma empresa selecionada');
 
-      // Ensure company context is set before the operation
-      await ensureCompanyContext(currentCompanyId);
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
 
       const { data, error } = await supabase
         .from('tags')
         .insert({
           ...tagData,
-          company_id: currentCompanyId,
+          company_id: company.id,
           created_by: user.id,
         })
         .select()
@@ -92,7 +84,7 @@ export const useCreateTag = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tags', user?.id, currentCompanyId] });
+      queryClient.invalidateQueries({ queryKey: ['tags', user?.id, company?.id] });
       toast.success('Tag criada com sucesso!');
     },
     onError: (error: any) => {
@@ -103,15 +95,17 @@ export const useCreateTag = () => {
 };
 
 export const useUpdateTag = () => {
-  const { currentCompanyId } = useCompanyContext();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagData: UpdateTagData) => {
-      if (!currentCompanyId) throw new Error('Empresa não encontrada');
+      if (!company?.id) throw new Error('Empresa não encontrada');
       
-      // Ensure company context is set before the operation
-      await ensureCompanyContext(currentCompanyId);
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
 
       const { id, ...updateData } = tagData;
       
@@ -137,15 +131,17 @@ export const useUpdateTag = () => {
 };
 
 export const useDeleteTag = () => {
-  const { currentCompanyId } = useCompanyContext();
+  const { data: company } = useCompany();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (tagId: string) => {
-      if (!currentCompanyId) throw new Error('Empresa não encontrada');
+      if (!company?.id) throw new Error('Empresa não encontrada');
       
-      // Ensure company context is set before the operation
-      await ensureCompanyContext(currentCompanyId);
+      // Definir explicitamente o contexto da empresa antes da operação
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
 
       const { error } = await supabase
         .from('tags')

@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
-import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
 /**
  * Hook that sets the company context in Supabase session
@@ -10,56 +10,45 @@ import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 export const useSupabaseContext = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const attemptedRef = useRef<string | null>(null);
 
   useEffect(() => {
     const setSupabaseContext = async () => {
-      if (!user?.id || !currentCompanyId) {
-        setReady(false);
-        return;
-      }
-
-      // Avoid duplicate attempts for the same user+company combination
-      const contextKey = `${user.id}-${currentCompanyId}`;
-      if (attemptedRef.current === contextKey && ready) {
-        return;
-      }
-
-      console.debug('useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
-      
-      try {
-        setError(null);
-        await ensureCompanyContext(currentCompanyId);
-        attemptedRef.current = contextKey;
-        setReady(true);
-        console.debug('useSupabaseContext: Context ready for company:', currentCompanyId);
-      } catch (err) {
-        console.error('useSupabaseContext: Error setting context:', err);
-        setError(err as Error);
-        setReady(false);
-        
-        // Single retry after 1 second
-        setTimeout(async () => {
-          if (attemptedRef.current !== contextKey) return;
-          
+      if (user && currentCompanyId) {
+        console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
+        console.log('🔧 useSupabaseContext: User email:', user.email);
+        try {
+          // Always set the current company ID in the Supabase session context
+          // This is crucial for multi-company setups
+          await supabase.rpc('set_current_company_context', {
+            p_company_id: currentCompanyId
+          });
+          console.log('✅ useSupabaseContext: Set Supabase context for company:', currentCompanyId);
+        } catch (error) {
+          console.error('❌ useSupabaseContext: Error setting Supabase context:', error);
+          // Retry once in case of temporary failure
           try {
-            console.debug('useSupabaseContext: Retrying context setting...');
-            await ensureCompanyContext(currentCompanyId);
-            setReady(true);
-            setError(null);
-            console.debug('useSupabaseContext: Retry successful for company:', currentCompanyId);
+            console.log('🔄 useSupabaseContext: Retrying context setting...');
+            await supabase.rpc('set_current_company_context', {
+              p_company_id: currentCompanyId
+            });
+            console.log('✅ useSupabaseContext: Retry successful - Set Supabase context for company:', currentCompanyId);
           } catch (retryError) {
-            console.error('useSupabaseContext: Retry failed:', retryError);
-            setError(retryError as Error);
+            console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', retryError);
           }
-        }, 1000);
+        }
+      } else {
+        console.log('⏸️ useSupabaseContext: Skipping context setup - user:', !!user, 'company:', !!currentCompanyId);
+        if (user) {
+          console.log('⏸️ useSupabaseContext: User email:', user.email);
+        }
       }
     };
 
-    setSupabaseContext();
-  }, [user?.id, currentCompanyId, ready]);
+    // Only set context when both user and company are available
+    if (user && currentCompanyId) {
+      setSupabaseContext();
+    }
+  }, [user, currentCompanyId]);
 
-  return { ready, error };
+  return null;
 };

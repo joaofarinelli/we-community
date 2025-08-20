@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDebounce } from 'use-debounce';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { UserImportExportDialog } from '@/components/admin/UserImportExportDialog';
@@ -22,7 +21,6 @@ import { useCompanyUsersWithFilters, UserFilters, FilteredUser } from '@/hooks/u
 import { useTags } from '@/hooks/useTags';
 import { useCourses } from '@/hooks/useCourses';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
-import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -47,37 +45,30 @@ import {
 export const AdminUsersPage = () => {
   const navigate = useNavigate();
   const [editingMember, setEditingMember] = useState<FilteredUser | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<UserFilters>({});
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
-  // Debounce search term to reduce API calls
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
-  
-  // Wait for Supabase context to be ready
-  const { ready: contextReady } = useSupabaseContext();
-  
-  // Compute filters using useMemo to prevent unnecessary re-renders
-  const computedFilters = useMemo((): UserFilters => {
-    const filters: UserFilters = {};
-    
-    if (debouncedSearchTerm) filters.search = debouncedSearchTerm;
-    if (selectedRoles.length > 0) filters.roles = selectedRoles;
-    if (selectedTags.length > 0) filters.tagIds = selectedTags;
-    if (selectedCourses.length > 0) filters.courseIds = selectedCourses;
-    if (dateRange?.from) filters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
-    if (dateRange?.to) filters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
-    
-    console.debug('AdminUsersPage: Computed filters changed:', filters);
-    return filters;
-  }, [debouncedSearchTerm, selectedRoles, selectedTags, selectedCourses, dateRange]);
-  
-  const { data: members, isLoading } = useCompanyUsersWithFilters(computedFilters, 50, 0, contextReady);
-  const { data: tags = [] } = useTags(contextReady);
-  const { data: courses = [] } = useCourses(contextReady);
+  const { data: members, isLoading } = useCompanyUsersWithFilters(filters);
+  const { data: tags = [] } = useTags();
+  const { data: courses = [] } = useCourses();
   const { toggleUserStatus } = useManageUserStatus();
+
+  // Update filters when individual filter states change
+  useMemo(() => {
+    const newFilters: UserFilters = {};
+    
+    if (filters.search) newFilters.search = filters.search;
+    if (selectedRoles.length > 0) newFilters.roles = selectedRoles;
+    if (selectedTags.length > 0) newFilters.tagIds = selectedTags;
+    if (selectedCourses.length > 0) newFilters.courseIds = selectedCourses;
+    if (dateRange?.from) newFilters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
+    if (dateRange?.to) newFilters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
+    
+    setFilters(newFilters);
+  }, [filters.search, selectedRoles, selectedTags, selectedCourses, dateRange]);
 
   const handleEditMember = (member: FilteredUser) => {
     setEditingMember(member);
@@ -102,8 +93,7 @@ export const AdminUsersPage = () => {
   };
 
   const clearFilters = () => {
-    console.log('AdminUsersPage: Clearing all filters');
-    setSearchTerm('');
+    setFilters({});
     setSelectedRoles([]);
     setSelectedTags([]);
     setSelectedCourses([]);
@@ -134,7 +124,7 @@ export const AdminUsersPage = () => {
     );
   };
 
-  if (isLoading || !contextReady) {
+  if (isLoading) {
     return (
       <AdminLayout>
         <div className="space-y-6">
@@ -220,8 +210,8 @@ export const AdminUsersPage = () => {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         placeholder="Nome ou email..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={filters.search || ''}
+                        onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                         className="pl-9"
                       />
                     </div>

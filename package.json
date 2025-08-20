@@ -77,7 +77,6 @@
     "tailwindcss-animate": "^1.0.7",
     "tippy.js": "^6.3.7",
     "tiptap-extension-resize-image": "^1.2.3",
-    "use-debounce": "^10.0.5",
     "vaul": "^0.9.3",
     "zod": "^4.0.5"
   },
