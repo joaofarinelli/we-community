@@ -179,6 +179,49 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Email sent successfully:", emailResponse);
 
+    // Send data to webhook
+    try {
+      const webhookData = {
+        event: 'user_invited',
+        invite: {
+          id: invite.id,
+          email,
+          role,
+          course_access: courseAccess,
+          token,
+          expires_at: expiresAt.toISOString(),
+          invite_url: inviteUrl,
+          created_at: invite.created_at
+        },
+        company: {
+          id: profile.company_id,
+          name: company?.name || null
+        },
+        invited_by: {
+          id: user.id,
+          email: user.email || null
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      const webhookResponse = await fetch('https://webhook.weplataforma.com.br/webhook/d2f10722-945d-4dd7-8bb2-80fea00bd8e4', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (!webhookResponse.ok) {
+        console.error("Webhook failed:", webhookResponse.status, await webhookResponse.text());
+      } else {
+        console.log("Webhook sent successfully");
+      }
+    } catch (webhookError) {
+      console.error("Error sending webhook:", webhookError);
+      // Don't fail the invitation if webhook fails
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true, 
