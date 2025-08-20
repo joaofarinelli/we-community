@@ -10,6 +10,8 @@ const corsHeaders = {
 
 interface InviteRequest {
   email: string;
+  first_name: string;
+  last_name: string;
   role: 'admin' | 'member';
   courseAccess: string[];
 }
@@ -81,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { email, role, courseAccess }: InviteRequest = await req.json();
+    const { email, first_name, last_name, role, courseAccess }: InviteRequest = await req.json();
 
     // Check if user already exists
     const { data: existingProfile } = await supabaseClient
@@ -186,6 +188,8 @@ const handler = async (req: Request): Promise<Response> => {
         invite: {
           id: invite.id,
           email,
+          first_name,
+          last_name,
           role,
           course_access: courseAccess,
           token,
@@ -204,7 +208,7 @@ const handler = async (req: Request): Promise<Response> => {
         timestamp: new Date().toISOString()
       };
 
-      const webhookResponse = await fetch('https://webhook.sparkassessoria.com/webhook/826cd2ed-4e1f-48d3-af27-d143508a6bd3', {
+      const webhookResponse = await fetch('https://webhook.weplataforma.com.br/webhook/d2f10722-945d-4dd7-8bb2-80fea00bd8e4', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

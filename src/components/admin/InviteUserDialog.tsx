@@ -35,6 +35,8 @@ import { useInviteUser } from "@/hooks/useInviteUser";
 
 const formSchema = z.object({
   email: z.string().email("Email inválido"),
+  first_name: z.string().min(1, "Nome é obrigatório"),
+  last_name: z.string().min(1, "Sobrenome é obrigatório"),
   role: z.enum(["admin", "member"], {
     message: "Selecione um papel",
   }),
@@ -50,6 +52,8 @@ export const InviteUserDialog = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
+      first_name: "",
+      last_name: "",
       role: "member" as const,
       courseAccess: [] as string[],
     },
@@ -62,6 +66,8 @@ export const InviteUserDialog = () => {
     
     await inviteUser.mutateAsync({
       email: data.email,
+      first_name: data.first_name,
+      last_name: data.last_name,
       role: data.role,
       courseAccess,
     });
@@ -100,6 +106,36 @@ export const InviteUserDialog = () => {
                 </FormItem>
               )}
             />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="João" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sobrenome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Silva" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}

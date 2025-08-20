@@ -5,6 +5,8 @@ import { useCompanyContext } from './useCompanyContext';
 
 interface InviteUserData {
   email: string;
+  first_name: string;
+  last_name: string;
   role: 'admin' | 'member';
   courseAccess: string[];
 }
