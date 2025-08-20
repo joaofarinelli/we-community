@@ -204,7 +204,7 @@ const handler = async (req: Request): Promise<Response> => {
         timestamp: new Date().toISOString()
       };
 
-      const webhookResponse = await fetch('https://webhook.weplataforma.com.br/webhook/d2f10722-945d-4dd7-8bb2-80fea00bd8e4', {
+      const webhookResponse = await fetch('https://webhook.sparkassessoria.com/webhook/826cd2ed-4e1f-48d3-af27-d143508a6bd3', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
