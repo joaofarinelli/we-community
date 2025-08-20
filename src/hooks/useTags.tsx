@@ -38,6 +38,15 @@ export const useTags = () => {
     queryFn: async () => {
       if (!user?.id || !company?.id) return [];
 
+      console.log('useTags: Setting context for company:', company.id);
+
+      // Definir explicitamente o contexto da empresa antes da consulta
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
+      console.log('useTags: Fetching tags for company:', company.id);
+
       const { data, error } = await supabase
         .from('tags')
         .select('*')
@@ -45,13 +54,16 @@ export const useTags = () => {
         .order('name');
 
       if (error) {
-        console.error('Error fetching tags:', error);
-        return [];
+        console.error('useTags: Error fetching tags:', error);
+        throw error;
       }
 
+      console.log('useTags: Successfully fetched', data?.length || 0, 'tags');
       return data as Tag[];
     },
     enabled: !!user?.id && !!company?.id,
+    retry: 0,
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -45,30 +45,31 @@ import {
 export const AdminUsersPage = () => {
   const navigate = useNavigate();
   const [editingMember, setEditingMember] = useState<FilteredUser | null>(null);
-  const [filters, setFilters] = useState<UserFilters>({});
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
-  const { data: members, isLoading } = useCompanyUsersWithFilters(filters);
+  // Compute filters using useMemo to prevent unnecessary re-renders
+  const computedFilters = useMemo((): UserFilters => {
+    const filters: UserFilters = {};
+    
+    if (searchTerm) filters.search = searchTerm;
+    if (selectedRoles.length > 0) filters.roles = selectedRoles;
+    if (selectedTags.length > 0) filters.tagIds = selectedTags;
+    if (selectedCourses.length > 0) filters.courseIds = selectedCourses;
+    if (dateRange?.from) filters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
+    if (dateRange?.to) filters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
+    
+    console.log('AdminUsersPage: Computed filters changed:', filters);
+    return filters;
+  }, [searchTerm, selectedRoles, selectedTags, selectedCourses, dateRange]);
+  
+  const { data: members, isLoading } = useCompanyUsersWithFilters(computedFilters);
   const { data: tags = [] } = useTags();
   const { data: courses = [] } = useCourses();
   const { toggleUserStatus } = useManageUserStatus();
-
-  // Update filters when individual filter states change
-  useMemo(() => {
-    const newFilters: UserFilters = {};
-    
-    if (filters.search) newFilters.search = filters.search;
-    if (selectedRoles.length > 0) newFilters.roles = selectedRoles;
-    if (selectedTags.length > 0) newFilters.tagIds = selectedTags;
-    if (selectedCourses.length > 0) newFilters.courseIds = selectedCourses;
-    if (dateRange?.from) newFilters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
-    if (dateRange?.to) newFilters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
-    
-    setFilters(newFilters);
-  }, [filters.search, selectedRoles, selectedTags, selectedCourses, dateRange]);
 
   const handleEditMember = (member: FilteredUser) => {
     setEditingMember(member);
@@ -93,7 +94,8 @@ export const AdminUsersPage = () => {
   };
 
   const clearFilters = () => {
-    setFilters({});
+    console.log('AdminUsersPage: Clearing all filters');
+    setSearchTerm('');
     setSelectedRoles([]);
     setSelectedTags([]);
     setSelectedCourses([]);
@@ -210,8 +212,8 @@ export const AdminUsersPage = () => {
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         placeholder="Nome ou email..."
-                        value={filters.search || ''}
-                        onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-9"
                       />
                     </div>

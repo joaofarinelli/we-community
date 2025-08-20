@@ -38,7 +38,14 @@ export const useCompanyUsersWithFilters = (
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) return [];
 
-      console.log('Fetching users with filters:', filters);
+      console.log('useCompanyUsersWithFilters: Setting context for company:', currentCompanyId);
+
+      // Definir explicitamente o contexto da empresa antes da consulta
+      await supabase.rpc('set_current_company_context', {
+        p_company_id: currentCompanyId
+      });
+
+      console.log('useCompanyUsersWithFilters: Fetching users with filters:', filters);
 
       const { data, error } = await supabase.rpc('get_company_users_with_filters', {
         p_company_id: currentCompanyId,
@@ -53,12 +60,15 @@ export const useCompanyUsersWithFilters = (
       });
 
       if (error) {
-        console.error('Error fetching filtered users:', error);
+        console.error('useCompanyUsersWithFilters: Error fetching filtered users:', error);
         throw error;
       }
 
+      console.log('useCompanyUsersWithFilters: Successfully fetched', data?.length || 0, 'users');
       return (data || []) as FilteredUser[];
     },
     enabled: !!user?.id && !!currentCompanyId,
+    retry: 0,
+    refetchOnWindowFocus: false,
   });
 };
