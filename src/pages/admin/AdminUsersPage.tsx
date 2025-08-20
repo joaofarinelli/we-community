@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDebounce } from 'use-debounce';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { UserImportExportDialog } from '@/components/admin/UserImportExportDialog';
@@ -21,6 +22,7 @@ import { useCompanyUsersWithFilters, UserFilters, FilteredUser } from '@/hooks/u
 import { useTags } from '@/hooks/useTags';
 import { useCourses } from '@/hooks/useCourses';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
+import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
@@ -51,24 +53,30 @@ export const AdminUsersPage = () => {
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
+  // Debounce search term to reduce API calls
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300);
+  
+  // Wait for Supabase context to be ready
+  const { ready: contextReady } = useSupabaseContext();
+  
   // Compute filters using useMemo to prevent unnecessary re-renders
   const computedFilters = useMemo((): UserFilters => {
     const filters: UserFilters = {};
     
-    if (searchTerm) filters.search = searchTerm;
+    if (debouncedSearchTerm) filters.search = debouncedSearchTerm;
     if (selectedRoles.length > 0) filters.roles = selectedRoles;
     if (selectedTags.length > 0) filters.tagIds = selectedTags;
     if (selectedCourses.length > 0) filters.courseIds = selectedCourses;
     if (dateRange?.from) filters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
     if (dateRange?.to) filters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
     
-    console.log('AdminUsersPage: Computed filters changed:', filters);
+    console.debug('AdminUsersPage: Computed filters changed:', filters);
     return filters;
-  }, [searchTerm, selectedRoles, selectedTags, selectedCourses, dateRange]);
+  }, [debouncedSearchTerm, selectedRoles, selectedTags, selectedCourses, dateRange]);
   
-  const { data: members, isLoading } = useCompanyUsersWithFilters(computedFilters);
-  const { data: tags = [] } = useTags();
-  const { data: courses = [] } = useCourses();
+  const { data: members, isLoading } = useCompanyUsersWithFilters(computedFilters, 50, 0, contextReady);
+  const { data: tags = [] } = useTags(contextReady);
+  const { data: courses = [] } = useCourses(contextReady);
   const { toggleUserStatus } = useManageUserStatus();
 
   const handleEditMember = (member: FilteredUser) => {
@@ -126,7 +134,7 @@ export const AdminUsersPage = () => {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || !contextReady) {
     return (
       <AdminLayout>
         <div className="space-y-6">

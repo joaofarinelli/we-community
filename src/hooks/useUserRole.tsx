@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
-export const useUserRole = () => {
+export const useUserRole = (contextReady = true) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
 
@@ -11,18 +12,14 @@ export const useUserRole = () => {
     queryKey: ['user-role', user?.id, currentCompanyId],
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) {
-        console.log('useUserRole: Missing user or company context, returning null');
+        console.debug('useUserRole: Missing user or company context, returning null');
         return null;
       }
 
-      console.log('useUserRole: Setting context for company:', currentCompanyId);
+      console.debug('useUserRole: Starting query for user:', user.id, 'in company:', currentCompanyId);
 
-      // Definir explicitamente o contexto da empresa antes da consulta
-      await supabase.rpc('set_current_company_context', {
-        p_company_id: currentCompanyId
-      });
-
-      console.log('useUserRole: Fetching role for user:', user.id, 'in company:', currentCompanyId);
+      // Ensure company context is set before the query
+      await ensureCompanyContext(currentCompanyId);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -33,15 +30,20 @@ export const useUserRole = () => {
 
       if (error) {
         console.error('useUserRole: Error fetching user role:', error);
+        // Handle "no rows returned" as null instead of error
+        if (error.code === 'PGRST116') {
+          return null;
+        }
         throw error;
       }
 
-      console.log('useUserRole: Successfully fetched role:', data?.role);
+      console.debug('useUserRole: Successfully fetched role:', data?.role);
       return data;
     },
-    enabled: !!user?.id && !!currentCompanyId,
+    enabled: !!user?.id && !!currentCompanyId && contextReady,
     retry: 0,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

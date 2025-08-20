@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
 export interface UserFilters {
   search?: string;
@@ -28,7 +29,8 @@ export interface FilteredUser {
 export const useCompanyUsersWithFilters = (
   filters: UserFilters = {}, 
   limit = 20, 
-  offset = 0
+  offset = 0,
+  contextReady = true
 ) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
@@ -38,14 +40,10 @@ export const useCompanyUsersWithFilters = (
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) return [];
 
-      console.log('useCompanyUsersWithFilters: Setting context for company:', currentCompanyId);
+      console.debug('useCompanyUsersWithFilters: Starting query for company:', currentCompanyId);
 
-      // Definir explicitamente o contexto da empresa antes da consulta
-      await supabase.rpc('set_current_company_context', {
-        p_company_id: currentCompanyId
-      });
-
-      console.log('useCompanyUsersWithFilters: Fetching users with filters:', filters);
+      // Ensure company context is set before the query
+      await ensureCompanyContext(currentCompanyId);
 
       const { data, error } = await supabase.rpc('get_company_users_with_filters', {
         p_company_id: currentCompanyId,
@@ -64,11 +62,12 @@ export const useCompanyUsersWithFilters = (
         throw error;
       }
 
-      console.log('useCompanyUsersWithFilters: Successfully fetched', data?.length || 0, 'users');
+      console.debug('useCompanyUsersWithFilters: Successfully fetched', data?.length || 0, 'users');
       return (data || []) as FilteredUser[];
     },
-    enabled: !!user?.id && !!currentCompanyId,
+    enabled: !!user?.id && !!currentCompanyId && contextReady,
     retry: 0,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };

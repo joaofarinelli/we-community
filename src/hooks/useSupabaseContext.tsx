@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useRef, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
 /**
  * Hook that sets the company context in Supabase session
@@ -10,57 +10,56 @@ import { useCompanyContext } from './useCompanyContext';
 export const useSupabaseContext = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const attemptedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    let isContextSet = false;
-    
     const setSupabaseContext = async () => {
-      // Prevent setting context multiple times
-      if (isContextSet || !user || !currentCompanyId) {
+      if (!user?.id || !currentCompanyId) {
+        setReady(false);
         return;
       }
 
-      console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
-      console.log('🔧 useSupabaseContext: User email:', user.email);
+      // Avoid duplicate attempts for the same user+company combination
+      const contextKey = `${user.id}-${currentCompanyId}`;
+      if (attemptedRef.current === contextKey && ready) {
+        return;
+      }
+
+      console.debug('useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
       
       try {
-        // Always set the current company ID in the Supabase session context
-        // This is crucial for multi-company setups
-        await supabase.rpc('set_current_company_context', {
-          p_company_id: currentCompanyId
-        });
-        isContextSet = true;
-        console.log('✅ useSupabaseContext: Set Supabase context for company:', currentCompanyId);
-      } catch (error) {
-        console.error('❌ useSupabaseContext: Error setting Supabase context:', error);
-        // Single retry with backoff to prevent loops
+        setError(null);
+        await ensureCompanyContext(currentCompanyId);
+        attemptedRef.current = contextKey;
+        setReady(true);
+        console.debug('useSupabaseContext: Context ready for company:', currentCompanyId);
+      } catch (err) {
+        console.error('useSupabaseContext: Error setting context:', err);
+        setError(err as Error);
+        setReady(false);
+        
+        // Single retry after 1 second
         setTimeout(async () => {
-          if (!isContextSet && user && currentCompanyId) {
-            try {
-              console.log('🔄 useSupabaseContext: Retrying context setting...');
-              await supabase.rpc('set_current_company_context', {
-                p_company_id: currentCompanyId
-              });
-              isContextSet = true;
-              console.log('✅ useSupabaseContext: Retry successful - Set Supabase context for company:', currentCompanyId);
-            } catch (retryError) {
-              console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', retryError);
-            }
+          if (attemptedRef.current !== contextKey) return;
+          
+          try {
+            console.debug('useSupabaseContext: Retrying context setting...');
+            await ensureCompanyContext(currentCompanyId);
+            setReady(true);
+            setError(null);
+            console.debug('useSupabaseContext: Retry successful for company:', currentCompanyId);
+          } catch (retryError) {
+            console.error('useSupabaseContext: Retry failed:', retryError);
+            setError(retryError as Error);
           }
         }, 1000);
       }
     };
 
-    // Only set context when both user and company are available
-    if (user && currentCompanyId && !isContextSet) {
-      setSupabaseContext();
-    }
+    setSupabaseContext();
+  }, [user?.id, currentCompanyId, ready]);
 
-    // Reset context flag when dependencies change
-    return () => {
-      isContextSet = false;
-    };
-  }, [user?.id, currentCompanyId]); // Use user.id instead of user object
-
-  return null;
+  return { ready, error };
 };

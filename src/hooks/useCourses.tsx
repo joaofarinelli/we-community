@@ -2,26 +2,21 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
-import { useSupabaseContext } from '@/hooks/useSupabaseContext';
+import { ensureCompanyContext } from '@/lib/ensureCompanyContext';
 
-export const useCourses = () => {
+export const useCourses = (contextReady = true) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
-  useSupabaseContext();
 
   return useQuery({
     queryKey: ['courses', user?.id, currentCompanyId],
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) return [];
 
-      console.log('useCourses: Setting context for company:', currentCompanyId);
+      console.debug('useCourses: Starting query for company:', currentCompanyId);
 
-      // Definir explicitamente o contexto da empresa antes da consulta
-      await supabase.rpc('set_current_company_context', {
-        p_company_id: currentCompanyId
-      });
-
-      console.log('useCourses: Fetching courses for company:', currentCompanyId);
+      // Ensure company context is set before the query
+      await ensureCompanyContext(currentCompanyId);
 
       const { data, error } = await supabase
         .from('courses')
@@ -35,11 +30,12 @@ export const useCourses = () => {
         throw error;
       }
 
-      console.log('useCourses: Successfully fetched', data?.length || 0, 'courses');
+      console.debug('useCourses: Successfully fetched', data?.length || 0, 'courses');
       return data;
     },
-    enabled: !!user?.id && !!currentCompanyId,
+    enabled: !!user?.id && !!currentCompanyId && contextReady,
     retry: 0,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };
