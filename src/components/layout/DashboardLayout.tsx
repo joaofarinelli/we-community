@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
@@ -34,6 +34,21 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { data: company } = useCompany();
   const { data: userProfile } = useUserProfile();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatConversationId, setChatConversationId] = useState<string | null>(null);
+  
+  // Handle chat parameter from URL
+  useEffect(() => {
+    const chatParam = searchParams.get('chat');
+    if (chatParam) {
+      setChatConversationId(chatParam);
+      setChatOpen(true);
+      // Remove the chat parameter from URL
+      searchParams.delete('chat');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
   
   const isAdmin = useIsAdmin();
   
@@ -99,7 +114,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <UserPointsBadge />
                 </div>
                 <div className="hidden md:block">
-                  <ChatDialog />
+                  <ChatDialog 
+                    isOpen={chatOpen}
+                    onOpenChange={setChatOpen}
+                    initialConversationId={chatConversationId}
+                  />
                 </div>
                 <div className="hidden md:block">
                   <NotificationDropdown />
@@ -167,7 +186,11 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <UserPointsBadge />
               </div>
               <div className="md:hidden">
-                <ChatDialog />
+                <ChatDialog 
+                  isOpen={chatOpen}
+                  onOpenChange={setChatOpen}
+                  initialConversationId={chatConversationId}
+                />
               </div>
             </div>
           </div>
