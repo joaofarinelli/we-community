@@ -28,7 +28,10 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
         global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
+          headers: { 
+            Authorization: req.headers.get("Authorization")!,
+            "x-company-id": req.headers.get("x-company-id") || ""
+          },
         },
       }
     );
