@@ -116,6 +116,16 @@ const handler = async (req: Request): Promise<Response> => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
 
+    // Set company context for multi-company users
+    const { error: contextError } = await supabaseClient.rpc('set_current_company_context', {
+      p_company_id: profile.company_id
+    });
+
+    if (contextError) {
+      console.error("Error setting company context:", contextError);
+      throw new Error("Failed to set company context");
+    }
+
     // Create invite record
     const { data: invite, error: inviteError } = await supabaseClient
       .from("user_invites")
