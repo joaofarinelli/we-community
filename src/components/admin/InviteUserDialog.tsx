@@ -37,6 +37,7 @@ const formSchema = z.object({
   email: z.string().email("Email inválido"),
   first_name: z.string().min(1, "Nome é obrigatório"),
   last_name: z.string().min(1, "Sobrenome é obrigatório"),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   role: z.enum(["admin", "member"], {
     message: "Selecione um papel",
   }),
@@ -54,6 +55,7 @@ export const InviteUserDialog = () => {
       email: "",
       first_name: "",
       last_name: "",
+      password: "",
       role: "member" as const,
       courseAccess: [] as string[],
     },
@@ -68,6 +70,7 @@ export const InviteUserDialog = () => {
       email: data.email,
       first_name: data.first_name,
       last_name: data.last_name,
+      password: data.password,
       role: data.role,
       courseAccess,
     });
@@ -101,6 +104,20 @@ export const InviteUserDialog = () => {
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input placeholder="usuario@exemplo.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Digite a senha" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

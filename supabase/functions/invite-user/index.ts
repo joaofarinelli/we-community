@@ -12,6 +12,7 @@ interface InviteRequest {
   email: string;
   first_name: string;
   last_name: string;
+  password: string;
   role: 'admin' | 'member';
   courseAccess: string[];
 }
@@ -83,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { email, first_name, last_name, role, courseAccess }: InviteRequest = await req.json();
+    const { email, first_name, last_name, password, role, courseAccess }: InviteRequest = await req.json();
 
     // Check if user already exists
     const { data: existingProfile } = await supabaseClient
@@ -190,6 +191,7 @@ const handler = async (req: Request): Promise<Response> => {
           email,
           first_name,
           last_name,
+          password,
           role,
           course_access: courseAccess,
           token,
