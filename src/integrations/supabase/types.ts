@@ -161,6 +161,60 @@ export type Database = {
         }
         Relationships: []
       }
+      bug_reports: {
+        Row: {
+          category: string
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          resolved_by: string | null
+          screenshot_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          url: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       challenge_files: {
         Row: {
           challenge_id: string
