@@ -18,6 +18,7 @@ import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
 import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
 import { ChatDialog } from '@/components/chat/ChatDialog';
+import { UtilitiesDialog } from '@/components/dashboard/UtilitiesDialog';
 import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
 import { useRealtimePosts } from '@/hooks/useRealtimePosts';
@@ -121,6 +122,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   />
                 </div>
                 <div className="hidden md:block">
+                  <UtilitiesDialog />
+                </div>
+                <div className="hidden md:block">
                   <NotificationDropdown />
                 </div>
                 <div className="hidden md:block">
@@ -191,6 +195,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   onOpenChange={setChatOpen}
                   initialConversationId={chatConversationId}
                 />
+              </div>
+              <div className="md:hidden">
+                <UtilitiesDialog />
               </div>
             </div>
           </div>
