@@ -1,4 +1,4 @@
-import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings, Calendar, Award } from "lucide-react";
+import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings, Calendar } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -43,7 +43,6 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     { title: "Membros", url: "/dashboard/members", icon: Users },
     ...(isRankingEnabled ? [{ title: "Ranking", url: "/dashboard/ranking", icon: Trophy }] : []),
     { title: "Cursos", url: "/courses", icon: BookOpen },
-    { title: "Certificados", url: "/dashboard/certificates", icon: Award },
     ...(isMarketplaceEnabled ? [{ title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag }] : []),
     ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
