@@ -66,6 +66,8 @@ import { AdminContentCategoriesPage } from "./pages/admin/AdminContentCategories
 import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { LikedLessonsPage } from "./pages/LikedLessonsPage";
+import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 
@@ -136,6 +138,8 @@ const AppRoutes = () => {
         <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
         <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
         <Route path="/dashboard/certificates" element={<AuthGuard><CertificatesPage /></AuthGuard>} />
+        <Route path="/dashboard/liked-lessons" element={<AuthGuard><LikedLessonsPage /></AuthGuard>} />
+        <Route path="/dashboard/lesson-notes" element={<AuthGuard><LessonNotesPage /></AuthGuard>} />
         <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
         <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
         <Route path="/admin/content/posts" element={<AuthGuard><AdminContentPostsPage /></AuthGuard>} />

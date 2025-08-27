@@ -21,13 +21,13 @@ export const UtilitiesDialog = () => {
       title: 'Aulas curtidas',
       description: 'Veja todas as aulas que você curtiu',
       icon: Heart,
-      path: '/dashboard/courses'
+      path: '/dashboard/liked-lessons'
     },
     {
       title: 'Minhas anotações',
       description: 'Veja suas anotações feita nas aulas',
       icon: PenTool,
-      path: '/dashboard/courses'
+      path: '/dashboard/lesson-notes'
     },
     {
       title: 'Meus certificados',
