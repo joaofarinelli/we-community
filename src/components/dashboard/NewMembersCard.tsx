@@ -61,7 +61,7 @@ export const NewMembersCard = () => {
   };
 
   return (
-    <Card>
+    <Card className="sticky top-6">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Users className="h-5 w-5" />

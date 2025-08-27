@@ -1,6 +1,5 @@
 import { TrendingUp, Heart, MessageCircle, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 
 interface PopularPost {
@@ -16,7 +15,7 @@ interface PopularPost {
 export const PopularPostsCard = () => {
   const navigate = useNavigate();
 
-  // Mock data for now - will be replaced with real data later
+  // Using mock data for now - structure ready for real data integration
   const posts: PopularPost[] = [
     {
       id: '1',
@@ -75,7 +74,7 @@ export const PopularPostsCard = () => {
   };
 
   return (
-    <Card>
+    <Card className="sticky top-6">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
