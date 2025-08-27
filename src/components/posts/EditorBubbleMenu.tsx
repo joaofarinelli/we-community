@@ -1,7 +1,9 @@
 import { Editor } from '@tiptap/react';
-import { Bold, Italic, Strikethrough } from 'lucide-react';
+import { Bold, Italic, Strikethrough, Link } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
+import { Button } from '@/components/ui/button';
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { LinkDialog } from './LinkDialog';
 
 interface EditorBubbleMenuProps {
   editor: Editor;
@@ -10,6 +12,7 @@ interface EditorBubbleMenuProps {
 export const EditorBubbleMenu = ({ editor }: EditorBubbleMenuProps) => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [visible, setVisible] = useState(false);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
@@ -42,7 +45,7 @@ export const EditorBubbleMenu = ({ editor }: EditorBubbleMenuProps) => {
     let menuTop = selectionRect.top - 60; // Position above selection
     
     // Check viewport boundaries
-    const menuWidth = 150; // Approximate menu width
+    const menuWidth = 200; // Approximate menu width (increased for link button)
     const menuHeight = 40; // Approximate menu height
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -157,6 +160,21 @@ export const EditorBubbleMenu = ({ editor }: EditorBubbleMenuProps) => {
       >
         <Strikethrough className="h-4 w-4" />
       </Toggle>
+      
+      <Button
+        size="sm"
+        variant={editor.isActive('link') ? 'default' : 'ghost'}
+        onClick={() => setLinkDialogOpen(true)}
+        aria-label="Link"
+      >
+        <Link className="h-4 w-4" />
+      </Button>
+      
+      <LinkDialog 
+        editor={editor}
+        open={linkDialogOpen}
+        onOpenChange={setLinkDialogOpen}
+      />
     </div>
   );
 };

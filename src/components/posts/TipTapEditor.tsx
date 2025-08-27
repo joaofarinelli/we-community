@@ -1,6 +1,7 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
 import ResizeImage from 'tiptap-extension-resize-image';
 import Mention from '@tiptap/extension-mention';
 import BubbleMenuExtension from '@tiptap/extension-bubble-menu';
@@ -38,6 +39,14 @@ export const TipTapEditor = forwardRef<TipTapEditorRef, TipTapEditorProps>(({
     extensions: [
       StarterKit,
       BubbleMenuExtension,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-primary underline hover:text-primary/80 transition-colors cursor-pointer',
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
       ResizeImage.configure({
         HTMLAttributes: {
           class: 'max-w-full max-h-[60vh] h-auto rounded-lg object-contain',
