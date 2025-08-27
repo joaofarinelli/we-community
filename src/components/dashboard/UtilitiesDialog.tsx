@@ -36,12 +36,6 @@ export const UtilitiesDialog = () => {
       path: '/dashboard/certificates'
     },
     {
-      title: 'Minhas compras',
-      description: 'Verifique as informações das suas compras',
-      icon: ShoppingCart,
-      path: '/dashboard/marketplace/purchases'
-    },
-    {
       title: 'Relatar problema',
       description: 'Encontrou um bug? Relate aqui',
       icon: Bug,
