@@ -23,6 +23,22 @@ export const useCreateSpace = () => {
         throw new Error('Usuário ou empresa não encontrados');
       }
 
+      // Verificar se há uma sessão válida antes de prosseguir
+      const { data: session } = await supabase.auth.getSession();
+      if (!session.session) {
+        throw new Error('Sessão de autenticação inválida. Faça login novamente.');
+      }
+
+      // Garantir que o contexto da empresa está definido
+      const { error: contextError } = await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id
+      });
+
+      if (contextError) {
+        console.error('Erro ao definir contexto da empresa:', contextError);
+        throw new Error('Erro ao definir contexto da empresa');
+      }
+
       // Buscar próximo order_index
       const { data: existingSpaces } = await supabase
         .from('spaces')
@@ -49,7 +65,10 @@ export const useCreateSpace = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao criar espaço:', error);
+        throw error;
+      }
       return newSpace;
     },
     onSuccess: () => {
@@ -59,7 +78,17 @@ export const useCreateSpace = () => {
     },
     onError: (error) => {
       console.error('Erro ao criar espaço:', error);
-      toast.error('Erro ao criar espaço. Tente novamente.');
+      
+      // Dar mensagens de erro mais específicas para o usuário
+      if (error.message.includes('Sessão de autenticação inválida')) {
+        toast.error('Sessão expirada. Recarregue a página e tente novamente.');
+      } else if (error.message.includes('contexto da empresa')) {
+        toast.error('Erro de contexto. Selecione novamente a empresa e tente novamente.');
+      } else if (error.message.includes('row-level security policy')) {
+        toast.error('Erro de permissão. Verifique se você tem permissão para criar espaços.');
+      } else {
+        toast.error(`Erro ao criar espaço: ${error.message}`);
+      }
     },
   });
 
