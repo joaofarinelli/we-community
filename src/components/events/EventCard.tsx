@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2, Heart, MessageCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useEventParticipants } from '@/hooks/useEventParticipants';
+import { useEventLikes } from '@/hooks/useEventLikes';
+import { useEventComments } from '@/hooks/useEventComments';
 import { useAuth } from '@/hooks/useAuth';
 import { useCanEditEvent } from '@/hooks/useCanEditEvent';
 import { useDeleteEvent } from '@/hooks/useDeleteEvent';
@@ -37,6 +39,8 @@ interface EventCardProps {
 export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
+  const { userLike, likesCount, toggleLike } = useEventLikes(event.id);
+  const { data: comments = [] } = useEventComments(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by, status: event.status });
   const deleteEvent = useDeleteEvent();
@@ -44,6 +48,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
   const hasMaxParticipants = event.max_participants && participantCount >= event.max_participants;
+  const totalComments = comments.reduce((acc, comment) => acc + 1 + (comment.replies?.length || 0), 0);
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
@@ -180,22 +185,43 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                 </div>
               </div>
 
-              <Button
-                size="sm"
-                variant={isParticipant ? "outline" : "default"}
-                onClick={handleParticipationToggle}
-                disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants)}
-                className="text-xs"
-              >
-                {isJoining || isLeaving
-                  ? "..."
-                  : isParticipant
-                  ? "Confirmado"
-                  : hasMaxParticipants
-                  ? "Lotado"
-                  : "Confirmar"
-                }
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Likes and Comments */}
+                <div className="flex items-center gap-3 mr-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleLike.mutate();
+                    }}
+                    className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Heart className={`h-3 w-3 ${userLike ? 'fill-current text-red-500' : ''}`} />
+                    {likesCount > 0 && <span>{likesCount}</span>}
+                  </button>
+                  
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <MessageCircle className="h-3 w-3" />
+                    {totalComments > 0 && <span>{totalComments}</span>}
+                  </div>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant={isParticipant ? "outline" : "default"}
+                  onClick={handleParticipationToggle}
+                  disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants)}
+                  className="text-xs"
+                >
+                  {isJoining || isLeaving
+                    ? "..."
+                    : isParticipant
+                    ? "Confirmado"
+                    : hasMaxParticipants
+                    ? "Lotado"
+                    : "Confirmar"
+                  }
+                </Button>
+              </div>
             </div>
           </div>
         </div>

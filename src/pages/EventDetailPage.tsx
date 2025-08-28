@@ -11,6 +11,7 @@ import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { EventBanner } from '@/components/events/EventBanner';
 import { EventLikeButton } from '@/components/events/EventLikeButton';
 import { EventParticipationDropdown } from '@/components/events/EventParticipationDropdown';
+import { EventInteractions } from '@/components/events/EventInteractions';
 import { UserAvatar } from '@/components/dashboard/UserAvatar';
 
 export default function EventDetailPage() {
@@ -167,18 +168,25 @@ END:VCALENDAR`;
               </Card>
             )}
 
-            {/* Actions */}
-            <div className="flex flex-wrap gap-3">
-              <EventLikeButton eventId={event.id} />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={generateCalendarFile}
-                className="gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Adicionar ao Calendário
-              </Button>
+            {/* Actions and Interactions */}
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={generateCalendarFile}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Adicionar ao Calendário
+                </Button>
+              </div>
+
+              <Card>
+                <CardContent className="p-6">
+                  <EventInteractions eventId={event.id} />
+                </CardContent>
+              </Card>
             </div>
           </div>
 
