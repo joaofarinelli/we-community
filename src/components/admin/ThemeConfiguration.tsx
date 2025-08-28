@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,16 @@ export const ThemeConfiguration = () => {
   const [selectedTextColor, setSelectedTextColor] = useState(themeConfig?.text_color || '#F0F3F5');
   const [selectedButtonTextColor, setSelectedButtonTextColor] = useState(themeConfig?.button_text_color || '#FFFFFF');
   const [selectedMode, setSelectedMode] = useState(themeConfig?.theme_mode || 'light');
+
+  // Sync local state with themeConfig when it loads
+  useEffect(() => {
+    if (themeConfig) {
+      setSelectedColor(themeConfig.primary_color || '#334155');
+      setSelectedTextColor(themeConfig.text_color || '#F0F3F5');
+      setSelectedButtonTextColor(themeConfig.button_text_color || '#FFFFFF');
+      setSelectedMode(themeConfig.theme_mode || 'light');
+    }
+  }, [themeConfig]);
 
   const handleSaveChanges = () => {
     if (selectedMode !== themeConfig?.theme_mode) {
