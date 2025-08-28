@@ -3346,6 +3346,15 @@ export type Database = {
         }
         Returns: string
       }
+      debug_space_creation_context: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_user_id: string
+          company_context: string
+          is_owner: boolean
+          profile_exists: boolean
+        }[]
+      }
       deduct_user_coins: {
         Args: {
           p_coins: number

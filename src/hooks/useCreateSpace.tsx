@@ -39,6 +39,26 @@ export const useCreateSpace = () => {
         throw new Error('Erro ao definir contexto da empresa');
       }
 
+      // Debug: Verificar o contexto atual antes de criar o espaço
+      const { data: debugInfo, error: debugError } = await supabase.rpc('debug_space_creation_context');
+      console.log('Debug do contexto de criação:', debugInfo);
+      
+      if (debugError) {
+        console.error('Erro no debug:', debugError);
+      }
+
+      if (!debugInfo?.[0]?.auth_user_id) {
+        throw new Error('Usuário não autenticado no contexto do banco de dados');
+      }
+
+      if (!debugInfo?.[0]?.company_context) {
+        throw new Error('Contexto da empresa não foi definido corretamente');
+      }
+
+      if (!debugInfo?.[0]?.is_owner) {
+        throw new Error('Usuário não é proprietário da empresa atual');
+      }
+
       // Buscar próximo order_index
       const { data: existingSpaces } = await supabase
         .from('spaces')
