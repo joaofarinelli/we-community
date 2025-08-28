@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/hooks/useCompanyContext";
+import { useSupabaseContext } from "@/hooks/useSupabaseContext";
 import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -77,6 +78,7 @@ const AppRoutes = () => {
   const { user, loading } = useAuth();
   const { subdomain, customDomain, isLoading: subdomainLoading } = useSubdomain();
   useDynamicTitle();
+  useSupabaseContext(); // Mount globally to ensure consistent company context
 
   if (loading || subdomainLoading) {
     return (

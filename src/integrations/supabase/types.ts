@@ -3393,6 +3393,21 @@ export type Database = {
           total_users: number
         }[]
       }
+      get_company_details_for_user: {
+        Args: { p_company_id: string }
+        Returns: {
+          custom_domain: string
+          custom_domain_status: string
+          custom_domain_verified_at: string
+          enabled_features: Json
+          id: string
+          logo_url: string
+          name: string
+          status: string
+          subdomain: string
+          theme_config: Json
+        }[]
+      }
       get_company_users_with_filters: {
         Args: {
           p_company_id: string

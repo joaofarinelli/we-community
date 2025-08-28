@@ -19,11 +19,35 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
   const [showCompanySelection, setShowCompanySelection] = useState(false);
 
   useEffect(() => {
+    // Ignore development-fallback as it's not a real domain
+    const hasRealDomain = subdomain || (customDomain && customDomain !== 'development-fallback');
+    
     // Only redirect if we have a subdomain/custom domain but no company found AND user is authenticated
-    if (!subdomainLoading && !companyLoading && (subdomain || customDomain) && !company && user) {
+    if (!subdomainLoading && !companyLoading && hasRealDomain && !company && user) {
       console.log('No company found for subdomain/domain, redirecting to main domain');
-      const baseDomain = window.location.hostname.split('.').slice(-2).join('.');
-      const mainDomain = baseDomain.includes('localhost') ? 'localhost:5173' : baseDomain;
+      
+      const hostname = window.location.hostname;
+      let mainDomain;
+      
+      if (hostname.includes('localhost')) {
+        mainDomain = 'localhost:5173';
+      } else if (customDomain) {
+        // For custom domains, redirect to the main platform domain
+        mainDomain = 'weplataforma.com.br';
+      } else if (subdomain && hostname.includes('weplataforma.com.br')) {
+        // For subdomains of weplataforma.com.br, just remove the subdomain
+        mainDomain = 'weplataforma.com.br';
+      } else {
+        // Fallback: try to extract base domain safely
+        const parts = hostname.split('.');
+        if (parts.length >= 2) {
+          mainDomain = parts.slice(-2).join('.');
+        } else {
+          mainDomain = hostname;
+        }
+      }
+      
+      console.log('Redirecting from', hostname, 'to', mainDomain);
       window.location.href = `${window.location.protocol}//${mainDomain}${window.location.pathname}`;
       return;
     }
@@ -34,8 +58,26 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
       
       if (!hasAccessToCompany) {
         console.log('User does not have access to this company, redirecting to main domain');
-        const baseDomain = window.location.hostname.split('.').slice(-2).join('.');
-        const mainDomain = baseDomain.includes('localhost') ? 'localhost:5173' : baseDomain;
+        
+        const hostname = window.location.hostname;
+        let mainDomain;
+        
+        if (hostname.includes('localhost')) {
+          mainDomain = 'localhost:5173';
+        } else if (customDomain) {
+          mainDomain = 'weplataforma.com.br';
+        } else if (subdomain && hostname.includes('weplataforma.com.br')) {
+          mainDomain = 'weplataforma.com.br';
+        } else {
+          const parts = hostname.split('.');
+          if (parts.length >= 2) {
+            mainDomain = parts.slice(-2).join('.');
+          } else {
+            mainDomain = hostname;
+          }
+        }
+        
+        console.log('Access denied, redirecting from', hostname, 'to', mainDomain);
         window.location.href = `${window.location.protocol}//${mainDomain}${window.location.pathname}`;
         return;
       }
@@ -52,7 +94,9 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
   }
 
   // If we have a subdomain or custom domain but no company AND user is authenticated, show error and redirect
-  if ((subdomain || customDomain) && !company && !companyLoading && user) {
+  // Ignore development-fallback as it's not a real domain
+  const hasRealDomainForError = subdomain || (customDomain && customDomain !== 'development-fallback');
+  if (hasRealDomainForError && !company && !companyLoading && user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -70,12 +114,16 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
   }
 
   // If user is authenticated but we don't have a subdomain/custom domain, show company selection
-  if (user && !subdomain && !customDomain && userCompanies.length > 0) {
+  // Ignore development-fallback as it's not a real domain
+  const hasRealDomainForSelection = subdomain || (customDomain && customDomain !== 'development-fallback');
+  if (user && !hasRealDomainForSelection && userCompanies.length > 0) {
     return <CompanySelectionPage />;
   }
 
   // If user is authenticated but has no companies, show empty state
-  if (user && !subdomain && !customDomain && userCompanies.length === 0) {
+  // Ignore development-fallback as it's not a real domain
+  const hasRealDomainForEmptyState = subdomain || (customDomain && customDomain !== 'development-fallback');
+  if (user && !hasRealDomainForEmptyState && userCompanies.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
         <div className="text-center">
