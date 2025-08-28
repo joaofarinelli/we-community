@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useCompany } from '@/hooks/useCompany';
@@ -87,25 +86,12 @@ export const FeedBannerSection = () => {
           Banner do Feed
         </CardTitle>
         <CardDescription>
-          Configure um banner que aparecerá no topo da página principal (feed) para todos os usuários da empresa
+          Faça upload de um banner que aparecerá no topo da página principal (feed) para todos os usuários da empresa
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="banner-url">URL do Banner</Label>
-          <Input
-            id="banner-url"
-            placeholder="https://exemplo.com/banner.jpg"
-            value={bannerUrl}
-            onChange={(e) => setBannerUrl(e.target.value)}
-          />
-          <p className="text-sm text-muted-foreground">
-            Use uma imagem com proporção 16:9 (recomendado: 1200x675px) para melhor resultado
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Ou faça upload de uma imagem</Label>
+          <Label>Upload do Banner</Label>
           <ImageUpload
             value={bannerUrl}
             onChange={handleImageUpload}
@@ -113,6 +99,9 @@ export const FeedBannerSection = () => {
             bucketName="company-logos"
             maxSizeKB={5120}
           />
+          <p className="text-sm text-muted-foreground">
+            Use uma imagem com proporção 16:9 (recomendado: 1200x675px) para melhor resultado
+          </p>
         </div>
 
         {bannerUrl && (

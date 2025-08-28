@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useCompany } from '@/hooks/useCompany';
@@ -87,25 +86,12 @@ export const LoginBannerSection = () => {
           Banner da Página de Login
         </CardTitle>
         <CardDescription>
-          Configure um banner lateral que aparecerá do lado esquerdo da página de login. Recomendamos uma imagem vertical com boa qualidade.
+          Faça upload de um banner lateral que aparecerá do lado esquerdo da página de login. Recomendamos uma imagem vertical com boa qualidade.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="login-banner-url">URL do Banner</Label>
-          <Input
-            id="login-banner-url"
-            placeholder="https://exemplo.com/banner-login.jpg"
-            value={bannerUrl}
-            onChange={(e) => setBannerUrl(e.target.value)}
-          />
-          <p className="text-sm text-muted-foreground">
-            Use uma imagem vertical (proporção 9:16 ou similar) para melhor resultado. Largura máxima de 500px.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Ou faça upload de uma imagem</Label>
+          <Label>Upload do Banner</Label>
           <ImageUpload
             value={bannerUrl}
             onChange={handleImageUpload}
@@ -113,6 +99,9 @@ export const LoginBannerSection = () => {
             bucketName="company-logos"
             maxSizeKB={5120}
           />
+          <p className="text-sm text-muted-foreground">
+            Use uma imagem vertical (proporção 9:16 ou similar) para melhor resultado. Largura máxima de 500px.
+          </p>
         </div>
 
         {bannerUrl && (
