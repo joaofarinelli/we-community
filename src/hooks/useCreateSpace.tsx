@@ -29,19 +29,25 @@ export const useCreateSpace = () => {
         throw new Error('Sessão de autenticação inválida. Faça login novamente.');
       }
 
-      // Garantir que o contexto da empresa está definido
+      console.log('🔧 Criando espaço - Contexto atual:', { 
+        userId: user.id, 
+        companyId: company.id,
+        companyName: company.name
+      });
+
+      // CRÍTICO: Para usuários multi-empresa, SEMPRE redefinir o contexto antes de operações importantes
       const { error: contextError } = await supabase.rpc('set_current_company_context', {
         p_company_id: company.id
       });
 
       if (contextError) {
         console.error('Erro ao definir contexto da empresa:', contextError);
-        throw new Error('Erro ao definir contexto da empresa');
+        throw new Error(`Erro ao definir contexto da empresa: ${contextError.message}`);
       }
 
       // Debug: Verificar o contexto atual antes de criar o espaço
       const { data: debugInfo, error: debugError } = await supabase.rpc('debug_space_creation_context');
-      console.log('Debug do contexto de criação:', debugInfo);
+      console.log('🔍 Debug do contexto de criação:', debugInfo?.[0]);
       
       if (debugError) {
         console.error('Erro no debug:', debugError);
@@ -56,8 +62,11 @@ export const useCreateSpace = () => {
       }
 
       if (!debugInfo?.[0]?.is_owner) {
-        throw new Error('Usuário não é proprietário da empresa atual');
+        throw new Error(`Usuário não é proprietário da empresa atual. Debug: ${JSON.stringify(debugInfo[0])}`);
       }
+
+      // Aguardar um momento para o contexto se propagar
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Buscar próximo order_index
       const { data: existingSpaces } = await supabase
@@ -69,26 +78,32 @@ export const useCreateSpace = () => {
 
       const nextOrderIndex = existingSpaces?.[0]?.order_index ? existingSpaces[0].order_index + 1 : 0;
 
+      const spaceData = {
+        name: data.name,
+        type: data.type,
+        category_id: data.categoryId,
+        company_id: company.id,
+        created_by: user.id,
+        order_index: nextOrderIndex,
+        visibility: data.visibility,
+        custom_icon_type: data.customIconType || 'default',
+        custom_icon_value: data.customIconValue || null,
+      };
+
+      console.log('🔧 Dados do espaço a serem inseridos:', spaceData);
+
       const { data: newSpace, error } = await supabase
         .from('spaces')
-        .insert({
-          name: data.name,
-          type: data.type,
-          category_id: data.categoryId,
-          company_id: company.id,
-          created_by: user.id,
-          order_index: nextOrderIndex,
-          visibility: data.visibility,
-          custom_icon_type: data.customIconType || 'default',
-          custom_icon_value: data.customIconValue || null,
-        })
+        .insert(spaceData)
         .select()
         .single();
 
       if (error) {
         console.error('Erro detalhado ao criar espaço:', error);
-        throw error;
+        throw new Error(`Erro ao criar espaço: ${error.message}. Code: ${error.code}`);
       }
+      
+      console.log('✅ Espaço criado com sucesso:', newSpace);
       return newSpace;
     },
     onSuccess: () => {

@@ -3353,6 +3353,8 @@ export type Database = {
           company_context: string
           is_owner: boolean
           profile_exists: boolean
+          user_companies: string[]
+          user_companies_count: number
         }[]
       }
       deduct_user_coins: {
