@@ -1,4 +1,4 @@
-import { TrendingUp, Heart, MessageCircle, ChevronRight } from 'lucide-react';
+import { TrendingUp, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -33,10 +33,6 @@ export const PopularPostsCard = () => {
               <div className="flex-1 space-y-1">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
-                <div className="flex gap-3">
-                  <Skeleton className="h-3 w-8" />
-                  <Skeleton className="h-3 w-8" />
-                </div>
               </div>
             </div>
           ))}
@@ -73,8 +69,6 @@ export const PopularPostsCard = () => {
       </CardHeader>
         <CardContent className="space-y-3">
         {posts.map((post) => {
-          const likesCount = post.post_interactions?.filter((i: any) => i.type === 'like').length || 0;
-          const commentsCount = post.post_interactions?.filter((i: any) => i.type === 'comment').length || 0;
           const authorName = post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Usuário';
           
           return (
@@ -92,17 +86,6 @@ export const PopularPostsCard = () => {
                 <p className="text-xs text-muted-foreground">
                   {authorName}
                 </p>
-                
-                <div className="flex items-center gap-3 mt-1">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Heart className="h-3 w-3" />
-                    {likesCount}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MessageCircle className="h-3 w-3" />
-                    {commentsCount}
-                  </div>
-                </div>
               </div>
               
               <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
