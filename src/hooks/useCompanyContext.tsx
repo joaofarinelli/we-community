@@ -73,7 +73,8 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
         let domainCompany = null;
 
         // Try to find company by custom domain first if we have one
-        if (customDomain) {
+        // Ignore development-fallback as it's not a real custom domain
+        if (customDomain && customDomain !== 'development-fallback') {
           console.log('Looking for company with custom_domain:', customDomain);
           const { data: customDomainCompany } = await supabase
             .from('companies')

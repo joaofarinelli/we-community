@@ -48,8 +48,14 @@ const enhancedFetch = (originalFetch: typeof fetch) => {
       // Only add header for Supabase API calls
       const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
       if (url.includes('supabase.co')) {
+        // Preserve existing headers while adding x-company-id
+        const existingHeaders = init.headers || {};
+        const headersObj = existingHeaders instanceof Headers 
+          ? Object.fromEntries(existingHeaders.entries())
+          : existingHeaders;
+        
         init.headers = {
-          ...init.headers,
+          ...headersObj,
           'x-company-id': companyId,
         };
         console.log('📡 Adding x-company-id header to request:', companyId, url.split('/').pop());

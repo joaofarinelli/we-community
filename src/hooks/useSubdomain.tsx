@@ -46,15 +46,9 @@ export const useSubdomain = () => {
         setSubdomain(null);
         setIsLoading(false);
         return;
-      } else if (mappedDomain === 'development-fallback') {
-        console.log('Detected Lovable environment, using development fallback');
-        setCustomDomain('development-fallback');
-        setSubdomain(null);
-        setIsLoading(false);
-        return;
       } else {
-        console.log('Detected Lovable environment but no domain mapping, using development fallback');
-        setCustomDomain('development-fallback');
+        console.log('Detected Lovable environment, no domain mapping - using regular flow');
+        setCustomDomain(null);
         setSubdomain(null);
         setIsLoading(false);
         return;
