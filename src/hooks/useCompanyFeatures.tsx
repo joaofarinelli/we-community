@@ -1,3 +1,4 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompanyContext } from './useCompanyContext';
@@ -8,7 +9,11 @@ export type CompanyFeature =
   | 'bank' 
   | 'store' 
   | 'streak' 
-  | 'challenges';
+  | 'challenges'
+  | 'trails'
+  | 'members'
+  | 'courses'
+  | 'calendar';
 
 export interface CompanyFeatures {
   marketplace: boolean;
@@ -17,7 +22,24 @@ export interface CompanyFeatures {
   store: boolean;
   streak: boolean;
   challenges: boolean;
+  trails: boolean;
+  members: boolean;
+  courses: boolean;
+  calendar: boolean;
 }
+
+const DEFAULT_FEATURES: CompanyFeatures = {
+  marketplace: true,
+  ranking: true,
+  bank: true,
+  store: true,
+  streak: true,
+  challenges: true,
+  trails: true,
+  members: true,
+  courses: true,
+  calendar: true,
+};
 
 export const useCompanyFeatures = () => {
   const { currentCompanyId } = useCompanyContext();
@@ -36,14 +58,8 @@ export const useCompanyFeatures = () => {
       if (error) throw error;
 
       const features = data?.enabled_features as any;
-      return features || {
-        marketplace: true,
-        ranking: true,
-        bank: true,
-        store: true,
-        streak: true,
-        challenges: true
-      };
+      // Merge com defaults para garantir que todas as chaves existam
+      return { ...DEFAULT_FEATURES, ...features };
     },
     enabled: !!currentCompanyId,
   });
@@ -51,5 +67,5 @@ export const useCompanyFeatures = () => {
 
 export const useIsFeatureEnabled = (feature: CompanyFeature): boolean => {
   const { data: features } = useCompanyFeatures();
-  return features?.[feature] ?? false;
+  return features?.[feature] ?? DEFAULT_FEATURES[feature];
 };

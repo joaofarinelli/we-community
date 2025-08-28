@@ -1,199 +1,111 @@
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Rss, BookOpen, ShoppingBag, Target, Wallet, Store, Trophy, Map, Grid3X3, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+
+import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { 
+  Rss, 
+  Grid3X3, 
+  Map, 
+  Users, 
+  Trophy, 
+  BookOpen, 
+  ShoppingBag, 
+  Store, 
+  Wallet, 
+  Target,
+  Settings,
+  Calendar
+} from 'lucide-react';
+
+import { useCompany } from '@/hooks/useCompany';
 import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
+import { useIsAdmin } from '@/hooks/useUserRole';
 
-interface CircleSidebarProps {
-  onClose?: () => void;
-}
-
-export function CircleSidebar({
-  onClose
-}: CircleSidebarProps) {
-  const navigate = useNavigate();
+const CircleSidebar = () => {
   const location = useLocation();
-  
+  const currentPath = location.pathname;
+  const { data: company } = useCompany();
+  const isAdmin = useIsAdmin();
+
   // Feature flags
   const isRankingEnabled = useIsFeatureEnabled('ranking');
   const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
   const isStoreEnabled = useIsFeatureEnabled('store');
   const isBankEnabled = useIsFeatureEnabled('bank');
   const isChallengesEnabled = useIsFeatureEnabled('challenges');
+  const isTrailsEnabled = useIsFeatureEnabled('trails');
+  const isMembersEnabled = useIsFeatureEnabled('members');
+  const isCoursesEnabled = useIsFeatureEnabled('courses');
+  const isCalendarEnabled = useIsFeatureEnabled('calendar');
+
+  const navigationItems = [
+    { name: 'Feed', path: '/dashboard', icon: Rss },
+    { name: 'Espaços', path: '/dashboard/spaces', icon: Grid3X3 },
+    ...(isTrailsEnabled ? [{ name: 'Trilhas', path: '/dashboard/trails', icon: Map }] : []),
+    ...(isMembersEnabled ? [{ name: 'Membros', path: '/dashboard/members', icon: Users }] : []),
+    ...(isRankingEnabled ? [{ name: 'Ranking', path: '/dashboard/ranking', icon: Trophy }] : []),
+    ...(isCoursesEnabled ? [{ name: 'Cursos', path: '/courses', icon: BookOpen }] : []),
+    ...(isMarketplaceEnabled ? [{ name: 'Marketplace', path: '/dashboard/marketplace', icon: ShoppingBag }] : []),
+    ...(isStoreEnabled ? [{ name: 'Loja', path: '/dashboard/store', icon: Store }] : []),
+    ...(isBankEnabled ? [{ name: 'Banco', path: '/dashboard/bank', icon: Wallet }] : []),
+    ...(isChallengesEnabled ? [{ name: 'Desafios', path: '/dashboard/challenges', icon: Target }] : []),
+    ...(isCalendarEnabled ? [{ name: 'Calendário', path: '/dashboard/calendar', icon: Calendar }] : []),
+    ...(isAdmin ? [{ name: 'Admin', path: '/admin/settings', icon: Settings }] : []),
+  ];
+
+  const isActive = (path: string) => {
+    if (path === '/dashboard') {
+      return currentPath === '/dashboard';
+    }
+    if (path === '/courses') {
+      return currentPath.startsWith('/courses');
+    }
+    if (path === '/admin/settings') {
+      return currentPath.startsWith('/admin');
+    }
+    return currentPath.startsWith(path);
+  };
 
   return (
-    <aside className="w-[280px] h-screen bg-card border-r border-border/50 flex flex-col">
-      {/* Content */}
-      <div className="flex-1 p-6 space-y-2">
-        {/* Feed */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-              location.pathname === '/dashboard' 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard')}
-          >
-            <Rss className="h-5 w-5 mr-3" />
-            Feed
-          </Button>
+    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="bg-card/95 backdrop-blur-sm border border-border rounded-full p-2 shadow-lg">
+        <div className="flex items-center space-x-1">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+
+            return (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                end={item.path === '/dashboard'}
+                className="group relative"
+              >
+                <div 
+                  className={`
+                    p-3 rounded-full transition-all duration-200 
+                    ${active 
+                      ? 'text-white shadow-lg' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    }
+                  `}
+                  style={{
+                    backgroundColor: active ? company?.primary_color || '#3b82f6' : undefined,
+                  }}
+                >
+                  <Icon className="h-5 w-5" />
+                </div>
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-popover text-popover-foreground rounded border shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  {item.name}
+                </div>
+              </NavLink>
+            );
+          })}
         </div>
-
-        {/* Espaços */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/spaces') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/spaces')}
-          >
-            <Grid3X3 className="h-5 w-5 mr-3" />
-            Espaços
-          </Button>
-        </div>
-
-        {/* Trilhas */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/trails') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/trails')}
-          >
-            <Map className="h-5 w-5 mr-3" />
-            Trilhas
-          </Button>
-        </div>
-
-        {/* Membros */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/dashboard/members') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/dashboard/members')}
-          >
-            <Users className="h-5 w-5 mr-3" />
-            Membros
-          </Button>
-        </div>
-
-        {/* Ranking */}
-        {isRankingEnabled && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-                location.pathname === '/dashboard/ranking' 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/ranking')}
-            >
-              <Trophy className="h-5 w-5 mr-3" />
-              Ranking
-            </Button>
-          </div>
-        )}
-
-        {/* Cursos */}
-        <div>
-          <Button 
-            variant="ghost" 
-            className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-              location.pathname.startsWith('/courses') 
-                ? 'bg-primary text-primary-foreground shadow-sm' 
-                : 'hover:bg-muted/50'
-            }`}
-            onClick={() => navigate('/courses')}
-          >
-            <BookOpen className="h-5 w-5 mr-3" />
-            Cursos
-          </Button>
-        </div>
-
-        {/* Marketplace */}
-        {isMarketplaceEnabled && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-                location.pathname.startsWith('/dashboard/marketplace') 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/marketplace')}
-            >
-              <ShoppingBag className="h-5 w-5 mr-3" />
-              Marketplace
-            </Button>
-          </div>
-        )}
-
-        {/* Loja */}
-        {isStoreEnabled && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-                location.pathname.startsWith('/dashboard/store') 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/store')}
-            >
-              <Store className="h-5 w-5 mr-3" />
-              Loja
-            </Button>
-          </div>
-        )}
-
-        {/* Banco */}
-        {isBankEnabled && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-                location.pathname.startsWith('/dashboard/bank') 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/bank')}
-            >
-              <Wallet className="h-5 w-5 mr-3" />
-              Banco
-            </Button>
-          </div>
-        )}
-
-        {/* Desafios */}
-        {isChallengesEnabled && (
-          <div>
-            <Button 
-              variant="ghost" 
-              className={`w-full justify-start h-[44px] px-4 text-left text-[14px] font-medium transition-all duration-200 ${
-                location.pathname.startsWith('/dashboard/challenges') 
-                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                  : 'hover:bg-muted/50'
-              }`}
-              onClick={() => navigate('/dashboard/challenges')}
-            >
-              <Target className="h-5 w-5 mr-3" />
-              Desafios
-            </Button>
-          </div>
-        )}
       </div>
-    </aside>
+    </div>
   );
-}
+};
+
+export default CircleSidebar;

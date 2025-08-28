@@ -1,3 +1,4 @@
+
 import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings, Calendar } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -34,20 +35,24 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   const isStoreEnabled = useIsFeatureEnabled('store');
   const isBankEnabled = useIsFeatureEnabled('bank');
   const isChallengesEnabled = useIsFeatureEnabled('challenges');
+  const isTrailsEnabled = useIsFeatureEnabled('trails');
+  const isMembersEnabled = useIsFeatureEnabled('members');
+  const isCoursesEnabled = useIsFeatureEnabled('courses');
+  const isCalendarEnabled = useIsFeatureEnabled('calendar');
   
-  // Dynamic main items based on enabled features (matching CircleSidebar)
+  // Dynamic main items based on enabled features
   const mainItems = [
     { title: "Feed", url: "/dashboard", icon: Rss },
     { title: "Espaços", url: "/dashboard/spaces", icon: Grid3X3 },
-    { title: "Trilhas", url: "/dashboard/trails", icon: Map },
-    { title: "Membros", url: "/dashboard/members", icon: Users },
+    ...(isTrailsEnabled ? [{ title: "Trilhas", url: "/dashboard/trails", icon: Map }] : []),
+    ...(isMembersEnabled ? [{ title: "Membros", url: "/dashboard/members", icon: Users }] : []),
     ...(isRankingEnabled ? [{ title: "Ranking", url: "/dashboard/ranking", icon: Trophy }] : []),
-    { title: "Cursos", url: "/courses", icon: BookOpen },
+    ...(isCoursesEnabled ? [{ title: "Cursos", url: "/courses", icon: BookOpen }] : []),
     ...(isMarketplaceEnabled ? [{ title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag }] : []),
     ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
     ...(isChallengesEnabled ? [{ title: "Desafios", url: "/dashboard/challenges", icon: Target }] : []),
-    { title: "Calendário", url: "/dashboard/calendar", icon: Calendar },
+    ...(isCalendarEnabled ? [{ title: "Calendário", url: "/dashboard/calendar", icon: Calendar }] : []),
     ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
 

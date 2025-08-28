@@ -1,10 +1,23 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, ShoppingBag, Trophy, Wallet, Store, Zap, Target } from 'lucide-react';
+import { 
+  Settings, 
+  ShoppingBag, 
+  Trophy, 
+  Wallet, 
+  Store, 
+  Zap, 
+  Target, 
+  MapPin, 
+  Users, 
+  BookOpen, 
+  Calendar 
+} from 'lucide-react';
 import { CompanyFeatures } from '@/hooks/useCompanyFeatures';
 
 interface CompanyFeaturesDialogProps {
@@ -62,6 +75,34 @@ const FEATURES = [
     icon: Target,
     color: 'text-red-500'
   },
+  {
+    key: 'trails' as const,
+    name: 'Trilhas',
+    description: 'Sistema de trilhas de aprendizagem e progresso',
+    icon: MapPin,
+    color: 'text-indigo-500'
+  },
+  {
+    key: 'members' as const,
+    name: 'Membros',
+    description: 'Visualização e gestão de membros da comunidade',
+    icon: Users,
+    color: 'text-pink-500'
+  },
+  {
+    key: 'courses' as const,
+    name: 'Cursos',
+    description: 'Sistema de cursos e aulas estruturadas',
+    icon: BookOpen,
+    color: 'text-teal-500'
+  },
+  {
+    key: 'calendar' as const,
+    name: 'Calendário',
+    description: 'Sistema de eventos e agendamento',
+    icon: Calendar,
+    color: 'text-cyan-500'
+  },
 ];
 
 export function CompanyFeaturesDialog({ 
@@ -78,6 +119,10 @@ export function CompanyFeaturesDialog({
     store: true,
     streak: true,
     challenges: true,
+    trails: true,
+    members: true,
+    courses: true,
+    calendar: true,
   });
 
   useEffect(() => {
