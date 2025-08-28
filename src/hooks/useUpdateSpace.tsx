@@ -8,7 +8,7 @@ interface UpdateSpaceData {
   name?: string;
   description?: string;
   visibility?: 'public' | 'private' | 'secret';
-  category_id?: string;
+  category_id?: string | null;
   is_private?: boolean;
   custom_icon_type?: 'default' | 'emoji' | 'image';
   custom_icon_value?: string;

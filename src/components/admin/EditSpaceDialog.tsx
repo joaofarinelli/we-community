@@ -47,7 +47,7 @@ export const EditSpaceDialog = ({ space, isOpen, onOpenChange }: EditSpaceDialog
         name: name.trim(),
         description: description.trim() || undefined,
         visibility,
-        category_id: categoryId || undefined,
+        category_id: categoryId === '' ? null : categoryId,
       });
 
       toast.success('Espaço atualizado com sucesso!');
@@ -92,12 +92,12 @@ export const EditSpaceDialog = ({ space, isOpen, onOpenChange }: EditSpaceDialog
 
           <div className="space-y-2">
             <Label htmlFor="category">Categoria</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
+            <Select value={categoryId} onValueChange={(value: string) => setCategoryId(value === 'none' ? '' : value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Sem categoria</SelectItem>
+                <SelectItem value="none">Sem categoria</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
