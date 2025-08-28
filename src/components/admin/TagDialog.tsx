@@ -211,16 +211,6 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
                   </PopoverContent>
                 </Popover>
 
-                <div className="space-y-2">
-                  <Label>Ou digite um emoji diretamente:</Label>
-                  <Input
-                    value={selectedEmoji}
-                    onChange={(e) => setSelectedEmoji(e.target.value)}
-                    placeholder="Digite um emoji..."
-                    className="text-center text-lg"
-                  />
-                </div>
-
                 {selectedEmoji && (
                   <Button
                     type="button"
