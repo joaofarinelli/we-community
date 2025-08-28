@@ -3396,16 +3396,37 @@ export type Database = {
       get_company_details_for_user: {
         Args: { p_company_id: string }
         Returns: {
+          bank_banner_url: string
+          button_text_color: string
+          challenges_banner_url: string
+          coin_name: string
+          course_banner_url: string
+          courses_banner_url: string
+          created_at: string
           custom_domain: string
           custom_domain_status: string
           custom_domain_verified_at: string
           enabled_features: Json
+          favicon_url: string
+          feed_banner_url: string
           id: string
+          login_banner_url: string
           logo_url: string
+          marketplace_banner_url: string
+          members_banner_url: string
           name: string
+          plan: string
+          primary_color: string
+          ranking_banner_url: string
+          spaces_banner_url: string
           status: string
+          store_banner_url: string
           subdomain: string
+          text_color: string
           theme_config: Json
+          theme_mode: string
+          trails_banner_url: string
+          updated_at: string
         }[]
       }
       get_company_users_with_filters: {
