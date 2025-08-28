@@ -16,6 +16,7 @@ export const useUserMemberSpaces = () => {
       }
 
       console.log('🔍 useUserMemberSpaces: Fetching spaces for user:', user.id, 'company:', currentCompanyId);
+      console.log('🔍 useUserMemberSpaces: User email:', user.email, 'currentCompanyId type:', typeof currentCompanyId);
 
       // Get all spaces the user can see (relies on RLS policy with can_user_see_space)
       // This now includes spaces accessible through access groups
@@ -37,10 +38,17 @@ export const useUserMemberSpaces = () => {
 
       if (error) {
         console.error('❌ useUserMemberSpaces: Error fetching user member spaces:', error);
+        console.error('❌ useUserMemberSpaces: Error details:', {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
         throw error;
       }
 
       console.log('✅ useUserMemberSpaces: Found', data?.length || 0, 'spaces');
+      console.log('✅ useUserMemberSpaces: Spaces data:', data?.map(s => ({ id: s.id, name: s.name, visibility: s.visibility })));
       return data || [];
     },
     enabled: !!user && !!currentCompanyId,

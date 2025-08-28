@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useSubdomain } from './useSubdomain';
 import { useCompany } from './useCompany';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
 
 interface UserCompany {
   company_id: string;
@@ -51,6 +51,8 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     if (currentCompany?.id) {
       console.log('🏢 Company context changing to:', currentCompany.id, currentCompany.name);
       setCurrentCompanyId(currentCompany.id);
+      // Set global company ID for enhanced client
+      setGlobalCompanyId(currentCompany.id);
     }
   }, [currentCompany]);
 
