@@ -181,24 +181,33 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className="w-auto p-0 border-0 shadow-lg" 
+                    className="w-auto p-0 border-0 shadow-lg overflow-hidden" 
                     align="start"
                     side="bottom"
+                    sideOffset={5}
                   >
-                    <EmojiPicker
-                      onEmojiClick={(emojiObject) => {
-                        setSelectedEmoji(emojiObject.emoji);
-                        setEmojiPickerOpen(false);
-                      }}
-                      width={350}
-                      height={400}
-                      searchDisabled={false}
-                      skinTonesDisabled={false}
-                      previewConfig={{
-                        showPreview: true,
-                        defaultEmoji: "1f60a"
-                      }}
-                    />
+                    <div className="relative max-h-[450px] overflow-auto">
+                      <EmojiPicker
+                        onEmojiClick={(emojiObject) => {
+                          setSelectedEmoji(emojiObject.emoji);
+                          setEmojiPickerOpen(false);
+                        }}
+                        width={350}
+                        height={420}
+                        searchDisabled={false}
+                        skinTonesDisabled={false}
+                        lazyLoadEmojis={true}
+                        previewConfig={{
+                          showPreview: true,
+                          defaultEmoji: "1f60a"
+                        }}
+                        style={{
+                          borderRadius: '8px',
+                          border: 'none',
+                          boxShadow: 'none'
+                        }}
+                      />
+                    </div>
                   </PopoverContent>
                 </Popover>
 
