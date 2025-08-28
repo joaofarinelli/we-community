@@ -1,11 +1,10 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, MoreHorizontal, ImagePlus, Link, CreditCard, Palette, Smartphone, UserPlus, Settings as SettingsIcon, Zap, Bell, Mail, CheckSquare, UserMinus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, MoreHorizontal, ImagePlus, Palette, Settings as SettingsIcon, UserMinus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuCheckboxItem } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { useSpace } from '@/hooks/useSpace';
 import { useSpacePosts } from '@/hooks/useSpacePosts';
 import { useSpaceMembers } from '@/hooks/useSpaceMembers';
@@ -23,12 +22,6 @@ import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationD
 import { SpaceBanner } from '@/components/ui/space-banner';
 import { useState } from 'react';
 export const SpaceView = () => {
-  const [notificationSettings, setNotificationSettings] = useState({
-    posts: true,
-    email: false,
-    platform: true,
-    mobile: false
-  });
   const [customizationOpen, setCustomizationOpen] = useState(false);
   const {
     spaceId
@@ -148,21 +141,9 @@ export const SpaceView = () => {
                       <ImagePlus className="h-4 w-4 mr-2" />
                       Adicionar capa
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Adicionar links')}>
-                      <Link className="h-4 w-4 mr-2" />
-                      Adicionar links de espaço
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Paywalls')}>
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Paywalls
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setCustomizationOpen(true)}>
                       <Palette className="h-4 w-4 mr-2" />
                       Personalizar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Página de vendas')}>
-                      <Smartphone className="h-4 w-4 mr-2" />
-                      Página de Vendas Interna Móvel
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => console.log('Membros')}>
                       <Users className="h-4 w-4 mr-2" />
@@ -172,42 +153,8 @@ export const SpaceView = () => {
                       <SettingsIcon className="h-4 w-4 mr-2" />
                       Opções
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Automações')}>
-                      <Zap className="h-4 w-4 mr-2" />
-                      Automações
-                    </DropdownMenuItem>
                     
                     <DropdownMenuSeparator />
-                    
-                    <DropdownMenuLabel>Notificações das minhas publicações</DropdownMenuLabel>
-                    <DropdownMenuCheckboxItem checked={notificationSettings.email} onCheckedChange={checked => setNotificationSettings(prev => ({
-                    ...prev,
-                    email: checked
-                  }))}>
-                      <Mail className="h-4 w-4 mr-2" />
-                      Notificações por email
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem checked={notificationSettings.platform} onCheckedChange={checked => setNotificationSettings(prev => ({
-                    ...prev,
-                    platform: checked
-                  }))}>
-                      <Bell className="h-4 w-4 mr-2" />
-                      Notificações na plataforma
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem checked={notificationSettings.mobile} onCheckedChange={checked => setNotificationSettings(prev => ({
-                    ...prev,
-                    mobile: checked
-                  }))}>
-                      <Smartphone className="h-4 w-4 mr-2" />
-                      Notificações no celular
-                    </DropdownMenuCheckboxItem>
-                    
-                    <DropdownMenuSeparator />
-                    
-                    <DropdownMenuItem onClick={() => console.log('Convidar membro')}>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Convidar membro
-                    </DropdownMenuItem>
                     {memberInfo?.isMember && memberInfo.role !== 'admin' && <DropdownMenuItem onClick={() => {
                     if (confirm('Tem certeza que deseja sair deste espaço?')) {
                       leaveSpace.mutate(spaceId!, {
