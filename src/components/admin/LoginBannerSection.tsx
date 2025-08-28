@@ -1,81 +1,37 @@
-import React, { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
-import { useCompany } from '@/hooks/useCompany';
-import { supabase } from '@/integrations/supabase/client';
-import { Loader2, LogIn, Eye, X } from 'lucide-react';
-import { ImageUpload } from '@/components/ui/image-upload';
+import { usePageBanner } from '@/hooks/usePageBanner';
+import { Upload, X, Image as ImageIcon, LogIn } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export const LoginBannerSection = () => {
-  const { data: company, refetch } = useCompany();
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  const [bannerUrl, setBannerUrl] = useState(company?.login_banner_url || '');
-  const [showPreview, setShowPreview] = useState(false);
+  const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = usePageBanner('login');
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = async () => {
-    if (!company?.id) return;
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+    uploadBanner(file);
+  };
 
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('companies')
-        .update({ login_banner_url: bannerUrl || null })
-        .eq('id', company.id);
-
-      if (error) throw error;
-
-      await refetch();
-      toast({
-        title: "Banner de login atualizado",
-        description: "O banner da página de login foi atualizado com sucesso.",
-      });
-    } catch (error) {
-      console.error('Error updating login banner:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o banner de login.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
     }
   };
 
-  const handleRemoveBanner = async () => {
-    if (!company?.id) return;
-
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('companies')
-        .update({ login_banner_url: null })
-        .eq('id', company.id);
-
-      if (error) throw error;
-
-      setBannerUrl('');
-      await refetch();
-      toast({
-        title: "Banner de login removido",
-        description: "O banner da página de login foi removido com sucesso.",
-      });
-    } catch (error) {
-      console.error('Error removing login banner:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover o banner de login.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
     }
-  };
-
-  const handleImageUpload = (url: string) => {
-    setBannerUrl(url);
   };
 
   return (
@@ -89,72 +45,82 @@ export const LoginBannerSection = () => {
           Faça upload de um banner lateral que aparecerá do lado esquerdo da página de login. Recomendamos uma imagem vertical com boa qualidade.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label>Upload do Banner</Label>
-          <ImageUpload
-            value={bannerUrl}
-            onChange={handleImageUpload}
-            onRemove={() => setBannerUrl('')}
-            bucketName="company-logos"
-            maxSizeKB={5120}
-          />
-          <p className="text-sm text-muted-foreground">
-            Use uma imagem vertical (proporção 9:16 ou similar) para melhor resultado. Largura máxima de 500px.
-          </p>
-        </div>
-
-        {bannerUrl && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Pré-visualização</Label>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPreview(!showPreview)}
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  {showPreview ? 'Ocultar' : 'Visualizar'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRemoveBanner}
-                  disabled={isLoading}
-                >
-                  <X className="h-4 w-4 mr-1" />
-                  Remover
-                </Button>
-              </div>
+      <CardContent>
+        {isLoading ? (
+          <div className="w-full h-[300px] bg-muted animate-pulse rounded-lg" />
+        ) : bannerUrl ? (
+          <div className="relative w-full h-[300px] overflow-hidden rounded-lg border">
+            <img
+              src={bannerUrl}
+              alt="Banner de Login"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute top-4 right-4 flex gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Trocar
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => removeBanner()}
+                disabled={isRemoving}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            
-            {showPreview && (
-              <div className="border rounded-lg overflow-hidden max-w-xs mx-auto">
-                <img
-                  src={bannerUrl}
-                  alt="Preview do banner de login"
-                  className="w-full h-auto max-h-96 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    toast({
-                      title: "Erro na imagem",
-                      description: "Não foi possível carregar a imagem. Verifique se a URL está correta.",
-                      variant: "destructive",
-                    });
-                  }}
-                />
-              </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "border-2 border-dashed rounded-lg p-8 text-center transition-colors h-[300px] flex flex-col items-center justify-center",
+              isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
+              "hover:border-primary hover:bg-primary/5"
             )}
+            onDrop={handleDrop}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragOver(true);
+            }}
+            onDragLeave={() => setIsDragOver(false)}
+          >
+            <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">Adicionar Banner de Login</h3>
+            <p className="text-muted-foreground mb-4">
+              Arraste uma imagem aqui ou clique para selecionar
+            </p>
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              variant="outline"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {isUploading ? 'Enviando...' : 'Selecionar Imagem'}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Use uma imagem vertical (proporção 9:16 ou similar) para melhor resultado
+            </p>
           </div>
         )}
-
-        <div className="flex gap-2">
-          <Button onClick={handleSave} disabled={isLoading}>
-            {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Salvar Banner
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );

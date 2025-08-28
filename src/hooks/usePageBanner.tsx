@@ -14,7 +14,9 @@ export type BannerType =
   | 'bank' 
   | 'challenges'
   | 'spaces'
-  | 'courses';
+  | 'courses'
+  | 'feed'
+  | 'login';
 
 export const usePageBanner = (bannerType: BannerType) => {
   const { user } = useAuth();
@@ -153,7 +155,9 @@ function getBannerDisplayName(bannerType: BannerType): string {
     bank: 'Banco',
     challenges: 'Desafios',
     spaces: 'Espaços',
-    courses: 'Cursos'
+    courses: 'Cursos',
+    feed: 'Feed',
+    login: 'Login'
   };
   return names[bannerType];
 }
