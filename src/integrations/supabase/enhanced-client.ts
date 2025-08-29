@@ -39,33 +39,40 @@ if (storedCompanyId) {
   console.log('🔄 Restored company ID from sessionStorage:', storedCompanyId);
 }
 
+// Functions that don't require company context (used to discover companies)
+const FUNCTIONS_WITHOUT_COMPANY_CONTEXT = [
+  'get_user_companies',
+  'get_user_accessible_companies',
+  'get_company_details_for_user',
+  'set_current_company_context'
+];
+
 // Enhanced fetch that adds company headers
 const enhancedFetch = (originalFetch: typeof fetch) => {
   return async (input: RequestInfo | URL, init: RequestInit = {}) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const companyId = getGlobalCompanyId();
     
-    if (companyId) {
-      // Only add header for Supabase API calls
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-      if (url.includes('supabase.co')) {
-        // Preserve existing headers while adding x-company-id
-        const existingHeaders = init.headers || {};
-        const headersObj = existingHeaders instanceof Headers 
-          ? Object.fromEntries(existingHeaders.entries())
-          : existingHeaders;
-        
-        init.headers = {
-          ...headersObj,
-          'x-company-id': companyId,
-        };
-        console.log('📡 Adding x-company-id header to request:', companyId, url.split('/').pop());
-      }
-    } else {
-      // Log when no company ID is available for debugging
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-      if (url.includes('supabase.co')) {
-        console.warn('⚠️ No company ID available for request:', url.split('/').pop());
-      }
+    // Check if this is a Supabase RPC call that doesn't need company context
+    const isSupabaseCall = url.includes('supabase.co');
+    const functionName = url.split('/').pop() || '';
+    const requiresCompanyContext = !FUNCTIONS_WITHOUT_COMPANY_CONTEXT.includes(functionName);
+    
+    if (isSupabaseCall && companyId && requiresCompanyContext) {
+      // Add company header for functions that require context
+      const existingHeaders = init.headers || {};
+      const headersObj = existingHeaders instanceof Headers 
+        ? Object.fromEntries(existingHeaders.entries())
+        : existingHeaders;
+      
+      init.headers = {
+        ...headersObj,
+        'x-company-id': companyId,
+      };
+      console.log('📡 Adding x-company-id header to request:', companyId, functionName);
+    } else if (isSupabaseCall && !companyId && requiresCompanyContext) {
+      // Only warn for functions that actually require company context
+      console.warn('⚠️ No company ID available for request:', functionName);
     }
     
     return originalFetch(input, init);

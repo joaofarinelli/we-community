@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/hooks/useCompanyContext";
-import { useSupabaseContext } from "@/hooks/useSupabaseContext";
+import { CompanyContextWrapper } from "@/components/CompanyContextWrapper";
 import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { AuthGuard } from "@/components/AuthGuard";
@@ -78,7 +78,6 @@ const AppRoutes = () => {
   const { user, loading } = useAuth();
   const { subdomain, customDomain, isLoading: subdomainLoading } = useSubdomain();
   useDynamicTitle();
-  useSupabaseContext(); // Mount globally to ensure consistent company context
 
   if (loading || subdomainLoading) {
     return (
@@ -96,69 +95,71 @@ const AppRoutes = () => {
   const shouldShowAuthAsHome = !isMainDomain && (subdomain || customDomain);
 
   return (
-    <MultiCompanyGuard>
-      <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
-        <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
-        <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
-        <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
-        <Route path="/dashboard/members" element={<AuthGuard><MembersPage /></AuthGuard>} />
-        <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
-        <Route path="/dashboard/space/:spaceId/post/:postId" element={<AuthGuard><PostDetailPage /></AuthGuard>} />
-        <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
-        <Route path="/admin/users/:userId" element={<AuthGuard><AdminUserViewPage /></AuthGuard>} />
-        <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
-        <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
-        <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
-        <Route path="/admin/spaces" element={<AuthGuard><AdminSpacesPage /></AuthGuard>} />
-        <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
-        <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
-        <Route path="/admin/profile-fields" element={<AuthGuard><AdminProfileFieldsPage /></AuthGuard>} />
-        <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
-        <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
-        <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
-        
-        <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
-        <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
-        <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
-        <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
-        <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
-        <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
-        <Route path="/dashboard/store" element={<AuthGuard><StorePage /></AuthGuard>} />
-        <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
-        <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
-        <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
-        <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
-        <Route path="/admin/store/categories" element={<AuthGuard><AdminStoreCategoriesPage /></AuthGuard>} />
-        <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
-        <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
-        <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
-        <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
-        <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
-        <Route path="/dashboard/events/:eventId" element={<AuthGuard><EventDetailPage /></AuthGuard>} />
-        <Route path="/dashboard/trails" element={<AuthGuard><TrailsPage /></AuthGuard>} />
-        <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
-        <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
-        <Route path="/dashboard/certificates" element={<AuthGuard><CertificatesPage /></AuthGuard>} />
-        <Route path="/dashboard/liked-lessons" element={<AuthGuard><LikedLessonsPage /></AuthGuard>} />
-        <Route path="/dashboard/lesson-notes" element={<AuthGuard><LessonNotesPage /></AuthGuard>} />
-        <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
-        <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
-        <Route path="/admin/content/posts" element={<AuthGuard><AdminContentPostsPage /></AuthGuard>} />
-        <Route path="/admin/content/categories" element={<AuthGuard><AdminContentCategoriesPage /></AuthGuard>} />
-        <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
-        <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
-        <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
-        <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
-        <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
-        <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
-        <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
-        <Route path="/super-admin/management" element={<AuthGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthGuard>} />
-        <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </MultiCompanyGuard>
+    <CompanyContextWrapper>
+      <MultiCompanyGuard>
+        <Routes>
+          <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
+          <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+          <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+          <Route path="/dashboard/ranking" element={<AuthGuard><RankingPage /></AuthGuard>} />
+          <Route path="/dashboard/members" element={<AuthGuard><MembersPage /></AuthGuard>} />
+          <Route path="/dashboard/space/:spaceId" element={<AuthGuard><SpaceView /></AuthGuard>} />
+          <Route path="/dashboard/space/:spaceId/post/:postId" element={<AuthGuard><PostDetailPage /></AuthGuard>} />
+          <Route path="/admin/users" element={<AuthGuard><AdminUsersPage /></AuthGuard>} />
+          <Route path="/admin/users/:userId" element={<AuthGuard><AdminUserViewPage /></AuthGuard>} />
+          <Route path="/admin/settings" element={<AuthGuard><AdminSettingsPage /></AuthGuard>} />
+          <Route path="/admin/levels" element={<AuthGuard><AdminLevelsPage /></AuthGuard>} />
+          <Route path="/admin/access-groups" element={<AuthGuard><AdminAccessGroupsPage /></AuthGuard>} />
+          <Route path="/admin/spaces" element={<AuthGuard><AdminSpacesPage /></AuthGuard>} />
+          <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
+          <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
+          <Route path="/admin/profile-fields" element={<AuthGuard><AdminProfileFieldsPage /></AuthGuard>} />
+          <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
+          <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
+          <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
+          
+          <Route path="/courses/:courseId/modules/:moduleId" element={<AuthGuard><ModuleDetailPage /></AuthGuard>} />
+          <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthGuard><LessonPlayerPage /></AuthGuard>} />
+          <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
+          <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
+          <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
+          <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
+          <Route path="/dashboard/store" element={<AuthGuard><StorePage /></AuthGuard>} />
+          <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
+          <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
+          <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
+          <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
+          <Route path="/admin/store/categories" element={<AuthGuard><AdminStoreCategoriesPage /></AuthGuard>} />
+          <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
+          <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
+          <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
+          <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />
+          <Route path="/dashboard/spaces" element={<AuthGuard><SpacesPage /></AuthGuard>} />
+          <Route path="/dashboard/events/:eventId" element={<AuthGuard><EventDetailPage /></AuthGuard>} />
+          <Route path="/dashboard/trails" element={<AuthGuard><TrailsPage /></AuthGuard>} />
+          <Route path="/dashboard/trails/:trailId/stages" element={<AuthGuard><TrailStagesPage /></AuthGuard>} />
+          <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthGuard><TrailStagePlayerPage /></AuthGuard>} />
+          <Route path="/dashboard/certificates" element={<AuthGuard><CertificatesPage /></AuthGuard>} />
+          <Route path="/dashboard/liked-lessons" element={<AuthGuard><LikedLessonsPage /></AuthGuard>} />
+          <Route path="/dashboard/lesson-notes" element={<AuthGuard><LessonNotesPage /></AuthGuard>} />
+          <Route path="/admin/trails" element={<AuthGuard><AdminTrailsPage /></AuthGuard>} />
+          <Route path="/admin/trail-badges" element={<AuthGuard><AdminTrailBadgesPage /></AuthGuard>} />
+          <Route path="/admin/content/posts" element={<AuthGuard><AdminContentPostsPage /></AuthGuard>} />
+          <Route path="/admin/content/categories" element={<AuthGuard><AdminContentCategoriesPage /></AuthGuard>} />
+          <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
+          <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
+          <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
+          <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
+          <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
+          <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />
+          <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
+          <Route path="/super-admin/management" element={<AuthGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthGuard>} />
+          <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </MultiCompanyGuard>
+    </CompanyContextWrapper>
   );
 };
 
