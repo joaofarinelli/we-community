@@ -21,8 +21,13 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { SpaceBanner } from '@/components/ui/space-banner';
 import { useState } from 'react';
+import { PostLayoutSelector, PostLayout } from '@/components/posts/PostLayoutSelector';
+import { PostListView } from '@/components/posts/PostListView';
+import { PostCardView } from '@/components/posts/PostCardView';
+import { PostGridContainer } from '@/components/posts/PostGridContainer';
 export const SpaceView = () => {
   const [customizationOpen, setCustomizationOpen] = useState(false);
+  const [postLayout, setPostLayout] = useState<PostLayout>('feed');
   const {
     spaceId
   } = useParams<{
@@ -213,15 +218,24 @@ export const SpaceView = () => {
                   )}
                 </>
               ) : (
-                // Regular Space Content (Posts)
                 <>
                   {/* Create Post */}
                   <CreatePostForm spaceId={spaceId} />
 
+                  {/* Layout Selector */}
+                  <div className="flex justify-end">
+                    <PostLayoutSelector 
+                      currentLayout={postLayout}
+                      onLayoutChange={setPostLayout}
+                    />
+                  </div>
+
                   {/* Posts Feed */}
-                  <div className="space-y-4">
-                    {postsLoading ? <div className="space-y-4">
-                        {[...Array(3)].map((_, i) => <Card key={i}>
+                  <div className={postLayout === 'list' ? 'space-y-2' : postLayout === 'card' ? '' : 'space-y-4'}>
+                    {postsLoading ? (
+                      <div className={postLayout === 'card' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'}>
+                        {[...Array(postLayout === 'card' ? 6 : 3)].map((_, i) => (
+                          <Card key={i}>
                             <CardContent className="p-6">
                               <div className="animate-pulse space-y-3">
                                 <div className="flex items-center space-x-3">
@@ -237,8 +251,21 @@ export const SpaceView = () => {
                                 </div>
                               </div>
                             </CardContent>
-                          </Card>)}
-                      </div> : posts && posts.length > 0 ? posts.map(post => <PostCard key={post.id} post={post} />) : <Card>
+                          </Card>
+                        ))}
+                      </div>
+                    ) : posts && posts.length > 0 ? (
+                      postLayout === 'list' ? (
+                        posts.map(post => <PostListView key={post.id} post={post} />)
+                      ) : postLayout === 'card' ? (
+                        <PostGridContainer>
+                          {posts.map(post => <PostCardView key={post.id} post={post} />)}
+                        </PostGridContainer>
+                      ) : (
+                        posts.map(post => <PostCard key={post.id} post={post} />)
+                      )
+                    ) : (
+                      <Card>
                         <CardContent className="p-12 text-center">
                           <div className="space-y-3">
                             <div className="p-4 bg-muted rounded-full w-16 h-16 mx-auto flex items-center justify-center">
@@ -250,7 +277,8 @@ export const SpaceView = () => {
                             </p>
                           </div>
                         </CardContent>
-                      </Card>}
+                      </Card>
+                    )}
                   </div>
                 </>
               )}
