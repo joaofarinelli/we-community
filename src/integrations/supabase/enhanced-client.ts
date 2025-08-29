@@ -66,7 +66,10 @@ const enhancedFetch = (originalFetch: typeof fetch) => {
   };
 };
 
-// Wrap global fetch
+// Create wrapped fetch for Supabase client
+const wrappedFetch = enhancedFetch(fetch);
+
+// Also wrap global fetch for other uses
 if (typeof window !== 'undefined') {
   const originalFetch = window.fetch;
   window.fetch = enhancedFetch(originalFetch);
@@ -77,5 +80,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+  },
+  global: {
+    fetch: wrappedFetch,
   }
 });
