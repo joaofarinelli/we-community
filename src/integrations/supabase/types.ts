@@ -3335,6 +3335,33 @@ export type Database = {
         Args: { p_company_id: string; p_created_by: string }
         Returns: undefined
       }
+      create_space_with_context: {
+        Args: {
+          p_category_id: string
+          p_company_id: string
+          p_description?: string
+          p_name: string
+          p_type?: string
+          p_visibility?: string
+        }
+        Returns: {
+          banner_url: string | null
+          category_id: string
+          company_id: string
+          created_at: string
+          created_by: string
+          custom_icon_type: string | null
+          custom_icon_value: string | null
+          description: string | null
+          id: string
+          is_private: boolean
+          name: string
+          order_index: number
+          type: string
+          updated_at: string
+          visibility: string | null
+        }
+      }
       create_user_profile_for_company: {
         Args: {
           p_company_id: string
@@ -3345,6 +3372,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      debug_current_company_context: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       debug_space_creation_context: {
         Args: Record<PropertyKey, never>
