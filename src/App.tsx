@@ -12,7 +12,6 @@ import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { useDynamicTitle } from "@/hooks/useDynamicTitle";
 import { AuthGuard } from "@/components/AuthGuard";
 import { MultiCompanyGuard } from "@/components/MultiCompanyGuard";
-import { SubdomainGuard } from "@/components/SubdomainGuard";
 import { useSubdomain } from "@/hooks/useSubdomain";
 import Index from "./pages/Index";
 import { AuthPage } from "./pages/AuthPage";
@@ -97,9 +96,8 @@ const AppRoutes = () => {
 
   return (
     <CompanyContextWrapper>
-      <SubdomainGuard>
-        <MultiCompanyGuard>
-          <Routes>
+      <MultiCompanyGuard>
+        <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
           <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
           <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
@@ -159,9 +157,8 @@ const AppRoutes = () => {
           <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
-          </Routes>
-        </MultiCompanyGuard>
-      </SubdomainGuard>
+        </Routes>
+      </MultiCompanyGuard>
     </CompanyContextWrapper>
   );
 };
