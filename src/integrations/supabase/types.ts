@@ -2104,6 +2104,7 @@ export type Database = {
           description: string | null
           id: string
           is_private: boolean
+          layout_type: string | null
           name: string
           order_index: number
           type: string
@@ -2121,6 +2122,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_private?: boolean
+          layout_type?: string | null
           name: string
           order_index?: number
           type?: string
@@ -2138,6 +2140,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_private?: boolean
+          layout_type?: string | null
           name?: string
           order_index?: number
           type?: string
@@ -3355,6 +3358,7 @@ export type Database = {
           description: string | null
           id: string
           is_private: boolean
+          layout_type: string | null
           name: string
           order_index: number
           type: string

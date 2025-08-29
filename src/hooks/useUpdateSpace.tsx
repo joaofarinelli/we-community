@@ -12,6 +12,7 @@ interface UpdateSpaceData {
   is_private?: boolean;
   custom_icon_type?: 'default' | 'emoji' | 'image';
   custom_icon_value?: string;
+  layout_type?: 'feed' | 'list' | 'card';
 }
 
 export const useUpdateSpace = () => {

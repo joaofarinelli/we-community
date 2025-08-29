@@ -21,13 +21,13 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { SpaceBanner } from '@/components/ui/space-banner';
 import { useState } from 'react';
-import { PostLayoutSelector, PostLayout } from '@/components/posts/PostLayoutSelector';
 import { PostListView } from '@/components/posts/PostListView';
 import { PostCardView } from '@/components/posts/PostCardView';
 import { PostGridContainer } from '@/components/posts/PostGridContainer';
+
+export type PostLayout = 'feed' | 'list' | 'card';
 export const SpaceView = () => {
   const [customizationOpen, setCustomizationOpen] = useState(false);
-  const [postLayout, setPostLayout] = useState<PostLayout>('feed');
   const {
     spaceId
   } = useParams<{
@@ -108,6 +108,7 @@ export const SpaceView = () => {
   }
   const spaceTypeInfo = getSpaceTypeInfo(space.type as any);
   const SpaceIcon = (spaceTypeInfo?.icon) || getSpaceIcon(space.type as any);
+  const postLayout = (space.layout_type as PostLayout) || 'feed';
   return <DashboardLayout>
       <div className="min-h-screen bg-background">
         {/* Space Header */}
@@ -221,14 +222,6 @@ export const SpaceView = () => {
                 <>
                   {/* Create Post */}
                   <CreatePostForm spaceId={spaceId} />
-
-                  {/* Layout Selector */}
-                  <div className="flex justify-end">
-                    <PostLayoutSelector 
-                      currentLayout={postLayout}
-                      onLayoutChange={setPostLayout}
-                    />
-                  </div>
 
                   {/* Posts Feed */}
                   <div className={postLayout === 'list' ? 'space-y-2' : postLayout === 'card' ? '' : 'space-y-4'}>

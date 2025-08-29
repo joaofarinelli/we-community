@@ -32,6 +32,7 @@ interface SpaceCustomizationDrawerProps {
     type: string;
     custom_icon_type?: string;
     custom_icon_value?: string;
+    layout_type?: string;
   };
 }
 
@@ -49,7 +50,7 @@ export const SpaceCustomizationDrawer = ({
   const [categoryId, setCategoryId] = useState(space.category_id);
   const [hideFromSidebar, setHideFromSidebar] = useState(false);
   const [accessType, setAccessType] = useState(space.is_private ? 'private' : 'open');
-  const [layoutType, setLayoutType] = useState('feed');
+  const [layoutType, setLayoutType] = useState(space.layout_type || 'feed');
   const [showRightSidebar, setShowRightSidebar] = useState(true);
   const [topicNavigation, setTopicNavigation] = useState(false);
   const [customIconType, setCustomIconType] = useState<'default' | 'emoji' | 'image'>(
@@ -65,6 +66,7 @@ export const SpaceCustomizationDrawer = ({
       is_private: accessType !== 'open',
       custom_icon_type: customIconType,
       custom_icon_value: customIconValue || null,
+      layout_type: layoutType as 'feed' | 'list' | 'card',
     }, {
       onSuccess: () => {
         onOpenChange(false);
@@ -78,7 +80,7 @@ export const SpaceCustomizationDrawer = ({
     setCategoryId(space.category_id);
     setHideFromSidebar(false);
     setAccessType(space.is_private ? 'private' : 'open');
-    setLayoutType('feed');
+    setLayoutType(space.layout_type || 'feed');
     setShowRightSidebar(true);
     setTopicNavigation(false);
     setCustomIconType((space.custom_icon_type as 'default' | 'emoji' | 'image') || 'default');
@@ -220,8 +222,8 @@ export const SpaceCustomizationDrawer = ({
                 </div>
                 
                 <div className="flex items-center space-x-3">
-                  <RadioGroupItem value="cards" id="cards" />
-                  <Label htmlFor="cards" className="font-normal">Cards</Label>
+                  <RadioGroupItem value="card" id="card" />
+                  <Label htmlFor="card" className="font-normal">Cartão</Label>
                 </div>
               </RadioGroup>
 
