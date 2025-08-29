@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CreatePostDialog } from './CreatePostDialog';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
@@ -29,13 +29,11 @@ export const CreatePostForm = ({ spaceId }: CreatePostFormProps) => {
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
             <Avatar className="h-10 w-10">
-              {profile?.avatar_url && (
-                <img 
-                  src={profile.avatar_url} 
-                  alt={`${profile.first_name} ${profile.last_name}`}
-                  className="w-full h-full object-cover rounded-full"
-                />
-              )}
+              <AvatarImage 
+                src={profile?.avatar_url} 
+                alt={`${profile?.first_name} ${profile?.last_name}`}
+                className="object-cover"
+              />
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
                 {getUserInitials()}
               </AvatarFallback>

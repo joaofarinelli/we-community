@@ -1,13 +1,13 @@
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { MessageCircle, Heart, Share2, Pin } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { usePostInteractions } from '@/hooks/usePostInteractions';
 import { useAuth } from '@/hooks/useAuth';
-import { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 
 interface PostCardViewProps {
@@ -65,7 +65,7 @@ export const PostCardView = ({ post }: PostCardViewProps) => {
   const firstImage = getFirstImage(post.content);
 
   const handlePostClick = () => {
-    navigate(`/post/${post.id}`);
+    navigate(`/dashboard/space/${post.space_id}/post/${post.id}`);
   };
 
   return (
@@ -84,13 +84,11 @@ export const PostCardView = ({ post }: PostCardViewProps) => {
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
-            {post.profiles?.avatar_url && (
-              <img 
-                src={post.profiles.avatar_url} 
-                alt={authorName}
-                className="w-full h-full object-cover rounded-full"
-              />
-            )}
+            <AvatarImage 
+              src={post.profiles?.avatar_url} 
+              alt={authorName}
+              className="object-cover"
+            />
             <AvatarFallback className="text-xs">{authorInitials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
