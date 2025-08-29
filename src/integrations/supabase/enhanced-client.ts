@@ -60,6 +60,12 @@ const enhancedFetch = (originalFetch: typeof fetch) => {
         };
         console.log('📡 Adding x-company-id header to request:', companyId, url.split('/').pop());
       }
+    } else {
+      // Log when no company ID is available for debugging
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      if (url.includes('supabase.co')) {
+        console.warn('⚠️ No company ID available for request:', url.split('/').pop());
+      }
     }
     
     return originalFetch(input, init);

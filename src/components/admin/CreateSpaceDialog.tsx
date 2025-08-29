@@ -43,30 +43,68 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
         throw new Error('Contexto da empresa não encontrado');
       }
 
-      console.log('🔧 Criando espaço - Dados:', {
+      console.log('🔧 Starting space creation process...', {
         userId: user.id,
         companyId: currentCompanyId,
         categoryId: data.category_id,
         name: data.name
       });
 
-      // Definir contexto da empresa antes de criar o espaço
-      const { error: contextError } = await supabase.rpc('set_current_company_context', {
-        p_company_id: currentCompanyId
-      });
+      // CRITICAL: Set company context BEFORE any database operations
+      try {
+        const { error: contextError } = await supabase.rpc('set_current_company_context', {
+          p_company_id: currentCompanyId
+        });
+        
+        if (contextError) {
+          console.error('❌ Context setting error:', contextError);
+          throw new Error(`Falha ao definir contexto da empresa: ${contextError.message}`);
+        }
+        
+        console.log('✅ Company context set successfully:', currentCompanyId);
+        
+        // Small delay to ensure context propagation
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (contextError) {
+        console.error('❌ Failed to set company context:', contextError);
+        throw new Error('Falha ao definir contexto da empresa');
+      }
 
-      if (contextError) {
-        console.error('Erro ao definir contexto da empresa:', contextError);
-        throw new Error(`Erro ao definir contexto da empresa: ${contextError.message}`);
+      // Verify company context before proceeding
+      try {
+        const { data: contextCheck, error: contextCheckError } = await supabase.rpc('get_user_company_id');
+        
+        if (contextCheckError) {
+          console.error('❌ Context verification error:', contextCheckError);
+        } else {
+          console.log('📋 Context verification - get_user_company_id returns:', contextCheck);
+          
+          if (contextCheck !== currentCompanyId) {
+            console.warn('⚠️ Context mismatch detected!', {
+              expected: currentCompanyId,
+              actual: contextCheck
+            });
+          } else {
+            console.log('✅ Context verification successful');
+          }
+        }
+      } catch (verifyError) {
+        console.warn('⚠️ Could not verify context:', verifyError);
       }
 
       // Buscar próximo order_index para a categoria
-      const { data: existingSpaces } = await supabase
+      const { data: existingSpaces, error: fetchError } = await supabase
         .from('spaces')
         .select('order_index')
         .eq('category_id', data.category_id)
+        .eq('company_id', currentCompanyId)
         .order('order_index', { ascending: false })
         .limit(1);
+
+      if (fetchError) {
+        console.error('❌ Error fetching existing spaces:', fetchError);
+        throw new Error(`Erro ao buscar espaços existentes: ${fetchError.message}`);
+      }
 
       const nextOrderIndex = existingSpaces?.[0]?.order_index ? existingSpaces[0].order_index + 1 : 0;
 
@@ -78,12 +116,12 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
         company_id: currentCompanyId,
         created_by: user.id,
         order_index: nextOrderIndex,
-        type: 'discussion' as const, // Tipo padrão
+        type: 'discussion' as const,
         custom_icon_type: 'default' as const,
         custom_icon_value: null,
       };
 
-      console.log('🔧 Inserindo espaço com dados:', spaceData);
+      console.log('🚀 Inserting space with final data:', spaceData);
 
       const { data: newSpace, error } = await supabase
         .from('spaces')
@@ -92,11 +130,18 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
         .single();
 
       if (error) {
-        console.error('Erro detalhado ao criar espaço:', error);
+        console.error('❌ Space creation error details:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          spaceData
+        });
         throw new Error(`Erro ao criar espaço: ${error.message}`);
       }
       
-      console.log('✅ Espaço criado com sucesso:', newSpace);
+      console.log('✅ Space created successfully:', newSpace);
       return newSpace;
     },
     onSuccess: () => {
