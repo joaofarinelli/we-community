@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { toast } from 'sonner';
 
 interface CreateSpaceDialogProps {
@@ -21,6 +23,8 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
   const [visibility, setVisibility] = useState<'public' | 'private' | 'secret'>('public');
   const [categoryId, setCategoryId] = useState('');
 
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const { data: categories = [] } = useSpaceCategories();
   const queryClient = useQueryClient();
   
@@ -29,27 +33,100 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
       name: string;
       description?: string;
       visibility: 'public' | 'private' | 'secret';
-      category_id?: string;
+      category_id: string;
     }) => {
+      if (!user?.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      if (!currentCompanyId) {
+        throw new Error('Contexto da empresa não encontrado');
+      }
+
+      console.log('🔧 Criando espaço - Dados:', {
+        userId: user.id,
+        companyId: currentCompanyId,
+        categoryId: data.category_id,
+        name: data.name
+      });
+
+      // Definir contexto da empresa antes de criar o espaço
+      const { error: contextError } = await supabase.rpc('set_current_company_context', {
+        p_company_id: currentCompanyId
+      });
+
+      if (contextError) {
+        console.error('Erro ao definir contexto da empresa:', contextError);
+        throw new Error(`Erro ao definir contexto da empresa: ${contextError.message}`);
+      }
+
+      // Buscar próximo order_index para a categoria
+      const { data: existingSpaces } = await supabase
+        .from('spaces')
+        .select('order_index')
+        .eq('category_id', data.category_id)
+        .order('order_index', { ascending: false })
+        .limit(1);
+
+      const nextOrderIndex = existingSpaces?.[0]?.order_index ? existingSpaces[0].order_index + 1 : 0;
+
+      const spaceData = {
+        name: data.name,
+        description: data.description,
+        visibility: data.visibility,
+        category_id: data.category_id,
+        company_id: currentCompanyId,
+        created_by: user.id,
+        order_index: nextOrderIndex,
+        type: 'discussion' as const, // Tipo padrão
+        custom_icon_type: 'default' as const,
+        custom_icon_value: null,
+      };
+
+      console.log('🔧 Inserindo espaço com dados:', spaceData);
+
       const { data: newSpace, error } = await supabase
         .from('spaces')
-        .insert({
-          name: data.name,
-          description: data.description,
-          visibility: data.visibility,
-          category_id: data.category_id,
-          company_id: '00000000-0000-0000-0000-000000000000', // This will be handled by RLS
-          created_by: '00000000-0000-0000-0000-000000000000', // This will be handled by RLS
-        })
+        .insert(spaceData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao criar espaço:', error);
+        throw new Error(`Erro ao criar espaço: ${error.message}`);
+      }
+      
+      console.log('✅ Espaço criado com sucesso:', newSpace);
       return newSpace;
     },
     onSuccess: () => {
+      // Invalidar todas as queries relacionadas
       queryClient.invalidateQueries({ queryKey: ['spaces'] });
       queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['userSpaces'] });
+      
+      toast.success('Espaço criado com sucesso!');
+      onOpenChange(false);
+      
+      // Reset form
+      setName('');
+      setDescription('');
+      setVisibility('public');
+      setCategoryId('');
+    },
+    onError: (error: any) => {
+      console.error('Erro ao criar espaço:', error);
+      
+      // Mensagens de erro mais específicas
+      if (error.message.includes('Sessão de autenticação inválida')) {
+        toast.error('Sessão expirada. Recarregue a página e tente novamente.');
+      } else if (error.message.includes('contexto da empresa')) {
+        toast.error('Erro de contexto. Selecione novamente a empresa e tente novamente.');
+      } else if (error.message.includes('row-level security policy')) {
+        toast.error('Erro de permissão. Verifique se você tem permissão para criar espaços.');
+      } else {
+        toast.error(`Erro ao criar espaço: ${error.message}`);
+      }
     },
   });
 
@@ -61,24 +138,28 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
       return;
     }
 
+    // Auto-selecionar primeira categoria se nenhuma foi selecionada
+    let finalCategoryId = categoryId;
+    if (!finalCategoryId && categories.length > 0) {
+      finalCategoryId = categories[0].id;
+      toast.info(`Categoria "${categories[0].name}" selecionada automaticamente`);
+    }
+
+    if (!finalCategoryId) {
+      toast.error('Selecione uma categoria ou crie uma categoria primeiro');
+      return;
+    }
+
     try {
       await createSpace({
         name: name.trim(),
         description: description.trim() || undefined,
         visibility,
-        category_id: categoryId || undefined,
+        category_id: finalCategoryId,
       });
-
-      toast.success('Espaço criado com sucesso!');
-      onOpenChange(false);
-      
-      // Reset form
-      setName('');
-      setDescription('');
-      setVisibility('public');
-      setCategoryId('');
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao criar espaço');
+    } catch (error) {
+      // Erro já tratado no onError da mutação
+      console.error('Erro no handleSubmit:', error);
     }
   };
 
@@ -116,10 +197,10 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Categoria</Label>
+            <Label htmlFor="category">Categoria *</Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione uma categoria" />
+                <SelectValue placeholder={categories.length > 0 ? "Selecione uma categoria" : "Nenhuma categoria disponível"} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
@@ -129,6 +210,11 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
                 ))}
               </SelectContent>
             </Select>
+            {categories.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                Crie uma categoria primeiro para organizar seus espaços.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -146,10 +232,10 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || categories.length === 0}>
               {isPending ? 'Criando...' : 'Criar Espaço'}
             </Button>
           </div>
