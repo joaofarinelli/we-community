@@ -453,6 +453,7 @@ export const AdminUsersPage = () => {
                     <TableHead>Membro</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Função</TableHead>
+                    <TableHead>Telefone</TableHead>
                     <TableHead>Tags</TableHead>
                     <TableHead>Nível</TableHead>
                     <TableHead>Selos</TableHead>
@@ -488,10 +489,17 @@ export const AdminUsersPage = () => {
                             member.role === 'admin' ? 'default' : 
                             'secondary'
                           }>
-                            {member.role === 'owner' ? 'Proprietário' : 
-                             member.role === 'admin' ? 'Administrador' : 
+                            {member.role === 'owner' ? 'Proprietário' :
+                             member.role === 'admin' ? 'Administrador' :
                              'Membro'}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {member.phone ? (
+                            <span className="text-sm">{member.phone}</span>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Oculto</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           <UserTagsList tagNames={member.tag_names} />

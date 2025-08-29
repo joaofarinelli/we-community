@@ -3504,6 +3504,7 @@ export type Database = {
           level_color: string
           level_id: string
           level_name: string
+          phone: string
           posts_count: number
           role: string
           tag_ids: string[]

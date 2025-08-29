@@ -30,6 +30,7 @@ const profileSchema = z.object({
   show_coins_to_others: z.boolean(),
   show_profession_to_others: z.boolean(),
   show_location_to_others: z.boolean(),
+  hide_phone_from_members: z.boolean(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -72,6 +73,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
       show_coins_to_others: userProfile?.show_coins_to_others ?? true,
       show_profession_to_others: userProfile?.show_profession_to_others ?? true,
       show_location_to_others: userProfile?.show_location_to_others ?? true,
+      hide_phone_from_members: userProfile?.hide_phone_from_members ?? false,
     }
   });
 
@@ -89,6 +91,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         show_coins_to_others: userProfile.show_coins_to_others ?? true,
         show_profession_to_others: userProfile.show_profession_to_others ?? true,
         show_location_to_others: userProfile.show_location_to_others ?? true,
+        hide_phone_from_members: userProfile.hide_phone_from_members ?? false,
       });
     }
   }, [userProfile, reset]);
@@ -107,6 +110,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
   const showCoinsToOthers = watch('show_coins_to_others');
   const showProfessionToOthers = watch('show_profession_to_others');
   const showLocationToOthers = watch('show_location_to_others');
+  const hidePhoneFromMembers = watch('hide_phone_from_members');
 
   const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -185,6 +189,7 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
           show_coins_to_others: data.show_coins_to_others,
           show_profession_to_others: data.show_profession_to_others,
           show_location_to_others: data.show_location_to_others,
+          hide_phone_from_members: data.hide_phone_from_members,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
@@ -529,6 +534,19 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
                 <Switch
                   checked={showLocationToOthers}
                   onCheckedChange={(checked) => setValue('show_location_to_others', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Ocultar telefone de outros membros</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Apenas você e os administradores poderão ver seu telefone
+                  </p>
+                </div>
+                <Switch
+                  checked={hidePhoneFromMembers}
+                  onCheckedChange={(checked) => setValue('hide_phone_from_members', checked)}
                 />
               </div>
             </CardContent>
