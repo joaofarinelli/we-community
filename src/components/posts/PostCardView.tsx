@@ -84,6 +84,13 @@ export const PostCardView = ({ post }: PostCardViewProps) => {
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Avatar className="h-6 w-6">
+            {post.profiles?.avatar_url && (
+              <img 
+                src={post.profiles.avatar_url} 
+                alt={authorName}
+                className="w-full h-full object-cover rounded-full"
+              />
+            )}
             <AvatarFallback className="text-xs">{authorInitials}</AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">

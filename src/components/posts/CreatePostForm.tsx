@@ -3,6 +3,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { CreatePostDialog } from './CreatePostDialog';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface CreatePostFormProps {
   spaceId: string;
@@ -10,6 +11,14 @@ interface CreatePostFormProps {
 
 export const CreatePostForm = ({ spaceId }: CreatePostFormProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { data: profile } = useUserProfile();
+
+  const getUserInitials = () => {
+    if (profile?.first_name && profile?.last_name) {
+      return `${profile.first_name[0]}${profile.last_name[0]}`.toUpperCase();
+    }
+    return 'U';
+  };
 
   return (
     <>
@@ -20,8 +29,15 @@ export const CreatePostForm = ({ spaceId }: CreatePostFormProps) => {
         <CardContent className="p-4">
           <div className="flex items-start space-x-3">
             <Avatar className="h-10 w-10">
+              {profile?.avatar_url && (
+                <img 
+                  src={profile.avatar_url} 
+                  alt={`${profile.first_name} ${profile.last_name}`}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              )}
               <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                U
+                {getUserInitials()}
               </AvatarFallback>
             </Avatar>
             

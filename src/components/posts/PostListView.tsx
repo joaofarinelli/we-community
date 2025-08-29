@@ -63,6 +63,13 @@ export const PostListView = ({ post }: PostListViewProps) => {
       <div className="flex items-start gap-3">
         {/* Avatar */}
         <Avatar className="h-8 w-8 flex-shrink-0">
+          {post.profiles?.avatar_url && (
+            <img 
+              src={post.profiles.avatar_url} 
+              alt={authorName}
+              className="w-full h-full object-cover rounded-full"
+            />
+          )}
           <AvatarFallback className="text-xs">{authorInitials}</AvatarFallback>
         </Avatar>
 
