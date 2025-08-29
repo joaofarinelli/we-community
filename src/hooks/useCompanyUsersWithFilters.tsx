@@ -10,6 +10,8 @@ export interface UserFilters {
   joinedStart?: string;
   joinedEnd?: string;
   courseIds?: string[];
+  levelIds?: string[];
+  badgeIds?: string[];
 }
 
 export interface FilteredUser {
@@ -23,6 +25,11 @@ export interface FilteredUser {
   tag_names: string[];
   posts_count: number;
   courses_count: number;
+  level_id: string | null;
+  level_name: string | null;
+  level_color: string | null;
+  badge_ids: string[];
+  badge_names: string[];
 }
 
 export const useCompanyUsersWithFilters = (
@@ -48,6 +55,8 @@ export const useCompanyUsersWithFilters = (
         p_joined_start: filters.joinedStart || null,
         p_joined_end: filters.joinedEnd || null,
         p_course_ids: filters.courseIds || null,
+        p_level_ids: filters.levelIds || null,
+        p_badge_ids: filters.badgeIds || null,
         p_limit: limit,
         p_offset: offset
       });

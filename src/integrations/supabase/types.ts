@@ -3465,23 +3465,42 @@ export type Database = {
         }[]
       }
       get_company_users_with_filters: {
-        Args: {
-          p_company_id: string
-          p_course_ids?: string[]
-          p_joined_end?: string
-          p_joined_start?: string
-          p_limit?: number
-          p_offset?: number
-          p_roles?: string[]
-          p_search?: string
-          p_tag_ids?: string[]
-        }
+        Args:
+          | {
+              p_badge_ids?: string[]
+              p_company_id: string
+              p_course_ids?: string[]
+              p_joined_end?: string
+              p_joined_start?: string
+              p_level_ids?: string[]
+              p_limit?: number
+              p_offset?: number
+              p_roles?: string[]
+              p_search?: string
+              p_tag_ids?: string[]
+            }
+          | {
+              p_company_id: string
+              p_course_ids?: string[]
+              p_joined_end?: string
+              p_joined_start?: string
+              p_limit?: number
+              p_offset?: number
+              p_roles?: string[]
+              p_search?: string
+              p_tag_ids?: string[]
+            }
         Returns: {
+          badge_ids: string[]
+          badge_names: string[]
           courses_count: number
           email: string
           first_name: string
           joined_at: string
           last_name: string
+          level_color: string
+          level_id: string
+          level_name: string
           posts_count: number
           role: string
           tag_ids: string[]

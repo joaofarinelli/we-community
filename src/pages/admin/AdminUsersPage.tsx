@@ -20,6 +20,8 @@ import { UserEditDialog } from '@/components/admin/UserEditDialog';
 import { useCompanyUsersWithFilters, UserFilters, FilteredUser } from '@/hooks/useCompanyUsersWithFilters';
 import { useTags } from '@/hooks/useTags';
 import { useCourses } from '@/hooks/useCourses';
+import { useCompanyLevels } from '@/hooks/useCompanyLevels';
+import { useTrailBadges } from '@/hooks/useTrailBadges';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
 import { TagIcon } from '@/components/admin/TagIcon';
 import { format } from 'date-fns';
@@ -49,11 +51,15 @@ export const AdminUsersPage = () => {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
   const { data: members, isLoading } = useCompanyUsersWithFilters(filters);
   const { data: tags = [] } = useTags();
   const { data: courses = [] } = useCourses();
+  const { data: levels = [] } = useCompanyLevels();
+  const { data: badges = [] } = useTrailBadges();
   const { toggleUserStatus } = useManageUserStatus();
 
   // Update filters when individual filter states change
@@ -64,11 +70,13 @@ export const AdminUsersPage = () => {
     if (selectedRoles.length > 0) newFilters.roles = selectedRoles;
     if (selectedTags.length > 0) newFilters.tagIds = selectedTags;
     if (selectedCourses.length > 0) newFilters.courseIds = selectedCourses;
+    if (selectedLevels.length > 0) newFilters.levelIds = selectedLevels;
+    if (selectedBadges.length > 0) newFilters.badgeIds = selectedBadges;
     if (dateRange?.from) newFilters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
     if (dateRange?.to) newFilters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
     
     setFilters(newFilters);
-  }, [filters.search, selectedRoles, selectedTags, selectedCourses, dateRange]);
+  }, [filters.search, selectedRoles, selectedTags, selectedCourses, selectedLevels, selectedBadges, dateRange]);
 
   const handleEditMember = (member: FilteredUser) => {
     setEditingMember(member);
@@ -97,6 +105,8 @@ export const AdminUsersPage = () => {
     setSelectedRoles([]);
     setSelectedTags([]);
     setSelectedCourses([]);
+    setSelectedLevels([]);
+    setSelectedBadges([]);
     setDateRange(undefined);
   };
 
@@ -336,6 +346,62 @@ export const AdminUsersPage = () => {
                     </Select>
                   </div>
 
+                  {/* Levels Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Nível</label>
+                    <Select
+                      value={selectedLevels.length === 0 ? "all" : selectedLevels.join(',')}
+                      onValueChange={(value) => {
+                        if (value === "all") {
+                          setSelectedLevels([]);
+                        } else {
+                          const levelIds = value ? value.split(',') : [];
+                          setSelectedLevels(levelIds);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todos os níveis" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os níveis</SelectItem>
+                        {levels.map((level) => (
+                          <SelectItem key={level.id} value={level.id}>
+                            {level.level_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Badges Filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Selos</label>
+                    <Select
+                      value={selectedBadges.length === 0 ? "all" : selectedBadges.join(',')}
+                      onValueChange={(value) => {
+                        if (value === "all") {
+                          setSelectedBadges([]);
+                        } else {
+                          const badgeIds = value ? value.split(',') : [];
+                          setSelectedBadges(badgeIds);
+                        }
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Todos os selos" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos os selos</SelectItem>
+                        {badges.map((badge) => (
+                          <SelectItem key={badge.id} value={badge.id}>
+                            {badge.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   {/* Clear Filters Button */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium">&nbsp;</label>
@@ -388,6 +454,8 @@ export const AdminUsersPage = () => {
                     <TableHead>Email</TableHead>
                     <TableHead>Função</TableHead>
                     <TableHead>Tags</TableHead>
+                    <TableHead>Nível</TableHead>
+                    <TableHead>Selos</TableHead>
                     <TableHead>Posts</TableHead>
                     <TableHead>Cursos</TableHead>
                     <TableHead>Data de entrada</TableHead>
@@ -427,6 +495,41 @@ export const AdminUsersPage = () => {
                         </TableCell>
                         <TableCell>
                           <UserTagsList tagNames={member.tag_names} />
+                        </TableCell>
+                        <TableCell>
+                          {member.level_name ? (
+                            <Badge 
+                              variant="outline" 
+                              style={{ color: member.level_color || undefined }}
+                              className="text-xs"
+                            >
+                              {member.level_name}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Sem nível</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {member.badge_names.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {member.badge_names.slice(0, 2).map((badgeName, index) => (
+                                <Badge
+                                  key={index}
+                                  variant="outline"
+                                  className="text-xs"
+                                >
+                                  {badgeName}
+                                </Badge>
+                              ))}
+                              {member.badge_names.length > 2 && (
+                                <span className="text-xs text-muted-foreground">
+                                  +{member.badge_names.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground text-sm">Sem selos</span>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-mono">
