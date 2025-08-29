@@ -52,29 +52,36 @@ const enhancedFetch = (originalFetch: typeof fetch) => {
   return async (input: RequestInfo | URL, init: RequestInit = {}) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
     const companyId = getGlobalCompanyId();
-    
-    // Check if this is a Supabase RPC call that doesn't need company context
+
     const isSupabaseCall = url.includes('supabase.co');
-    const functionName = url.split('/').pop() || '';
-    const requiresCompanyContext = !FUNCTIONS_WITHOUT_COMPANY_CONTEXT.includes(functionName);
-    
-    if (isSupabaseCall && companyId && requiresCompanyContext) {
-      // Add company header for functions that require context
+    // Extract RPC function name if present
+    const rpcMatch = /\/rest\/v1\/rpc\/([^\/?#]+)/.exec(url);
+    const rpcName = rpcMatch?.[1] ?? null;
+    const isRpcCall = Boolean(rpcName);
+    const requiresCompanyContext = isRpcCall ? !FUNCTIONS_WITHOUT_COMPANY_CONTEXT.includes(rpcName!) : false;
+
+    if (isSupabaseCall) {
       const existingHeaders = init.headers || {};
-      const headersObj = existingHeaders instanceof Headers 
+      const headersObj = existingHeaders instanceof Headers
         ? Object.fromEntries(existingHeaders.entries())
-        : existingHeaders;
-      
-      init.headers = {
-        ...headersObj,
-        'x-company-id': companyId,
-      };
-      console.log('📡 Adding x-company-id header to request:', companyId, functionName);
-    } else if (isSupabaseCall && !companyId && requiresCompanyContext) {
-      // Only warn for functions that actually require company context
-      console.warn('⚠️ No company ID available for request:', functionName);
+        : existingHeaders as Record<string, string>;
+
+      // Add header when we have a companyId and it's not an excluded RPC
+      if (companyId && (!isRpcCall || requiresCompanyContext)) {
+        init.headers = {
+          ...headersObj,
+          'x-company-id': companyId,
+        };
+        console.log('📡 Adding x-company-id header to request:', companyId, rpcName || url);
+      } else if (!companyId && requiresCompanyContext) {
+        // Only warn when an RPC explicitly requires context
+        console.warn('⚠️ No company ID available for request:', rpcName);
+      } else {
+        // Keep headers untouched for excluded RPCs or when no context is required
+        init.headers = headersObj as any;
+      }
     }
-    
+
     return originalFetch(input, init);
   };
 };

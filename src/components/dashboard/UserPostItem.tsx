@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Pin, MessageCircle } from 'lucide-react';
 import { UserPost } from '@/hooks/useUserPosts';
-import { getSpaceTypeInfo } from '@/lib/spaceUtils';
+import { getSpaceTypeInfo, getSpaceIcon } from '@/lib/spaceUtils';
 
 interface UserPostItemProps {
   post: UserPost;
@@ -13,9 +13,9 @@ interface UserPostItemProps {
 
 export const UserPostItem = ({ post, onClick }: UserPostItemProps) => {
   const spaceName = post.spaces?.name || 'Espaço';
-  const spaceType = post.spaces?.type || 'text';
+  const spaceType = post.spaces?.type || 'publications';
   const spaceTypeInfo = getSpaceTypeInfo(spaceType as any);
-  const SpaceIcon = spaceTypeInfo.icon;
+  const SpaceIcon = (spaceTypeInfo?.icon) || getSpaceIcon(spaceType);
 
   const truncateContent = (content: string, maxLength = 100) => {
     // Remove HTML tags and truncate

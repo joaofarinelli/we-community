@@ -3,7 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare } from 'lucide-react';
 import { UserComment } from '@/hooks/useUserComments';
-import { getSpaceTypeInfo } from '@/lib/spaceUtils';
+import { getSpaceTypeInfo, getSpaceIcon } from '@/lib/spaceUtils';
 
 interface UserCommentItemProps {
   comment: UserComment;
@@ -12,9 +12,9 @@ interface UserCommentItemProps {
 
 export const UserCommentItem = ({ comment, onClick }: UserCommentItemProps) => {
   const spaceName = comment.posts?.spaces?.name || 'Espaço';
-  const spaceType = comment.posts?.spaces?.type || 'text';
+  const spaceType = comment.posts?.spaces?.type || 'publications';
   const spaceTypeInfo = getSpaceTypeInfo(spaceType as any);
-  const SpaceIcon = spaceTypeInfo.icon;
+  const SpaceIcon = (spaceTypeInfo?.icon) || getSpaceIcon(spaceType);
   const postTitle = comment.posts?.title;
 
   const truncateContent = (content: string, maxLength = 100) => {

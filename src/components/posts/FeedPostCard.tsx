@@ -17,7 +17,7 @@ import { PostInteractions } from './PostInteractions';
 import { PostContent } from './PostContent';
 import { DeletePostDialog } from './DeletePostDialog';
 import { EditPostDialog } from './EditPostDialog';
-import { getSpaceTypeInfo } from '@/lib/spaceUtils';
+import { getSpaceTypeInfo, getSpaceIcon } from '@/lib/spaceUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
@@ -102,9 +102,9 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
       : 'U';
 
   const spaceName = post.spaces?.name || 'Espaço';
-  const spaceType = post.spaces?.type || 'text';
+  const spaceType = post.spaces?.type || 'publications';
   const spaceTypeInfo = getSpaceTypeInfo(spaceType as any);
-  const SpaceIcon = spaceTypeInfo.icon;
+  const SpaceIcon = (spaceTypeInfo?.icon) || getSpaceIcon(spaceType);
 
   const handleSpaceClick = () => {
     navigate(`/dashboard/space/${post.space_id}`);
