@@ -16,7 +16,7 @@ import { PostCard } from '@/components/posts/PostCard';
 import { CreatePostForm } from '@/components/posts/CreatePostForm';
 import { EventsList } from '@/components/events/EventsList';
 import { CreateEventDialog } from '@/components/events/CreateEventDialog';
-import { getSpaceTypeInfo, renderSpaceIcon } from '@/lib/spaceUtils';
+import { getSpaceTypeInfo, renderSpaceIcon, getSpaceIcon } from '@/lib/spaceUtils';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { SpaceBanner } from '@/components/ui/space-banner';
@@ -102,7 +102,7 @@ export const SpaceView = () => {
       </DashboardLayout>;
   }
   const spaceTypeInfo = getSpaceTypeInfo(space.type as any);
-  const SpaceIcon = spaceTypeInfo.icon;
+  const SpaceIcon = (spaceTypeInfo?.icon) || getSpaceIcon(space.type as any);
   return <DashboardLayout>
       <div className="min-h-screen bg-background">
         {/* Space Header */}
