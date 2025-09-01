@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { useOnboardingFlow } from '@/hooks/useOnboardingFlow';
 import { useOnboardingSteps } from '@/hooks/useOnboardingSteps';
 import { AdminOnboardingStepForm } from '@/components/admin/AdminOnboardingStepForm';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 import { 
   Plus, 
   Save, 
@@ -194,176 +195,180 @@ export const AdminOnboardingPage = () => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="h-8 bg-muted animate-pulse rounded" />
-        <div className="h-64 bg-muted animate-pulse rounded" />
-      </div>
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="h-8 bg-muted animate-pulse rounded" />
+          <div className="h-64 bg-muted animate-pulse rounded" />
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Onboarding</h1>
-          <p className="text-muted-foreground mt-1">
-            Configure o processo de integração de novos usuários
-          </p>
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Onboarding</h1>
+            <p className="text-muted-foreground mt-1">
+              Configure o processo de integração de novos usuários
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Flow Configuration */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Configuração do Fluxo
-              </CardTitle>
-              <CardDescription>
-                Configure as informações básicas do seu fluxo de onboarding
-              </CardDescription>
-            </div>
-            {flow && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {flow.is_active ? 'Ativo' : 'Inativo'}
-                  </span>
-                  <Switch
-                    checked={flow.is_active}
-                    onCheckedChange={handleToggleActive}
-                  />
-                </div>
-                {flow.is_active ? (
-                  <Badge className="bg-green-100 text-green-800">
-                    <Play className="h-3 w-3 mr-1" />
-                    Ativo
-                  </Badge>
-                ) : (
-                  <Badge variant="secondary">
-                    <Pause className="h-3 w-3 mr-1" />
-                    Inativo
-                  </Badge>
-                )}
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="flow-name">Nome do Fluxo</Label>
-              <Input
-                id="flow-name"
-                value={flowData.name}
-                onChange={(e) => setFlowData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="Ex: Onboarding Padrão"
-              />
-            </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="flow-description">Descrição</Label>
-            <Textarea
-              id="flow-description"
-              value={flowData.description}
-              onChange={(e) => setFlowData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Descreva o objetivo deste fluxo de onboarding"
-              rows={3}
-            />
-          </div>
-
-          <div className="flex gap-2">
-            {flow ? (
-              <Button onClick={handleUpdateFlow} className="flex items-center gap-2">
-                <Save className="h-4 w-4" />
-                Salvar Alterações
-              </Button>
-            ) : (
-              <Button onClick={handleCreateFlow} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Criar Fluxo
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Steps Configuration */}
-      {flow && (
+        {/* Flow Configuration */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5" />
-                  Passos do Onboarding ({steps.length})
+                  <Users className="h-5 w-5" />
+                  Configuração do Fluxo
                 </CardTitle>
                 <CardDescription>
-                  Configure os passos que os usuários seguirão durante o onboarding
+                  Configure as informações básicas do seu fluxo de onboarding
                 </CardDescription>
               </div>
-              <Button
-                onClick={() => setIsCreatingStep(true)}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Adicionar Passo
-              </Button>
+              {flow && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {flow.is_active ? 'Ativo' : 'Inativo'}
+                    </span>
+                    <Switch
+                      checked={flow.is_active}
+                      onCheckedChange={handleToggleActive}
+                    />
+                  </div>
+                  {flow.is_active ? (
+                    <Badge className="bg-green-100 text-green-800">
+                      <Play className="h-3 w-3 mr-1" />
+                      Ativo
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">
+                      <Pause className="h-3 w-3 mr-1" />
+                      Inativo
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
           </CardHeader>
-          <CardContent>
-            {steps.length === 0 ? (
-              <div className="text-center py-12">
-                <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  Nenhum passo configurado
-                </h3>
-                <p className="text-muted-foreground mb-4">
-                  Adicione passos para criar seu fluxo de onboarding
-                </p>
-                <Button onClick={() => setIsCreatingStep(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Primeiro Passo
-                </Button>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="flow-name">Nome do Fluxo</Label>
+                <Input
+                  id="flow-name"
+                  value={flowData.name}
+                  onChange={(e) => setFlowData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Ex: Onboarding Padrão"
+                />
               </div>
-            ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext items={steps.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                  <div className="space-y-3">
-                    {steps.map((step) => (
-                      <SortableStepItem
-                        key={step.id}
-                        step={step}
-                        onEdit={setEditingStep}
-                        onDelete={handleDeleteStep}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="flow-description">Descrição</Label>
+              <Textarea
+                id="flow-description"
+                value={flowData.description}
+                onChange={(e) => setFlowData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descreva o objetivo deste fluxo de onboarding"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex gap-2">
+              {flow ? (
+                <Button onClick={handleUpdateFlow} className="flex items-center gap-2">
+                  <Save className="h-4 w-4" />
+                  Salvar Alterações
+                </Button>
+              ) : (
+                <Button onClick={handleCreateFlow} className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Criar Fluxo
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
-      )}
 
-      {/* Step Form Dialog */}
-      {(isCreatingStep || editingStep) && (
-        <AdminOnboardingStepForm
-          step={editingStep}
-          onSave={handleSaveStep}
-          onCancel={() => {
-            setEditingStep(null);
-            setIsCreatingStep(false);
-          }}
-        />
-      )}
-    </div>
+        {/* Steps Configuration */}
+        {flow && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Passos do Onboarding ({steps.length})
+                  </CardTitle>
+                  <CardDescription>
+                    Configure os passos que os usuários seguirão durante o onboarding
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={() => setIsCreatingStep(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Adicionar Passo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {steps.length === 0 ? (
+                <div className="text-center py-12">
+                  <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    Nenhum passo configurado
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    Adicione passos para criar seu fluxo de onboarding
+                  </p>
+                  <Button onClick={() => setIsCreatingStep(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Primeiro Passo
+                  </Button>
+                </div>
+              ) : (
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={steps.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                    <div className="space-y-3">
+                      {steps.map((step) => (
+                        <SortableStepItem
+                          key={step.id}
+                          step={step}
+                          onEdit={setEditingStep}
+                          onDelete={handleDeleteStep}
+                        />
+                      ))}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Step Form Dialog */}
+        {(isCreatingStep || editingStep) && (
+          <AdminOnboardingStepForm
+            step={editingStep}
+            onSave={handleSaveStep}
+            onCancel={() => {
+              setEditingStep(null);
+              setIsCreatingStep(false);
+            }}
+          />
+        )}
+      </div>
+    </AdminLayout>
   );
 };
