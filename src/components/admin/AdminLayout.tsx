@@ -39,7 +39,6 @@ const mainMenuItems = [
       { label: 'Gerenciar audiência', path: '/admin/users' },
       { label: 'Grupos de acesso', path: '/admin/access-groups' },
       { label: 'Segmentos', path: '/admin/segments' },
-      { label: 'Registros em massa', path: '/admin/bulk-records' },
       { label: 'Onboarding', path: '/admin/onboarding' },
     ]
   },
