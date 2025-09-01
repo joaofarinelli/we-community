@@ -91,11 +91,19 @@ export const SpaceCustomizationDrawer = ({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="max-h-[90vh]">
-        <DrawerHeader>
+        <DrawerHeader className="relative">
           <DrawerTitle>Personalizar espaço</DrawerTitle>
           <DrawerDescription>
             Configure as preferências e aparência do seu espaço
           </DrawerDescription>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-4 h-6 w-6"
+            onClick={() => onOpenChange(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
         </DrawerHeader>
 
         <div className="px-4 overflow-y-auto">
@@ -331,14 +339,14 @@ export const SpaceCustomizationDrawer = ({
           </div>
         </div>
 
-        <DrawerFooter>
-          <div className="flex space-x-2 w-full">
-            <Button variant="outline" onClick={handleCancel} className="flex-1">
+        <DrawerFooter className="pt-4 pb-6">
+          <div className="flex justify-end space-x-3 max-w-[950px] mx-auto w-full">
+            <Button variant="outline" onClick={handleCancel} className="min-w-[100px]">
               Cancelar
             </Button>
             <Button 
               onClick={handleSave} 
-              className="flex-1"
+              className="min-w-[120px]"
               disabled={updateSpaceMutation.isPending}
             >
               {updateSpaceMutation.isPending ? 'Salvando...' : 'Salvar alterações'}
