@@ -28,6 +28,7 @@ export const CreateChallengeDialog = () => {
   const [requiredLevelId, setRequiredLevelId] = useState<string>('');
   const [accessTags, setAccessTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string>('');
+  const [requirements, setRequirements] = useState<any>({});
 
   // Deadline configuration
   const [deadlineType, setDeadlineType] = useState<'duration' | 'fixed_date'>('duration');
@@ -54,7 +55,10 @@ export const CreateChallengeDialog = () => {
       title,
       description,
       challenge_type: challengeType as any,
-      requirements: { target_value: targetValue },
+      requirements: challengeType === 'proof_based' ? {
+        ...requirements,
+        proof_types: requirements.proof_types?.length ? requirements.proof_types : ['text', 'image', 'file']
+      } : { target_value: targetValue },
       reward_type: rewardType as any,
       reward_value: rewardValue,
       max_participants: maxParticipants,
@@ -86,6 +90,7 @@ export const CreateChallengeDialog = () => {
       setRequiredLevelId('');
       setAccessTags([]);
       setSelectedTag('');
+      setRequirements({});
       setDeadlineType('duration');
       setDurationDays(7);
       setDurationHours(0);
@@ -112,6 +117,7 @@ export const CreateChallengeDialog = () => {
       case 'post_creation': return <Plus className="h-4 w-4" />;
       case 'marketplace_purchase': return <Package className="h-4 w-4" />;
       case 'points_accumulation': return <Coins className="h-4 w-4" />;
+      case 'proof_based': return <Tag className="h-4 w-4" />;
       default: return <Plus className="h-4 w-4" />;
     }
   };
@@ -150,18 +156,55 @@ export const CreateChallengeDialog = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="targetValue">Meta</Label>
-              <Input
-                id="targetValue"
-                type="number"
-                value={targetValue}
-                onChange={(e) => setTargetValue(Number(e.target.value))}
-                min="1"
-                required
-              />
-            </div>
+            {challengeType !== 'proof_based' && (
+              <div className="space-y-2">
+                <Label htmlFor="targetValue">Meta</Label>
+                <Input
+                  id="targetValue"
+                  type="number"
+                  value={targetValue}
+                  onChange={(e) => setTargetValue(Number(e.target.value))}
+                  min="1"
+                  required
+                />
+              </div>
+            )}
           </div>
+
+          {challengeType === 'proof_based' && (
+            <div className="space-y-2">
+              <Label>Tipos de Prova Aceitos</Label>
+              <div className="flex gap-4 mt-2">
+                {['text', 'image', 'file'].map((proofType) => (
+                  <div key={proofType} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={proofType}
+                      checked={requirements.proof_types?.includes(proofType)}
+                      onChange={(e) => {
+                        const current = requirements.proof_types || [];
+                        if (e.target.checked) {
+                          setRequirements({
+                            ...requirements,
+                            proof_types: [...current, proofType]
+                          });
+                        } else {
+                          setRequirements({
+                            ...requirements,
+                            proof_types: current.filter((t: string) => t !== proofType)
+                          });
+                        }
+                      }}
+                    />
+                    <Label htmlFor={proofType}>
+                      {proofType === 'text' ? 'Texto' :
+                       proofType === 'image' ? 'Imagem' : 'Arquivo'}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
@@ -204,6 +247,12 @@ export const CreateChallengeDialog = () => {
                     <div className="flex items-center gap-2">
                       {getChallengeTypeIcon('points_accumulation')}
                       Acumular Pontos
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="proof_based">
+                    <div className="flex items-center gap-2">
+                      {getChallengeTypeIcon('proof_based')}
+                      Baseado em Prova
                     </div>
                   </SelectItem>
                 </SelectContent>

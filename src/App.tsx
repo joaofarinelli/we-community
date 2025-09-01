@@ -45,6 +45,7 @@ import { AdminStoreCategoriesPage } from "./pages/admin/AdminStoreCategoriesPage
 import MyItemsPage from "./pages/MyItemsPage";
 import { MembersPage } from "./pages/MembersPage";
 import { AdminChallengesPage } from "./pages/admin/AdminChallengesPage";
+import { AdminChallengeSubmissionsPage } from "./pages/admin/AdminChallengeSubmissionsPage";
 import { ChallengesPage } from "./pages/ChallengesPage";
 import { BankPage } from "./pages/BankPage";
 import { CalendarPage } from "./pages/CalendarPage";
@@ -131,6 +132,7 @@ const AppRoutes = () => {
           <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
           <Route path="/admin/store/categories" element={<AuthGuard><AdminStoreCategoriesPage /></AuthGuard>} />
           <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
+          <Route path="/admin/challenge-submissions" element={<AuthGuard><AdminChallengeSubmissionsPage /></AuthGuard>} />
           <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
           <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />
           <Route path="/dashboard/calendar" element={<AuthGuard><CalendarPage /></AuthGuard>} />

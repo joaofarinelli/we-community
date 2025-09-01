@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,10 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useChallengeParticipations } from '@/hooks/useChallengeParticipations';
+import { useChallengeSubmissions } from '@/hooks/useChallengeSubmissions';
+import { SubmitProofDialog } from './SubmitProofDialog';
+import { AcceptChallengeDialog } from './AcceptChallengeDialog';
 
 interface Challenge {
   id: string;
@@ -54,6 +59,7 @@ interface Challenge {
     is_completed: boolean;
     completed_at?: string | null;
   }>;
+  accepted_proof_types?: string[];
 }
 
 interface ChallengeDetailsDialogProps {
@@ -67,11 +73,24 @@ export const ChallengeDetailsDialog = ({
   onOpenChange, 
   challenge 
 }: ChallengeDetailsDialogProps) => {
+  const [showSubmitProof, setShowSubmitProof] = useState(false);
+  const [showAcceptDialog, setShowAcceptDialog] = useState(false);
+  
+  const { data: participations } = useChallengeParticipations();
   const userProgress = challenge.challenge_progress?.[0];
   const progressValue = userProgress?.progress_value || 0;
   const targetValue = userProgress?.target_value || (challenge.requirements as any)?.target_value || 1;
   const progressPercent = Math.min((progressValue / targetValue) * 100, 100);
   const isCompleted = userProgress?.is_completed || false;
+  
+  // Check if user has accepted this challenge
+  const participation = participations?.find(p => p.challenges && 'id' in p.challenges && p.challenges.id === challenge.id);
+  const { data: submissions } = useChallengeSubmissions(participation?.id);
+  const latestSubmission = submissions?.[0];
+  
+  const isProofBasedChallenge = challenge.challenge_type === 'proof_based';
+  const hasAccepted = !!participation;
+  const canSubmitProof = isProofBasedChallenge && hasAccepted && !isCompleted && !latestSubmission;
 
   const getChallengeTypeIcon = (type: string) => {
     switch (type) {
@@ -99,7 +118,8 @@ export const ChallengeDetailsDialog = ({
       'post_creation': 'Criar Posts',
       'marketplace_purchase': 'Fazer Compras',
       'points_accumulation': 'Acumular Pontos',
-      'custom_action': 'Ação Especial'
+      'custom_action': 'Ação Especial',
+      'proof_based': 'Baseado em Prova'
     };
     return types[type as keyof typeof types] || type;
   };
@@ -215,34 +235,80 @@ export const ChallengeDetailsDialog = ({
 
           {/* Progress Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Seu Progresso</h3>
+            <h3 className="text-lg font-semibold">
+              {isProofBasedChallenge ? 'Status da Submissão' : 'Seu Progresso'}
+            </h3>
             
-            <Card className={isCompleted ? "border-green-200 bg-green-50/50" : ""}>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Progresso:</span>
-                    <span className="text-sm font-medium">{progressValue}/{targetValue}</span>
-                  </div>
-                  
-                  <Progress 
-                    value={progressPercent} 
-                    className={`h-3 ${isCompleted ? 'bg-green-100' : ''}`}
-                  />
-                  
-                  <div className="flex justify-between items-center text-xs">
-                    <span className={isCompleted ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
-                      {isCompleted ? '✓ Desafio concluído!' : `${progressPercent.toFixed(1)}% concluído`}
-                    </span>
-                    {userProgress?.completed_at && (
-                      <span className="text-muted-foreground">
-                        Concluído em {format(new Date(userProgress.completed_at), 'dd/MM/yyyy', { locale: ptBR })}
-                      </span>
+            {isProofBasedChallenge ? (
+              <Card className={
+                latestSubmission?.admin_review_status === 'approved' ? "border-green-200 bg-green-50/50" :
+                latestSubmission?.admin_review_status === 'rejected' ? "border-red-200 bg-red-50/50" :
+                latestSubmission ? "border-yellow-200 bg-yellow-50/50" : ""
+              }>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    {!hasAccepted ? (
+                      <p className="text-muted-foreground">Aceite o desafio para começar</p>
+                    ) : !latestSubmission ? (
+                      <p className="text-muted-foreground">Aguardando submissão de prova</p>
+                    ) : (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">Status:</span>
+                          <Badge variant={
+                            latestSubmission.admin_review_status === 'approved' ? 'default' :
+                            latestSubmission.admin_review_status === 'rejected' ? 'destructive' :
+                            'secondary'
+                          }>
+                            {latestSubmission.admin_review_status === 'approved' ? '✓ Aprovado' :
+                             latestSubmission.admin_review_status === 'rejected' ? '✗ Rejeitado' :
+                             '⏳ Pendente'}
+                          </Badge>
+                        </div>
+                        
+                        {latestSubmission.admin_review_notes && (
+                          <div className="p-3 bg-muted rounded-lg">
+                            <p className="text-sm font-medium mb-1">Comentários do administrador:</p>
+                            <p className="text-sm text-muted-foreground">{latestSubmission.admin_review_notes}</p>
+                          </div>
+                        )}
+                        
+                        <p className="text-xs text-muted-foreground">
+                          Enviado em {format(new Date(latestSubmission.submitted_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                        </p>
+                      </>
                     )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className={isCompleted ? "border-green-200 bg-green-50/50" : ""}>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Progresso:</span>
+                      <span className="text-sm font-medium">{progressValue}/{targetValue}</span>
+                    </div>
+                    
+                    <Progress 
+                      value={progressPercent} 
+                      className={`h-3 ${isCompleted ? 'bg-green-100' : ''}`}
+                    />
+                    
+                    <div className="flex justify-between items-center text-xs">
+                      <span className={isCompleted ? 'text-green-600 font-medium' : 'text-muted-foreground'}>
+                        {isCompleted ? '✓ Desafio concluído!' : `${progressPercent.toFixed(1)}% concluído`}
+                      </span>
+                      {userProgress?.completed_at && (
+                        <span className="text-muted-foreground">
+                          Concluído em {format(new Date(userProgress.completed_at), 'dd/MM/yyyy', { locale: ptBR })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <Separator />
@@ -308,7 +374,7 @@ export const ChallengeDetailsDialog = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
@@ -316,7 +382,43 @@ export const ChallengeDetailsDialog = ({
           >
             Fechar
           </Button>
+          
+          {!hasAccepted && challenge.is_active && (
+            <Button onClick={() => setShowAcceptDialog(true)}>
+              Aceitar Desafio
+            </Button>
+          )}
+          
+          {canSubmitProof && (
+            <Button onClick={() => setShowSubmitProof(true)}>
+              Enviar Prova
+            </Button>
+          )}
+          
+          {latestSubmission?.admin_review_status === 'rejected' && (
+            <Button onClick={() => setShowSubmitProof(true)}>
+              Reenviar Prova
+            </Button>
+          )}
         </DialogFooter>
+        
+        {/* Accept Challenge Dialog */}
+        <AcceptChallengeDialog
+          challenge={challenge}
+          open={showAcceptDialog}
+          onOpenChange={setShowAcceptDialog}
+        />
+        
+        {/* Submit Proof Dialog */}
+        {participation && (
+          <SubmitProofDialog
+            participationId={participation.id}
+            challengeTitle={challenge.title}
+            acceptedProofTypes={challenge.requirements?.proof_types || ['text', 'image', 'file']}
+            open={showSubmitProof}
+            onOpenChange={setShowSubmitProof}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

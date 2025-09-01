@@ -214,31 +214,35 @@ export const AdminChallengesPage = () => {
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3 flex-1 pr-2">
-                  {challenge.description && (
-                    <p className="text-sm text-muted-foreground">{challenge.description}</p>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="font-medium">Meta:</p>
-                      <p className="text-muted-foreground">
-                        {(challenge.requirements as any)?.target_value || 1}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-medium">Recompensa:</p>
-                      <div className="flex items-center space-x-1 text-muted-foreground">
-                        {getRewardTypeIcon(challenge.reward_type)}
-                        <span>{formatRewardType(challenge.reward_type)}</span>
-                        {challenge.reward_type === 'coins' && (
-                          <span>({(challenge.reward_value as any)?.amount})</span>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3 flex-1 pr-2">
+                        {challenge.description && (
+                          <p className="text-sm text-muted-foreground">{challenge.description}</p>
                         )}
-                      </div>
-                    </div>
-                  </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium">
+                              {challenge.challenge_type === 'proof_based' ? 'Tipo:' : 'Meta:'}
+                            </p>
+                            <p className="text-muted-foreground">
+                              {challenge.challenge_type === 'proof_based' 
+                                ? 'Baseado em Prova' 
+                                : (challenge.requirements as any)?.target_value || 1}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Recompensa:</p>
+                            <div className="flex items-center space-x-1 text-muted-foreground">
+                              {getRewardTypeIcon(challenge.reward_type)}
+                              <span>{formatRewardType(challenge.reward_type)}</span>
+                              {challenge.reward_type === 'coins' && (
+                                <span>({(challenge.reward_value as any)?.amount})</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
 
                   {challengeAnalytics && (
                     <div className="space-y-2">
