@@ -52,7 +52,6 @@ export const SpaceCustomizationDrawer = ({
   const [accessType, setAccessType] = useState(space.is_private ? 'private' : 'open');
   const [layoutType, setLayoutType] = useState(space.layout_type || 'feed');
   const [showRightSidebar, setShowRightSidebar] = useState(true);
-  const [topicNavigation, setTopicNavigation] = useState(false);
   const [customIconType, setCustomIconType] = useState<'default' | 'emoji' | 'image'>(
     (space.custom_icon_type as 'default' | 'emoji' | 'image') || 'default'
   );
@@ -82,7 +81,6 @@ export const SpaceCustomizationDrawer = ({
     setAccessType(space.is_private ? 'private' : 'open');
     setLayoutType(space.layout_type || 'feed');
     setShowRightSidebar(true);
-    setTopicNavigation(false);
     setCustomIconType((space.custom_icon_type as 'default' | 'emoji' | 'image') || 'default');
     setCustomIconValue(space.custom_icon_value || '');
     onOpenChange(false);
@@ -241,24 +239,6 @@ export const SpaceCustomizationDrawer = ({
                   id="show-right-sidebar"
                   checked={showRightSidebar}
                   onCheckedChange={setShowRightSidebar}
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Seção Navegação por tópicos */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-medium text-foreground">Navegação por tópicos</h3>
-              
-              <div className="flex items-center justify-between">
-                <Label htmlFor="topic-navigation">
-                  Fazer navegação única baseada nos tópicos
-                </Label>
-                <Switch
-                  id="topic-navigation"
-                  checked={topicNavigation}
-                  onCheckedChange={setTopicNavigation}
                 />
               </div>
             </div>
