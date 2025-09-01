@@ -2178,6 +2178,80 @@ export type Database = {
           },
         ]
       }
+      segment_criteria: {
+        Row: {
+          created_at: string
+          criteria_field: string | null
+          criteria_operator: string
+          criteria_type: string
+          criteria_value: Json
+          id: string
+          segment_id: string
+        }
+        Insert: {
+          created_at?: string
+          criteria_field?: string | null
+          criteria_operator: string
+          criteria_type: string
+          criteria_value: Json
+          id?: string
+          segment_id: string
+        }
+        Update: {
+          created_at?: string
+          criteria_field?: string | null
+          criteria_operator?: string
+          criteria_type?: string
+          criteria_value?: Json
+          id?: string
+          segment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "segment_criteria_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      segments: {
+        Row: {
+          color: string | null
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       space_categories: {
         Row: {
           company_id: string
@@ -3306,6 +3380,44 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_segments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          assigned_manually: boolean
+          company_id: string
+          id: string
+          segment_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          assigned_manually?: boolean
+          company_id: string
+          id?: string
+          segment_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          assigned_manually?: boolean
+          company_id?: string
+          id?: string
+          segment_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_segments_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "segments"
             referencedColumns: ["id"]
           },
         ]
