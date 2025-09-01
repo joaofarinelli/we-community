@@ -1,9 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
+import { Resend } from 'npm:resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-company-id',
 }
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
 interface Database {
   public: {
@@ -55,20 +58,71 @@ interface Database {
 
 function parseCSV(csvText: string): any[] {
   const lines = csvText.trim().split('\n')
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim())
+  if (lines.length < 2) return []
   
-  return lines.slice(1).map(line => {
-    const values = line.split(',').map(v => v.replace(/"/g, '').trim())
-    const obj: any = {}
-    headers.forEach((header, index) => {
-      obj[header] = values[index] || ''
+  // Better CSV parsing that handles quoted values and different separators
+  const parseLine = (line: string) => {
+    const result = []
+    let current = ''
+    let inQuotes = false
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i]
+      const nextChar = line[i + 1]
+      
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          current += '"'
+          i++
+        } else {
+          inQuotes = !inQuotes
+        }
+      } else if ((char === ',' || char === ';') && !inQuotes) {
+        result.push(current.trim())
+        current = ''
+      } else {
+        current += char
+      }
+    }
+    result.push(current.trim())
+    return result
+  }
+  
+  const headers = parseLine(lines[0]).map(h => h.toLowerCase().trim())
+  
+  return lines.slice(1).filter(line => line.trim()).map((line, index) => {
+    const values = parseLine(line)
+    const obj: any = { _lineNumber: index + 2 }
+    headers.forEach((header, i) => {
+      obj[header] = values[i] || ''
     })
     return obj
   })
 }
 
-function generateToken(): string {
-  return crypto.randomUUID() + Date.now().toString(36)
+async function sendInviteEmail(email: string, firstName: string, token: string, companyName: string) {
+  try {
+    const inviteUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token}&type=invite&redirect_to=${Deno.env.get('SITE_URL') || 'https://app.example.com'}/register`
+    
+    await resend.emails.send({
+      from: `${companyName} <noreply@resend.dev>`,
+      to: [email],
+      subject: `Você foi convidado(a) para ${companyName}`,
+      html: `
+        <h1>Bem-vindo(a), ${firstName}!</h1>
+        <p>Você foi convidado(a) para fazer parte da ${companyName}.</p>
+        <p>Clique no link abaixo para criar sua conta:</p>
+        <a href="${inviteUrl}" style="background: #334155; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          Aceitar Convite
+        </a>
+        <p><small>Este convite expira em 7 dias.</small></p>
+      `,
+    })
+    return true
+  } catch (error) {
+    console.error('Error sending email:', error)
+    return false
+  }
 }
 
 Deno.serve(async (req) => {
@@ -78,6 +132,8 @@ Deno.serve(async (req) => {
   }
 
   try {
+    const companyId = req.headers.get('x-company-id')
+    
     const supabaseClient = createClient<Database>(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -117,6 +173,18 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Use company context if provided, otherwise use user's company
+    const targetCompanyId = companyId || profile.company_id
+
+    // Get company details for email
+    const { data: company } = await supabaseClient
+      .from('companies')
+      .select('name')
+      .eq('id', targetCompanyId)
+      .single()
+
+    const companyName = company?.name || 'Empresa'
+
     // Parse form data
     const formData = await req.formData()
     const file = formData.get('file') as File
@@ -138,75 +206,160 @@ Deno.serve(async (req) => {
     console.log('Parsed users:', users)
 
     const results = {
-      success: 0,
-      errors: [] as string[],
-      invited: 0
+      totalProcessed: users.length,
+      successful: 0,
+      invited: 0,
+      skipped: 0,
+      errors: [] as Array<{ line: number; email: string; error: string }>,
+      duplicates: [] as Array<{ line: number; email: string }>,
+      details: [] as Array<{ line: number; email: string; status: string; firstName?: string; lastName?: string }>
     }
 
     // Process each user
     for (const userData of users) {
+      const lineNumber = userData._lineNumber || users.indexOf(userData) + 2
+      
       try {
-        const email = userData.Email || userData.email
-        const firstName = userData.Nome || userData['first_name'] || userData.primeiro_nome
-        const lastName = userData.Sobrenome || userData['last_name'] || userData.sobrenome
-        const phone = userData.Telefone || userData.phone
-        const role = userData.Cargo || userData.role || 'member'
+        // Map various column formats
+        const email = (userData.email || userData.Email || userData.EMAIL || '').trim()
+        const firstName = (userData.nome || userData.first_name || userData.firstName || userData.Nome || userData['primeiro nome'] || userData.primeiro_nome || '').trim()
+        const lastName = (userData.sobrenome || userData.last_name || userData.lastName || userData.Sobrenome || userData['último nome'] || userData.ultimo_nome || '').trim()
+        const phone = (userData.telefone || userData.phone || userData.Telefone || userData.celular || '').trim()
+        const role = (userData.cargo || userData.role || userData.Cargo || userData.função || userData.funcao || 'member').trim().toLowerCase()
 
-        if (!email) {
-          results.errors.push(`Linha ${users.indexOf(userData) + 2}: Email é obrigatório`)
+        if (!email || !email.includes('@')) {
+          results.errors.push({
+            line: lineNumber,
+            email: email || 'N/A',
+            error: 'Email inválido ou não informado'
+          })
           continue
         }
 
-        // Check if email already exists in company
+        if (!firstName) {
+          results.errors.push({
+            line: lineNumber,
+            email: email,
+            error: 'Nome é obrigatório'
+          })
+          continue
+        }
+
+        // Check if email already exists in profiles
         const { data: existingProfile } = await supabaseClient
           .from('profiles')
           .select('id')
-          .eq('company_id', profile.company_id)
-          .eq('email', email)
+          .eq('company_id', targetCompanyId)
+          .ilike('email', email)
           .single()
 
         if (existingProfile) {
-          results.errors.push(`Email ${email} já existe na empresa`)
+          results.duplicates.push({ line: lineNumber, email })
+          results.details.push({
+            line: lineNumber,
+            email,
+            status: 'duplicate',
+            firstName,
+            lastName
+          })
+          results.skipped++
+          continue
+        }
+
+        // Check if invite already exists
+        const { data: existingInvite } = await supabaseClient
+          .from('user_invites')
+          .select('id, status')
+          .eq('company_id', targetCompanyId)
+          .ilike('email', email)
+          .eq('status', 'pending')
+          .single()
+
+        if (existingInvite) {
+          results.duplicates.push({ line: lineNumber, email })
+          results.details.push({
+            line: lineNumber,
+            email,
+            status: 'invite_pending',
+            firstName,
+            lastName
+          })
+          results.skipped++
+          continue
+        }
+
+        // Generate token using RPC function
+        const { data: tokenData, error: tokenError } = await supabaseClient
+          .rpc('generate_invite_token')
+
+        if (tokenError || !tokenData) {
+          results.errors.push({
+            line: lineNumber,
+            email,
+            error: 'Erro ao gerar token de convite'
+          })
           continue
         }
 
         // Create user invite
-        const token = generateToken()
         const expiresAt = new Date()
-        expiresAt.setDate(expiresAt.getDate() + 7) // 7 days from now
+        expiresAt.setDate(expiresAt.getDate() + 7)
 
         const { error: inviteError } = await supabaseClient
           .from('user_invites')
           .insert({
-            company_id: profile.company_id,
-            email: email,
-            role: role,
+            company_id: targetCompanyId,
+            email: email.toLowerCase(),
+            role: ['owner', 'admin', 'member'].includes(role) ? role : 'member',
             invited_by: user.id,
             status: 'pending',
-            token: token,
+            token: tokenData,
             expires_at: expiresAt.toISOString(),
             course_access: []
           })
 
         if (inviteError) {
           console.error('Error creating invite:', inviteError)
-          results.errors.push(`Erro ao convidar ${email}: ${inviteError.message}`)
+          results.errors.push({
+            line: lineNumber,
+            email,
+            error: `Erro ao criar convite: ${inviteError.message}`
+          })
           continue
         }
 
+        // Send invitation email
+        const emailSent = await sendInviteEmail(email, firstName, tokenData, companyName)
+        
+        results.successful++
         results.invited++
-        results.success++
+        results.details.push({
+          line: lineNumber,
+          email,
+          status: emailSent ? 'invited' : 'invited_no_email',
+          firstName,
+          lastName
+        })
+
+        if (!emailSent) {
+          console.warn(`Email not sent for ${email}`)
+        }
 
       } catch (error) {
         console.error('Error processing user:', error)
-        results.errors.push(`Erro ao processar linha ${users.indexOf(userData) + 2}: ${error}`)
+        results.errors.push({
+          line: lineNumber,
+          email: userData.email || 'N/A',
+          error: `Erro interno: ${error}`
+        })
       }
     }
 
     return new Response(
       JSON.stringify({
-        message: 'Import completed',
-        results: results
+        success: true,
+        message: 'Importação concluída',
+        results
       }), 
       { 
         status: 200, 
