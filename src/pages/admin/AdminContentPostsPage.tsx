@@ -4,34 +4,45 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Search } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { CreatePostDialog } from '@/components/posts/CreatePostDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const AdminContentPostsPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [createPostOpen, setCreatePostOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { data: posts, isLoading } = useQuery({
-    queryKey: ['admin-posts', currentCompanyId],
+    queryKey: ['admin-posts', currentCompanyId, searchTerm, selectedFilters],
     queryFn: async () => {
       if (!currentCompanyId) return [];
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('posts')
         .select(`
           id,
           title,
+          content,
           created_at,
           author_id,
           space_id
         `)
         .eq('company_id', currentCompanyId)
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .order('created_at', { ascending: false });
+
+      // Apply search filter
+      if (searchTerm.trim()) {
+        query = query.or(`title.ilike.%${searchTerm}%,content.ilike.%${searchTerm}%`);
+      }
+      
+      const { data, error } = await query.limit(100);
       
       if (error) throw error;
       return data || [];
@@ -99,9 +110,31 @@ export const AdminContentPostsPage = () => {
     );
   };
 
+  // Filter posts based on selected filters and data
+  const filteredPosts = (posts || []).filter(post => {
+    if (selectedFilters.length === 0) return true;
+    
+    return selectedFilters.every(filterId => {
+      switch (filterId) {
+        case 'title':
+          return post.title && post.title.trim().length > 0;
+        case 'author':
+          return authorsData?.[post.author_id];
+        case 'space':
+          return spacesData?.[post.space_id];
+        case 'published':
+          return true; // All posts are published
+        case 'topics':
+          return post.content && post.content.includes('#');
+        default:
+          return true;
+      }
+    });
+  });
+
   // Como a tabela posts não tem campos is_draft ou scheduled_for, vamos usar apenas o que existe
-  const allPosts = posts || [];
-  const publishedPosts = allPosts; // Considerando todos como publicados por enquanto
+  const allPosts = filteredPosts;
+  const publishedPosts = filteredPosts;
   const draftPosts: any[] = []; // Array vazio pois não temos esse campo
   const scheduledPosts: any[] = []; // Array vazio pois não temos esse campo
 
@@ -110,10 +143,21 @@ export const AdminContentPostsPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Publicações</h1>
-          <Button>
+          <Button onClick={() => setCreatePostOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Nova publicação
           </Button>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Buscar publicações..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
 
         <Tabs defaultValue="all" className="w-full">
@@ -121,7 +165,7 @@ export const AdminContentPostsPage = () => {
             <TabsTrigger value="all" className="flex items-center gap-2">
               Todas
               <Badge variant="secondary" className="ml-1">
-                {posts?.length || 0}
+                {filteredPosts.length}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="drafts" className="flex items-center gap-2">
@@ -156,13 +200,16 @@ export const AdminContentPostsPage = () => {
           <TabsContent value="all" className="mt-6">
             {isLoading ? (
               <TableSkeleton rows={8} columns={6} />
-            ) : posts?.length === 0 ? (
+            ) : filteredPosts.length === 0 ? (
               <div className="border rounded-lg p-16 text-center">
-                <h2 className="text-xl font-semibold mb-2">Crie sua primeira publicação</h2>
+                <h2 className="text-xl font-semibold mb-2">{searchTerm || selectedFilters.length > 0 ? 'Nenhuma publicação encontrada' : 'Crie sua primeira publicação'}</h2>
                 <p className="text-muted-foreground mb-6">
-                  Comece sua comunidade criando a primeira publicação.
+                  {searchTerm || selectedFilters.length > 0 
+                    ? 'Tente ajustar seus filtros ou termos de busca.'
+                    : 'Comece sua comunidade criando a primeira publicação.'
+                  }
                 </p>
-                <Button>
+                <Button onClick={() => setCreatePostOpen(true)}>
                   Criar publicação
                 </Button>
               </div>
@@ -180,7 +227,7 @@ export const AdminContentPostsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {(posts || []).map((post) => (
+                    {filteredPosts.map((post) => (
                       <tr key={post.id} className="border-b hover:bg-muted/25">
                         <td className="p-4 font-medium">{post.title || 'Post sem título'}</td>
                         <td className="p-4">
@@ -305,6 +352,11 @@ export const AdminContentPostsPage = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        <CreatePostDialog
+          open={createPostOpen}
+          onOpenChange={setCreatePostOpen}
+        />
       </div>
     </AdminLayout>
   );
