@@ -27,7 +27,7 @@ export const OnboardingTagsStep = ({
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
   const { data: allTags = [] } = useTags();
-  const { data: userTags = [] } = useUserTags();
+  const { data: userTags = [] } = useUserTags(user?.id || '');
 
   const config = step.config || {};
   const minSelection = config.min_selection || 1;
@@ -82,32 +82,49 @@ export const OnboardingTagsStep = ({
 
     setIsSaving(true);
     try {
-      // First, create any new tags that don't exist
+      // First, create any new tags that don't exist and get their IDs
+      const tagInserts = [];
+      
       for (const tagName of selectedTags) {
         const existingTag = allTags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
-        if (!existingTag && allowCustomTags) {
-          await supabase
+        let tagId;
+        
+        if (existingTag) {
+          tagId = existingTag.id;
+        } else if (allowCustomTags) {
+          // Create new tag
+          const { data: newTag, error: tagError } = await supabase
             .from('tags')
             .insert({
               name: tagName,
               company_id: currentCompanyId,
               created_by: user!.id,
-            });
+            })
+            .select('id')
+            .single();
+            
+          if (tagError) throw tagError;
+          tagId = newTag.id;
+        } else {
+          continue; // Skip if tag doesn't exist and custom tags not allowed
         }
+        
+        tagInserts.push({
+          user_id: user!.id,
+          tag_id: tagId,
+          company_id: currentCompanyId,
+          assigned_by: user!.id,
+        });
       }
 
-      // Then, add user tags
-      const userTagInserts = selectedTags.map(tagName => ({
-        user_id: user!.id,
-        company_id: currentCompanyId,
-        tag_name: tagName,
-      }));
+      // Insert user tags
+      if (tagInserts.length > 0) {
+        const { error } = await supabase
+          .from('user_tags')
+          .insert(tagInserts);
 
-      const { error } = await supabase
-        .from('user_tags')
-        .insert(userTagInserts);
-
-      if (error) throw error;
+        if (error) throw error;
+      }
 
       onComplete({ selectedTags });
       toast.success(`${selectedTags.length} tags adicionadas ao seu perfil!`);
@@ -122,7 +139,7 @@ export const OnboardingTagsStep = ({
   // Available tags that aren't already selected
   const availableTags = allTags.filter(tag => 
     !selectedTags.includes(tag.name) &&
-    !userTags.some(ut => ut.tag_name === tag.name)
+    !userTags.some(ut => ut.tags.name === tag.name)
   );
 
   return (

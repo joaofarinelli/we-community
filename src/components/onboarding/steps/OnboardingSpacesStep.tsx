@@ -63,10 +63,9 @@ export const OnboardingSpacesStep = ({
     try {
       // Join selected spaces
       for (const spaceId of selectedSpaces) {
-        await addMember({
+        await addMember.mutateAsync({
           spaceId,
           userId: user!.id,
-          role: 'member',
         });
       }
 
@@ -136,7 +135,7 @@ export const OnboardingSpacesStep = ({
                           )}
                           <div className="flex items-center gap-2 mt-2">
                             <span className="text-xs text-muted-foreground">
-                              {space.member_count || 0} membros
+                              {space.memberCount || 0} membros
                             </span>
                           </div>
                         </div>

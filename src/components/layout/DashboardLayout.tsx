@@ -23,6 +23,7 @@ import { StreakBadge } from '@/components/gamification/StreakBadge';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
 import { useRealtimePosts } from '@/hooks/useRealtimePosts';
 import { AutoStreakCheckIn } from '@/components/gamification/AutoStreakCheckIn';
+import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
 
 
 interface DashboardLayoutProps {
@@ -64,6 +65,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="min-h-screen flex w-full">
         <ThemeApplier />
         <AutoStreakCheckIn />
+        <OnboardingChecker />
         
         {/* Desktop Sidebar */}
         <AppSidebar />

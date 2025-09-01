@@ -68,6 +68,7 @@ import { AdminContentCategoriesPage } from "./pages/admin/AdminContentCategories
 import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
+import { AdminOnboardingPage } from "./pages/admin/AdminOnboardingPage";
 import { LikedLessonsPage } from "./pages/LikedLessonsPage";
 import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
@@ -115,6 +116,7 @@ const AppRoutes = () => {
           <Route path="/admin/segments" element={<AuthGuard><AdminSegmentsPage /></AuthGuard>} />
           <Route path="/admin/tags" element={<AuthGuard><AdminTagsPage /></AuthGuard>} />
           <Route path="/admin/profile-fields" element={<AuthGuard><AdminProfileFieldsPage /></AuthGuard>} />
+          <Route path="/admin/onboarding" element={<AuthGuard><AdminOnboardingPage /></AuthGuard>} />
           <Route path="/admin/users/:userId/edit" element={<AuthGuard><AdminUserEditPage /></AuthGuard>} />
           <Route path="/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
           <Route path="/dashboard/courses" element={<AuthGuard><CoursesPage /></AuthGuard>} />
