@@ -3736,6 +3736,7 @@ export type Database = {
         | "custom_action"
         | "points_accumulation"
         | "custom_goal"
+        | "proof_based"
       field_type:
         | "text"
         | "textarea"
@@ -3885,6 +3886,7 @@ export const Constants = {
         "custom_action",
         "points_accumulation",
         "custom_goal",
+        "proof_based",
       ],
       field_type: [
         "text",
