@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useUpdateTrailTemplate, TrailTemplate } from '@/hooks/useTrailTemplates';
+import { TrailAccessSettings } from './TrailAccessSettings';
+import type { TrailAccessCriteria } from '@/hooks/useTrailAccess';
 
 const editTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -39,6 +41,12 @@ const lifeAreas = [
 
 export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTrailTemplateDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accessCriteria, setAccessCriteria] = useState<TrailAccessCriteria>({
+    is_available_for_all: true,
+    required_level_id: undefined,
+    required_tags: [],
+    required_roles: []
+  });
   const updateTemplate = useUpdateTrailTemplate();
 
   const form = useForm<EditTemplateFormData>({
@@ -57,6 +65,12 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
         description: template.description || '',
         life_area: template.life_area || 'none',
       });
+      setAccessCriteria(template.access_criteria || {
+        is_available_for_all: true,
+        required_level_id: undefined,
+        required_tags: [],
+        required_roles: []
+      });
     }
   }, [template, open, form]);
 
@@ -72,6 +86,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
       await updateTemplate.mutateAsync({
         id: template.id,
         ...updateData,
+        access_criteria: accessCriteria,
       });
       onOpenChange(false);
     } catch (error) {
@@ -83,7 +98,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Editar Template de Trilha</DialogTitle>
           <DialogDescription>
@@ -149,6 +164,11 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <TrailAccessSettings
+              accessCriteria={accessCriteria}
+              onAccessCriteriaChange={setAccessCriteria}
             />
 
             <div className="flex justify-end space-x-2 pt-4">

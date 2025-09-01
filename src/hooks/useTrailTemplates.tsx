@@ -11,6 +11,12 @@ export interface TrailTemplate {
   description?: string;
   life_area?: string;
   is_active: boolean;
+  access_criteria?: {
+    required_level_id?: string;
+    required_tags?: string[];
+    required_roles?: string[];
+    is_available_for_all?: boolean;
+  };
   created_at: string;
   updated_at: string;
   created_by: string;
@@ -33,7 +39,15 @@ export const useTrailTemplates = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data || []).map(template => ({
+        ...template,
+        access_criteria: template.access_criteria || {
+          is_available_for_all: true,
+          required_level_id: undefined,
+          required_tags: [],
+          required_roles: []
+        }
+      })) as TrailTemplate[];
     },
     enabled: !!user && !!currentCompanyId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -51,6 +65,12 @@ export const useCreateTrailTemplate = () => {
       name: string;
       description?: string;
       life_area?: string;
+      access_criteria?: {
+        required_level_id?: string;
+        required_tags?: string[];
+        required_roles?: string[];
+        is_available_for_all?: boolean;
+      };
     }) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 

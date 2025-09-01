@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useCreateTrailTemplate } from '@/hooks/useTrailTemplates';
+import { TrailAccessSettings } from './TrailAccessSettings';
+import type { TrailAccessCriteria } from '@/hooks/useTrailAccess';
 
 const createTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -38,6 +40,12 @@ const lifeAreas = [
 
 export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTemplateDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [accessCriteria, setAccessCriteria] = useState<TrailAccessCriteria>({
+    is_available_for_all: true,
+    required_level_id: undefined,
+    required_tags: [],
+    required_roles: []
+  });
   const createTemplate = useCreateTrailTemplate();
 
   const form = useForm<CreateTemplateFormData>({
@@ -52,12 +60,18 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
   const onSubmit = async (data: CreateTemplateFormData) => {
     setIsSubmitting(true);
     try {
-      const createData = { ...data };
+      const createData = { ...data, access_criteria: accessCriteria };
       if (createData.life_area === 'none') {
         createData.life_area = null;
       }
       await createTemplate.mutateAsync(createData);
       form.reset();
+      setAccessCriteria({
+        is_available_for_all: true,
+        required_level_id: undefined,
+        required_tags: [],
+        required_roles: []
+      });
       onOpenChange(false);
     } catch (error) {
       console.error('Error creating template:', error);
@@ -68,7 +82,7 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Criar Template de Trilha</DialogTitle>
           <DialogDescription>
@@ -134,6 +148,11 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
                   <FormMessage />
                 </FormItem>
               )}
+            />
+
+            <TrailAccessSettings
+              accessCriteria={accessCriteria}
+              onAccessCriteriaChange={setAccessCriteria}
             />
 
             <div className="flex justify-end space-x-2 pt-4">

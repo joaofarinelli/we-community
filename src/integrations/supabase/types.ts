@@ -2570,6 +2570,7 @@ export type Database = {
       }
       trail_templates: {
         Row: {
+          access_criteria: Json | null
           company_id: string
           created_at: string
           created_by: string
@@ -2581,6 +2582,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          access_criteria?: Json | null
           company_id: string
           created_at?: string
           created_by: string
@@ -2592,6 +2594,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          access_criteria?: Json | null
           company_id?: string
           created_at?: string
           created_by?: string
