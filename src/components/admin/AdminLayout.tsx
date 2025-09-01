@@ -40,7 +40,6 @@ const mainMenuItems = [
       { label: 'Grupos de acesso', path: '/admin/access-groups' },
       { label: 'Segmentos', path: '/admin/segments' },
       { label: 'Registros em massa', path: '/admin/bulk-records' },
-      { label: 'Links de convite', path: '/admin/invite-links' },
       { label: 'Onboarding', path: '/admin/onboarding' },
     ]
   },
