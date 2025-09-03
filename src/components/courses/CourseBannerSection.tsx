@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCourseBanner } from '@/hooks/useCourseBanner';
-import { useUserRole } from '@/hooks/useUserRole';
+import { useIsAdmin } from '@/hooks/useUserRole';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -12,8 +12,7 @@ interface CourseBannerSectionProps {
 
 export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSectionProps) => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = useCourseBanner();
-  const { data: userRole } = useUserRole();
-  const isOwner = userRole?.role === 'owner';
+  const isAdmin = useIsAdmin();
   
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +58,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
           alt="Banner de Cursos"
           className="w-full h-full object-cover"
         />
-        {isOwner && isAdminMode && (
+        {isAdmin && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2">
             <Button
               size="sm"
@@ -80,7 +79,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
             </Button>
           </div>
         )}
-        {isOwner && isAdminMode && (
+        {isAdmin && isAdminMode && (
           <input
             ref={fileInputRef}
             type="file"
@@ -93,8 +92,8 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
     );
   }
 
-  // If no banner and user is not owner or not admin mode, show message or nothing
-  if (!isOwner || !isAdminMode) {
+  // If no banner and user is not admin or not admin mode, show message or nothing
+  if (!isAdmin || !isAdminMode) {
     if (!isAdminMode) {
       // In courses page, don't show anything if no banner
       return null;
@@ -106,7 +105,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
     );
   }
 
-  // Show upload area for owners in admin mode when no banner exists
+  // Show upload area for admins in admin mode when no banner exists
   return (
     <div
       className={cn(
