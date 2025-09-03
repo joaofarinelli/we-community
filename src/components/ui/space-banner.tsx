@@ -18,7 +18,7 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
       <ResponsiveBanner
         src={bannerUrl}
         alt="Banner do espaço"
-        height={120}
+        maxHeight={120}
       />
     </div>
   );

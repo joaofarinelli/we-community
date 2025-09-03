@@ -4,7 +4,7 @@ interface ResponsiveBannerProps {
   src: string;
   alt: string;
   className?: string;
-  height?: number;
+  maxHeight?: number;
   onError?: () => void;
 }
 
@@ -12,7 +12,7 @@ export const ResponsiveBanner = ({
   src, 
   alt, 
   className = '', 
-  height = 300,
+  maxHeight,
   onError 
 }: ResponsiveBannerProps) => {
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
@@ -41,27 +41,29 @@ export const ResponsiveBanner = ({
   if (!imageLoaded || !aspectRatio) {
     return (
       <div 
-        className={`w-full max-w-[1366px] mx-auto bg-muted rounded-lg animate-pulse ${className}`}
-        style={{ height: `${height}px` }}
+        className={`w-full bg-muted rounded-lg animate-pulse ${className}`}
+        style={{ 
+          aspectRatio: aspectRatio || '16/9',
+          maxHeight: maxHeight ? `${maxHeight}px` : undefined
+        }}
       />
     );
   }
 
-  // Calculate height based on aspect ratio and max width
-  const maxWidth = 1366;
-  const calculatedHeight = maxWidth / aspectRatio;
-  
   return (
-    <div className={`w-full max-w-[1366px] mx-auto rounded-lg overflow-hidden ${className}`}>
-      <div
+    <div className={`w-full rounded-lg overflow-hidden ${className}`}>
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-auto object-contain"
         style={{
-          width: '100%',
-          height: `min(${calculatedHeight}px, ${height}px)`,
-          background: `url(${src}) center center / contain no-repeat`,
-          backgroundSize: 'contain'
+          maxHeight: maxHeight ? `${maxHeight}px` : undefined,
+          objectFit: maxHeight ? 'contain' : 'cover'
         }}
-        role="img"
-        aria-label={alt}
+        onError={() => {
+          setHasError(true);
+          onError?.();
+        }}
       />
     </div>
   );

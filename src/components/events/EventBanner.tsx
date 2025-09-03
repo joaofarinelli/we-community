@@ -13,7 +13,6 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
       <ResponsiveBanner
         src={imageUrl}
         alt={`Banner do evento: ${title}`}
-        height={300}
       />
     </div>
   );

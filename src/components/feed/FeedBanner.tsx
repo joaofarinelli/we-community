@@ -15,7 +15,6 @@ export const FeedBanner = () => {
       <ResponsiveBanner
         src={company.feed_banner_url}
         alt="Banner da empresa"
-        height={300}
       />
     </div>
   );

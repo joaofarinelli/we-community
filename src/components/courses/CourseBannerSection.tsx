@@ -57,7 +57,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
         <ResponsiveBanner
           src={bannerUrl}
           alt="Banner de Cursos"
-          height={isAdminMode ? 200 : 300}
+          maxHeight={isAdminMode ? 200 : 300}
         />
         {isAdmin && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2 z-10">
