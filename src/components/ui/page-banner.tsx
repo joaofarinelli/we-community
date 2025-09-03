@@ -1,4 +1,5 @@
 import { usePageBanner, BannerType } from '@/hooks/usePageBanner';
+import { ResponsiveBanner } from './responsive-banner';
 
 interface PageBannerProps {
   bannerType: BannerType;
@@ -13,14 +14,11 @@ export const PageBanner = ({ bannerType, className = '' }: PageBannerProps) => {
   }
 
   return (
-    <div className={`w-full h-[300px] rounded-lg overflow-hidden mb-6 ${className}`}>
-      <img
+    <div className={`mb-6 ${className}`}>
+      <ResponsiveBanner
         src={bannerUrl}
         alt="Banner da página"
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-        }}
+        height={300}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCompany } from '@/hooks/useCompany';
-import { Card } from '@/components/ui/card';
+import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 
 export const FeedBanner = () => {
   const { data: company } = useCompany();
@@ -12,22 +12,11 @@ export const FeedBanner = () => {
 
   return (
     <div className="w-full">
-      <div className="relative">
-        <img
-          src={company.feed_banner_url}
-          alt="Banner da empresa"
-          className="w-full h-[300px] object-cover"
-          onError={(e) => {
-            // Hide the component if image fails to load
-            const container = e.currentTarget.closest('.feed-banner-container');
-            if (container) {
-              (container as HTMLElement).style.display = 'none';
-            }
-          }}
-        />
-        {/* Optional overlay for better text readability if needed in the future */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-      </div>
+      <ResponsiveBanner
+        src={company.feed_banner_url}
+        alt="Banner da empresa"
+        height={300}
+      />
     </div>
   );
 };

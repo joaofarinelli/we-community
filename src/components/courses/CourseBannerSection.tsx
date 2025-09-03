@@ -5,6 +5,7 @@ import { useCourseBanner } from '@/hooks/useCourseBanner';
 import { useIsAdmin } from '@/hooks/useUserRole';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 
 interface CourseBannerSectionProps {
   isAdminMode?: boolean;
@@ -52,14 +53,14 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
   // If there's a banner, display it (always show if banner exists, regardless of role)
   if (bannerUrl) {
     return (
-      <div className={`relative w-full ${bannerHeight} overflow-hidden ${isAdminMode ? 'rounded-lg border' : ''}`}>
-        <img
+      <div className={`relative w-full ${isAdminMode ? 'rounded-lg border' : ''}`}>
+        <ResponsiveBanner
           src={bannerUrl}
           alt="Banner de Cursos"
-          className="w-full h-full object-cover"
+          height={isAdminMode ? 200 : 300}
         />
         {isAdmin && isAdminMode && (
-          <div className="absolute top-4 right-4 flex gap-2">
+          <div className="absolute top-4 right-4 flex gap-2 z-10">
             <Button
               size="sm"
               variant="secondary"

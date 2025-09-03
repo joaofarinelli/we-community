@@ -1,4 +1,5 @@
 import { useSpaceBanner } from '@/hooks/useSpaceBanner';
+import { ResponsiveBanner } from './responsive-banner';
 
 interface SpaceBannerProps {
   spaceId: string;
@@ -13,14 +14,11 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
   }
 
   return (
-    <div className={`w-full h-[120px] rounded-lg overflow-hidden mb-6 mx-3 mt-3 ${className}`}>
-      <img
+    <div className={`mb-6 mx-3 mt-3 ${className}`}>
+      <ResponsiveBanner
         src={bannerUrl}
         alt="Banner do espaço"
-        className="w-full h-full object-cover rounded-lg"
-        onError={(e) => {
-          e.currentTarget.style.display = 'none';
-        }}
+        height={120}
       />
     </div>
   );
