@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useCompany } from '@/hooks/useCompany';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { toast } from 'sonner';
 
 export const useCreateCourse = () => {
   const { user } = useAuth();
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -28,11 +28,11 @@ export const useCreateCourse = () => {
         logic?: 'any' | 'all';
       };
     }) => {
-      if (!user?.id || !company?.id) throw new Error('Usuário ou empresa não encontrados');
+      if (!user?.id || !currentCompanyId) throw new Error('Usuário ou empresa não encontrados');
 
       // Definir explicitamente o contexto da empresa antes da operação
       await supabase.rpc('set_current_company_context', {
-        p_company_id: company.id
+        p_company_id: currentCompanyId
       });
 
       const { access_criteria, ...courseData } = course;
@@ -41,7 +41,7 @@ export const useCreateCourse = () => {
         .from('courses')
         .insert({
           ...courseData,
-          company_id: company.id,
+          company_id: currentCompanyId,
           created_by: user.id,
           access_criteria: access_criteria || {}
         })
@@ -57,7 +57,7 @@ export const useCreateCourse = () => {
         (access_criteria.badge_ids && access_criteria.badge_ids.length > 0)
       )) {
         const { data: affectedUsers } = await supabase.rpc('grant_course_access', {
-          p_company_id: company.id,
+          p_company_id: currentCompanyId,
           p_course_id: data.id,
           p_tag_ids: access_criteria.tag_ids || null,
           p_level_ids: access_criteria.level_ids || null,
@@ -142,7 +142,7 @@ export const useDeleteCourse = () => {
 };
 
 export const useCreateModule = () => {
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -153,11 +153,11 @@ export const useCreateModule = () => {
       thumbnail_url?: string;
       order_index?: number;
     }) => {
-      if (!company?.id) throw new Error('Empresa não encontrada');
+      if (!currentCompanyId) throw new Error('Empresa não encontrada');
       
       // Definir explicitamente o contexto da empresa antes da operação
       await supabase.rpc('set_current_company_context', {
-        p_company_id: company.id
+        p_company_id: currentCompanyId
       });
 
       const { data, error } = await supabase
@@ -237,7 +237,7 @@ export const useDeleteModule = () => {
 };
 
 export const useCreateLesson = () => {
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -251,11 +251,11 @@ export const useCreateLesson = () => {
       order_index?: number;
       difficulty_level?: string;
     }) => {
-      if (!company?.id) throw new Error('Empresa não encontrada');
+      if (!currentCompanyId) throw new Error('Empresa não encontrada');
       
       // Definir explicitamente o contexto da empresa antes da operação
       await supabase.rpc('set_current_company_context', {
-        p_company_id: company.id
+        p_company_id: currentCompanyId
       });
 
       const { data, error } = await supabase
@@ -339,7 +339,7 @@ export const useDeleteLesson = () => {
 
 // Hook for reapplying course access criteria
 export const useReapplyCourseAccess = () => {
-  const { data: company } = useCompany();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -355,10 +355,10 @@ export const useReapplyCourseAccess = () => {
         logic?: 'any' | 'all';
       };
     }) => {
-      if (!company?.id) throw new Error('Company not found');
+      if (!currentCompanyId) throw new Error('Company not found');
 
       const { data: affectedUsers } = await supabase.rpc('grant_course_access', {
-        p_company_id: company.id,
+        p_company_id: currentCompanyId,
         p_course_id: courseId,
         p_tag_ids: accessCriteria.tag_ids || null,
         p_level_ids: accessCriteria.level_ids || null,
