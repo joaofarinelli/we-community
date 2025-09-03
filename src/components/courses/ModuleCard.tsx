@@ -13,19 +13,21 @@ interface ModuleCardProps {
   lessonCount?: number;
   completedLessons?: number;
   isCompleted?: boolean;
+  isClickDisabled?: boolean;
 }
 
 export const ModuleCard = ({ 
   module, 
   lessonCount = 0, 
   completedLessons = 0,
-  isCompleted = false 
+  isCompleted = false,
+  isClickDisabled = false
 }: ModuleCardProps) => {
   const navigate = useNavigate();
   const { data: nextLesson, isLoading } = useModuleNextLesson(module.id, module.course_id);
 
   const handleClick = () => {
-    if (isLoading) return;
+    if (isLoading || isClickDisabled) return;
     
     if (nextLesson) {
       navigate(`/courses/${module.course_id}/modules/${module.id}/lessons/${nextLesson.id}`);
@@ -37,7 +39,9 @@ export const ModuleCard = ({
 
   return (
     <div 
-      className="flex-none w-60 h-96 group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
+      className={`flex-none w-60 h-96 group overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative ${
+        isClickDisabled ? 'cursor-default' : 'cursor-pointer'
+      }`}
       onClick={handleClick}
     >
       {module.thumbnail_url ? (

@@ -15,9 +15,10 @@ interface LessonCardProps {
   };
   courseId: string;
   isCompleted?: boolean;
+  isClickDisabled?: boolean;
 }
 
-export const LessonCard = ({ lesson, courseId, isCompleted = false }: LessonCardProps) => {
+export const LessonCard = ({ lesson, courseId, isCompleted = false, isClickDisabled = false }: LessonCardProps) => {
   const navigate = useNavigate();
   
   const formatDuration = (minutes: number) => {
@@ -28,6 +29,7 @@ export const LessonCard = ({ lesson, courseId, isCompleted = false }: LessonCard
   };
 
   const handleStartLesson = () => {
+    if (isClickDisabled) return;
     navigate(`/courses/${courseId}/modules/${lesson.module_id}/lessons/${lesson.id}`);
   };
 
@@ -71,6 +73,7 @@ export const LessonCard = ({ lesson, courseId, isCompleted = false }: LessonCard
           className="w-full"
           variant={isCompleted ? "outline" : "default"}
           onClick={handleStartLesson}
+          disabled={isClickDisabled}
         >
           <Play className="mr-2 h-4 w-4" />
           {isCompleted ? 'Revisar Aula' : 'Iniciar Aula'}
