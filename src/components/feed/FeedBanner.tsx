@@ -14,8 +14,10 @@ export const FeedBanner = () => {
     <div className="w-full">
       <ResponsiveBanner
         src={company.feed_banner_url}
-        alt="Banner da empresa"
-        maxHeight={220}
+        aspectRatio={16/9}
+        maxWidth={1536}
+        quality={75}
+        className="h-[220px] rounded-lg overflow-hidden"
       />
     </div>
   );

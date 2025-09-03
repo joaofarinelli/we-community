@@ -12,8 +12,10 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
     <div className="w-full mb-6">
       <ResponsiveBanner
         src={imageUrl}
-        alt={`Banner do evento: ${title}`}
-        maxHeight={220}
+        aspectRatio={16/9}
+        maxWidth={1536}
+        quality={75}
+        className="h-[220px] rounded-lg overflow-hidden"
       />
     </div>
   );

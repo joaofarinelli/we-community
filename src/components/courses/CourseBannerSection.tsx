@@ -56,8 +56,10 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
       <div className={`relative w-full ${isAdminMode ? 'border' : ''}`}>
         <ResponsiveBanner
           src={bannerUrl}
-          alt="Banner de Cursos"
-          maxHeight={isAdminMode ? 200 : 300}
+          aspectRatio={16/9}
+          maxWidth={1536}
+          quality={75}
+          className={isAdminMode ? "h-[200px]" : "h-[300px] rounded-lg overflow-hidden"}
         />
         {isAdmin && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2 z-10">
