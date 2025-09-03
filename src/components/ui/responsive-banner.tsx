@@ -41,18 +41,22 @@ export const ResponsiveBanner = ({
   if (!imageLoaded || !aspectRatio) {
     return (
       <div 
-        className={`w-full bg-muted rounded-lg animate-pulse ${className}`}
+        className={`w-full max-w-[1366px] mx-auto bg-muted rounded-lg animate-pulse ${className}`}
         style={{ height: `${height}px` }}
       />
     );
   }
 
+  // Calculate height based on aspect ratio and max width
+  const maxWidth = 1366;
+  const calculatedHeight = maxWidth / aspectRatio;
+  
   return (
-    <div className={`w-full rounded-lg overflow-hidden ${className}`}>
+    <div className={`w-full max-w-[1366px] mx-auto rounded-lg overflow-hidden ${className}`}>
       <div
         style={{
           width: '100%',
-          height: `${height}px`,
+          height: `min(${calculatedHeight}px, ${height}px)`,
           background: `url(${src}) center center / contain no-repeat`,
           backgroundSize: 'contain'
         }}
