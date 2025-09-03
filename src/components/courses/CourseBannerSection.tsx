@@ -22,7 +22,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
 
   if (isLoading) {
     return (
-      <div className={`w-full ${bannerHeight} bg-muted animate-pulse rounded-lg`} />
+      <div className={`w-full ${bannerHeight} bg-muted animate-pulse`} />
     );
   }
 
@@ -53,7 +53,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
   // If there's a banner, display it (always show if banner exists, regardless of role)
   if (bannerUrl) {
     return (
-      <div className={`relative w-full ${isAdminMode ? 'rounded-lg border' : ''}`}>
+      <div className={`relative w-full ${isAdminMode ? 'border' : ''}`}>
         <ResponsiveBanner
           src={bannerUrl}
           alt="Banner de Cursos"
@@ -100,7 +100,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
       return null;
     }
     return (
-      <div className={`w-full ${bannerHeight} border border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center`}>
+      <div className={`w-full ${bannerHeight} border border-dashed border-muted-foreground/25 flex items-center justify-center`}>
         <p className="text-muted-foreground">Nenhum banner configurado</p>
       </div>
     );
@@ -110,7 +110,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
   return (
     <div
       className={cn(
-        `border-2 border-dashed rounded-lg p-8 text-center transition-colors ${bannerHeight} flex flex-col items-center justify-center`,
+        `border-2 border-dashed p-8 text-center transition-colors ${bannerHeight} flex flex-col items-center justify-center`,
         isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
         "hover:border-primary hover:bg-primary/5"
       )}

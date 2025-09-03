@@ -41,24 +41,23 @@ export const ResponsiveBanner = ({
   if (!imageLoaded || !aspectRatio) {
     return (
       <div 
-        className={`w-full bg-muted rounded-lg animate-pulse ${className}`}
+        className={`w-full bg-muted animate-pulse ${className}`}
         style={{ 
           aspectRatio: aspectRatio || '16/9',
-          maxHeight: maxHeight ? `${maxHeight}px` : undefined
+          maxHeight: maxHeight ? `${maxHeight}px` : 'clamp(140px, 22vw, 320px)'
         }}
       />
     );
   }
 
   return (
-    <div className={`w-full rounded-lg overflow-hidden ${className}`}>
+    <div className={`w-full overflow-hidden ${className}`}>
       <img
         src={src}
         alt={alt}
         className="w-full h-auto object-contain"
         style={{
-          maxHeight: maxHeight ? `${maxHeight}px` : undefined,
-          objectFit: maxHeight ? 'contain' : 'cover'
+          maxHeight: maxHeight ? `${maxHeight}px` : 'clamp(140px, 22vw, 320px)'
         }}
         onError={() => {
           setHasError(true);
