@@ -3,21 +3,25 @@ import { useState, useEffect, useRef, useMemo } from "react";
 export interface ResponsiveBannerProps {
   src: string;
   aspectRatio?: number;         // ex.: 1200/400 (3:1)
-  height?: number;              // se definido, ignora aspectRatio
+  height?: number;              // se definir, ignora aspectRatio
 
   // largura/altura pedidas à CDN e limites visuais do container
-  maxWidth?: number;
-  maxHeight?: number;
+  maxWidth?: number;            // max w solicitada à CDN (default 1200)
+  maxHeight?: number;           // trava altura para não ficar gigante
   minHeight?: number;
 
   quality?: number;             // 0–100 (default 75)
   fit?: "cover" | "contain";    // cover pode cortar; contain não corta
-  focusX?: number;              // 0..100 (ancora corte)
+  focusX?: number;              // 0..100 (ancora corte na horizontal)
   focusY?: number;              // 0..100
 
-  // largura máx. do bloco de banner na página
-  containerMaxWidth?: number | string;
+  // largura máx. do bloco do banner na página
+  containerMaxWidth?: number | string; // ex.: 1200 | "1200px"
   center?: boolean;             // centraliza o container (default true)
+
+  // troca automática para "contain" quando a proporção do container divergir muito da arte
+  autoContainOnMismatch?: boolean;
+  mismatchTolerance?: number;   // diferença relativa permitida (default 0.02 = 2%)
 
   className?: string;
   children?: React.ReactNode;
@@ -86,63 +90,83 @@ export const ResponsiveBanner = ({
   focusY = 50,
   containerMaxWidth,
   center = true,
+  autoContainOnMismatch = true,
+  mismatchTolerance = 0.02,
   className = "",
   children,
 }: ResponsiveBannerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const [measuredWidth, setMeasuredWidth] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
   const dpr = useDpr();
 
-  // mede largura efetiva (já limitada pelo containerMaxWidth ou wrapper)
+  // mede com getBoundingClientRect (preciso em zoom e telas grandes)
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
     let raf: number | null = null;
-    const ro = new ResizeObserver((entries) => {
+
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      const w = rect.width || el.clientWidth || 0;
+      if (w > 0) setMeasuredWidth(Math.min(w, maxWidth));
+    };
+
+    measure();
+
+    const ro = new ResizeObserver(() => {
       if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        for (const entry of entries) {
-          const w = entry.contentRect?.width ?? el.clientWidth ?? 0;
-          if (w > 0) setContainerWidth(Math.min(w, maxWidth));
-        }
-      });
+      raf = requestAnimationFrame(measure);
     });
     ro.observe(el);
+
+    window.addEventListener("resize", measure);
     return () => {
       ro.disconnect();
+      window.removeEventListener("resize", measure);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [maxWidth]);
 
-  // altura ideal por proporção ou fixa
-  const idealHeight = useMemo(() => {
-    if (typeof height === "number" && height > 0) return Math.round(height);
-    if (aspectRatio && containerWidth) return Math.max(1, Math.round(containerWidth / aspectRatio));
+  // altura ideal com precisão (CSS pode aceitar decimal)
+  const idealHeightCss = useMemo(() => {
+    if (typeof height === "number" && height > 0) return height;
+    if (aspectRatio && measuredWidth) return measuredWidth / aspectRatio;
     return 220;
-  }, [height, aspectRatio, containerWidth]);
+  }, [height, aspectRatio, measuredWidth]);
 
   // clamp de altura
-  const computedHeight = useMemo(() => {
-    let h = idealHeight;
-    if (typeof maxHeight === "number") h = Math.min(h, Math.max(1, Math.round(maxHeight)));
-    if (typeof minHeight === "number") h = Math.max(h, Math.max(1, Math.round(minHeight)));
+  const computedHeightCss = useMemo(() => {
+    let h = idealHeightCss;
+    if (typeof maxHeight === "number") h = Math.min(h, Math.max(1, maxHeight));
+    if (typeof minHeight === "number") h = Math.max(h, Math.max(1, minHeight));
     return h;
-  }, [idealHeight, maxHeight, minHeight]);
+  }, [idealHeightCss, maxHeight, minHeight]);
+
+  // decide cover x contain automaticamente se a proporção do container divergir
+  const effectiveFit: "cover" | "contain" = useMemo(() => {
+    if (!autoContainOnMismatch || !aspectRatio || !measuredWidth || !computedHeightCss) {
+      return fit;
+    }
+    const containerRatio = measuredWidth / computedHeightCss;
+    const artRatio = aspectRatio;
+    const relDiff = Math.abs(containerRatio - artRatio) / artRatio;
+    return relDiff > mismatchTolerance ? "contain" : fit;
+  }, [autoContainOnMismatch, mismatchTolerance, aspectRatio, measuredWidth, computedHeightCss, fit]);
 
   // preload (CDN -> fallback)
   useEffect(() => {
-    if (!containerWidth || !src || !computedHeight) return;
+    if (!measuredWidth || !src || !computedHeightCss) return;
     setIsLoading(true);
     setUseFallback(false);
 
     const cdnUrl = buildCdnUrl(src, {
-      w: containerWidth,
-      h: computedHeight,
+      w: measuredWidth,
+      h: computedHeightCss,
       dpr,
       q: quality ?? 75,
-      fit,
+      fit: effectiveFit,
     });
 
     const img = new Image();
@@ -155,9 +179,10 @@ export const ResponsiveBanner = ({
       f.src = src;
     };
     img.src = cdnUrl;
-  }, [containerWidth, src, computedHeight, dpr, quality, fit]);
+  }, [measuredWidth, src, computedHeightCss, dpr, quality, effectiveFit]);
 
-  if (!containerWidth || isLoading) {
+  // skeleton
+  if (!measuredWidth || isLoading) {
     return (
       <div
         ref={containerRef}
@@ -167,7 +192,7 @@ export const ResponsiveBanner = ({
           maxWidth: containerMaxWidth ?? "100%",
           marginLeft: center ? "auto" : undefined,
           marginRight: center ? "auto" : undefined,
-          height: `${computedHeight}px`,
+          height: `${computedHeightCss}px`,
           background: "var(--muted, #f3f4f6)",
         }}
       />
@@ -176,7 +201,13 @@ export const ResponsiveBanner = ({
 
   const backgroundImage = useFallback
     ? src
-    : buildCdnUrl(src, { w: containerWidth, h: computedHeight, dpr, q: quality ?? 75, fit });
+    : buildCdnUrl(src, {
+        w: measuredWidth,
+        h: computedHeightCss,
+        dpr,
+        q: quality ?? 75,
+        fit: effectiveFit,
+      });
 
   const fx = Math.min(100, Math.max(0, focusX));
   const fy = Math.min(100, Math.max(0, focusY));
@@ -191,9 +222,9 @@ export const ResponsiveBanner = ({
         marginLeft: center ? "auto" : undefined,
         marginRight: center ? "auto" : undefined,
 
-        height: `${computedHeight}px`,
+        height: `${computedHeightCss}px`,
         backgroundImage: `url("${backgroundImage}")`,
-        backgroundSize: fit === "contain" ? "contain" : "cover",
+        backgroundSize: effectiveFit === "contain" ? "contain" : "cover",
         backgroundPosition: `${fx}% ${fy}%`,
         backgroundRepeat: "no-repeat",
         overflow: "hidden",
