@@ -2,14 +2,15 @@ import { useState, useEffect, useRef, useMemo } from "react";
 
 interface ResponsiveBannerProps {
   src: string;
-  aspectRatio?: number;
-  height?: number;
-  maxWidth?: number;
-  quality?: number;
+  aspectRatio?: number;     // se não passar height, usamos aspectRatio para calcular
+  height?: number;          // altura fixa do banner (px)
+  maxWidth?: number;        // largura máxima a solicitar para a CDN
+  quality?: number;         // 0–100 (default 75)
   className?: string;
   children?: React.ReactNode;
 }
 
+/* ---- DPR helpers ---- */
 function normalizeDpr(raw: number) {
   if (raw >= 1.8) return 2;
   if (raw >= 1.3) return 1.5;
@@ -20,13 +21,14 @@ function useDpr() {
   const [dpr, setDpr] = useState(() => normalizeDpr(window.devicePixelRatio || 1));
   useEffect(() => {
     const onResize = () => setDpr(normalizeDpr(window.devicePixelRatio || 1));
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize); // zoom normalmente dispara 'resize'
     return () => window.removeEventListener("resize", onResize);
   }, []);
   return dpr;
 }
 
-/** Se src já vem com /cdn-cgi/image/<params>/..., remove o prefixo para reaplicar com novos params */
+/* ---- URL helpers ---- */
+// Se src já vier com /cdn-cgi/image/<params>/..., removemos para não duplicar parâmetros
 function stripCdnPrefix(input: string) {
   try {
     const u = new URL(input);
@@ -45,7 +47,7 @@ function stripCdnPrefix(input: string) {
   }
 }
 
-/** Monta a URL estilo Bubble: <ORIGIN-DA-IMAGEM>/cdn-cgi/image/w=...,h=...,dpr=...,fit=cover,q=.../<CAMINHO-ORIGINAL> */
+// Monta URL no estilo Bubble/Cloudflare: <ORIGIN-DA-IMAGEM>/cdn-cgi/image/params/<CAMINHO-ORIGINAL>
 function buildCdnUrl(src: string, opts: { w: number; h: number; dpr: number; q: number }) {
   const clean = stripCdnPrefix(src);
   const u = new URL(clean);
@@ -54,6 +56,7 @@ function buildCdnUrl(src: string, opts: { w: number; h: number; dpr: number; q: 
   return `${u.origin}/cdn-cgi/image/${params}${originalPath}`;
 }
 
+/* ---- Componente ---- */
 export const ResponsiveBanner = ({
   src,
   aspectRatio,
@@ -63,18 +66,13 @@ export const ResponsiveBanner = ({
   className = "",
   children,
 }: ResponsiveBannerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const dpr = useDpr();
 
-  const computedHeight = useMemo(() => {
-    if (height) return height;
-    if (aspectRatio && containerWidth) return Math.round(containerWidth / aspectRatio);
-    return 220;
-  }, [height, aspectRatio, containerWidth]);
-
+  // largura do container (compatível com TS/dom antigos: usamos contentRect.width)
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
@@ -84,11 +82,7 @@ export const ResponsiveBanner = ({
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         for (const entry of entries) {
-          const w = entry.contentBoxSize
-            ? Array.isArray(entry.contentBoxSize)
-              ? entry.contentBoxSize[0].inlineSize
-              : entry.contentBoxSize.inlineSize
-            : entry.contentRect.width;
+          const w = entry.contentRect?.width ?? el.clientWidth ?? 0;
           if (w > 0) setContainerWidth(Math.min(w, maxWidth));
         }
       });
@@ -101,14 +95,21 @@ export const ResponsiveBanner = ({
     };
   }, [maxWidth]);
 
-  // Preload imagem (CDN primeiro; se falhar, original)
+  // altura efetiva para solicitar à CDN
+  const computedHeight = useMemo(() => {
+    if (height) return Math.round(height);
+    if (aspectRatio && containerWidth) return Math.max(1, Math.round(containerWidth / aspectRatio));
+    return 220;
+  }, [height, aspectRatio, containerWidth]);
+
+  // Preload (CDN → fallback original)
   useEffect(() => {
     if (!containerWidth || !src || !computedHeight) return;
 
     setIsLoading(true);
     setUseFallback(false);
 
-    // IMPORTANTE: w/h NÃO multiplicam pelo DPR — o DPR vai separado.
+    // Importante: w/h não são multiplicados por DPR; passamos DPR separado.
     const cdnUrl = buildCdnUrl(src, {
       w: containerWidth,
       h: computedHeight,
@@ -128,6 +129,7 @@ export const ResponsiveBanner = ({
     img.src = cdnUrl;
   }, [containerWidth, src, computedHeight, dpr, quality]);
 
+  // Skeleton enquanto mede/carrega
   if (!containerWidth || isLoading) {
     return (
       <div
@@ -136,7 +138,7 @@ export const ResponsiveBanner = ({
         style={{ height: `${computedHeight}px` }}
       />
     );
-  }
+    }
 
   const backgroundImage = useFallback
     ? src
