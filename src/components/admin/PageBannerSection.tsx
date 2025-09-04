@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Trash2, Upload } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { usePageBanner, BannerType } from '@/hooks/usePageBanner';
-import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 
 interface PageBannerSectionProps {
   bannerType: BannerType;
@@ -59,17 +58,17 @@ export const PageBannerSection = ({ bannerType, title, description }: PageBanner
       <CardContent className="space-y-4">
         {bannerUrl ? (
           <div className="space-y-2">
-            <div className="relative w-full rounded-lg overflow-hidden border">
-            <ResponsiveBanner
-              src={bannerUrl}
-              aspectRatio={1200/400}
-              maxWidth={1200}
-              maxHeight={400}
-              containerMaxWidth={1200}
-              quality={75}
-              focusX={80}
-              className="rounded-lg"
-            />
+            <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+              <img
+                <ResponsiveBanner
+                  src={bannerUrl}
+                  height={400}
+                  maxWidth={2200}
+                  quality={75}
+                  fit="cover"
+                  focusX={80}
+                  className="rounded-lg overflow-hidden"
+              />
             </div>
             
             <div className="flex items-center justify-between">
