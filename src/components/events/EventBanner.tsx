@@ -5,7 +5,7 @@ interface EventBannerProps {
   title: string;
 }
 
-export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
+export const EventBanner = ({ imageUrl }: EventBannerProps) => {
   if (!imageUrl) return null;
 
   return (
@@ -13,9 +13,11 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
       <ResponsiveBanner
         src={imageUrl}
         aspectRatio={1200/400}
-        maxHeight={400}
         maxWidth={1200}
+        maxHeight={400}
+        containerMaxWidth={1200}
         quality={75}
+        focusX={80}
         className="rounded-lg overflow-hidden"
       />
     </div>
