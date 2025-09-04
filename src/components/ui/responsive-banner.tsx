@@ -4,6 +4,7 @@ export interface ResponsiveBannerProps {
   src: string;
   aspectRatio?: number;     // default 1300/300
   quality?: number;         // default 80
+  gravity?: "center" | "auto"; // default "center" (Bubble-like)
   className?: string;
   children?: React.ReactNode;
   
@@ -44,6 +45,7 @@ export const ResponsiveBanner = ({
   src,
   aspectRatio = 1300 / 300,
   quality = 80,
+  gravity = "center",
   className = "",
   children,
 }: ResponsiveBannerProps) => {
@@ -67,17 +69,12 @@ export const ResponsiveBanner = ({
 
   const imageParams = useMemo(() => {
     const w = Math.max(1, Math.round(measuredWidth || 1300));
-    const h = Math.max(1, Math.round(finalHeight));
+    const h = Math.max(1, Math.round(w / aspectRatio)); // Use aspect ratio for CDN request
     const q = quality;
     const d = dpr;
     
-    // Calculate aspect ratio difference for intelligent fallback
-    const containerAspect = measuredWidth > 0 && finalHeight > 0 ? measuredWidth / finalHeight : aspectRatio;
-    const relDiff = Math.abs(containerAspect - aspectRatio) / aspectRatio;
-    const fitMode = relDiff > 0.08 ? "contain" : "cover"; // 8% tolerance
-    
-    return { w, h, q, d, fitMode };
-  }, [measuredWidth, finalHeight, aspectRatio, quality, dpr]);
+    return { w, h, q, d };
+  }, [measuredWidth, aspectRatio, quality, dpr]);
 
   function buildImageUrl(originalSrc: string) {
     const clean = stripCdnPrefix(originalSrc);
@@ -85,9 +82,9 @@ export const ResponsiveBanner = ({
       `w=${imageParams.w}`,
       `h=${imageParams.h}`,
       `dpr=${imageParams.d}`,
-      `fit=${imageParams.fitMode}`,
+      `fit=cover`,
+      `gravity=${gravity}`,
       `q=${imageParams.q}`,
-      ...(imageParams.fitMode === "cover" ? ["gravity=auto"] : []),
     ].join(",");
     const origin = window.location.origin;
     return `${origin}/cdn-cgi/image/${params}/${clean}`;
@@ -151,7 +148,7 @@ export const ResponsiveBanner = ({
       setLoading(false);
     };
     img.src = imageUrl;
-  }, [src, measuredWidth, finalHeight, aspectRatio, quality, dpr]);
+  }, [src, measuredWidth, finalHeight, aspectRatio, quality, dpr, gravity]);
 
   const finalImageUrl = fallback ? src : buildImageUrl(src);
 
@@ -178,7 +175,7 @@ export const ResponsiveBanner = ({
         width: "100%",
         height: `${finalHeight}px`,
         backgroundImage: `url("${finalImageUrl}")`,
-        backgroundSize: imageParams.fitMode,
+        backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         backgroundColor: "var(--muted, #f3f4f6)",
