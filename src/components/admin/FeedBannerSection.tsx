@@ -12,20 +12,27 @@ export const FeedBannerSection = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith('image/')) return;
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
     uploadBanner(file);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
+    
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) handleFileSelect(files[0]);
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length > 0) handleFileSelect(files[0]);
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
   };
 
   return (
@@ -36,22 +43,18 @@ export const FeedBannerSection = () => {
           Banner do Feed
         </CardTitle>
         <CardDescription>
-          Faça upload de um banner que aparecerá no topo da página principal (feed) para todos os usuários da empresa.
+          Faça upload de um banner que aparecerá no topo da página principal (feed) para todos os usuários da empresa
         </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <div className="w-full h-[400px] bg-muted animate-pulse rounded-lg" />
+          <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg" />
         ) : bannerUrl ? (
-          <div className="relative w-full rounded-lg overflow-hidden border">
-            <ResponsiveBanner
+          <div className="relative w-full h-[200px] overflow-hidden rounded-lg border">
+            <img
               src={bannerUrl}
-              height={400}
-              maxWidth={2200}
-              quality={75}
-              fit="cover"
-              focusX={80}
-              className="rounded-lg overflow-hidden"
+              alt="Banner do Feed"
+              className="w-full h-full object-cover"
             />
             <div className="absolute top-4 right-4 flex gap-2">
               <Button
@@ -83,7 +86,7 @@ export const FeedBannerSection = () => {
         ) : (
           <div
             className={cn(
-              "border-2 border-dashed rounded-lg p-8 text-center transition-colors h-[400px] flex flex-col items-center justify-center",
+              "border-2 border-dashed rounded-lg p-8 text-center transition-colors h-[200px] flex flex-col items-center justify-center",
               isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
               "hover:border-primary hover:bg-primary/5"
             )}
@@ -115,7 +118,7 @@ export const FeedBannerSection = () => {
               className="hidden"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Use uma imagem com **2200×400px** (3:1) para melhor resultado.
+              Use uma imagem com proporção 16:9 (recomendado: 1200x675px) para melhor resultado
             </p>
           </div>
         )}
