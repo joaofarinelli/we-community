@@ -58,17 +58,37 @@ export const ResponsiveBanner = ({
     typeof window !== "undefined" ? normalizeDpr(window.devicePixelRatio || 1) : 1
   );
 
+  const finalHeight = useMemo(() => {
+    if (!measuredWidth) return Math.min(220, viewportHeight * 0.25);
+    const ideal = measuredWidth / aspectRatio;
+    const cap = viewportHeight * 0.25;
+    return Math.max(1, Math.min(ideal, cap));
+  }, [measuredWidth, aspectRatio, viewportHeight]);
+
   const imageParams = useMemo(() => {
     const w = Math.max(1, Math.round(measuredWidth || 1300));
-    const h = Math.max(1, Math.round(w / aspectRatio));
+    const h = Math.max(1, Math.round(finalHeight));
     const q = quality;
     const d = dpr;
-    return { w, h, q, d };
-  }, [measuredWidth, aspectRatio, quality, dpr]);
+    
+    // Calculate aspect ratio difference for intelligent fallback
+    const containerAspect = measuredWidth > 0 && finalHeight > 0 ? measuredWidth / finalHeight : aspectRatio;
+    const relDiff = Math.abs(containerAspect - aspectRatio) / aspectRatio;
+    const fitMode = relDiff > 0.08 ? "contain" : "cover"; // 8% tolerance
+    
+    return { w, h, q, d, fitMode };
+  }, [measuredWidth, finalHeight, aspectRatio, quality, dpr]);
 
   function buildImageUrl(originalSrc: string) {
     const clean = stripCdnPrefix(originalSrc);
-    const params = `w=${imageParams.w},h=${imageParams.h},dpr=${imageParams.d},fit=contain,q=${imageParams.q}`;
+    const params = [
+      `w=${imageParams.w}`,
+      `h=${imageParams.h}`,
+      `dpr=${imageParams.d}`,
+      `fit=${imageParams.fitMode}`,
+      `q=${imageParams.q}`,
+      ...(imageParams.fitMode === "cover" ? ["gravity=auto"] : []),
+    ].join(",");
     const origin = window.location.origin;
     return `${origin}/cdn-cgi/image/${params}/${clean}`;
   }
@@ -114,13 +134,6 @@ export const ResponsiveBanner = ({
     };
   }, []);
 
-  const finalHeight = useMemo(() => {
-    if (!measuredWidth) return Math.min(220, viewportHeight * 0.25);
-    const ideal = measuredWidth / aspectRatio;
-    const cap = viewportHeight * 0.25;
-    return Math.max(1, Math.min(ideal, cap));
-  }, [measuredWidth, aspectRatio, viewportHeight]);
-
   useEffect(() => {
     if (!src || !measuredWidth) return;
     setLoading(true);
@@ -138,7 +151,7 @@ export const ResponsiveBanner = ({
       setLoading(false);
     };
     img.src = imageUrl;
-  }, [src, measuredWidth, aspectRatio, quality, dpr]);
+  }, [src, measuredWidth, finalHeight, aspectRatio, quality, dpr]);
 
   const finalImageUrl = fallback ? src : buildImageUrl(src);
 
@@ -165,7 +178,7 @@ export const ResponsiveBanner = ({
         width: "100%",
         height: `${finalHeight}px`,
         backgroundImage: `url("${finalImageUrl}")`,
-        backgroundSize: "contain",
+        backgroundSize: imageParams.fitMode,
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         backgroundColor: "var(--muted, #f3f4f6)",
