@@ -57,6 +57,12 @@ export const useCreateChallenge = () => {
     }) => {
       if (!user?.id || !company?.id) throw new Error('User not authenticated or company not found');
 
+      // Ensure Postgres session has the correct company context for RLS
+      const { error: ctxError } = await supabase.rpc('set_current_company_context', {
+        p_company_id: company.id,
+      });
+      if (ctxError) throw ctxError;
+
       const { data, error } = await supabase
         .from('challenges')
         .insert({
@@ -76,13 +82,19 @@ export const useCreateChallenge = () => {
       toast.success('Desafio criado com sucesso!');
     },
     onError: (error) => {
-      toast.error('Erro ao criar desafio: ' + error.message);
+      const msg = typeof (error as any)?.message === 'string' ? (error as any).message : String(error);
+      if (msg.toLowerCase().includes('row-level security') || msg.includes('42501') || msg.toLowerCase().includes('permission denied')) {
+        toast.error('Sem permissão. Verifique se você é owner da empresa atual e se o contexto da empresa está correto.');
+      } else {
+        toast.error('Erro ao criar desafio: ' + msg);
+      }
     }
   });
 };
 
 export const useUpdateChallenge = () => {
   const queryClient = useQueryClient();
+  const { data: company } = useCompany();
 
   return useMutation({
     mutationFn: async ({ 
@@ -106,6 +118,11 @@ export const useUpdateChallenge = () => {
         deadline_type: 'duration' | 'fixed_date';
       }>
     }) => {
+      if (company?.id) {
+        const { error: ctxError } = await supabase.rpc('set_current_company_context', { p_company_id: company.id });
+        if (ctxError) throw ctxError;
+      }
+
       const { data, error } = await supabase
         .from('challenges')
         .update(updates)
@@ -122,16 +139,27 @@ export const useUpdateChallenge = () => {
       toast.success('Desafio atualizado com sucesso!');
     },
     onError: (error) => {
-      toast.error('Erro ao atualizar desafio: ' + error.message);
+      const msg = typeof (error as any)?.message === 'string' ? (error as any).message : String(error);
+      if (msg.toLowerCase().includes('row-level security') || msg.includes('42501') || msg.toLowerCase().includes('permission denied')) {
+        toast.error('Sem permissão. Verifique se você é owner da empresa atual e se o contexto da empresa está correto.');
+      } else {
+        toast.error('Erro ao atualizar desafio: ' + msg);
+      }
     }
   });
 };
 
 export const useDeleteChallenge = () => {
   const queryClient = useQueryClient();
+  const { data: company } = useCompany();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      if (company?.id) {
+        const { error: ctxError } = await supabase.rpc('set_current_company_context', { p_company_id: company.id });
+        if (ctxError) throw ctxError;
+      }
+
       const { error } = await supabase
         .from('challenges')
         .delete()
@@ -145,7 +173,12 @@ export const useDeleteChallenge = () => {
       toast.success('Desafio excluído com sucesso!');
     },
     onError: (error) => {
-      toast.error('Erro ao excluir desafio: ' + error.message);
+      const msg = typeof (error as any)?.message === 'string' ? (error as any).message : String(error);
+      if (msg.toLowerCase().includes('row-level security') || msg.includes('42501') || msg.toLowerCase().includes('permission denied')) {
+        toast.error('Sem permissão. Verifique se você é owner da empresa atual e se o contexto da empresa está correto.');
+      } else {
+        toast.error('Erro ao excluir desafio: ' + msg);
+      }
     }
   });
 };
