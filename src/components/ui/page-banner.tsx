@@ -20,7 +20,6 @@ export const PageBanner = ({ bannerType, className = '' }: PageBannerProps) => {
         height={220}
         maxWidth={1536}
         quality={75}
-        fit="contain"
         className="rounded-lg overflow-hidden"
       />
     </div>
