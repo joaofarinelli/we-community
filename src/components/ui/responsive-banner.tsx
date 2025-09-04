@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 
 interface ResponsiveBannerProps {
   src: string;
-  aspectRatio: number;
+  aspectRatio?: number;
+  height?: number;
   maxWidth?: number;
   quality?: number;
   className?: string;
@@ -12,6 +13,7 @@ interface ResponsiveBannerProps {
 export const ResponsiveBanner = ({ 
   src,
   aspectRatio,
+  height = 220,
   maxWidth = 1536,
   quality = 75,
   className = '',
@@ -43,9 +45,9 @@ export const ResponsiveBanner = ({
     return `${window.location.origin}/cdn-cgi/image/w=${optimizedWidth},h=${optimizedHeight},dpr=${dpr},fit=cover,q=${quality}/${encodedSrc}`;
   };
 
-  // Calculate height based on container width and aspect ratio
-  const calculateHeight = (width: number) => {
-    return Math.round(width / aspectRatio);
+  // Use fixed height or calculate from aspect ratio
+  const getHeight = () => {
+    return height || (aspectRatio ? Math.round(containerWidth / aspectRatio) : 220);
   };
 
   useEffect(() => {
@@ -74,8 +76,8 @@ export const ResponsiveBanner = ({
     setIsLoading(true);
     setUseFallback(false);
 
-    const height = calculateHeight(containerWidth);
-    const cdnUrl = generateCDNUrl(containerWidth, height);
+    const bannerHeight = getHeight();
+    const cdnUrl = generateCDNUrl(containerWidth, bannerHeight);
     
     const img = new Image();
     img.onload = () => setIsLoading(false);
@@ -88,7 +90,7 @@ export const ResponsiveBanner = ({
       fallbackImg.src = src;
     };
     img.src = cdnUrl;
-  }, [containerWidth, src, aspectRatio, maxWidth, quality]);
+  }, [containerWidth, src, aspectRatio, height, maxWidth, quality]);
 
   if (!containerWidth || isLoading) {
     return (
@@ -96,22 +98,21 @@ export const ResponsiveBanner = ({
         ref={containerRef}
         className={`w-full bg-muted animate-pulse ${className}`}
         style={{
-          aspectRatio: aspectRatio.toString(),
-          minHeight: '120px'
+          height: `${getHeight()}px`
         }}
       />
     );
   }
 
-  const height = calculateHeight(containerWidth);
-  const backgroundImage = useFallback ? src : generateCDNUrl(containerWidth, height);
+  const bannerHeight = getHeight();
+  const backgroundImage = useFallback ? src : generateCDNUrl(containerWidth, bannerHeight);
 
   return (
     <div
       ref={containerRef}
       className={`w-full relative ${className}`}
       style={{
-        height: `${height}px`,
+        height: `${bannerHeight}px`,
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',

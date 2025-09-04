@@ -12,10 +12,10 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
     <div className="w-full mb-6">
       <ResponsiveBanner
         src={imageUrl}
-        aspectRatio={16/9}
+        height={220}
         maxWidth={1536}
         quality={75}
-        className="h-[220px] rounded-lg overflow-hidden"
+        className="rounded-lg overflow-hidden"
       />
     </div>
   );
