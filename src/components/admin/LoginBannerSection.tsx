@@ -51,16 +51,13 @@ export const LoginBannerSection = () => {
           <div className="w-full h-[300px] bg-muted animate-pulse rounded-lg" />
         ) : bannerUrl ? (
           <div className="relative w-full rounded-lg overflow-hidden border">
-          <ResponsiveBanner
-            src={bannerUrl}
-            aspectRatio={9/16}
-            maxWidth={768}
-            maxHeight={360}
-            containerMaxWidth={420}
-            quality={75}
-            fit="cover"     // pode usar "contain" se quiser zero corte
-            className="rounded-lg"
-          />
+           <ResponsiveBanner
+             src={bannerUrl}
+             aspectRatio={9/16}
+             maxWidth={768}
+             quality={75}
+             className="rounded-lg"
+           />
             <div className="absolute top-4 right-4 flex gap-2">
               <Button
                 size="sm"

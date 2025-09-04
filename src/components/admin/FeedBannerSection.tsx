@@ -50,11 +50,13 @@ export const FeedBannerSection = () => {
         {isLoading ? (
           <div className="w-full h-[200px] bg-muted animate-pulse rounded-lg" />
         ) : bannerUrl ? (
-          <div className="relative w-full h-[200px] overflow-hidden rounded-lg border">
-            <img
+          <div className="relative w-full overflow-hidden rounded-lg border">
+            <ResponsiveBanner
               src={bannerUrl}
-              alt="Banner do Feed"
-              className="w-full h-full object-cover"
+              aspectRatio={1300/300}
+              maxWidth={1300}
+              quality={75}
+              className="rounded-lg overflow-hidden"
             />
             <div className="absolute top-4 right-4 flex gap-2">
               <Button

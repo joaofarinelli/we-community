@@ -14,12 +14,9 @@ export const PageBanner = ({ bannerType, className = '' }: PageBannerProps) => {
     <div className={`mb-6 ${className}`}>
       <ResponsiveBanner
         src={bannerUrl}
-        aspectRatio={1200/400}
-        maxWidth={1200}
-        maxHeight={400}
-        containerMaxWidth={1200}
+        aspectRatio={1300/300}
+        maxWidth={1300}
         quality={75}
-        focusX={80}
         className="rounded-lg overflow-hidden"
       />
     </div>
