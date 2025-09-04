@@ -44,7 +44,7 @@ function stripCdnPrefix(input: string) {
 export const ResponsiveBanner = ({
   src,
   aspectRatio = 1300 / 300,
-  quality = 80,
+  quality = 95,
   gravity = "center",
   className = "",
   children,

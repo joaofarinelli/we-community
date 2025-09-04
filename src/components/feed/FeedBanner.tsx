@@ -16,8 +16,6 @@ export const FeedBanner = () => {
         src={company.feed_banner_url}
         aspectRatio={1300/300}
         maxWidth={1300}
-        quality={75}
-        className="rounded-lg overflow-hidden"
       />
     </div>
   );

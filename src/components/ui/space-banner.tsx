@@ -19,8 +19,6 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
         src={bannerUrl}
         aspectRatio={1300/300}
         maxWidth={1300}
-        quality={75}
-        className="rounded-lg overflow-hidden"
       />
     </div>
   );

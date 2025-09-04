@@ -14,8 +14,6 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
         src={imageUrl}
         aspectRatio={1300/300}
         maxWidth={1300}
-        quality={75}
-        className="rounded-lg overflow-hidden"
       />
     </div>
   );
