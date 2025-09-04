@@ -19,6 +19,7 @@ export const ResponsiveBanner = ({
 }: ResponsiveBannerProps) => {
   const [containerWidth, setContainerWidth] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [useFallback, setUseFallback] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Get device pixel ratio and round to supported values
@@ -29,20 +30,17 @@ export const ResponsiveBanner = ({
     return 1;
   };
 
-  // Generate CDN URL
+  // Generate CDN URL using current domain
   const generateCDNUrl = (width: number, height: number) => {
     if (!src) return '';
-    
-    // Extract domain and path from original URL
-    const url = new URL(src);
-    const domain = url.origin;
-    const path = url.pathname + url.search;
     
     const dpr = getDPR();
     const optimizedWidth = Math.min(Math.ceil(width * dpr), maxWidth);
     const optimizedHeight = Math.ceil(height * dpr);
     
-    return `${domain}/cdn-cgi/image/w=${optimizedWidth},h=${optimizedHeight},dpr=${dpr},fit=cover,q=${quality}${path}`;
+    // Use current domain for CDN and encode the original URL as parameter
+    const encodedSrc = encodeURIComponent(src);
+    return `${window.location.origin}/cdn-cgi/image/w=${optimizedWidth},h=${optimizedHeight},dpr=${dpr},fit=cover,q=${quality}/${encodedSrc}`;
   };
 
   // Calculate height based on container width and aspect ratio
@@ -69,16 +67,26 @@ export const ResponsiveBanner = ({
     };
   }, []);
 
-  // Preload image to avoid flash
+  // Preload image with fallback support
   useEffect(() => {
     if (!containerWidth || !src) return;
+
+    setIsLoading(true);
+    setUseFallback(false);
 
     const height = calculateHeight(containerWidth);
     const cdnUrl = generateCDNUrl(containerWidth, height);
     
     const img = new Image();
     img.onload = () => setIsLoading(false);
-    img.onerror = () => setIsLoading(false);
+    img.onerror = () => {
+      // CDN failed, try original image
+      setUseFallback(true);
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => setIsLoading(false);
+      fallbackImg.onerror = () => setIsLoading(false);
+      fallbackImg.src = src;
+    };
     img.src = cdnUrl;
   }, [containerWidth, src, aspectRatio, maxWidth, quality]);
 
@@ -96,7 +104,7 @@ export const ResponsiveBanner = ({
   }
 
   const height = calculateHeight(containerWidth);
-  const backgroundImage = generateCDNUrl(containerWidth, height);
+  const backgroundImage = useFallback ? src : generateCDNUrl(containerWidth, height);
 
   return (
     <div
