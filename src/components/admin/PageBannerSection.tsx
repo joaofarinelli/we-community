@@ -68,7 +68,7 @@ export const PageBannerSection = ({ bannerType, title, description }: PageBanner
                   fit="cover"
                   focusX={80}
                   className="rounded-lg overflow-hidden"
-              />
+                />
             </div>
             
             <div className="flex items-center justify-between">
