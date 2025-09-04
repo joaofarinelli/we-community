@@ -60,21 +60,16 @@ export const ResponsiveBanner = ({
     typeof window !== "undefined" ? normalizeDpr(window.devicePixelRatio || 1) : 1
   );
 
-  const finalHeight = useMemo(() => {
-    if (!measuredWidth) return Math.min(220, viewportHeight * 0.25);
-    const ideal = measuredWidth / aspectRatio;
-    const cap = viewportHeight * 0.25;
-    return Math.max(1, Math.min(ideal, cap));
-  }, [measuredWidth, aspectRatio, viewportHeight]);
+  const finalHeight = 250;
 
   const imageParams = useMemo(() => {
     const w = Math.max(1, Math.round(measuredWidth || 1300));
-    const h = Math.max(1, Math.round(w / aspectRatio)); // Use aspect ratio for CDN request
+    const h = 250; // Fixed height for CDN request
     const q = quality;
     const d = dpr;
     
     return { w, h, q, d };
-  }, [measuredWidth, aspectRatio, quality, dpr]);
+  }, [measuredWidth, quality, dpr]);
 
   function buildImageUrl(originalSrc: string) {
     const clean = stripCdnPrefix(originalSrc);
@@ -148,7 +143,7 @@ export const ResponsiveBanner = ({
       setLoading(false);
     };
     img.src = imageUrl;
-  }, [src, measuredWidth, finalHeight, aspectRatio, quality, dpr, gravity]);
+  }, [src, measuredWidth, quality, dpr, gravity]);
 
   const finalImageUrl = fallback ? src : buildImageUrl(src);
 
