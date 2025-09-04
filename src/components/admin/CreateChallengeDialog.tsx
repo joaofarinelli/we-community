@@ -140,11 +140,12 @@ export const CreateChallengeDialog = () => {
           Criar Desafio
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Criar Novo Desafio</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="flex-1 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-6 pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Título</Label>
@@ -511,6 +512,7 @@ export const CreateChallengeDialog = () => {
             </Button>
           </div>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
