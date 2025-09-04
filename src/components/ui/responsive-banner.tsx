@@ -2,19 +2,29 @@ import { useState, useEffect, useRef, useMemo } from "react";
 
 export interface ResponsiveBannerProps {
   src: string;
-  /** Proporção da arte. Ex.: 1536/396 (~3.878) */
+  /** Proporção da arte, ex.: 1536/396 (~3.878) */
   aspectRatio?: number;
-  /** Altura fixa (px). Evite se quiser preservar a composição sem cortes. */
+  /** Altura fixa (px). Se definido, ignora aspectRatio */
   height?: number;
-  /** Largura máx. solicitada à CDN (default 1536) */
+
+  /** Largura máx. a PEDIR para a CDN (não é a largura do container) */
   maxWidth?: number;
+  /** Altura máx./mín. do container (px) para não ficar gigante/pequeno demais */
+  maxHeight?: number;
+  minHeight?: number;
+
   /** Qualidade 0–100 (default 75) */
   quality?: number;
-  /** cover (padrão) corta quando precisa; contain não corta (pode “letterbox”) */
+  /** cover (pode cortar) | contain (zero corte, pode “letterbox”) */
   fit?: "cover" | "contain";
-  /** Foco horizontal/vertical (0–100%). Útil quando existe corte. */
+  /** Foco do recorte quando houver corte (0–100%) */
   focusX?: number;
   focusY?: number;
+
+  /** NOVO: largura máx. do PRÓPRIO CONTAINER do banner */
+  containerMaxWidth?: number | string;
+  /** NOVO: centraliza o container (default: true) */
+  center?: boolean;
 
   className?: string;
   children?: React.ReactNode;
@@ -30,7 +40,7 @@ function useDpr() {
   const [dpr, setDpr] = useState(() => normalizeDpr(window.devicePixelRatio || 1));
   useEffect(() => {
     const onResize = () => setDpr(normalizeDpr(window.devicePixelRatio || 1));
-    window.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize); // zoom normalmente dispara resize
     return () => window.removeEventListener("resize", onResize);
   }, []);
   return dpr;
@@ -69,16 +79,20 @@ function buildCdnUrl(
   return `${u.origin}/cdn-cgi/image/${params}${originalPath}`;
 }
 
-/* ---- Component ---- */
+/* ---- Componente ---- */
 export const ResponsiveBanner = ({
   src,
   aspectRatio,
   height,
   maxWidth = 1536,
+  maxHeight,
+  minHeight,
   quality = 75,
   fit = "cover",
   focusX = 50,
   focusY = 50,
+  containerMaxWidth,
+  center = true,
   className = "",
   children,
 }: ResponsiveBannerProps) => {
@@ -88,6 +102,7 @@ export const ResponsiveBanner = ({
   const [useFallback, setUseFallback] = useState(false);
   const dpr = useDpr();
 
+  // mede a largura efetiva do container (já limitada por containerMaxWidth/wrapper)
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
@@ -108,12 +123,22 @@ export const ResponsiveBanner = ({
     };
   }, [maxWidth]);
 
-  const computedHeight = useMemo(() => {
+  // altura ideal por height ou proporção
+  const idealHeight = useMemo(() => {
     if (typeof height === "number" && height > 0) return Math.round(height);
     if (aspectRatio && containerWidth) return Math.max(1, Math.round(containerWidth / aspectRatio));
     return 220;
   }, [height, aspectRatio, containerWidth]);
 
+  // clamp de altura para evitar banner gigante
+  const computedHeight = useMemo(() => {
+    let h = idealHeight;
+    if (typeof maxHeight === "number") h = Math.min(h, Math.max(1, Math.round(maxHeight)));
+    if (typeof minHeight === "number") h = Math.max(h, Math.max(1, Math.round(minHeight)));
+    return h;
+  }, [idealHeight, maxHeight, minHeight]);
+
+  // preload (CDN -> fallback)
   useEffect(() => {
     if (!containerWidth || !src || !computedHeight) return;
     setIsLoading(true);
@@ -131,10 +156,10 @@ export const ResponsiveBanner = ({
     img.onload = () => setIsLoading(false);
     img.onerror = () => {
       setUseFallback(true);
-      const fallback = new Image();
-      fallback.onload = () => setIsLoading(false);
-      fallback.onerror = () => setIsLoading(false);
-      fallback.src = src;
+      const f = new Image();
+      f.onload = () => setIsLoading(false);
+      f.onerror = () => setIsLoading(false);
+      f.src = src;
     };
     img.src = cdnUrl;
   }, [containerWidth, src, computedHeight, dpr, quality, fit]);
@@ -143,8 +168,15 @@ export const ResponsiveBanner = ({
     return (
       <div
         ref={containerRef}
-        className={`w-full bg-muted animate-pulse ${className}`}
-        style={{ height: `${computedHeight}px` }}
+        className={`relative w-full ${className}`}
+        style={{
+          width: "100%",
+          maxWidth: containerMaxWidth ?? "100%",
+          marginLeft: center ? "auto" : undefined,
+          marginRight: center ? "auto" : undefined,
+          height: `${computedHeight}px`,
+          background: "var(--muted, #f3f4f6)",
+        }}
       />
     );
   }
@@ -159,8 +191,13 @@ export const ResponsiveBanner = ({
   return (
     <div
       ref={containerRef}
-      className={`w-full relative ${className}`}
+      className={`relative ${className}`}
       style={{
+        width: "100%",
+        maxWidth: containerMaxWidth ?? "100%",
+        marginLeft: center ? "auto" : undefined,
+        marginRight: center ? "auto" : undefined,
+
         height: `${computedHeight}px`,
         backgroundImage: `url("${backgroundImage}")`,
         backgroundSize: fit === "contain" ? "contain" : "cover",
