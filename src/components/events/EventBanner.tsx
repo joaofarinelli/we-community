@@ -15,6 +15,7 @@ export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
         height={220}
         maxWidth={1536}
         quality={75}
+        fit="contain"
         className="rounded-lg overflow-hidden"
       />
     </div>

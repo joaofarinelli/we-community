@@ -6,6 +6,7 @@ interface ResponsiveBannerProps {
   height?: number;
   maxWidth?: number;
   quality?: number;
+  fit?: 'cover' | 'contain';
   className?: string;
   children?: React.ReactNode;
 }
@@ -16,6 +17,7 @@ export const ResponsiveBanner = ({
   height = 220,
   maxWidth = 1536,
   quality = 75,
+  fit = 'cover',
   className = '',
   children
 }: ResponsiveBannerProps) => {
@@ -42,7 +44,7 @@ export const ResponsiveBanner = ({
     
     // Use current domain for CDN and encode the original URL as parameter
     const encodedSrc = encodeURIComponent(src);
-    return `${window.location.origin}/cdn-cgi/image/w=${optimizedWidth},h=${optimizedHeight},dpr=${dpr},fit=cover,q=${quality}/${encodedSrc}`;
+    return `${window.location.origin}/cdn-cgi/image/w=${optimizedWidth},h=${optimizedHeight},dpr=${dpr},fit=${fit},q=${quality}/${encodedSrc}`;
   };
 
   // Use fixed height or calculate from aspect ratio
@@ -90,7 +92,7 @@ export const ResponsiveBanner = ({
       fallbackImg.src = src;
     };
     img.src = cdnUrl;
-  }, [containerWidth, src, aspectRatio, height, maxWidth, quality]);
+  }, [containerWidth, src, aspectRatio, height, maxWidth, quality, fit]);
 
   if (!containerWidth || isLoading) {
     return (
@@ -114,7 +116,7 @@ export const ResponsiveBanner = ({
       style={{
         height: `${bannerHeight}px`,
         backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: 'cover',
+        backgroundSize: fit,
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}
