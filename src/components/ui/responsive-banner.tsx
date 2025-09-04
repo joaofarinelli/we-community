@@ -2,19 +2,19 @@ import { useState, useEffect, useMemo, useRef } from "react";
 
 export interface ResponsiveBannerProps {
   src: string;
-  aspectRatio?: number;           // default 1300/300
-  maxWidthForeground?: number;    // default 1300
-  maxWidthBackground?: number;    // default 2200
-  qualityForeground?: number;     // default 75
-  qualityBackground?: number;     // default 60
-  focusX?: number;               // default 50 (0-100)
-  focusY?: number;               // default 50 (0-100)
+  aspectRatio?: number;     // default 1300/300
+  quality?: number;         // default 80
   className?: string;
   children?: React.ReactNode;
   
-  // Legacy props for backward compatibility
-  maxWidth?: number;             // alias for maxWidthForeground
-  quality?: number;              // alias for qualityForeground
+  // Legacy props for backward compatibility (ignored)
+  maxWidth?: number;
+  maxWidthForeground?: number;
+  maxWidthBackground?: number;
+  qualityForeground?: number;
+  qualityBackground?: number;
+  focusX?: number;
+  focusY?: number;
 }
 
 function normalizeDpr(raw: number) {
@@ -43,33 +43,35 @@ function stripCdnPrefix(input: string) {
 export const ResponsiveBanner = ({
   src,
   aspectRatio = 1300 / 300,
-  maxWidthForeground,
-  maxWidthBackground = 2200,
-  qualityForeground,
-  qualityBackground = 60,
-  focusX = 50,
-  focusY = 50,
+  quality = 80,
   className = "",
   children,
-  // Legacy props for backward compatibility
-  maxWidth = 1300,
-  quality = 75,
 }: ResponsiveBannerProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(
     typeof window !== "undefined" ? window.innerHeight : 800
   );
-  const [fgFallback, setFgFallback] = useState(false);
-  const [bgFallback, setBgFallback] = useState(false);
+  const [fallback, setFallback] = useState(false);
   const [loading, setLoading] = useState(true);
   const [dpr, setDpr] = useState(
     typeof window !== "undefined" ? normalizeDpr(window.devicePixelRatio || 1) : 1
   );
 
-  // Resolve legacy props
-  const finalMaxWidthForeground = maxWidthForeground ?? maxWidth;
-  const finalQualityForeground = qualityForeground ?? quality;
+  const imageParams = useMemo(() => {
+    const w = Math.max(1, Math.round(measuredWidth || 1300));
+    const h = Math.max(1, Math.round(w / aspectRatio));
+    const q = quality;
+    const d = dpr;
+    return { w, h, q, d };
+  }, [measuredWidth, aspectRatio, quality, dpr]);
+
+  function buildImageUrl(originalSrc: string) {
+    const clean = stripCdnPrefix(originalSrc);
+    const params = `w=${imageParams.w},h=${imageParams.h},dpr=${imageParams.d},fit=contain,q=${imageParams.q}`;
+    const origin = window.location.origin;
+    return `${origin}/cdn-cgi/image/${params}/${clean}`;
+  }
 
   useEffect(() => {
     const onResize = () => {
@@ -119,83 +121,26 @@ export const ResponsiveBanner = ({
     return Math.max(1, Math.min(ideal, cap));
   }, [measuredWidth, aspectRatio, viewportHeight]);
 
-  const fgParams = useMemo(() => {
-    const w = Math.max(1, Math.round(Math.min(measuredWidth || finalMaxWidthForeground, finalMaxWidthForeground)));
-    const h = Math.max(1, Math.round(w / aspectRatio));
-    const q = finalQualityForeground;
-    const d = dpr;
-    return { w, h, q, d };
-  }, [measuredWidth, finalMaxWidthForeground, aspectRatio, finalQualityForeground, dpr]);
-
-  const bgParams = useMemo(() => {
-    const w = Math.max(1, Math.round(Math.min(measuredWidth || maxWidthBackground, maxWidthBackground)));
-    const h = Math.max(1, Math.round(finalHeight));
-    const q = qualityBackground;
-    const d = dpr;
-    return { w, h, q, d };
-  }, [measuredWidth, maxWidthBackground, finalHeight, qualityBackground, dpr]);
-
-  function buildForegroundUrl(originalSrc: string) {
-    const clean = stripCdnPrefix(originalSrc);
-    const params = `w=${fgParams.w},h=${fgParams.h},dpr=${fgParams.d},fit=contain,q=${fgParams.q}`;
-    const origin = window.location.origin;
-    return `${origin}/cdn-cgi/image/${params}/${clean}`;
-  }
-
-  function buildBackgroundUrl(originalSrc: string) {
-    const clean = stripCdnPrefix(originalSrc);
-    const params = `w=${bgParams.w},h=${bgParams.h},dpr=${bgParams.d},fit=cover,q=${bgParams.q}`;
-    const origin = window.location.origin;
-    return `${origin}/cdn-cgi/image/${params}/${clean}`;
-  }
-
   useEffect(() => {
     if (!src || !measuredWidth) return;
     setLoading(true);
-    setFgFallback(false);
-    setBgFallback(false);
+    setFallback(false);
 
-    const fgUrl = buildForegroundUrl(src);
-    const bgUrl = buildBackgroundUrl(src);
+    const imageUrl = buildImageUrl(src);
 
-    let fgLoaded = false;
-    let bgLoaded = false;
-
-    const checkComplete = () => {
-      if (fgLoaded && bgLoaded) {
-        setLoading(false);
-      }
+    // Preload image
+    const img = new Image();
+    img.onload = () => {
+      setLoading(false);
     };
+    img.onerror = () => {
+      setFallback(true);
+      setLoading(false);
+    };
+    img.src = imageUrl;
+  }, [src, measuredWidth, aspectRatio, quality, dpr]);
 
-    // Preload foreground
-    const fgImg = new Image();
-    fgImg.onload = () => {
-      fgLoaded = true;
-      checkComplete();
-    };
-    fgImg.onerror = () => {
-      setFgFallback(true);
-      fgLoaded = true;
-      checkComplete();
-    };
-    fgImg.src = fgUrl;
-
-    // Preload background
-    const bgImg = new Image();
-    bgImg.onload = () => {
-      bgLoaded = true;
-      checkComplete();
-    };
-    bgImg.onerror = () => {
-      setBgFallback(true);
-      bgLoaded = true;
-      checkComplete();
-    };
-    bgImg.src = bgUrl;
-  }, [src, measuredWidth, aspectRatio, finalMaxWidthForeground, maxWidthBackground, finalQualityForeground, qualityBackground, dpr, finalHeight]);
-
-  const foregroundImage = fgFallback ? src : buildForegroundUrl(src);
-  const backgroundImage = bgFallback ? src : buildBackgroundUrl(src);
+  const finalImageUrl = fallback ? src : buildImageUrl(src);
 
   if (!measuredWidth || loading) {
     return (
@@ -219,44 +164,20 @@ export const ResponsiveBanner = ({
       style={{
         width: "100%",
         height: `${finalHeight}px`,
+        backgroundImage: `url("${finalImageUrl}")`,
+        backgroundSize: "contain",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         backgroundColor: "var(--muted, #f3f4f6)",
         overflow: "hidden",
       }}
     >
-      {/* Background Layer - Desfocused full-bleed */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url("${backgroundImage}")`,
-          backgroundSize: "cover",
-          backgroundPosition: `${focusX}% ${focusY}%`,
-          backgroundRepeat: "no-repeat",
-          filter: "blur(16px) brightness(0.95)",
-          transform: "scale(1.05)",
-          zIndex: 0,
-        }}
-      />
-      
-      {/* Foreground Layer - Main image with contain */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url("${foregroundImage}")`,
-          backgroundSize: "contain",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          zIndex: 1,
-        }}
-      />
-      
       {/* Children overlay */}
       {children && (
         <div
           style={{
             position: "relative",
-            zIndex: 2,
+            zIndex: 1,
             width: "100%",
             height: "100%",
           }}
