@@ -5,16 +5,16 @@ interface EventBannerProps {
   title: string;
 }
 
-export const EventBanner = ({ imageUrl, title }: EventBannerProps) => {
+export const EventBanner = ({ imageUrl }: EventBannerProps) => {
   if (!imageUrl) return null;
-
   return (
     <div className="w-full mb-6">
       <ResponsiveBanner
         src={imageUrl}
-        height={220}
+        aspectRatio={1536/396}
         maxWidth={1536}
         quality={75}
+        focusX={80}
         className="rounded-lg overflow-hidden"
       />
     </div>

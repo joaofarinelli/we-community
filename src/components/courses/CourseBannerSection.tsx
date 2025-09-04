@@ -14,43 +14,13 @@ interface CourseBannerSectionProps {
 export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSectionProps) => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = useCourseBanner();
   const isAdmin = useIsAdmin();
-  
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const bannerHeight = isAdminMode ? "h-[200px]" : "h-[300px]";
+  if (isLoading) return <div className="w-full h-[300px] bg-muted animate-pulse" />;
 
-  if (isLoading) {
-    return (
-      <div className={`w-full ${bannerHeight} bg-muted animate-pulse`} />
-    );
-  }
+  const handleFileSelect = (file: File) => { if (file.type.startsWith('image/')) uploadBanner(file); };
 
-  const handleFileSelect = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      return;
-    }
-    uploadBanner(file);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
-
-  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 0) {
-      handleFileSelect(files[0]);
-    }
-  };
-
-  // If there's a banner, display it (always show if banner exists, regardless of role)
   if (bannerUrl) {
     return (
       <div className={`relative w-full ${isAdminMode ? 'border' : ''}`}>
@@ -59,93 +29,46 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
           aspectRatio={16/9}
           maxWidth={1536}
           quality={75}
-          className={isAdminMode ? "h-[200px]" : "h-[300px] rounded-lg overflow-hidden"}
+          className="rounded-lg overflow-hidden"
         />
         {isAdmin && isAdminMode && (
-          <div className="absolute top-4 right-4 flex gap-2 z-10">
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Trocar
-            </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => removeBanner()}
-              disabled={isRemoving}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-        {isAdmin && isAdminMode && (
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
+          <>
+            <div className="absolute top-4 right-4 flex gap-2 z-10">
+              <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                <Upload className="h-4 w-4 mr-2" /> Trocar
+              </Button>
+              <Button size="sm" variant="destructive" onClick={() => removeBanner()} disabled={isRemoving}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelect(f); }} className="hidden" />
+          </>
         )}
       </div>
     );
   }
 
-  // If no banner and user is not admin or not admin mode, show message or nothing
-  if (!isAdmin || !isAdminMode) {
-    if (!isAdminMode) {
-      // In courses page, don't show anything if no banner
-      return null;
-    }
-    return (
-      <div className={`w-full ${bannerHeight} border border-dashed border-muted-foreground/25 flex items-center justify-center`}>
-        <p className="text-muted-foreground">Nenhum banner configurado</p>
-      </div>
-    );
-  }
+  if (!isAdmin || !isAdminMode) return null;
 
-  // Show upload area for admins in admin mode when no banner exists
   return (
     <div
       className={cn(
-        `border-2 border-dashed p-8 text-center transition-colors ${bannerHeight} flex flex-col items-center justify-center`,
+        "border-2 border-dashed p-8 text-center transition-colors h-[300px] flex flex-col items-center justify-center",
         isDragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
         "hover:border-primary hover:bg-primary/5"
       )}
-      onDrop={handleDrop}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragOver(true);
-      }}
+      onDrop={(e) => { e.preventDefault(); setIsDragOver(false); const f = Array.from(e.dataTransfer.files)[0]; if (f) handleFileSelect(f); }}
+      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
       onDragLeave={() => setIsDragOver(false)}
     >
       <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
       <h3 className="text-lg font-semibold mb-2">Adicionar Banner de Cursos</h3>
-      <p className="text-muted-foreground mb-4">
-        Arraste uma imagem aqui ou clique para selecionar
-      </p>
-      <Button
-        onClick={() => fileInputRef.current?.click()}
-        disabled={isUploading}
-        variant="outline"
-      >
-        <Upload className="h-4 w-4 mr-2" />
-        {isUploading ? 'Enviando...' : 'Selecionar Imagem'}
+      <p className="text-muted-foreground mb-4">Arraste uma imagem aqui ou clique para selecionar</p>
+      <Button onClick={() => fileInputRef.current?.click()} disabled={isUploading} variant="outline">
+        <Upload className="h-4 w-4 mr-2" /> {isUploading ? 'Enviando...' : 'Selecionar Imagem'}
       </Button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileInputChange}
-        className="hidden"
-      />
-      <p className="text-xs text-muted-foreground mt-2">
-        Formatos aceitos: JPG, PNG, WebP (máx. 5MB)
-      </p>
+      <input ref={fileInputRef} type="file" accept="image/*" onChange={(e) => { const f = Array.from(e.target.files || [])[0]; if (f) handleFileSelect(f); }} className="hidden" />
+      <p className="text-xs text-muted-foreground mt-2">Formatos: JPG, PNG, WebP (máx. 5MB)</p>
     </div>
   );
 };
