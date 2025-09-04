@@ -54,16 +54,15 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
   if (bannerUrl) {
     return (
       <div className={`relative w-full ${isAdminMode ? 'border' : ''}`}>
-      <ResponsiveBanner
-        src={bannerUrl}
-        aspectRatio={1200/400}      // padroniza 3:1
-        maxWidth={1200}
-        maxHeight={400}             // trava altura
-        containerMaxWidth={1200}    // trava largura do bloco
-        quality={75}
-        focusX={80}
-        className="rounded-lg overflow-hidden"
-      />
+        <ResponsiveBanner
+          src={bannerUrl}
+          height={400}
+          maxWidth={2200}
+          quality={75}
+          fit="cover"
+          focusX={80}
+          className="rounded-lg overflow-hidden"
+        />
         {isAdmin && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2 z-10">
             <Button
