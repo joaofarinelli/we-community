@@ -20,7 +20,7 @@ import { getSpaceTypeInfo, renderSpaceIcon, getSpaceIcon } from '@/lib/spaceUtil
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { SpaceCustomizationDrawer } from '@/components/space/SpaceCustomizationDrawer';
 import { SpaceBanner } from '@/components/ui/space-banner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PostListView } from '@/components/posts/PostListView';
 import { PostCardView } from '@/components/posts/PostCardView';
 import { PostGridContainer } from '@/components/posts/PostGridContainer';
@@ -29,6 +29,11 @@ export type PostLayout = 'feed' | 'list' | 'card';
 export const SpaceView = () => {
   const [customizationOpen, setCustomizationOpen] = useState(false);
   const [customizationTab, setCustomizationTab] = useState('general');
+  
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const {
     spaceId
   } = useParams<{
