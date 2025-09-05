@@ -3691,6 +3691,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      ensure_onboarding_progress: {
+        Args: { p_assignment_id: string }
+        Returns: Json
+      }
       expire_challenges: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -3960,7 +3964,7 @@ export type Database = {
       }
       provision_onboarding_assignment: {
         Args: { p_company_id: string; p_user_id: string }
-        Returns: string
+        Returns: Json
       }
       remove_user_coins: {
         Args: {

@@ -27,6 +27,23 @@ export interface OnboardingStepProgress {
   updated_at: string;
 }
 
+interface ProvisionResult {
+  success: boolean;
+  error?: string;
+  assignment_id?: string;
+  flow_id?: string;
+  steps_created?: number;
+  steps_ensured?: number;
+  existing?: boolean;
+}
+
+interface EnsureProgressResult {
+  success: boolean;
+  error?: string;
+  assignment_id?: string;
+  steps_added?: number;
+}
+
 export const useOnboardingAssignment = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
@@ -59,7 +76,7 @@ export const useOnboardingAssignment = () => {
       // If no assignment found, try to provision one
       if (!data) {
         try {
-          const { data: assignmentId, error: rpcError } = await supabase.rpc(
+          const { data: provisionResult, error: rpcError } = await supabase.rpc(
             'provision_onboarding_assignment',
             { p_user_id: user.id, p_company_id: currentCompanyId }
           );
@@ -69,7 +86,14 @@ export const useOnboardingAssignment = () => {
             return null;
           }
 
-          // Fetch the newly created assignment
+          // Check if provisioning was successful
+          const result = provisionResult as unknown as ProvisionResult;
+          if (!result?.success) {
+            console.log('Onboarding provisioning failed:', result?.error);
+            return null;
+          }
+
+          // Fetch the assignment (existing or newly created)
           const { data: newAssignment, error: fetchError } = await supabase
             .from('onboarding_assignments')
             .select(`
@@ -81,7 +105,7 @@ export const useOnboardingAssignment = () => {
                 is_active
               )
             `)
-            .eq('id', assignmentId)
+            .eq('id', result.assignment_id)
             .single();
 
           if (fetchError) throw fetchError;
@@ -120,6 +144,48 @@ export const useOnboardingAssignment = () => {
         .order('onboarding_steps(order_index)', { ascending: true });
 
       if (error) throw error;
+
+      // If no progress records found but we have an assignment, try to ensure progress
+      if ((!data || data.length === 0) && assignmentQuery.data.id) {
+        try {
+          const { data: ensureResult, error: ensureError } = await supabase.rpc(
+            'ensure_onboarding_progress',
+            { p_assignment_id: assignmentQuery.data.id }
+          );
+
+          if (ensureError) {
+            console.log('Failed to ensure progress:', ensureError.message);
+            return [];
+          }
+
+          const result = ensureResult as unknown as EnsureProgressResult;
+          if (result?.success && result.steps_added && result.steps_added > 0) {
+            // Refetch progress after ensuring steps
+            const { data: refreshedData, error: refreshError } = await supabase
+              .from('onboarding_step_progress')
+              .select(`
+                *,
+                onboarding_steps!inner(
+                  id,
+                  step_type,
+                  title,
+                  description,
+                  order_index,
+                  config,
+                  is_required
+                )
+              `)
+              .eq('assignment_id', assignmentQuery.data.id)
+              .order('onboarding_steps(order_index)', { ascending: true });
+
+            if (refreshError) throw refreshError;
+            return refreshedData || [];
+          }
+        } catch (ensureError) {
+          console.log('Failed to ensure onboarding progress:', ensureError);
+        }
+      }
+
       return data || [];
     },
     enabled: !!assignmentQuery.data?.id,
