@@ -28,6 +28,7 @@ import { PostGridContainer } from '@/components/posts/PostGridContainer';
 export type PostLayout = 'feed' | 'list' | 'card';
 export const SpaceView = () => {
   const [customizationOpen, setCustomizationOpen] = useState(false);
+  const [customizationTab, setCustomizationTab] = useState('general');
   const {
     spaceId
   } = useParams<{
@@ -143,15 +144,24 @@ export const SpaceView = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onClick={() => console.log('Adicionar capa')}>
+                    <DropdownMenuItem onClick={() => {
+                      setCustomizationTab('banner');
+                      setCustomizationOpen(true);
+                    }}>
                       <ImagePlus className="h-4 w-4 mr-2" />
                       Adicionar capa
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setCustomizationOpen(true)}>
+                    <DropdownMenuItem onClick={() => {
+                      setCustomizationTab('general');
+                      setCustomizationOpen(true);
+                    }}>
                       <Palette className="h-4 w-4 mr-2" />
                       Personalizar
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Membros')}>
+                    <DropdownMenuItem onClick={() => {
+                      setCustomizationTab('members');
+                      setCustomizationOpen(true);
+                    }}>
                       <Users className="h-4 w-4 mr-2" />
                       Membros
                     </DropdownMenuItem>
@@ -325,6 +335,11 @@ export const SpaceView = () => {
       </div>
 
       {/* Customization Drawer */}
-      <SpaceCustomizationDrawer open={customizationOpen} onOpenChange={setCustomizationOpen} space={space} />
+      <SpaceCustomizationDrawer 
+        open={customizationOpen} 
+        onOpenChange={setCustomizationOpen} 
+        initialTab={customizationTab}
+        space={space} 
+      />
     </DashboardLayout>;
 };
