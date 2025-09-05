@@ -31,23 +31,38 @@ export const OnboardingTermsStep = ({
     acceptance_label = 'Li e aceito os termos e condições',
   } = config;
 
-  const canProceed = hasAccepted && (require_scroll ? hasScrolledToEnd : true);
+  // Only require scrolling if there's actual content to scroll through
+  const effectiveRequireScroll = require_scroll && terms_text.trim().length > 0;
+  const canProceed = hasAccepted && (effectiveRequireScroll ? hasScrolledToEnd : true);
 
   useEffect(() => {
-    if (!require_scroll) {
+    if (!effectiveRequireScroll) {
       setHasScrolledToEnd(true);
     }
-  }, [require_scroll]);
+  }, [effectiveRequireScroll]);
 
-  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    if (!require_scroll || hasScrolledToEnd) return;
+  // Connect scroll listener to the actual scrollable viewport
+  useEffect(() => {
+    if (!effectiveRequireScroll || hasScrolledToEnd) return;
 
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-    // Consider scrolled to end if within 10px of the bottom
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
-      setHasScrolledToEnd(true);
-    }
-  };
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+
+    // Find the Radix ScrollArea viewport
+    const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
+      // Consider scrolled to end if within 10px of the bottom
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        setHasScrolledToEnd(true);
+      }
+    };
+
+    viewport.addEventListener('scroll', handleScroll);
+    return () => viewport.removeEventListener('scroll', handleScroll);
+  }, [effectiveRequireScroll, hasScrolledToEnd]);
 
   const handleAcceptanceChange = (checked: boolean) => {
     setHasAccepted(checked);
@@ -98,7 +113,6 @@ export const OnboardingTermsStep = ({
           {terms_text && (
             <ScrollArea 
               className="h-64 px-6"
-              onScrollCapture={handleScroll}
               ref={scrollAreaRef}
             >
               <div className="py-4 pr-4">
@@ -111,7 +125,7 @@ export const OnboardingTermsStep = ({
                 </div>
               </div>
               
-              {require_scroll && !hasScrolledToEnd && (
+              {effectiveRequireScroll && !hasScrolledToEnd && (
                 <div className="sticky bottom-0 bg-gradient-to-t from-background via-background/90 to-transparent p-4 text-center">
                   <p className="text-xs text-muted-foreground">
                     Role até o final para continuar
@@ -119,6 +133,14 @@ export const OnboardingTermsStep = ({
                 </div>
               )}
             </ScrollArea>
+          )}
+
+          {!terms_text && terms_url && (
+            <div className="px-6 py-4 bg-muted/50 border-t">
+              <p className="text-sm text-muted-foreground text-center">
+                Clique no botão acima para visualizar os termos em uma nova aba
+              </p>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -131,21 +153,21 @@ export const OnboardingTermsStep = ({
                 id="terms-acceptance"
                 checked={hasAccepted}
                 onCheckedChange={handleAcceptanceChange}
-                disabled={require_scroll && !hasScrolledToEnd}
+                disabled={effectiveRequireScroll && !hasScrolledToEnd}
                 className="mt-0.5"
               />
               <div className="flex-1">
                 <label 
                   htmlFor="terms-acceptance" 
                   className={`text-sm cursor-pointer ${
-                    require_scroll && !hasScrolledToEnd 
+                    effectiveRequireScroll && !hasScrolledToEnd 
                       ? 'text-muted-foreground' 
                       : 'text-foreground'
                   }`}
                 >
                   {acceptance_label}
                 </label>
-                {require_scroll && !hasScrolledToEnd && (
+                {effectiveRequireScroll && !hasScrolledToEnd && (
                   <p className="text-xs text-muted-foreground mt-1">
                     Leia todo o conteúdo acima antes de aceitar
                   </p>
