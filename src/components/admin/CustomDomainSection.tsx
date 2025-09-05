@@ -25,6 +25,30 @@ export const CustomDomainSection = () => {
 
   const [domainInput, setDomainInput] = useState(customDomain || '');
 
+  // Get current domain being used
+  const currentDomain = window.location.hostname;
+  const isUsingCustomDomain = customDomain && (currentDomain === customDomain);
+  const isUsingSubdomain = currentDomain.includes('weplataforma.com.br');
+
+  const getCurrentDomainStatus = () => {
+    if (isUsingCustomDomain) {
+      switch (customDomainStatus) {
+        case 'verified':
+          return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Domínio Personalizado</Badge>;
+        case 'pending':
+          return <Badge variant="secondary"><AlertCircle className="w-3 h-3 mr-1" />Pendente</Badge>;
+        case 'failed':
+          return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Falhou</Badge>;
+        default:
+          return <Badge variant="outline">Domínio Personalizado</Badge>;
+      }
+    } else if (isUsingSubdomain) {
+      return <Badge variant="outline">Subdomínio</Badge>;
+    } else {
+      return <Badge variant="outline">Domínio</Badge>;
+    }
+  };
+
   const handleUpdateDomain = () => {
     if (!domainInput.trim()) return;
     updateCustomDomain.mutate({ domain: domainInput.trim() });
@@ -62,6 +86,40 @@ export const CustomDomainSection = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Current Domain Being Used */}
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="current-domain">Domínio em uso agora</Label>
+            <div className="flex items-center gap-2 mt-1">
+              <Input
+                id="current-domain"
+                value={currentDomain}
+                disabled
+                className="bg-muted font-mono"
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => copyToClipboard(currentDomain)}
+                className="h-10 px-3"
+              >
+                <Copy className="w-4 h-4" />
+              </Button>
+              {getCurrentDomainStatus()}
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isUsingCustomDomain 
+                ? 'Você está usando seu domínio personalizado'
+                : isUsingSubdomain 
+                  ? 'Você está usando o subdomínio padrão da plataforma'
+                  : 'Domínio atual em uso'
+              }
+            </p>
+          </div>
+
+          <Separator />
+        </div>
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="subdomain">Subdomínio Atual</Label>
