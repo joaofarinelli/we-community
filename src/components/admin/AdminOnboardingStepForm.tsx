@@ -44,6 +44,12 @@ const stepTypeOptions = [
     icon: '🏷️'
   },
   {
+    value: 'terms',
+    label: 'Termos e Condições',
+    description: 'Aceite de termos e condições obrigatório',
+    icon: '📋'
+  },
+  {
     value: 'finish',
     label: 'Finalização',
     description: 'Mensagem final de conclusão do onboarding',
@@ -74,6 +80,12 @@ const defaultConfigs = {
     predefined_tags: [],
     allow_custom_tags: true,
     allow_skip: true,
+  },
+  terms: {
+    terms_text: 'Ao usar nossa plataforma, você concorda com nossos termos e condições.',
+    terms_url: '',
+    require_scroll: true,
+    acceptance_label: 'Li e aceito os termos e condições',
   },
   finish: {
     message: 'Parabéns! Você concluiu o onboarding com sucesso!',
@@ -267,6 +279,57 @@ export const AdminOnboardingStepForm = ({ step, onSave, onCancel }: AdminOnboard
                 onCheckedChange={(checked) => handleConfigChange('allow_custom_tags', checked)}
               />
               <Label htmlFor="allow-custom-tags">Permitir tags personalizadas</Label>
+            </div>
+          </div>
+        );
+
+      case 'terms':
+        return (
+          <div className="space-y-4">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Configure os termos e condições que os usuários devem aceitar antes de prosseguir.
+              </AlertDescription>
+            </Alert>
+            <div className="space-y-2">
+              <Label htmlFor="terms-text">Texto dos Termos</Label>
+              <Textarea
+                id="terms-text"
+                value={formData.config.terms_text || ''}
+                onChange={(e) => handleConfigChange('terms_text', e.target.value)}
+                placeholder="Digite o conteúdo dos termos e condições..."
+                rows={6}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="terms-url">URL dos Termos (opcional)</Label>
+              <Input
+                id="terms-url"
+                value={formData.config.terms_url || ''}
+                onChange={(e) => handleConfigChange('terms_url', e.target.value)}
+                placeholder="https://exemplo.com/termos"
+              />
+              <p className="text-xs text-muted-foreground">
+                Se fornecida, será exibido um link para os termos completos
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="acceptance-label">Texto do Aceite</Label>
+              <Input
+                id="acceptance-label"
+                value={formData.config.acceptance_label || ''}
+                onChange={(e) => handleConfigChange('acceptance_label', e.target.value)}
+                placeholder="Li e aceito os termos e condições"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="require-scroll"
+                checked={formData.config.require_scroll ?? true}
+                onCheckedChange={(checked) => handleConfigChange('require_scroll', checked)}
+              />
+              <Label htmlFor="require-scroll">Exigir rolagem completa do texto</Label>
             </div>
           </div>
         );

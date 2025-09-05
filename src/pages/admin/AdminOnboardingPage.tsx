@@ -47,6 +47,7 @@ const stepTypeConfig = {
   profile: { label: 'Perfil', icon: '👤', color: 'bg-green-100 text-green-800' },
   spaces: { label: 'Espaços', icon: '🏠', color: 'bg-purple-100 text-purple-800' },
   tags: { label: 'Interesses', icon: '🏷️', color: 'bg-orange-100 text-orange-800' },
+  terms: { label: 'Termos', icon: '📋', color: 'bg-red-100 text-red-800' },
   finish: { label: 'Finalização', icon: '🎉', color: 'bg-yellow-100 text-yellow-800' },
 };
 

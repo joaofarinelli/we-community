@@ -8,6 +8,7 @@ import { OnboardingWelcomeStep } from './steps/OnboardingWelcomeStep';
 import { OnboardingProfileStep } from './steps/OnboardingProfileStep';
 import { OnboardingSpacesStep } from './steps/OnboardingSpacesStep';
 import { OnboardingTagsStep } from './steps/OnboardingTagsStep';
+import { OnboardingTermsStep } from './steps/OnboardingTermsStep';
 import { OnboardingFinishStep } from './steps/OnboardingFinishStep';
 import { useConfetti } from '@/hooks/useConfetti';
 import { toast } from 'sonner';
@@ -141,6 +142,8 @@ export const OnboardingWizard = ({ onClose, onComplete }: OnboardingWizardProps)
         return <OnboardingSpacesStep {...stepProps} />;
       case 'tags':
         return <OnboardingTagsStep {...stepProps} />;
+      case 'terms':
+        return <OnboardingTermsStep {...stepProps} />;
       case 'finish':
         return <OnboardingFinishStep {...stepProps} />;
       default:

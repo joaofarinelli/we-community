@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 export interface OnboardingStep {
   id: string;
   flow_id: string;
-  step_type: 'welcome' | 'profile' | 'spaces' | 'tags' | 'finish';
+  step_type: 'welcome' | 'profile' | 'spaces' | 'tags' | 'terms' | 'finish';
   title: string;
   description?: string;
   order_index: number;
