@@ -121,7 +121,7 @@ export const LoginBannerSection = () => {
               className="hidden"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              {BANNER_CONFIG.RECOMMENDATION_TEXT}
+              {BANNER_CONFIG.LOGIN.RECOMMENDATION_TEXT}
             </p>
           </div>
         )}
