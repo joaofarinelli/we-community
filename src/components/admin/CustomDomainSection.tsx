@@ -120,85 +120,90 @@ export const CustomDomainSection = () => {
           <Separator />
         </div>
 
+        {/* Subdomain section - only show if no verified custom domain */}
+        {customDomainStatus !== 'verified' && (
+          <>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="subdomain">Subdomínio Atual</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Input
+                    value={`${company?.subdomain}.weplataforma.com.br`}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <Badge variant="outline">Ativo</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Este é o seu domínio padrão que sempre funcionará
+                </p>
+              </div>
+
+              <Separator />
+            </div>
+          </>
+        )}
+
         <div className="space-y-4">
           <div>
-            <Label htmlFor="subdomain">Subdomínio Atual</Label>
+            <Label htmlFor="custom-domain">Domínio Personalizado</Label>
             <div className="flex items-center gap-2 mt-1">
               <Input
-                value={`${company?.subdomain}.weplataforma.com.br`}
-                disabled
-                className="bg-muted"
+                id="custom-domain"
+                placeholder="ex: minhaempresa.com.br"
+                value={domainInput}
+                onChange={(e) => setDomainInput(e.target.value)}
+                disabled={updateCustomDomain.isPending}
               />
-              <Badge variant="outline">Ativo</Badge>
+              {customDomain && getStatusBadge()}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              Este é o seu domínio padrão que sempre funcionará
+              Configure seu próprio domínio para acessar a plataforma
             </p>
           </div>
 
-          <Separator />
-
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="custom-domain">Domínio Personalizado</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="custom-domain"
-                  placeholder="ex: minhaempresa.com.br"
-                  value={domainInput}
-                  onChange={(e) => setDomainInput(e.target.value)}
-                  disabled={updateCustomDomain.isPending}
-                />
-                {customDomain && getStatusBadge()}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                Configure seu próprio domínio para acessar a plataforma
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              {!customDomain ? (
+          <div className="flex gap-2">
+            {!customDomain ? (
+              <Button
+                onClick={handleUpdateDomain}
+                disabled={!domainInput.trim() || updateCustomDomain.isPending}
+                className="flex items-center gap-2"
+              >
+                {updateCustomDomain.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                Configurar Domínio
+              </Button>
+            ) : (
+              <>
                 <Button
                   onClick={handleUpdateDomain}
-                  disabled={!domainInput.trim() || updateCustomDomain.isPending}
+                  disabled={!domainInput.trim() || updateCustomDomain.isPending || domainInput === customDomain}
+                  variant="outline"
                   className="flex items-center gap-2"
                 >
                   {updateCustomDomain.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Configurar Domínio
+                  Atualizar
                 </Button>
-              ) : (
-                <>
+                {customDomainStatus === 'pending' && (
                   <Button
-                    onClick={handleUpdateDomain}
-                    disabled={!domainInput.trim() || updateCustomDomain.isPending || domainInput === customDomain}
-                    variant="outline"
+                    onClick={verifyDomain}
+                    disabled={isVerifying}
                     className="flex items-center gap-2"
                   >
-                    {updateCustomDomain.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Atualizar
+                    {isVerifying && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Verificar
                   </Button>
-                  {customDomainStatus === 'pending' && (
-                    <Button
-                      onClick={verifyDomain}
-                      disabled={isVerifying}
-                      className="flex items-center gap-2"
-                    >
-                      {isVerifying && <Loader2 className="w-4 h-4 animate-spin" />}
-                      Verificar
-                    </Button>
-                  )}
-                  <Button
-                    onClick={handleRemoveDomain}
-                    disabled={removeCustomDomain.isPending}
-                    variant="destructive"
-                    className="flex items-center gap-2"
-                  >
-                    {removeCustomDomain.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Remover
-                  </Button>
-                </>
-              )}
-            </div>
+                )}
+                <Button
+                  onClick={handleRemoveDomain}
+                  disabled={removeCustomDomain.isPending}
+                  variant="destructive"
+                  className="flex items-center gap-2"
+                >
+                  {removeCustomDomain.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Remover
+                </Button>
+              </>
+            )}
           </div>
 
           {customDomain && customDomainStatus === 'pending' && (
