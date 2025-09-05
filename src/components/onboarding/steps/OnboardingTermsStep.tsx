@@ -21,6 +21,7 @@ export const OnboardingTermsStep = ({
 }: OnboardingTermsStepProps) => {
   const [hasAccepted, setHasAccepted] = useState(false);
   const [hasScrolledToEnd, setHasScrolledToEnd] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const config = step.config || {};
@@ -31,15 +32,50 @@ export const OnboardingTermsStep = ({
     acceptance_label = 'Li e aceito os termos e condições',
   } = config;
 
-  // Only require scrolling if there's actual content to scroll through
-  const effectiveRequireScroll = require_scroll && terms_text.trim().length > 0;
+  // Only require scrolling if there's actual content to scroll through AND it overflows
+  const effectiveRequireScroll = require_scroll && terms_text.trim().length > 0 && hasOverflow;
   const canProceed = hasAccepted && (effectiveRequireScroll ? hasScrolledToEnd : true);
 
+  // Check if content overflows and can be scrolled
   useEffect(() => {
-    if (!effectiveRequireScroll) {
+    if (!terms_text.trim().length) {
       setHasScrolledToEnd(true);
+      setHasOverflow(false);
+      return;
     }
-  }, [effectiveRequireScroll]);
+
+    const checkOverflow = () => {
+      const scrollArea = scrollAreaRef.current;
+      if (!scrollArea) return;
+
+      const viewport = scrollArea.querySelector('[data-radix-scroll-area-viewport]');
+      if (!viewport) return;
+
+      const { scrollHeight, clientHeight } = viewport;
+      const overflow = scrollHeight > clientHeight + 1; // +1 for rounding errors
+      
+      setHasOverflow(overflow);
+      
+      // If no overflow, consider it scrolled to end
+      if (!overflow) {
+        setHasScrolledToEnd(true);
+      }
+    };
+
+    // Check overflow after content is rendered
+    const timer = setTimeout(checkOverflow, 100);
+
+    // Also check on resize
+    const resizeObserver = new ResizeObserver(checkOverflow);
+    if (scrollAreaRef.current) {
+      resizeObserver.observe(scrollAreaRef.current);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      resizeObserver.disconnect();
+    };
+  }, [terms_text]);
 
   // Connect scroll listener to the actual scrollable viewport
   useEffect(() => {
