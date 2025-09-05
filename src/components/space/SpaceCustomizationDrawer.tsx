@@ -101,7 +101,7 @@ export const SpaceCustomizationDrawer = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[90vh]">
+      <DrawerContent className="h-[80vh]">
         <DrawerHeader className="relative">
           <DrawerTitle>Personalizar espaço</DrawerTitle>
           <DrawerDescription>

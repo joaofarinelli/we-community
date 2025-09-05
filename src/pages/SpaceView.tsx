@@ -165,7 +165,10 @@ export const SpaceView = () => {
                       <Users className="h-4 w-4 mr-2" />
                       Membros
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => console.log('Opções')}>
+                    <DropdownMenuItem onClick={() => {
+                      setCustomizationTab('general');
+                      setCustomizationOpen(true);
+                    }}>
                       <SettingsIcon className="h-4 w-4 mr-2" />
                       Opções
                     </DropdownMenuItem>
