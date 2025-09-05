@@ -5,6 +5,7 @@ import { usePageBanner } from '@/hooks/usePageBanner';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResponsiveBanner } from '@/components/ui/responsive-banner';
+import { BANNER_CONFIG } from '@/constants/banners';
 
 export const FeedBannerSection = () => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = usePageBanner('feed');
@@ -53,8 +54,8 @@ export const FeedBannerSection = () => {
           <div className="relative w-full overflow-hidden rounded-lg border">
             <ResponsiveBanner
               src={bannerUrl}
-              aspectRatio={1300/300}
-              maxWidth={1300}
+              aspectRatio={BANNER_CONFIG.ASPECT_RATIO}
+              maxWidth={BANNER_CONFIG.MAX_WIDTH}
               quality={75}
               className="rounded-lg overflow-hidden"
             />
@@ -120,7 +121,7 @@ export const FeedBannerSection = () => {
               className="hidden"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Use uma imagem com proporção 16:9 (recomendado: 1200x675px) para melhor resultado
+              {BANNER_CONFIG.RECOMMENDATION_TEXT}
             </p>
           </div>
         )}

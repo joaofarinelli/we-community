@@ -5,6 +5,7 @@ import { usePageBanner } from '@/hooks/usePageBanner';
 import { Upload, X, Image as ImageIcon, LogIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ResponsiveBanner } from '@/components/ui/responsive-banner';
+import { BANNER_CONFIG } from '@/constants/banners';
 
 export const LoginBannerSection = () => {
   const { bannerUrl, uploadBanner, removeBanner, isUploading, isRemoving, isLoading } = usePageBanner('login');
@@ -120,7 +121,7 @@ export const LoginBannerSection = () => {
               className="hidden"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Use uma imagem vertical (proporção 9:16 ou similar) para melhor resultado
+              {BANNER_CONFIG.RECOMMENDATION_TEXT}
             </p>
           </div>
         )}

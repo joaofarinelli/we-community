@@ -4,6 +4,7 @@ import { Eye, EyeOff, Trash2, Upload } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { usePageBanner, BannerType } from '@/hooks/usePageBanner';
 import { ResponsiveBanner } from '@/components/ui/responsive-banner';
+import { BANNER_CONFIG } from '@/constants/banners';
 
 interface PageBannerSectionProps {
   bannerType: BannerType;
@@ -62,8 +63,8 @@ export const PageBannerSection = ({ bannerType, title, description }: PageBanner
             <div className="relative w-full rounded-lg overflow-hidden border">
               <ResponsiveBanner
                 src={bannerUrl}
-                aspectRatio={1300/300}
-                maxWidth={1300}
+                aspectRatio={BANNER_CONFIG.ASPECT_RATIO}
+                maxWidth={BANNER_CONFIG.MAX_WIDTH}
                 quality={75}
                 className="rounded-lg overflow-hidden"
               />
@@ -116,7 +117,7 @@ export const PageBannerSection = ({ bannerType, title, description }: PageBanner
                   {isUploading ? 'Enviando...' : 'Clique ou arraste uma imagem'}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  PNG, JPG, WEBP (recomendado: 1200x400px)
+                  PNG, JPG, WEBP ({BANNER_CONFIG.RECOMMENDATION_TEXT})
                 </p>
               </div>
               <Button 

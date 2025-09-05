@@ -321,7 +321,7 @@ export const SpaceCustomizationDrawer = ({
                       {isUploading ? 'Enviando...' : 'Fazer upload do banner'}
                     </Button>
                     <p className="text-xs text-muted-foreground">
-                      Recomendado: 1200x300 pixels
+                      Recomendado: 1300x300 pixels
                     </p>
                   </div>
                 )}
