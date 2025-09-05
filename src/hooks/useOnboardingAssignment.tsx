@@ -37,7 +37,8 @@ export const useOnboardingAssignment = () => {
     queryFn: async () => {
       if (!user || !currentCompanyId) return null;
 
-      const { data, error } = await supabase
+      // First try to get existing assignment
+      let { data, error } = await supabase
         .from('onboarding_assignments')
         .select(`
           *,
@@ -54,6 +55,43 @@ export const useOnboardingAssignment = () => {
         .maybeSingle();
 
       if (error) throw error;
+
+      // If no assignment found, try to provision one
+      if (!data) {
+        try {
+          const { data: assignmentId, error: rpcError } = await supabase.rpc(
+            'provision_onboarding_assignment',
+            { p_user_id: user.id, p_company_id: currentCompanyId }
+          );
+
+          if (rpcError) {
+            console.log('No onboarding flow available:', rpcError.message);
+            return null;
+          }
+
+          // Fetch the newly created assignment
+          const { data: newAssignment, error: fetchError } = await supabase
+            .from('onboarding_assignments')
+            .select(`
+              *,
+              onboarding_flows!inner(
+                id,
+                name,
+                description,
+                is_active
+              )
+            `)
+            .eq('id', assignmentId)
+            .single();
+
+          if (fetchError) throw fetchError;
+          return newAssignment;
+        } catch (provisionError) {
+          console.log('Failed to provision onboarding:', provisionError);
+          return null;
+        }
+      }
+
       return data;
     },
     enabled: !!user && !!currentCompanyId,

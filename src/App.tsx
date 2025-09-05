@@ -73,6 +73,7 @@ import { LikedLessonsPage } from "./pages/LikedLessonsPage";
 import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
+import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const AppRoutes = () => {
   return (
     <CompanyContextWrapper>
       <MultiCompanyGuard>
+        <OnboardingChecker />
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
           <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
