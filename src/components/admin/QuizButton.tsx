@@ -15,10 +15,11 @@ export const QuizButton = ({ lessonId, onManageQuiz }: QuizButtonProps) => {
       variant={quiz ? "default" : "outline"}
       size="sm"
       onClick={onManageQuiz}
-      className="gap-1"
+      className="text-xs h-8 px-2"
+      title={quiz ? "Editar Prova" : "Criar Prova"}
     >
-      <FileText className="h-4 w-4" />
-      {quiz ? 'Editar Prova' : 'Criar Prova'}
+      <FileText className="h-3 w-3 sm:mr-1" />
+      <span className="hidden sm:inline">{quiz ? 'Prova' : 'Prova'}</span>
     </Button>
   );
 };

@@ -12,6 +12,7 @@ import { useDeleteLesson } from '@/hooks/useManageCourses';
 import { CreateLessonDialog } from '@/components/admin/CreateLessonDialog';
 import { EditLessonDialog } from '@/components/admin/EditLessonDialog';
 import { LessonQuizEditor } from '@/components/admin/LessonQuizEditor';
+import { QuizButton } from '@/components/admin/QuizButton';
 import { useLessonQuiz } from '@/hooks/useLessonQuiz';
 import { Search, Plus, Edit, Trash2, ArrowLeft, Video, FileText, Clock, Eye } from 'lucide-react';
 import {
@@ -226,7 +227,7 @@ export const AdminModuleLessonsPage = () => {
                 <CardContent className="space-y-3">
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <div className="grid grid-cols-3 gap-1 sm:gap-2 flex-1">
+                    <div className="grid grid-cols-4 gap-1 sm:gap-2 flex-1">
                       <Button
                         variant="outline"
                         size="sm"
@@ -247,6 +248,13 @@ export const AdminModuleLessonsPage = () => {
                         <Edit className="h-3 w-3 sm:mr-1" />
                         <span className="hidden sm:inline">Editar</span>
                       </Button>
+                      <QuizButton
+                        lessonId={lesson.id}
+                        onManageQuiz={() => {
+                          setSelectedLessonForQuiz(lesson.id);
+                          setQuizEditorOpen(true);
+                        }}
+                      />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button 
@@ -322,11 +330,13 @@ export const AdminModuleLessonsPage = () => {
           onOpenChange={(open) => !open && setEditingLesson(null)}
         />
 
-        <LessonQuizEditor
-          open={quizEditorOpen}
-          onOpenChange={setQuizEditorOpen}
-          lessonId={selectedLessonForQuiz || ''}
-        />
+        {selectedLessonForQuiz && (
+          <LessonQuizEditor
+            open={quizEditorOpen}
+            onOpenChange={setQuizEditorOpen}
+            lessonId={selectedLessonForQuiz}
+          />
+        )}
       </>
         )}
       </div>
