@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Users, Filter, X } from 'lucide-react';
-import { useAllFilteredUsers, type FilteredUser } from '@/hooks/useCompanyUsersWithFilters';
+import { useAllFilteredUsers, type FilteredUser, type UserFilters } from '@/hooks/useCompanyUsersWithFilters';
 import { useTags } from '@/hooks/useTags';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { useTrailBadges } from '@/hooks/useTrailBadges';
@@ -27,7 +27,7 @@ export function BulkActionAudienceTab({
   const [selectedUsers, setSelectedUsers] = useState<string[]>(
     audienceConfig.selected_users || []
   );
-  const [filters, setFilters] = useState(audienceConfig.filters || {});
+  const [filters, setFilters] = useState<UserFilters>(audienceConfig.filters || {});
   const [selectionMode, setSelectionMode] = useState<'filters' | 'manual'>(
     audienceConfig.selected_users ? 'manual' : 'filters'
   );
@@ -71,7 +71,7 @@ export function BulkActionAudienceTab({
     setSelectedUsers([]);
   };
 
-  const updateFilters = (updates: any) => {
+  const updateFilters = (updates: Partial<UserFilters>) => {
     setFilters({ ...filters, ...updates });
   };
 
@@ -91,14 +91,16 @@ export function BulkActionAudienceTab({
         <div className="space-y-2">
           <Label htmlFor="roles">Funções</Label>
           <Select
-            value={filters.roles || ''}
-            onValueChange={(value) => updateFilters({ roles: value || undefined })}
+            value={filters.roles?.[0] || 'all'}
+            onValueChange={(value) => updateFilters({ 
+              roles: value === 'all' ? undefined : [value] 
+            })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Todas as funções" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as funções</SelectItem>
+              <SelectItem value="all">Todas as funções</SelectItem>
               <SelectItem value="owner">Proprietário</SelectItem>
               <SelectItem value="admin">Administrador</SelectItem>
               <SelectItem value="member">Membro</SelectItem>
@@ -111,16 +113,18 @@ export function BulkActionAudienceTab({
         <div className="space-y-2">
           <Label htmlFor="tags">Tags</Label>
           <Select
-            value={filters.tags || ''}
-            onValueChange={(value) => updateFilters({ tags: value || undefined })}
+            value={filters.tagIds?.[0] || 'all'}
+            onValueChange={(value) => updateFilters({ 
+              tagIds: value === 'all' ? undefined : [value] 
+            })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Todas as tags" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todas as tags</SelectItem>
+              <SelectItem value="all">Todas as tags</SelectItem>
               {tags.map(tag => (
-                <SelectItem key={tag.id} value={tag.name}>
+                <SelectItem key={tag.id} value={tag.id}>
                   {tag.name}
                 </SelectItem>
               ))}
@@ -131,16 +135,18 @@ export function BulkActionAudienceTab({
         <div className="space-y-2">
           <Label htmlFor="levels">Níveis</Label>
           <Select
-            value={filters.levels || ''}
-            onValueChange={(value) => updateFilters({ levels: value || undefined })}
+            value={filters.levelIds?.[0] || 'all'}
+            onValueChange={(value) => updateFilters({ 
+              levelIds: value === 'all' ? undefined : [value] 
+            })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Todos os níveis" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os níveis</SelectItem>
+              <SelectItem value="all">Todos os níveis</SelectItem>
               {levels.map(level => (
-                <SelectItem key={level.id} value={level.level_name}>
+                <SelectItem key={level.id} value={level.id}>
                   {level.level_name}
                 </SelectItem>
               ))}
@@ -151,16 +157,18 @@ export function BulkActionAudienceTab({
         <div className="space-y-2">
           <Label htmlFor="badges">Selos</Label>
           <Select
-            value={filters.badges || ''}
-            onValueChange={(value) => updateFilters({ badges: value || undefined })}
+            value={filters.badgeIds?.[0] || 'all'}
+            onValueChange={(value) => updateFilters({ 
+              badgeIds: value === 'all' ? undefined : [value] 
+            })}
           >
             <SelectTrigger>
               <SelectValue placeholder="Todos os selos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os selos</SelectItem>
+              <SelectItem value="all">Todos os selos</SelectItem>
               {badges.map(badge => (
-                <SelectItem key={badge.id} value={badge.name}>
+                <SelectItem key={badge.id} value={badge.id}>
                   {badge.name}
                 </SelectItem>
               ))}
