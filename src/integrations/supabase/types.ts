@@ -4037,6 +4037,18 @@ export type Database = {
               p_tag_ids?: string[]
             }
           | {
+              p_badges?: string[]
+              p_courses?: string[]
+              p_join_date_from?: string
+              p_join_date_to?: string
+              p_levels?: string[]
+              p_limit?: number
+              p_offset?: number
+              p_roles?: string[]
+              p_search?: string
+              p_tags?: string[]
+            }
+          | {
               p_company_id: string
               p_course_ids?: string[]
               p_joined_end?: string
