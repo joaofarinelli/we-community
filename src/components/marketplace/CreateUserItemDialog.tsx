@@ -140,189 +140,183 @@ export const CreateUserItemDialog = ({ open, onOpenChange, item }: CreateUserIte
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background z-50">
         <DialogHeader>
           <DialogTitle>
             {item ? 'Editar Item' : 'Criar Novo Item'}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
-          <form onSubmit={handleSubmit} className="h-full flex flex-col">
-            <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-6 pb-6">
-                <div className="space-y-2">
-                  <Label htmlFor="category">Categoria *</Label>
-                  <Select
-                    value={formData.category_id}
-                    onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione uma categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="category">Categoria *</Label>
+            <Select
+              value={formData.category_id}
+              onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma categoria" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border shadow-lg z-[60]">
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nome do Item *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Digite o nome do item"
-                    required
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label htmlFor="name">Nome do Item *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Digite o nome do item"
+              required
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description">Descrição</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Digite a descrição do item"
-                    rows={3}
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Digite a descrição do item"
+              rows={3}
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="price">Preço em Moedas *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="1"
-                    value={formData.price_coins}
-                    onChange={(e) => setFormData({ ...formData, price_coins: parseInt(e.target.value) || 0 })}
-                    placeholder="Digite o preço em moedas"
-                    required
-                  />
-                </div>
+          <div className="space-y-2">
+            <Label htmlFor="price">Preço em Moedas *</Label>
+            <Input
+              id="price"
+              type="number"
+              min="1"
+              value={formData.price_coins}
+              onChange={(e) => setFormData({ ...formData, price_coins: parseInt(e.target.value) || 0 })}
+              placeholder="Digite o preço em moedas"
+              required
+            />
+          </div>
 
-                <div className="space-y-2">
-                  <Label>Tipo de Item *</Label>
-                  <RadioGroup
-                    value={formData.item_type}
-                    onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
-                    className="flex gap-6"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="physical" id="physical" />
-                      <Label htmlFor="physical">Físico</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="digital" id="digital" />
-                      <Label htmlFor="digital">Digital</Label>
-                    </div>
-                  </RadioGroup>
-                  <p className="text-xs text-muted-foreground">
-                    Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
-                  </p>
-                </div>
-
-                {formData.item_type === 'digital' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="digital_delivery_url">Link de entrega (URL) *</Label>
-                    <Input
-                      id="digital_delivery_url"
-                      type="url"
-                      value={formData.digital_delivery_url}
-                      onChange={(e) => setFormData({ ...formData, digital_delivery_url: e.target.value })}
-                      placeholder="https://exemplo.com/meu-produto"
-                      required={formData.item_type === 'digital'}
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="stock">
-                    {formData.item_type === 'digital' ? 'Quantidade de Licenças (opcional)' : 'Quantidade em Estoque (opcional)'}
-                  </Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    min="0"
-                    value={formData.stock_quantity || ''}
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      stock_quantity: e.target.value ? parseInt(e.target.value) : undefined 
-                    })}
-                    placeholder={formData.item_type === 'digital' ? 'Deixe vazio para licenças ilimitadas' : 'Deixe vazio para estoque ilimitado'}
-                  />
-                </div>
-
-                <ImageUploader
-                  value={formData.image_url}
-                  onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
-                />
-
-                {/* Terms Acceptance (only for new items) */}
-                {!item && activeTerms && (
-                  <div className="space-y-4 border-t pt-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <FileText className="h-5 w-5" />
-                      <h3 className="font-semibold">Termos de Anúncio</h3>
-                    </div>
-                    
-                    <Alert>
-                      <AlertTriangle className="h-4 w-4" />
-                      <AlertDescription>
-                        Antes de prosseguir, leia e aceite os termos abaixo. Seu anúncio passará por análise da administração antes de ser publicado.
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="border rounded-lg p-4 bg-muted/50">
-                      <ScrollArea className="h-48">
-                        <pre className="whitespace-pre-wrap text-sm">{activeTerms.content}</pre>
-                      </ScrollArea>
-                    </div>
-
-                    <div className="flex items-start space-x-2">
-                      <Checkbox
-                        id="terms"
-                        checked={termsAccepted}
-                        onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
-                      />
-                      <Label htmlFor="terms" className="text-sm leading-relaxed">
-                        Li e aceito os Termos de Anúncio acima. Entendo que meu anúncio será analisado pela administração antes da publicação.
-                      </Label>
-                    </div>
-                  </div>
-                )}
+          <div className="space-y-2">
+            <Label>Tipo de Item *</Label>
+            <RadioGroup
+              value={formData.item_type}
+              onValueChange={(value) => setFormData({ ...formData, item_type: value as 'physical' | 'digital' })}
+              className="flex gap-6"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="physical" id="physical" />
+                <Label htmlFor="physical">Físico</Label>
               </div>
-            </ScrollArea>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="digital" id="digital" />
+                <Label htmlFor="digital">Digital</Label>
+              </div>
+            </RadioGroup>
+            <p className="text-xs text-muted-foreground">
+              Itens físicos requerem endereço de entrega. Itens digitais são entregues instantaneamente.
+            </p>
+          </div>
 
-            <div className="flex gap-3 pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="flex-1"
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  isLoading || 
-                  !formData.name || 
-                  !formData.category_id || 
-                  formData.price_coins <= 0 ||
-                  (!item && !termsAccepted) // Require terms acceptance for new items
-                }
-                className="flex-1"
-              >
-                {isLoading ? 'Salvando...' : item ? 'Atualizar Item' : 'Enviar para Análise'}
-              </Button>
+          {formData.item_type === 'digital' && (
+            <div className="space-y-2">
+              <Label htmlFor="digital_delivery_url">Link de entrega (URL) *</Label>
+              <Input
+                id="digital_delivery_url"
+                type="url"
+                value={formData.digital_delivery_url}
+                onChange={(e) => setFormData({ ...formData, digital_delivery_url: e.target.value })}
+                placeholder="https://exemplo.com/meu-produto"
+                required={formData.item_type === 'digital'}
+              />
             </div>
-          </form>
-        </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="stock">
+              {formData.item_type === 'digital' ? 'Quantidade de Licenças (opcional)' : 'Quantidade em Estoque (opcional)'}
+            </Label>
+            <Input
+              id="stock"
+              type="number"
+              min="0"
+              value={formData.stock_quantity || ''}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                stock_quantity: e.target.value ? parseInt(e.target.value) : undefined 
+              })}
+              placeholder={formData.item_type === 'digital' ? 'Deixe vazio para licenças ilimitadas' : 'Deixe vazio para estoque ilimitado'}
+            />
+          </div>
+
+          <ImageUploader
+            value={formData.image_url}
+            onChange={(url) => setFormData({ ...formData, image_url: url || '' })}
+          />
+
+          {/* Terms Acceptance (only for new items) */}
+          {!item && activeTerms && (
+            <div className="space-y-4 border-t pt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-5 w-5" />
+                <h3 className="font-semibold">Termos de Anúncio</h3>
+              </div>
+              
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  Antes de prosseguir, leia e aceite os termos abaixo. Seu anúncio passará por análise da administração antes de ser publicado.
+                </AlertDescription>
+              </Alert>
+
+              <div className="border rounded-lg p-4 bg-muted/50">
+                <ScrollArea className="h-48">
+                  <pre className="whitespace-pre-wrap text-sm">{activeTerms.content}</pre>
+                </ScrollArea>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={termsAccepted}
+                  onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                />
+                <Label htmlFor="terms" className="text-sm leading-relaxed">
+                  Li e aceito os Termos de Anúncio acima. Entendo que meu anúncio será analisado pela administração antes da publicação.
+                </Label>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                isLoading || 
+                !formData.name || 
+                !formData.category_id || 
+                formData.price_coins <= 0 ||
+                (!item && !termsAccepted) // Require terms acceptance for new items
+              }
+              className="flex-1"
+            >
+              {isLoading ? 'Salvando...' : item ? 'Atualizar Item' : 'Enviar para Análise'}
+            </Button>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

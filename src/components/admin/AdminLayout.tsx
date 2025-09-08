@@ -86,6 +86,8 @@ const mainMenuItems = [
     key: 'marketplace',
     subItems: [
       { label: 'Gerenciar marketplace', path: '/admin/marketplace' },
+      { label: 'Moderação do marketplace', path: '/admin/marketplace/moderation' },
+      { label: 'Termos do marketplace', path: '/admin/marketplace/terms' },
       { label: 'Gerenciar loja', path: '/admin/store' },
       { label: 'Categorias da loja', path: '/admin/store/categories' },
     ]
