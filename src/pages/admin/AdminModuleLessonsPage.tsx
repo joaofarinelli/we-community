@@ -11,6 +11,8 @@ import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useDeleteLesson } from '@/hooks/useManageCourses';
 import { CreateLessonDialog } from '@/components/admin/CreateLessonDialog';
 import { EditLessonDialog } from '@/components/admin/EditLessonDialog';
+import { LessonQuizEditor } from '@/components/admin/LessonQuizEditor';
+import { useLessonQuiz } from '@/hooks/useLessonQuiz';
 import { Search, Plus, Edit, Trash2, ArrowLeft, Video, FileText, Clock, Eye } from 'lucide-react';
 import {
   AlertDialog,
@@ -31,6 +33,8 @@ export const AdminModuleLessonsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingLesson, setEditingLesson] = useState<any>(null);
+  const [quizEditorOpen, setQuizEditorOpen] = useState(false);
+  const [selectedLessonForQuiz, setSelectedLessonForQuiz] = useState<string | null>(null);
   
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
@@ -311,11 +315,19 @@ export const AdminModuleLessonsPage = () => {
         />
         
         {editingLesson && (
-          <EditLessonDialog 
-            lesson={editingLesson}
-            open={!!editingLesson} 
-            onOpenChange={(open) => !open && setEditingLesson(null)} 
-          />
+      <>
+        <EditLessonDialog
+          lesson={editingLesson}
+          open={!!editingLesson}
+          onOpenChange={(open) => !open && setEditingLesson(null)}
+        />
+
+        <LessonQuizEditor
+          open={quizEditorOpen}
+          onOpenChange={setQuizEditorOpen}
+          lessonId={selectedLessonForQuiz || ''}
+        />
+      </>
         )}
       </div>
     </AdminLayout>

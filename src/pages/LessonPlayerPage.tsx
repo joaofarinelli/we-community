@@ -20,6 +20,8 @@ import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
 import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton';
 import { LessonCompletionReward } from '@/components/courses/LessonCompletionReward';
 import { CertificateDialog } from '@/components/courses/CertificateDialog';
+import { LessonQuizDialog } from '@/components/courses/LessonQuizDialog';
+import { useLessonQuiz } from '@/hooks/useLessonQuiz';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -32,12 +34,14 @@ export const LessonPlayerPage = () => {
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [completionRewards, setCompletionRewards] = useState<any>(null);
   const [certificateOpen, setCertificateOpen] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
   const { data: lessons } = useCourseLessons(moduleId!);
   const { data: userProgress } = useUserCourseProgress(courseId);
   const markLessonComplete = useMarkLessonComplete();
+  const { data: lessonQuiz } = useLessonQuiz(lessonId);
   
   const course = courses?.find(c => c.id === courseId);
   const module = modules?.find(m => m.id === moduleId);
@@ -60,6 +64,12 @@ export const LessonPlayerPage = () => {
 
   const handleCompleteLesson = async () => {
     if (!lesson || !courseId || !moduleId || isCompleted) return;
+    
+    // If there's a quiz, require it to be completed first
+    if (lessonQuiz) {
+      setQuizOpen(true);
+      return;
+    }
     
     setIsCompleting(true);
     try {
@@ -200,7 +210,7 @@ export const LessonPlayerPage = () => {
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      {isCompleting ? 'Marcando...' : 'Concluir'}
+                      {lessonQuiz ? (isCompleting ? 'Fazendo prova...' : 'Fazer Prova') : (isCompleting ? 'Marcando...' : 'Concluir')}
                     </Button>
                   ) : (
                     <Badge variant="default" className="bg-green-100 text-green-700">
@@ -261,6 +271,12 @@ export const LessonPlayerPage = () => {
                     <StickyNote className="h-4 w-4" />
                     Anotações
                   </TabsTrigger>
+                  {lessonQuiz && (
+                    <TabsTrigger value="quiz" className="gap-2">
+                      <FileText className="h-4 w-4" />
+                      Prova
+                    </TabsTrigger>
+                  )}
                 </TabsList>
                 
                 <div>
@@ -301,6 +317,25 @@ export const LessonPlayerPage = () => {
                   <TabsContent value="notes" className="p-4 m-0">
                     <LessonNotes lessonId={lessonId!} />
                   </TabsContent>
+                  
+                  {lessonQuiz && (
+                    <TabsContent value="quiz" className="p-4 m-0">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-medium">{lessonQuiz.title}</h3>
+                            {lessonQuiz.description && (
+                              <p className="text-sm text-muted-foreground">{lessonQuiz.description}</p>
+                            )}
+                          </div>
+                          <Button onClick={() => setQuizOpen(true)}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Fazer Prova
+                          </Button>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  )}
                 </div>
               </Tabs>
             </div>
@@ -338,6 +373,19 @@ export const LessonPlayerPage = () => {
           onOpenChange={setCertificateOpen}
           courseId={courseId!}
         />
+
+        {/* Quiz Dialog */}
+        {lessonQuiz && (
+          <LessonQuizDialog
+            open={quizOpen}
+            onOpenChange={setQuizOpen}
+            lessonId={lessonId!}
+            onQuizPassed={() => {
+              setQuizOpen(false);
+              handleCompleteLesson();
+            }}
+          />
+        )}
       </div>
     </DashboardLayout>
   );

@@ -1514,6 +1514,189 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_quiz_answers: {
+        Row: {
+          attempt_id: string
+          created_at: string
+          id: string
+          is_correct: boolean | null
+          points_earned: number | null
+          question_id: string
+          selected_option_id: string | null
+          text_answer: string | null
+        }
+        Insert: {
+          attempt_id: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          question_id: string
+          selected_option_id?: string | null
+          text_answer?: string | null
+        }
+        Update: {
+          attempt_id?: string
+          created_at?: string
+          id?: string
+          is_correct?: boolean | null
+          points_earned?: number | null
+          question_id?: string
+          selected_option_id?: string | null
+          text_answer?: string | null
+        }
+        Relationships: []
+      }
+      lesson_quiz_attempts: {
+        Row: {
+          attempt_number: number
+          company_id: string
+          completed_at: string | null
+          id: string
+          max_score: number
+          quiz_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score: number | null
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempt_number?: number
+          company_id: string
+          completed_at?: string | null
+          id?: string
+          max_score: number
+          quiz_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          attempt_number?: number
+          company_id?: string
+          completed_at?: string | null
+          id?: string
+          max_score?: number
+          quiz_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lesson_quiz_options: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          option_text: string
+          order_index: number
+          question_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          option_text: string
+          order_index?: number
+          question_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          option_text?: string
+          order_index?: number
+          question_id?: string
+        }
+        Relationships: []
+      }
+      lesson_quiz_questions: {
+        Row: {
+          created_at: string
+          explanation: string | null
+          id: string
+          order_index: number
+          points: number
+          question_text: string
+          question_type: string
+          quiz_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          order_index?: number
+          points?: number
+          question_text: string
+          question_type: string
+          quiz_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          order_index?: number
+          points?: number
+          question_text?: string
+          question_type?: string
+          quiz_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_quizzes: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          lesson_id: string
+          max_attempts: number | null
+          passing_score: number | null
+          time_limit_minutes: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          lesson_id: string
+          max_attempts?: number | null
+          passing_score?: number | null
+          time_limit_minutes?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          lesson_id?: string
+          max_attempts?: number | null
+          passing_score?: number | null
+          time_limit_minutes?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       marketplace_categories: {
         Row: {
           color: string
