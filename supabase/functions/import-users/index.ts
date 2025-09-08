@@ -205,6 +205,19 @@ Deno.serve(async (req) => {
     
     console.log('Parsed users:', users)
 
+    // Get existing tags for mapping
+    const { data: existingTags } = await supabaseClient
+      .from('tags')
+      .select('id, name')
+      .eq('company_id', targetCompanyId)
+
+    const tagNameToIdMap = new Map<string, string>()
+    if (existingTags) {
+      existingTags.forEach(tag => {
+        tagNameToIdMap.set(tag.name.toLowerCase().trim(), tag.id)
+      })
+    }
+
     const results = {
       totalProcessed: users.length,
       successful: 0,
@@ -212,7 +225,7 @@ Deno.serve(async (req) => {
       skipped: 0,
       errors: [] as Array<{ line: number; email: string; error: string }>,
       duplicates: [] as Array<{ line: number; email: string }>,
-      details: [] as Array<{ line: number; email: string; status: string; firstName?: string; lastName?: string }>
+      details: [] as Array<{ line: number; email: string; status: string; firstName?: string; lastName?: string; tags?: string[] }>
     }
 
     // Process each user
@@ -226,6 +239,24 @@ Deno.serve(async (req) => {
         const lastName = (userData.sobrenome || userData.last_name || userData.lastName || userData.Sobrenome || userData['último nome'] || userData.ultimo_nome || '').trim()
         const phone = (userData.telefone || userData.phone || userData.Telefone || userData.celular || '').trim()
         const role = (userData.cargo || userData.role || userData.Cargo || userData.função || userData.funcao || 'member').trim().toLowerCase()
+        
+        // Parse tags from various column formats
+        const tagsRaw = (userData.tags || userData.Tags || userData.TAGS || userData.marcadores || userData.Marcadores || userData.etiquetas || userData.Etiquetas || '').trim()
+        const tagNames: string[] = []
+        const validTagIds: string[] = []
+        
+        if (tagsRaw) {
+          // Split by common separators and clean up
+          const splitTags = tagsRaw.split(/[,;|]/).map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0)
+          
+          for (const tagName of splitTags) {
+            tagNames.push(tagName)
+            const tagId = tagNameToIdMap.get(tagName.toLowerCase())
+            if (tagId) {
+              validTagIds.push(tagId)
+            }
+          }
+        }
 
         if (!email || !email.includes('@')) {
           results.errors.push({
@@ -260,7 +291,8 @@ Deno.serve(async (req) => {
             email,
             status: 'duplicate',
             firstName,
-            lastName
+            lastName,
+            tags: tagNames.length > 0 ? tagNames : undefined
           })
           results.skipped++
           continue
@@ -282,7 +314,8 @@ Deno.serve(async (req) => {
             email,
             status: 'invite_pending',
             firstName,
-            lastName
+            lastName,
+            tags: tagNames.length > 0 ? tagNames : undefined
           })
           results.skipped++
           continue
@@ -331,6 +364,25 @@ Deno.serve(async (req) => {
         // Send invitation email
         const emailSent = await sendInviteEmail(email, firstName, tokenData, companyName)
         
+        // Create a temporary profile record to associate tags
+        // We'll create a temporary profile that will be updated when the user accepts the invite
+        let tempUserId: string | null = null
+        
+        // If we have tags to assign, we need to create a temporary user reference
+        if (validTagIds.length > 0) {
+          // Store tags in the user_invites table for later assignment
+          const { error: updateInviteError } = await supabaseClient
+            .from('user_invites')
+            .update({
+              course_access: validTagIds // Temporarily store tag IDs here
+            })
+            .eq('token', tokenData)
+            
+          if (updateInviteError) {
+            console.error('Error storing tags in invite:', updateInviteError)
+          }
+        }
+        
         results.successful++
         results.invited++
         results.details.push({
@@ -338,7 +390,8 @@ Deno.serve(async (req) => {
           email,
           status: emailSent ? 'invited' : 'invited_no_email',
           firstName,
-          lastName
+          lastName,
+          tags: tagNames.length > 0 ? tagNames : undefined
         })
 
         if (!emailSent) {
