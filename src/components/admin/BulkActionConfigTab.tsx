@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Bell, Megaphone, GraduationCap, Users } from 'lucide-react';
 import { useCourses } from '@/hooks/useCourses';
 import { useSpaces } from '@/hooks/useSpaces';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { Button } from '@/components/ui/button';
+import { Upload, X } from 'lucide-react';
 import { type BulkAction } from '@/hooks/useBulkActionsNew';
 
 interface BulkActionConfigTabProps {
@@ -31,9 +34,32 @@ export function BulkActionConfigTab({
 }: BulkActionConfigTabProps) {
   const { data: courses = [] } = useCourses();
   const { data: spaces = [] } = useSpaces();
+  
+  const { uploadFile, isUploading } = useFileUpload({
+    bucket: 'announcement-images',
+    maxSizeBytes: 10 * 1024 * 1024, // 10MB
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  });
 
   const updateConfig = (updates: any) => {
     onActionConfigChange({ ...actionConfig, ...updates });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const url = await uploadFile(file);
+    if (url) {
+      updateConfig({ imageUrl: url });
+    }
+    
+    // Reset input
+    event.target.value = '';
+  };
+
+  const removeImage = () => {
+    updateConfig({ imageUrl: undefined });
   };
 
   const renderActionTypeSelector = () => (
@@ -105,6 +131,48 @@ export function BulkActionConfigTab({
           onChange={(e) => updateConfig({ content: e.target.value })}
           rows={4}
         />
+      </div>
+      <div className="space-y-2">
+        <Label>Imagem (opcional)</Label>
+        {actionConfig.imageUrl ? (
+          <div className="space-y-2">
+            <img 
+              src={actionConfig.imageUrl} 
+              alt="Imagem do anúncio" 
+              className="w-full max-h-48 object-cover rounded-lg border"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={removeImage}
+              className="w-full"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Remover imagem
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleImageUpload}
+              className="hidden"
+              id="announcement-image-upload"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => document.getElementById('announcement-image-upload')?.click()}
+              disabled={isUploading}
+              className="w-full"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {isUploading ? 'Enviando...' : 'Selecionar imagem'}
+            </Button>
+          </div>
+        )}
       </div>
       <div className="flex items-center space-x-2">
         <Switch

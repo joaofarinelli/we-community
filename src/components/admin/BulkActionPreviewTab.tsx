@@ -114,6 +114,13 @@ export function BulkActionPreviewTab({
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg p-4 bg-muted/50">
+                {actionConfig.imageUrl && (
+                  <img 
+                    src={actionConfig.imageUrl} 
+                    alt="Imagem do anúncio" 
+                    className="w-full max-h-64 object-cover rounded-lg mb-4"
+                  />
+                )}
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold">{actionConfig.title || 'Título do anúncio'}</h4>
                   <div className="flex gap-1">
