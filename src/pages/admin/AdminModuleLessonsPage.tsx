@@ -322,23 +322,21 @@ export const AdminModuleLessonsPage = () => {
           onOpenChange={setCreateDialogOpen} 
         />
         
-        {editingLesson && (
-      <>
-        <EditLessonDialog
-          lesson={editingLesson}
-          open={!!editingLesson}
-          onOpenChange={(open) => !open && setEditingLesson(null)}
-        />
+{editingLesson && (
+  <EditLessonDialog
+    lesson={editingLesson}
+    open={!!editingLesson}
+    onOpenChange={(open) => !open && setEditingLesson(null)}
+  />
+)}
 
-        {selectedLessonForQuiz && (
-          <LessonQuizEditor
-            open={quizEditorOpen}
-            onOpenChange={setQuizEditorOpen}
-            lessonId={selectedLessonForQuiz}
-          />
-        )}
-      </>
-        )}
+{selectedLessonForQuiz && (
+  <LessonQuizEditor
+    open={quizEditorOpen}
+    onOpenChange={setQuizEditorOpen}
+    lessonId={selectedLessonForQuiz}
+  />
+)}
       </div>
     </AdminLayout>
   );
