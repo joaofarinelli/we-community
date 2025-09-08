@@ -435,8 +435,8 @@ export const CreateChallengeDialog = () => {
             )}
           </div>
 
-          {/* Submission Review Configuration - Shows for all challenge types that allow submissions */}
-          {(challengeType === 'proof_based' || challengeType === 'course_completion' || challengeType === 'post_creation' || challengeType === 'marketplace_purchase' || challengeType === 'points_accumulation') && challengeType && (
+          {/* Submission Review Configuration - Shows for all challenge types */}
+          {challengeType && (
             <div className="space-y-4 border rounded-lg p-4">
               <div className="flex items-center space-x-2">
                 <Switch
