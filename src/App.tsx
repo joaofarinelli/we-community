@@ -158,6 +158,9 @@ const AppRoutes = () => {
           <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
           <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
           <Route path="/admin/bulk-actions" element={<AuthGuard><AdminBulkActionsPage /></AuthGuard>} />
+          <Route path="/admin/bulk-actions/create" element={<AuthGuard><BulkActionCreateEditPage /></AuthGuard>} />
+          <Route path="/admin/bulk-actions/:id/edit" element={<AuthGuard><BulkActionCreateEditPage /></AuthGuard>} />
+          <Route path="/admin/bulk-actions/:id/executions" element={<AuthGuard><BulkActionExecutionsPage /></AuthGuard>} />
           <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
           <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
