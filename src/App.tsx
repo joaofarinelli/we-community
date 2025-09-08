@@ -70,6 +70,8 @@ import { AdminContentModerationPage } from "./pages/admin/AdminContentModeration
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import { AdminOnboardingPage } from "./pages/admin/AdminOnboardingPage";
 import AdminBulkActionsPage from "./pages/admin/AdminBulkActionsPage";
+import { BulkActionCreateEditPage } from "./pages/admin/BulkActionCreateEditPage";
+import { BulkActionExecutionsPage } from "./pages/admin/BulkActionExecutionsPage";
 import { LikedLessonsPage } from "./pages/LikedLessonsPage";
 import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
