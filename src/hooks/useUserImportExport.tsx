@@ -10,7 +10,7 @@ export interface ImportResults {
   skipped: number;
   errors: Array<{ line: number; email: string; error: string }>;
   duplicates: Array<{ line: number; email: string }>;
-  details: Array<{ line: number; email: string; status: string; firstName?: string; lastName?: string }>;
+  details: Array<{ line: number; email: string; status: string; firstName?: string; lastName?: string; tags?: string[] }>;
 }
 
 export const useUserImportExport = () => {

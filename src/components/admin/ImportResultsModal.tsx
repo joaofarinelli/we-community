@@ -155,6 +155,7 @@ export const ImportResultsModal = ({ open, onOpenChange, results }: ImportResult
                     <TableHead>Linha</TableHead>
                     <TableHead>Nome</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Tags</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -164,6 +165,19 @@ export const ImportResultsModal = ({ open, onOpenChange, results }: ImportResult
                       <TableCell>{detail.line}</TableCell>
                       <TableCell>{detail.firstName} {detail.lastName}</TableCell>
                       <TableCell>{detail.email}</TableCell>
+                      <TableCell>
+                        {detail.tags && detail.tags.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {detail.tags.map((tag, tagIndex) => (
+                              <Badge key={tagIndex} variant="outline" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">-</span>
+                        )}
+                      </TableCell>
                       <TableCell>{getStatusBadge(detail.status)}</TableCell>
                     </TableRow>
                   ))}

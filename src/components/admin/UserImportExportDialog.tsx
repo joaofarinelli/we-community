@@ -48,10 +48,10 @@ export const UserImportExportDialog = ({ children }: UserImportExportDialogProps
 
   const downloadTemplate = () => {
     const template = [
-      'Nome,Sobrenome,Email,Telefone,Cargo',
-      'João,Silva,joao@exemplo.com,11999999999,member',
-      'Maria,Santos,maria@exemplo.com,11888888888,admin',
-      'Ana,Costa,ana@exemplo.com,11777777777,member'
+      'Nome,Sobrenome,Email,Telefone,Cargo,Tags',
+      'João,Silva,joao@exemplo.com,11999999999,member,Desenvolvimento;Frontend',
+      'Maria,Santos,maria@exemplo.com,11888888888,admin,Gestão;Liderança',
+      'Ana,Costa,ana@exemplo.com,11777777777,member,Design;UX/UI'
     ].join('\n');
 
     const blob = new Blob([template], { type: 'text/csv' });
@@ -109,14 +109,15 @@ export const UserImportExportDialog = ({ children }: UserImportExportDialogProps
                 Envie um arquivo CSV para convidar vários usuários de uma vez. Os convites serão enviados automaticamente por email.
               </p>
 
-              <Alert className="mb-4">
-                <Info className="h-4 w-4" />
-                <AlertDescription className="text-xs">
-                  <strong>Colunas aceitas:</strong> Nome/Email (obrigatórios), Sobrenome, Telefone, Cargo.<br />
-                  <strong>Formatos:</strong> Aceita diferentes variações dos nomes das colunas (português/inglês).<br />
-                  <strong>Duplicados:</strong> Emails já existentes serão ignorados automaticamente.
-                </AlertDescription>
-              </Alert>
+                <Alert className="mb-4">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="text-xs">
+                    <strong>Colunas aceitas:</strong> Nome/Email (obrigatórios), Sobrenome, Telefone, Cargo, Tags.<br />
+                    <strong>Tags:</strong> Separe múltiplas tags por ponto e vírgula (;) ou vírgula (,). Apenas tags existentes serão aplicadas.<br />
+                    <strong>Formatos:</strong> Aceita diferentes variações dos nomes das colunas (português/inglês).<br />
+                    <strong>Duplicados:</strong> Emails já existentes serão ignorados automaticamente.
+                  </AlertDescription>
+                </Alert>
 
               {isImporting && (
                 <div className="mb-4 space-y-2">
