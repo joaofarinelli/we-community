@@ -284,6 +284,142 @@ export type Database = {
         }
         Relationships: []
       }
+      bulk_action_executions: {
+        Row: {
+          bulk_action_id: string
+          company_id: string
+          completed_at: string | null
+          created_at: string
+          error_count: number
+          error_message: string | null
+          executed_by: string
+          id: string
+          processed_count: number
+          started_at: string | null
+          status: string
+          success_count: number
+          total_targets: number
+        }
+        Insert: {
+          bulk_action_id: string
+          company_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_count?: number
+          error_message?: string | null
+          executed_by: string
+          id?: string
+          processed_count?: number
+          started_at?: string | null
+          status?: string
+          success_count?: number
+          total_targets?: number
+        }
+        Update: {
+          bulk_action_id?: string
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_count?: number
+          error_message?: string | null
+          executed_by?: string
+          id?: string
+          processed_count?: number
+          started_at?: string | null
+          status?: string
+          success_count?: number
+          total_targets?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_bulk_action_executions_bulk_action_id"
+            columns: ["bulk_action_id"]
+            isOneToOne: false
+            referencedRelation: "bulk_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulk_action_results: {
+        Row: {
+          company_id: string
+          error_message: string | null
+          execution_id: string
+          id: string
+          processed_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          error_message?: string | null
+          execution_id: string
+          id?: string
+          processed_at?: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          error_message?: string | null
+          execution_id?: string
+          id?: string
+          processed_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_bulk_action_results_execution_id"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "bulk_action_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulk_actions: {
+        Row: {
+          action_config: Json
+          action_type: string
+          audience_config: Json
+          company_id: string
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: string
+          audience_config?: Json
+          company_id: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          audience_config?: Json
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       challenge_files: {
         Row: {
           challenge_id: string
@@ -3796,6 +3932,10 @@ export type Database = {
         Args: { p_assignment_id: string }
         Returns: Json
       }
+      execute_bulk_action: {
+        Args: { p_bulk_action_id: string; p_company_id: string }
+        Returns: string
+      }
       expire_challenges: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -3821,6 +3961,15 @@ export type Database = {
           total_posts: number
           total_spaces: number
           total_users: number
+        }[]
+      }
+      get_bulk_action_targets: {
+        Args: { p_audience_config: Json; p_company_id: string }
+        Returns: {
+          email: string
+          first_name: string
+          last_name: string
+          user_id: string
         }[]
       }
       get_company_details_for_user: {
@@ -4023,6 +4172,10 @@ export type Database = {
       }
       issue_course_certificate: {
         Args: { p_course_id: string; p_user_id: string }
+        Returns: Json
+      }
+      preview_bulk_action: {
+        Args: { p_audience_config: Json; p_company_id: string }
         Returns: Json
       }
       process_challenge_reward: {
