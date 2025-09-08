@@ -39,6 +39,8 @@ import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
 import { MarketplacePurchasesPage } from "./pages/MarketplacePurchasesPage";
 import { AdminMarketplacePage } from "./pages/admin/AdminMarketplacePage";
+import { AdminMarketplaceModerationPage } from "./pages/admin/AdminMarketplaceModerationPage";
+import { AdminMarketplaceTermsPage } from "./pages/admin/AdminMarketplaceTermsPage";
 import { StorePage } from "./pages/StorePage";
 import { AdminStorePage } from "./pages/admin/AdminStorePage";
 import { AdminStoreCategoriesPage } from "./pages/admin/AdminStoreCategoriesPage";
@@ -138,6 +140,8 @@ const AppRoutes = () => {
           <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />
           <Route path="/my-items" element={<AuthGuard><MyItemsPage /></AuthGuard>} />
           <Route path="/admin/marketplace" element={<AuthGuard><AdminMarketplacePage /></AuthGuard>} />
+          <Route path="/admin/marketplace/moderation" element={<AuthGuard><AdminMarketplaceModerationPage /></AuthGuard>} />
+          <Route path="/admin/marketplace/terms" element={<AuthGuard><AdminMarketplaceTermsPage /></AuthGuard>} />
           <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
           <Route path="/admin/store/categories" element={<AuthGuard><AdminStoreCategoriesPage /></AuthGuard>} />
           <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />

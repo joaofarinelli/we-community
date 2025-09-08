@@ -35,6 +35,7 @@ export const useCreateStoreItem = () => {
           ...data,
           company_id: currentCompanyId,
           created_by: user.id,
+          moderation_status: 'approved', // Company store items are auto-approved
         })
         .select()
         .single();

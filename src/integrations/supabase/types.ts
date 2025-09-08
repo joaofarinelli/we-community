@@ -1575,6 +1575,10 @@ export type Database = {
           is_active: boolean
           is_featured: boolean
           item_type: string
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
+          moderation_status: string
           name: string
           order_index: number
           price_coins: number
@@ -1597,6 +1601,10 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           item_type?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           name: string
           order_index?: number
           price_coins: number
@@ -1619,6 +1627,10 @@ export type Database = {
           is_active?: boolean
           is_featured?: boolean
           item_type?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
+          moderation_status?: string
           name?: string
           order_index?: number
           price_coins?: number
@@ -1698,6 +1710,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      marketplace_terms: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          company_id: string
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      marketplace_terms_acceptances: {
+        Row: {
+          accepted_at: string
+          company_id: string
+          id: string
+          item_id: string
+          terms_id: string
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          company_id: string
+          id?: string
+          item_id: string
+          terms_id: string
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          company_id?: string
+          id?: string
+          item_id?: string
+          terms_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {

@@ -18,6 +18,19 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { CreateUserItemDialog } from '@/components/marketplace/CreateUserItemDialog';
 import { useUserMarketplaceItems, useDeleteUserMarketplaceItem } from '@/hooks/useUserMarketplaceItems';
 
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return <Badge variant="secondary">Aguardando Aprovação</Badge>;
+    case 'approved':
+      return <Badge variant="default" className="bg-green-100 text-green-800">Aprovado</Badge>;
+    case 'rejected':
+      return <Badge variant="destructive">Rejeitado</Badge>;
+    default:
+      return null;
+  }
+};
+
 export default function MyItemsPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
@@ -125,11 +138,12 @@ export default function MyItemsPage() {
                       </AlertDialog>
                     </div>
                   </div>
-                  {item.is_featured && (
-                    <Badge variant="secondary" className="w-fit">
-                      Destaque
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-2 mb-2">
+                    {getStatusBadge(item.moderation_status)}
+                    {item.is_featured && (
+                      <Badge variant="secondary">Destaque</Badge>
+                    )}
+                  </div>
                 </CardHeader>
                 
                 <CardContent className="space-y-3">
