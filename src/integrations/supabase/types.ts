@@ -4048,6 +4048,7 @@ export type Database = {
               p_tag_ids?: string[]
             }
         Returns: {
+          badge_ids: string[]
           badge_names: string[]
           courses_count: number
           email: string
@@ -4055,10 +4056,13 @@ export type Database = {
           joined_at: string
           last_name: string
           level_color: string
+          level_id: string
           level_name: string
+          phone: string
           posts_count: number
           role: string
-          tags: Json
+          tag_ids: string[]
+          tag_names: string[]
           user_id: string
         }[]
       }
