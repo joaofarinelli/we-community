@@ -13,21 +13,46 @@ export const useLessonQuiz = (lessonId?: string) => {
     queryFn: async () => {
       if (!user?.id || !lessonId) throw new Error('Missing user or lesson ID');
       
-      const { data, error } = await supabase
+      // Step 1: Fetch the quiz record only (avoid nested selects that require FK relationships)
+      const { data: quizRow, error: quizError } = await supabase
         .from('lesson_quizzes')
-        .select(`
-          *,
-          lesson_quiz_questions(
-            *,
-            lesson_quiz_options(*)
-          )
-        `)
+        .select('*')
         .eq('lesson_id', lessonId)
         .eq('is_active', true)
         .maybeSingle();
         
-      if (error) throw error;
-      return data;
+      if (quizError) throw quizError;
+      if (!quizRow) return null;
+
+      // Step 2: Fetch questions for this quiz
+      const { data: questions, error: questionsError } = await supabase
+        .from('lesson_quiz_questions')
+        .select('*')
+        .eq('quiz_id', quizRow.id)
+        .order('order_index', { ascending: true });
+      if (questionsError) throw questionsError;
+
+      // Step 3: Fetch options for these questions (if any questions exist)
+      let options: any[] = [];
+      if (questions && questions.length > 0) {
+        const { data: opts, error: optionsError } = await supabase
+          .from('lesson_quiz_options')
+          .select('*')
+          .in('question_id', questions.map(q => q.id));
+        if (optionsError) throw optionsError;
+        options = opts || [];
+      }
+
+      // Shape the result to match previous structure
+      const quizWithRelations = {
+        ...quizRow,
+        lesson_quiz_questions: (questions || []).map(q => ({
+          ...q,
+          lesson_quiz_options: options.filter(o => o.question_id === q.id)
+        }))
+      };
+
+      return quizWithRelations as any;
     },
     enabled: !!user?.id && !!lessonId
   });
