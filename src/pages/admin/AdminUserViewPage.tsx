@@ -188,7 +188,7 @@ export const AdminUserViewPage = () => {
                   {userOverview.tags.map((tag) => (
                     <Badge
                       key={tag.id}
-                      style={{ backgroundColor: tag.color, color: '#fff' }}
+                      style={{ backgroundColor: tag.color, color: (tag as any).text_color || '#FFFFFF' }}
                       className="inline-flex items-center gap-1"
                     >
                       <TagIcon tag={tag as any} size="sm" />

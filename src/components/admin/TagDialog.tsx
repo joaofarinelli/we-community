@@ -28,6 +28,7 @@ const defaultColors = [
 
 export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagDialogProps) => {
   const [selectedColor, setSelectedColor] = useState('#3B82F6');
+  const [selectedTextColor, setSelectedTextColor] = useState('#FFFFFF');
   const [iconType, setIconType] = useState<'none' | 'emoji' | 'image'>('none');
   const [selectedEmoji, setSelectedEmoji] = useState('');
   const [uploadedImage, setUploadedImage] = useState('');
@@ -40,6 +41,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
     if (tag) {
       // Atualizar estados locais
       setSelectedColor(tag.color);
+      setSelectedTextColor(tag.text_color || '#FFFFFF');
       setIconType(tag.icon_type || 'none');
       setSelectedEmoji(tag.icon_type === 'emoji' ? tag.icon_value || '' : '');
       setUploadedImage(tag.icon_type === 'image' ? tag.icon_value || '' : '');
@@ -47,16 +49,19 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
       // Atualizar valores do formulário
       setValue('name', tag.name);
       setValue('color', tag.color);
+      setValue('text_color', tag.text_color || '#FFFFFF');
       setValue('description', tag.description || '');
     } else {
       // Reset para valores padrão quando for criar nova tag
       setSelectedColor('#3B82F6');
+      setSelectedTextColor('#FFFFFF');
       setIconType('none');
       setSelectedEmoji('');
       setUploadedImage('');
       
       setValue('name', '');
       setValue('color', '#3B82F6');
+      setValue('text_color', '#FFFFFF');
       setValue('description', '');
     }
   }, [tag, setValue]);
@@ -68,6 +73,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
       setEmojiPickerOpen(false);
       if (!tag) {
         setSelectedColor('#3B82F6');
+        setSelectedTextColor('#FFFFFF');
         setIconType('none');
         setSelectedEmoji('');
         setUploadedImage('');
@@ -87,6 +93,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
     const submitData = { 
       ...data, 
       color: selectedColor,
+      text_color: selectedTextColor,
       icon_type: iconType,
       icon_value: iconValue
     };
@@ -144,6 +151,37 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
               onChange={(e) => setSelectedColor(e.target.value)}
               className="w-full h-10"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Cor do Texto</Label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedTextColor('#FFFFFF')}
+                className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  selectedTextColor === '#FFFFFF' ? 'border-foreground scale-110' : 'border-border'
+                }`}
+                style={{ backgroundColor: '#FFFFFF' }}
+              />
+              <button
+                type="button"
+                onClick={() => setSelectedTextColor('#000000')}
+                className={`w-8 h-8 rounded-full border-2 transition-all ${
+                  selectedTextColor === '#000000' ? 'border-foreground scale-110' : 'border-border'
+                }`}
+                style={{ backgroundColor: '#000000' }}
+              />
+            </div>
+            <Input
+              type="color"
+              value={selectedTextColor}
+              onChange={(e) => setSelectedTextColor(e.target.value)}
+              className="w-full h-10"
+            />
+            <div className="mt-2 p-2 rounded border" style={{ backgroundColor: selectedColor, color: selectedTextColor }}>
+              Prévia da tag
+            </div>
           </div>
 
           <div className="space-y-2">

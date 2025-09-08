@@ -9,6 +9,7 @@ export interface Tag {
   company_id: string;
   name: string;
   color: string;
+  text_color: string;
   description: string | null;
   icon_type: 'none' | 'emoji' | 'image';
   icon_value: string | null;
@@ -20,6 +21,7 @@ export interface Tag {
 export interface CreateTagData {
   name: string;
   color: string;
+  text_color?: string;
   description?: string;
   icon_type?: 'none' | 'emoji' | 'image';
   icon_value?: string;
