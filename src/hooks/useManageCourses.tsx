@@ -34,45 +34,28 @@ export const useCreateCourse = () => {
       // Set global company ID for header injection before the operation
       setGlobalCompanyId(currentCompanyId);
 
-      // Definir explicitamente o contexto da empresa antes da operação
-      await supabase.rpc('set_current_company_context', {
-        p_company_id: currentCompanyId
+      // Use secure RPC function that handles all validation and creation
+      const { data, error } = await supabase.rpc('create_course_secure', {
+        p_company_id: currentCompanyId,
+        p_title: course.title,
+        p_description: course.description || null,
+        p_thumbnail_url: course.thumbnail_url || null,
+        p_order_index: course.order_index || 0,
+        p_certificate_enabled: course.certificate_enabled || false,
+        p_mentor_name: course.mentor_name || null,
+        p_mentor_role: course.mentor_role || null,
+        p_mentor_signature_url: course.mentor_signature_url || null,
+        p_certificate_background_url: course.certificate_background_url || null,
+        p_certificate_footer_text: course.certificate_footer_text || null,
+        p_access_criteria: course.access_criteria || {}
       });
-
-      const { access_criteria, ...courseData } = course;
-
-      const { data, error } = await supabase
-        .from('courses')
-        .insert({
-          ...courseData,
-          company_id: currentCompanyId,
-          created_by: user.id,
-          access_criteria: access_criteria || {}
-        })
-        .select()
-        .single();
 
       if (error) throw error;
 
-      // Grant access to users based on criteria
-      if (access_criteria && (
-        (access_criteria.tag_ids && access_criteria.tag_ids.length > 0) ||
-        (access_criteria.level_ids && access_criteria.level_ids.length > 0) ||
-        (access_criteria.badge_ids && access_criteria.badge_ids.length > 0)
-      )) {
-        const { data: affectedUsers } = await supabase.rpc('grant_course_access', {
-          p_company_id: currentCompanyId,
-          p_course_id: data.id,
-          p_tag_ids: access_criteria.tag_ids || null,
-          p_level_ids: access_criteria.level_ids || null,
-          p_badge_ids: access_criteria.badge_ids || null,
-          p_logic: access_criteria.logic || 'any'
-        });
-
-        return { course: data, affectedUsers: affectedUsers || 0 };
-      }
-
-      return { course: data, affectedUsers: 0 };
+      return {
+        course: (data as any).course,
+        affectedUsers: (data as any).affected_users || 0
+      };
     },
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['courses'] });

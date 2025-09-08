@@ -4139,6 +4139,23 @@ export type Database = {
             }
         Returns: string
       }
+      create_course_secure: {
+        Args: {
+          p_access_criteria?: Json
+          p_certificate_background_url?: string
+          p_certificate_enabled?: boolean
+          p_certificate_footer_text?: string
+          p_company_id: string
+          p_description?: string
+          p_mentor_name?: string
+          p_mentor_role?: string
+          p_mentor_signature_url?: string
+          p_order_index?: number
+          p_thumbnail_url?: string
+          p_title: string
+        }
+        Returns: Json
+      }
       create_default_levels: {
         Args: { p_company_id: string; p_created_by: string }
         Returns: undefined
