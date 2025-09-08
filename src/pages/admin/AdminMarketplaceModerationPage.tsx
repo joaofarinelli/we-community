@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { usePendingMarketplaceItems, useModerateMarketplaceItem, useAllMarketplaceItemsForModeration } from '@/hooks/usePendingMarketplaceItems';
 import { useMarketplaceCategories } from '@/hooks/useMarketplaceCategories';
+import { MarketplaceItemPreviewDialog } from '@/components/marketplace/MarketplaceItemPreviewDialog';
 
 interface ModerationDialogData {
   itemId: string;
@@ -23,6 +24,7 @@ export function AdminMarketplaceModerationPage() {
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [moderationDialog, setModerationDialog] = useState<ModerationDialogData | null>(null);
   const [moderationNotes, setModerationNotes] = useState('');
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
 
   const { data: pendingItems, isLoading: loadingPending } = usePendingMarketplaceItems();
   const { data: allItems, isLoading: loadingAll } = useAllMarketplaceItemsForModeration();
@@ -84,7 +86,6 @@ export function AdminMarketplaceModerationPage() {
           </p>
         </div>
 
-        {/* Filters */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -142,7 +143,6 @@ export function AdminMarketplaceModerationPage() {
           </CardContent>
         </Card>
 
-        {/* Items List */}
         <div className="grid gap-4">
           {isLoading ? (
             <div className="text-center py-8">Carregando...</div>
@@ -193,26 +193,37 @@ export function AdminMarketplaceModerationPage() {
                         />
                       )}
                       
-                      {item.moderation_status === 'pending' && (
-                        <div className="flex gap-2 ml-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleModeration(item.id, item.name, 'approve')}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <Check className="h-4 w-4" />
-                            Aprovar
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleModeration(item.id, item.name, 'reject')}
-                          >
-                            <X className="h-4 w-4" />
-                            Rejeitar
-                          </Button>
-                        </div>
-                      )}
+                      <div className="flex flex-col gap-2 ml-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setPreviewItem(item)}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Visualizar produto
+                        </Button>
+                        
+                        {item.moderation_status === 'pending' && (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleModeration(item.id, item.name, 'approve')}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <Check className="h-4 w-4" />
+                              Aprovar
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleModeration(item.id, item.name, 'reject')}
+                            >
+                              <X className="h-4 w-4" />
+                              Rejeitar
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -221,7 +232,12 @@ export function AdminMarketplaceModerationPage() {
           )}
         </div>
 
-        {/* Moderation Dialog */}
+        <MarketplaceItemPreviewDialog
+          open={!!previewItem}
+          onOpenChange={(open) => !open && setPreviewItem(null)}
+          item={previewItem}
+        />
+
         <Dialog open={!!moderationDialog} onOpenChange={() => setModerationDialog(null)}>
           <DialogContent>
             <DialogHeader>
