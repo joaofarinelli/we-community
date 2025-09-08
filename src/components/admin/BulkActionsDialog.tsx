@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,11 +9,12 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, X, Users, Bell, MessageSquare, BookOpen, Hash } from 'lucide-react';
+import { CalendarIcon, X, Users, Bell, MessageSquare, BookOpen, Hash, Image, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useBulkActions } from '@/hooks/useBulkActions';
+import { useFileUpload } from '@/hooks/useFileUpload';
 import { FilteredUser, UserFilters } from '@/hooks/useCompanyUsersWithFilters';
 
 interface BulkActionsDialogProps {
@@ -33,6 +34,9 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
   const [expiresAt, setExpiresAt] = useState<Date>();
   const [selectedCourseId, setSelectedCourseId] = useState('');
   const [selectedSpaceId, setSelectedSpaceId] = useState('');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     bulkSendNotifications,
@@ -41,6 +45,12 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
     bulkGrantSpaceAccess,
   } = useBulkActions();
 
+  const { uploadFile, isUploading } = useFileUpload({
+    bucket: 'announcement-images',
+    maxSizeBytes: 10 * 1024 * 1024, // 10MB
+    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+  });
+
   const resetForm = () => {
     setTitle('');
     setContent('');
@@ -48,6 +58,8 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
     setExpiresAt(undefined);
     setSelectedCourseId('');
     setSelectedSpaceId('');
+    setImageUrl('');
+    setImagePreview('');
   };
 
   const handleClose = () => {
@@ -80,6 +92,7 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
             content: content.trim(),
             isMandatory,
             expiresAt: expiresAt?.toISOString(),
+            imageUrl: imageUrl || undefined,
             userIds,
           });
           break;
@@ -137,6 +150,27 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
       default:
         return false;
     }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const url = await uploadFile(file);
+    if (url) {
+      setImageUrl(url);
+      setImagePreview(URL.createObjectURL(file));
+    }
+
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeImage = () => {
+    setImageUrl('');
+    setImagePreview('');
   };
 
   return (
@@ -239,6 +273,55 @@ export function BulkActionsDialog({ open, onOpenChange, filteredUsers, filters }
 
               {actionType === 'announcement' && (
                 <>
+                  <div className="space-y-2">
+                    <Label>Imagem (opcional)</Label>
+                    
+                    {imagePreview ? (
+                      <div className="relative">
+                        <img
+                          src={imagePreview}
+                          alt="Preview"
+                          className="w-full max-h-48 object-cover rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-2 right-2"
+                          onClick={removeImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className="w-full"
+                        >
+                          {isUploading ? (
+                            'Enviando...'
+                          ) : (
+                            <>
+                              <Upload className="h-4 w-4 mr-2" />
+                              Selecionar Imagem
+                            </>
+                          )}
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/gif,image/webp"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="mandatory"

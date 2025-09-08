@@ -15,6 +15,7 @@ interface BulkAnnouncementData {
   content: string;
   isMandatory: boolean;
   expiresAt?: string;
+  imageUrl?: string;
   userIds: string[];
 }
 
@@ -77,8 +78,9 @@ export const useBulkActions = () => {
         p_title: data.title,
         p_content: data.content,
         p_is_mandatory: data.isMandatory,
+        p_user_ids: data.userIds,
         p_expires_at: data.expiresAt || null,
-        p_user_ids: data.userIds
+        p_image_url: data.imageUrl || null
       });
 
       if (error) throw error;

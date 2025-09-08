@@ -5,7 +5,7 @@ import { useCompany } from './useCompany';
 import { toast } from 'sonner';
 
 interface UseFileUploadOptions {
-  bucket: 'post-images' | 'post-documents' | 'lesson-materials' | 'chat-images' | 'chat-documents';
+  bucket: 'post-images' | 'post-documents' | 'lesson-materials' | 'chat-images' | 'chat-documents' | 'announcement-images';
   maxSizeBytes?: number;
   allowedTypes?: string[];
 }
@@ -45,6 +45,8 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
 
       if (options.bucket === 'post-images') {
         filePath = `${user.id}/${timestamp}_${sanitizedFileName}`;
+      } else if (options.bucket === 'announcement-images') {
+        filePath = `${user.id}/${timestamp}_${sanitizedFileName}`;
       } else {
         filePath = `${company.id}/${user.id}/${timestamp}_${sanitizedFileName}`;
       }
@@ -64,7 +66,7 @@ export const useFileUpload = (options: UseFileUploadOptions) => {
       }
 
       // Get public URL for public buckets or signed URL for private buckets
-      if (options.bucket === 'post-images' || options.bucket === 'chat-images') {
+      if (options.bucket === 'post-images' || options.bucket === 'chat-images' || options.bucket === 'announcement-images') {
         const { data: { publicUrl } } = supabase.storage
           .from(options.bucket)
           .getPublicUrl(data.path);

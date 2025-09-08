@@ -143,6 +143,16 @@ export function AnnouncementModal({ announcement, open, onOpenChange }: Announce
         </DialogHeader>
 
         <div className="mt-4">
+          {announcementData.image_url && (
+            <div className="mb-4">
+              <img
+                src={announcementData.image_url}
+                alt="Imagem do anúncio"
+                className="w-full max-h-64 object-cover rounded-lg"
+              />
+            </div>
+          )}
+          
           <div className="prose prose-sm max-w-none">
             <p className="whitespace-pre-wrap">{announcementData.content}</p>
           </div>

@@ -169,6 +169,7 @@ export type Database = {
           created_by: string
           expires_at: string | null
           id: string
+          image_url: string | null
           is_active: boolean
           is_mandatory: boolean
           title: string
@@ -180,6 +181,7 @@ export type Database = {
           created_by: string
           expires_at?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_mandatory?: boolean
           title: string
@@ -191,6 +193,7 @@ export type Database = {
           created_by?: string
           expires_at?: string | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
           is_mandatory?: boolean
           title?: string
@@ -3933,14 +3936,24 @@ export type Database = {
         Returns: boolean
       }
       create_announcement_and_assign: {
-        Args: {
-          p_company_id: string
-          p_content: string
-          p_expires_at: string
-          p_is_mandatory: boolean
-          p_title: string
-          p_user_ids: string[]
-        }
+        Args:
+          | {
+              p_company_id: string
+              p_content: string
+              p_expires_at: string
+              p_is_mandatory: boolean
+              p_title: string
+              p_user_ids: string[]
+            }
+          | {
+              p_company_id: string
+              p_content: string
+              p_expires_at?: string
+              p_image_url?: string
+              p_is_mandatory: boolean
+              p_title: string
+              p_user_ids: string[]
+            }
         Returns: string
       }
       create_default_levels: {
