@@ -71,7 +71,27 @@ export const useCompanyUsersWithFilters = (
         throw error;
       }
 
-      return (data || []) as FilteredUser[];
+      // Transform data to match FilteredUser interface
+      const transformedData = (data || []).map((item: any) => ({
+        user_id: item.user_id || item.id,
+        first_name: item.first_name,
+        last_name: item.last_name,
+        email: item.email,
+        phone: item.phone,
+        role: item.role,
+        joined_at: item.joined_at || item.join_date,
+        tag_ids: item.tag_ids || [],
+        tag_names: item.tag_names || [],
+        posts_count: item.posts_count || item.post_count || 0,
+        courses_count: item.courses_count || item.course_count || 0,
+        level_id: item.level_id,
+        level_name: item.level_name,
+        level_color: item.level_color,
+        badge_ids: item.badge_ids || [],
+        badge_names: item.badge_names || []
+      }));
+
+      return transformedData as FilteredUser[];
     },
     enabled: !!user?.id && !!currentCompanyId,
   });
@@ -112,7 +132,27 @@ export const useAllFilteredUsers = (filters: UserFilters = {}) => {
         throw error;
       }
 
-      return (data || []) as FilteredUser[];
+      // Transform data to match FilteredUser interface
+      const transformedData = (data || []).map((item: any) => ({
+        user_id: item.user_id || item.id,
+        first_name: item.first_name,
+        last_name: item.last_name,
+        email: item.email,
+        phone: item.phone,
+        role: item.role,
+        joined_at: item.joined_at || item.join_date,
+        tag_ids: item.tag_ids || [],
+        tag_names: item.tag_names || [],
+        posts_count: item.posts_count || item.post_count || 0,
+        courses_count: item.courses_count || item.course_count || 0,
+        level_id: item.level_id,
+        level_name: item.level_name,
+        level_color: item.level_color,
+        badge_ids: item.badge_ids || [],
+        badge_names: item.badge_names || []
+      }));
+
+      return transformedData as FilteredUser[];
     },
     enabled: !!user?.id && !!currentCompanyId,
   });
