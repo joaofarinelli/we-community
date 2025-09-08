@@ -4458,14 +4458,23 @@ export type Database = {
         }[]
       }
       grant_course_access: {
-        Args: {
-          p_badge_ids?: string[]
-          p_company_id: string
-          p_course_id: string
-          p_level_ids?: string[]
-          p_logic?: string
-          p_tag_ids?: string[]
-        }
+        Args:
+          | {
+              p_badge_ids: string[]
+              p_company_id: string
+              p_course_id: string
+              p_level_ids: string[]
+              p_logic: string
+              p_tag_ids: string[]
+            }
+          | {
+              p_badge_ids?: string[]
+              p_company_id: string
+              p_course_id: string
+              p_level_ids?: string[]
+              p_logic?: string
+              p_tag_ids?: string[]
+            }
         Returns: number
       }
       hide_post: {
