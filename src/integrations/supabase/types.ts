@@ -4024,6 +4024,19 @@ export type Database = {
               p_tag_ids?: string[]
             }
           | {
+              p_badge_ids?: string[]
+              p_company_id: string
+              p_course_ids?: string[]
+              p_joined_end?: string
+              p_joined_start?: string
+              p_level_ids?: string[]
+              p_limit?: number
+              p_offset?: number
+              p_roles?: string[]
+              p_search?: string
+              p_tag_ids?: string[]
+            }
+          | {
               p_company_id: string
               p_course_ids?: string[]
               p_joined_end?: string
@@ -4035,7 +4048,6 @@ export type Database = {
               p_tag_ids?: string[]
             }
         Returns: {
-          badge_ids: string[]
           badge_names: string[]
           courses_count: number
           email: string
@@ -4043,13 +4055,10 @@ export type Database = {
           joined_at: string
           last_name: string
           level_color: string
-          level_id: string
           level_name: string
-          phone: string
           posts_count: number
           role: string
-          tag_ids: string[]
-          tag_names: string[]
+          tags: Json
           user_id: string
         }[]
       }
