@@ -90,7 +90,14 @@ export const ChallengeDetailsDialog = ({
   
   const isProofBasedChallenge = challenge.challenge_type === 'proof_based';
   const hasAccepted = !!participation;
-  const canSubmitProof = isProofBasedChallenge && hasAccepted && !isCompleted && !latestSubmission;
+  
+  // Check expiration
+  const now = new Date();
+  const isChallengeExpired = challenge.end_date && new Date(challenge.end_date) < now;
+  const isParticipationExpired = participation?.expires_at && new Date(participation.expires_at) < now;
+  const isExpired = isChallengeExpired || isParticipationExpired;
+  
+  const canSubmitProof = isProofBasedChallenge && hasAccepted && !isCompleted && !latestSubmission && !isExpired;
 
   const getChallengeTypeIcon = (type: string) => {
     switch (type) {
@@ -141,6 +148,14 @@ export const ChallengeDetailsDialog = ({
         label: 'Concluído',
         variant: 'secondary' as const,
         className: 'border-green-600 text-green-600'
+      };
+    }
+    if (isExpired) {
+      return {
+        icon: <Clock className="h-5 w-5 text-red-600" />,
+        label: 'Expirado',
+        variant: 'destructive' as const,
+        className: 'border-red-600 text-red-600'
       };
     }
     if (challenge.is_active) {
@@ -249,6 +264,8 @@ export const ChallengeDetailsDialog = ({
                   <div className="space-y-3">
                     {!hasAccepted ? (
                       <p className="text-muted-foreground">Aceite o desafio para começar</p>
+                    ) : isExpired ? (
+                      <p className="text-red-600 font-medium">Desafio expirado - não é mais possível enviar provas</p>
                     ) : !latestSubmission ? (
                       <p className="text-muted-foreground">Aguardando submissão de prova</p>
                     ) : (
@@ -383,7 +400,7 @@ export const ChallengeDetailsDialog = ({
             Fechar
           </Button>
           
-          {!hasAccepted && challenge.is_active && (
+          {!hasAccepted && challenge.is_active && !isExpired && (
             <Button onClick={() => setShowAcceptDialog(true)}>
               Aceitar Desafio
             </Button>
@@ -395,7 +412,7 @@ export const ChallengeDetailsDialog = ({
             </Button>
           )}
           
-          {latestSubmission?.admin_review_status === 'rejected' && (
+          {latestSubmission?.admin_review_status === 'rejected' && !isExpired && (
             <Button onClick={() => setShowSubmitProof(true)}>
               Reenviar Prova
             </Button>

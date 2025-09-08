@@ -37,6 +37,7 @@ export const useChallenges = () => {
           access_tags
         `)
         .eq('is_active', true)
+        .or('end_date.is.null,end_date.gt.' + new Date().toISOString())
         .order('order_index', { ascending: true });
 
       if (error) throw error;
