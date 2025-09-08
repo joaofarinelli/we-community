@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, Users, File, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,35 +19,37 @@ export const AdminTrailsManagement = () => {
   const { data: templates } = useTrailTemplates();
   const { data: badges } = useTrailBadges();
 
-  const activeTrails = trails?.filter(trail => trail.status === 'active').length || 0;
-  const completedTrails = trails?.filter(trail => trail.status === 'completed').length || 0;
-
-  const stats = [
-    {
-      title: 'Trilhas Ativas',
-      value: activeTrails,
-      icon: Users,
-      description: 'Usuárias em jornadas ativas',
-    },
-    {
-      title: 'Trilhas Concluídas',
-      value: completedTrails,
-      icon: Award,
-      description: 'Jornadas finalizadas',
-    },
-    {
-      title: 'Templates',
-      value: templates?.length || 0,
-      icon: File,
-      description: 'Templates disponíveis',
-    },
-    {
-      title: 'Selos',
-      value: badges?.length || 0,
-      icon: Award,
-      description: 'Selos configurados',
-    },
-  ];
+  const stats = useMemo(() => {
+    const activeTrails = trails?.filter(trail => trail.status === 'active').length || 0;
+    const completedTrails = trails?.filter(trail => trail.status === 'completed').length || 0;
+    
+    return [
+      {
+        title: 'Trilhas Ativas',
+        value: activeTrails,
+        icon: Users,
+        description: 'Usuárias em jornadas ativas',
+      },
+      {
+        title: 'Trilhas Concluídas',
+        value: completedTrails,
+        icon: Award,
+        description: 'Jornadas finalizadas',
+      },
+      {
+        title: 'Templates',
+        value: templates?.length || 0,
+        icon: File,
+        description: 'Templates disponíveis',
+      },
+      {
+        title: 'Selos',
+        value: badges?.length || 0,
+        icon: Award,
+        description: 'Selos configurados',
+      },
+    ];
+  }, [trails, templates, badges]);
 
   return (
     <div className="space-y-6">
