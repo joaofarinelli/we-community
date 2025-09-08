@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Eye, MessageCircle, Copy, Calendar, User, TrendingUp, Edit, X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,42 +43,46 @@ export const UserTrailsTab = () => {
 
   const { data: trails = [], isLoading } = useFilteredTrails(filters);
 
-  const handleEditTrail = (trail: any) => {
+  const handleEditTrail = useCallback((trail: any) => {
     setSelectedTrail(trail);
     setShowEditDialog(true);
-  };
+  }, []);
 
-  const handleTagChange = (tagId: string, checked: boolean) => {
+  const handleTagChange = useCallback((tagId: string, checked: boolean) => {
     if (checked) {
       setSelectedTags(prev => [...prev, tagId]);
     } else {
       setSelectedTags(prev => prev.filter(id => id !== tagId));
     }
-  };
+  }, []);
 
-  const handleLevelChange = (levelId: string, checked: boolean) => {
+  const handleLevelChange = useCallback((levelId: string, checked: boolean) => {
     if (checked) {
       setSelectedLevels(prev => [...prev, levelId]);
     } else {
       setSelectedLevels(prev => prev.filter(id => id !== levelId));
     }
-  };
+  }, []);
 
-  const handleBadgeChange = (badgeId: string, checked: boolean) => {
+  const handleBadgeChange = useCallback((badgeId: string, checked: boolean) => {
     if (checked) {
       setSelectedBadges(prev => [...prev, badgeId]);
     } else {
       setSelectedBadges(prev => prev.filter(id => id !== badgeId));
     }
-  };
+  }, []);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setSearchTerm('');
     setStatusFilter('all');
     setSelectedTags([]);
     setSelectedLevels([]);
     setSelectedBadges([]);
-  };
+  }, []);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  }, []);
 
   const hasActiveFilters = searchTerm || statusFilter !== 'all' || selectedTags.length > 0 || selectedLevels.length > 0 || selectedBadges.length > 0;
 
@@ -153,7 +157,7 @@ export const UserTrailsTab = () => {
         <Input
           placeholder="Buscar por nome da trilha ou usuária..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearchChange}
           className="flex-1 min-w-[300px]"
         />
         
@@ -182,7 +186,7 @@ export const UserTrailsTab = () => {
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80" align="end">
+          <PopoverContent className="w-80 max-h-96 overflow-y-auto bg-background border z-50" align="end">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">Filtros Avançados</h3>
@@ -203,7 +207,7 @@ export const UserTrailsTab = () => {
               {/* Tags Filter */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Tags</Label>
-                <div className="max-h-32 overflow-y-auto space-y-2">
+                <div className="max-h-24 overflow-y-auto space-y-2 pr-2">
                   {tags.map((tag) => (
                     <div key={tag.id} className="flex items-center space-x-2">
                       <Checkbox
@@ -224,7 +228,7 @@ export const UserTrailsTab = () => {
               {/* Levels Filter */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Níveis</Label>
-                <div className="max-h-32 overflow-y-auto space-y-2">
+                <div className="max-h-24 overflow-y-auto space-y-2 pr-2">
                   {levels.map((level) => (
                     <div key={level.id} className="flex items-center space-x-2">
                       <Checkbox
@@ -249,7 +253,7 @@ export const UserTrailsTab = () => {
               {/* Badges Filter */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Selos</Label>
-                <div className="max-h-32 overflow-y-auto space-y-2">
+                <div className="max-h-24 overflow-y-auto space-y-2 pr-2">
                   {badges.map((badge) => (
                     <div key={badge.id} className="flex items-center space-x-2">
                       <Checkbox
