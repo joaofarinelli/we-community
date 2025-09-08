@@ -128,6 +128,75 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_recipients: {
+        Row: {
+          announcement_id: string
+          company_id: string
+          created_at: string
+          dismissed_at: string | null
+          id: string
+          status: string
+          user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          announcement_id: string
+          company_id: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          status?: string
+          user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          announcement_id?: string
+          company_id?: string
+          created_at?: string
+          dismissed_at?: string | null
+          id?: string
+          status?: string
+          user_id?: string
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          company_id: string
+          content: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          is_mandatory: boolean
+          title: string
+        }
+        Insert: {
+          company_id: string
+          content: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_mandatory?: boolean
+          title: string
+        }
+        Update: {
+          company_id?: string
+          content?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_mandatory?: boolean
+          title?: string
+        }
+        Relationships: []
+      }
       banned_words: {
         Row: {
           company_id: string
@@ -3596,6 +3665,27 @@ export type Database = {
         }
         Returns: undefined
       }
+      bulk_grant_course_access: {
+        Args: {
+          p_company_id: string
+          p_course_id: string
+          p_user_ids: string[]
+        }
+        Returns: number
+      }
+      bulk_grant_space_access: {
+        Args: { p_company_id: string; p_space_id: string; p_user_ids: string[] }
+        Returns: number
+      }
+      bulk_send_notifications: {
+        Args: {
+          p_company_id: string
+          p_content: string
+          p_title: string
+          p_user_ids: string[]
+        }
+        Returns: number
+      }
       calculate_coins_for_action: {
         Args: { action_type: string }
         Returns: number
@@ -3623,6 +3713,17 @@ export type Database = {
       check_module_completion: {
         Args: { p_module_id: string; p_user_id: string }
         Returns: boolean
+      }
+      create_announcement_and_assign: {
+        Args: {
+          p_company_id: string
+          p_content: string
+          p_expires_at: string
+          p_is_mandatory: boolean
+          p_title: string
+          p_user_ids: string[]
+        }
+        Returns: string
       }
       create_default_levels: {
         Args: { p_company_id: string; p_created_by: string }

@@ -23,7 +23,7 @@ import { useCourses } from '@/hooks/useCourses';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { useTrailBadges } from '@/hooks/useTrailBadges';
 import { useManageUserStatus } from '@/hooks/useManageUserStatus';
-import { TagIcon } from '@/components/admin/TagIcon';
+import { BulkActionsButton } from '@/components/admin/BulkActionsButton';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { ptBR } from 'date-fns/locale';
@@ -176,6 +176,7 @@ export const AdminUsersPage = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <BulkActionsButton filters={filters} disabled={!members || members.length === 0} />
             <UserImportExportDialog>
               <Button variant="outline" size="sm">
                 <FileSpreadsheet className="h-4 w-4 mr-2" />

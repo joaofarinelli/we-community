@@ -74,6 +74,7 @@ import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
+import { AnnouncementProvider } from '@/components/ui/AnnouncementProvider';
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const AppRoutes = () => {
 
   return (
     <CompanyContextWrapper>
+      <AnnouncementProvider />
       <MultiCompanyGuard>
         <OnboardingChecker />
         <Routes>

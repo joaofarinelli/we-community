@@ -72,3 +72,40 @@ export const useCompanyUsersWithFilters = (
     enabled: !!user?.id && !!currentCompanyId,
   });
 };
+
+// Hook to get all filtered users (without pagination) for bulk actions
+export const useAllFilteredUsers = (filters: UserFilters = {}) => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useQuery({
+    queryKey: ['all-company-users-filtered', currentCompanyId, filters],
+    queryFn: async () => {
+      if (!user?.id || !currentCompanyId) return [];
+
+      console.log('Fetching all users with filters for bulk actions:', filters);
+
+      const { data, error } = await supabase.rpc('get_company_users_with_filters', {
+        p_company_id: currentCompanyId,
+        p_search: filters.search || null,
+        p_roles: filters.roles || null,
+        p_tag_ids: filters.tagIds || null,
+        p_joined_start: filters.joinedStart || null,
+        p_joined_end: filters.joinedEnd || null,
+        p_course_ids: filters.courseIds || null,
+        p_level_ids: filters.levelIds || null,
+        p_badge_ids: filters.badgeIds || null,
+        p_limit: 10000, // High limit to get all users
+        p_offset: 0
+      });
+
+      if (error) {
+        console.error('Error fetching all filtered users:', error);
+        throw error;
+      }
+
+      return (data || []) as FilteredUser[];
+    },
+    enabled: !!user?.id && !!currentCompanyId,
+  });
+};
