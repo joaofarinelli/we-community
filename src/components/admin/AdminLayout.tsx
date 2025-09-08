@@ -21,7 +21,8 @@ import {
   ArrowLeft,
   ShoppingBag,
   Store,
-  MapPin
+  MapPin,
+  Megaphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
@@ -97,6 +98,14 @@ const mainMenuItems = [
       { label: 'Níveis', path: '/admin/levels' },
       { label: 'Desafios', path: '/admin/challenges' },
       { label: 'Registros de atividades', path: '/admin/activity-logs' },
+    ]
+  },
+  {
+    icon: Megaphone,
+    label: 'Operações',
+    key: 'operations',
+    subItems: [
+      { label: 'Ações em massa', path: '/admin/bulk-actions' },
     ]
   },
   {

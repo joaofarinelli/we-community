@@ -69,6 +69,7 @@ import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import { AdminOnboardingPage } from "./pages/admin/AdminOnboardingPage";
+import AdminBulkActionsPage from "./pages/admin/AdminBulkActionsPage";
 import { LikedLessonsPage } from "./pages/LikedLessonsPage";
 import { LessonNotesPage } from "./pages/LessonNotesPage";
 import NotFound from "./pages/NotFound";
@@ -156,6 +157,7 @@ const AppRoutes = () => {
           <Route path="/admin/content/categories" element={<AuthGuard><AdminContentCategoriesPage /></AuthGuard>} />
           <Route path="/admin/content/spaces" element={<AuthGuard><AdminContentSpacesPage /></AuthGuard>} />
           <Route path="/admin/content/moderation" element={<AuthGuard><AdminContentModerationPage /></AuthGuard>} />
+          <Route path="/admin/bulk-actions" element={<AuthGuard><AdminBulkActionsPage /></AuthGuard>} />
           <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
           <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
