@@ -80,29 +80,61 @@ export const useAdminSubmissions = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
+      // Fetch submissions with basic data
+      const { data: submissions, error: submissionsError } = await supabase
         .from('challenge_submissions')
-        .select(`
-          *,
-          user_challenge_participations!challenge_submissions_participation_id_fkey(
-            id,
-            challenge_id,
-            challenges!user_challenge_participations_challenge_id_fkey(
-              id,
-              title
-            )
-          ),
-          profiles!challenge_submissions_user_id_fkey(
-            id,
-            first_name,
-            last_name,
-            email
-          )
-        `)
+        .select('*')
         .order('submitted_at', { ascending: false });
 
-      if (error) throw error;
-      return data || [];
+      if (submissionsError) throw submissionsError;
+      if (!submissions || submissions.length === 0) return [];
+
+      // Get unique participation IDs and user IDs
+      const participationIds = [...new Set(submissions.map(s => s.participation_id))];
+      const userIds = [...new Set(submissions.map(s => s.user_id))];
+
+      // Fetch participation data
+      const { data: participations, error: participationsError } = await supabase
+        .from('user_challenge_participations')
+        .select('id, challenge_id')
+        .in('id', participationIds);
+
+      if (participationsError) throw participationsError;
+
+      // Get unique challenge IDs
+      const challengeIds = [...new Set(participations?.map(p => p.challenge_id) || [])];
+
+      // Fetch challenge data
+      const { data: challenges, error: challengesError } = await supabase
+        .from('challenges')
+        .select('id, title')
+        .in('id', challengeIds);
+
+      if (challengesError) throw challengesError;
+
+      // Fetch user profiles
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const enrichedSubmissions = submissions.map(submission => {
+        const participation = participations?.find(p => p.id === submission.participation_id);
+        const challenge = challenges?.find(c => c.id === participation?.challenge_id);
+        const profile = profiles?.find(p => p.user_id === submission.user_id);
+        
+        return {
+          ...submission,
+          challenge_title: challenge?.title || 'Desafio não encontrado',
+          user_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Usuário não encontrado',
+          user_email: profile?.email || ''
+        };
+      });
+
+      return enrichedSubmissions;
     },
     enabled: !!user?.id,
   });

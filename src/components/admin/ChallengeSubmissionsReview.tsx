@@ -132,13 +132,11 @@ export const ChallengeSubmissionsReview = () => {
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <CardTitle className="text-base">
-                      {submission.user_challenge_participations?.challenges?.title || 'Desafio'}
+                      {submission.challenge_title}
                     </CardTitle>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <User className="h-3 w-3" />
-                      <span>
-                        {submission.profiles?.first_name} {submission.profiles?.last_name}
-                      </span>
+                      <span>{submission.user_name}</span>
                       <span>•</span>
                       <span>{format(new Date(submission.submitted_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}</span>
                     </div>
@@ -224,10 +222,10 @@ export const ChallengeSubmissionsReview = () => {
             {selectedSubmission && (
               <div className="p-3 bg-muted rounded">
                 <p className="text-sm font-medium mb-1">
-                  {selectedSubmission.user_challenge_participations?.challenges?.title}
+                  {selectedSubmission.challenge_title}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Por: {selectedSubmission.profiles?.first_name} {selectedSubmission.profiles?.last_name}
+                  Por: {selectedSubmission.user_name}
                 </p>
               </div>
             )}
