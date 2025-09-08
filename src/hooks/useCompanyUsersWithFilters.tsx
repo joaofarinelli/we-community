@@ -46,21 +46,25 @@ export const useCompanyUsersWithFilters = (
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) return [];
 
-      console.log('Fetching users with filters:', filters);
-
-      const { data, error } = await supabase.rpc('get_company_users_with_filters', {
+      // Normalize filters - convert empty arrays to null
+      const normalizedFilters = {
         p_company_id: currentCompanyId,
         p_search: filters.search || null,
-        p_roles: filters.roles || null,
-        p_tag_ids: filters.tagIds || null,
+        p_roles: (filters.roles && filters.roles.length > 0) ? filters.roles : null,
+        p_tag_ids: (filters.tagIds && filters.tagIds.length > 0) ? filters.tagIds : null,
         p_joined_start: filters.joinedStart || null,
         p_joined_end: filters.joinedEnd || null,
-        p_course_ids: filters.courseIds || null,
-        p_level_ids: filters.levelIds || null,
-        p_badge_ids: filters.badgeIds || null,
+        p_course_ids: (filters.courseIds && filters.courseIds.length > 0) ? filters.courseIds : null,
+        p_level_ids: (filters.levelIds && filters.levelIds.length > 0) ? filters.levelIds : null,
+        p_badge_ids: (filters.badgeIds && filters.badgeIds.length > 0) ? filters.badgeIds : null,
         p_limit: limit,
         p_offset: offset
-      });
+      };
+
+      console.log('Fetching users with filters:', filters);
+      console.log('Normalized filters for RPC:', normalizedFilters);
+
+      const { data, error } = await supabase.rpc('get_company_users_with_filters', normalizedFilters);
 
       if (error) {
         console.error('Error fetching filtered users:', error);
@@ -83,21 +87,25 @@ export const useAllFilteredUsers = (filters: UserFilters = {}) => {
     queryFn: async () => {
       if (!user?.id || !currentCompanyId) return [];
 
-      console.log('Fetching all users with filters for bulk actions:', filters);
-
-      const { data, error } = await supabase.rpc('get_company_users_with_filters', {
+      // Normalize filters - convert empty arrays to null
+      const normalizedFilters = {
         p_company_id: currentCompanyId,
         p_search: filters.search || null,
-        p_roles: filters.roles || null,
-        p_tag_ids: filters.tagIds || null,
+        p_roles: (filters.roles && filters.roles.length > 0) ? filters.roles : null,
+        p_tag_ids: (filters.tagIds && filters.tagIds.length > 0) ? filters.tagIds : null,
         p_joined_start: filters.joinedStart || null,
         p_joined_end: filters.joinedEnd || null,
-        p_course_ids: filters.courseIds || null,
-        p_level_ids: filters.levelIds || null,
-        p_badge_ids: filters.badgeIds || null,
+        p_course_ids: (filters.courseIds && filters.courseIds.length > 0) ? filters.courseIds : null,
+        p_level_ids: (filters.levelIds && filters.levelIds.length > 0) ? filters.levelIds : null,
+        p_badge_ids: (filters.badgeIds && filters.badgeIds.length > 0) ? filters.badgeIds : null,
         p_limit: 10000, // High limit to get all users
         p_offset: 0
-      });
+      };
+
+      console.log('Fetching all users with filters for bulk actions:', filters);
+      console.log('Normalized filters for RPC:', normalizedFilters);
+
+      const { data, error } = await supabase.rpc('get_company_users_with_filters', normalizedFilters);
 
       if (error) {
         console.error('Error fetching all filtered users:', error);

@@ -184,7 +184,11 @@ export function BulkActionAudienceTab({
           </span>
           <Badge variant="outline">
             <Filter className="h-3 w-3 mr-1" />
-            {Object.keys(filters).filter(key => filters[key]).length} filtros ativos
+            {Object.values(filters).filter(value => 
+              value && 
+              (typeof value === 'string' && value.trim()) ||
+              (Array.isArray(value) && value.length > 0)
+            ).length} filtros ativos
           </Badge>
         </div>
         
