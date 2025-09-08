@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { toast } from 'sonner';
+import { setGlobalCompanyId } from '@/integrations/supabase/client';
 
 export const useCreateCourse = () => {
   const { user } = useAuth();
@@ -29,6 +30,9 @@ export const useCreateCourse = () => {
       };
     }) => {
       if (!user?.id || !currentCompanyId) throw new Error('Usuário ou empresa não encontrados');
+
+      // Set global company ID for header injection before the operation
+      setGlobalCompanyId(currentCompanyId);
 
       // Definir explicitamente o contexto da empresa antes da operação
       await supabase.rpc('set_current_company_context', {
@@ -78,9 +82,15 @@ export const useCreateCourse = () => {
         toast.success('Curso criado com sucesso!');
       }
     },
-    onError: (error) => {
-      toast.error('Erro ao criar curso');
+    onError: (error: any) => {
       console.error('Error creating course:', error);
+      
+      // Handle RLS policy violation
+      if (error?.code === '42501' || error?.message?.includes('new row violates row-level security policy')) {
+        toast.error('Sem permissão — você precisa ser admin ou owner na empresa atual para criar cursos');
+      } else {
+        toast.error('Erro ao criar curso');
+      }
     }
   });
 };

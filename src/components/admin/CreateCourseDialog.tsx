@@ -28,6 +28,10 @@ import { useCreateCourse } from '@/hooks/useManageCourses';
 import { useTags } from '@/hooks/useTags';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { useTrailBadges } from '@/hooks/useTrailBadges';
+import { useIsAdmin } from '@/hooks/useUserRole';
+import { useAuth } from '@/hooks/useAuth';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { setGlobalCompanyId } from '@/integrations/supabase/client';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
@@ -58,6 +62,9 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
   const { data: tags = [] } = useTags();
   const { data: levels = [] } = useCompanyLevels();
   const { data: badges = [] } = useTrailBadges();
+  const isAdmin = useIsAdmin();
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -79,7 +86,19 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
   });
 
   const onSubmit = async (data: CourseFormData) => {
+    if (!isAdmin) {
+      console.error('User is not admin/owner, cannot create course');
+      return;
+    }
+
     setIsSubmitting(true);
+    console.log('🔧 CreateCourse: user.id:', user?.id, 'currentCompanyId:', currentCompanyId);
+    
+    // Reinforce context before the operation
+    if (currentCompanyId) {
+      setGlobalCompanyId(currentCompanyId);
+    }
+    
     try {
       await createCourse.mutateAsync({
         title: data.title,
@@ -473,6 +492,14 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
               </div>
             </div>
 
+            {/* Permission Warning */}
+            {!isAdmin && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-amber-800">
+                <p className="text-sm font-medium">⚠️ Permissão Necessária</p>
+                <p className="text-sm mt-1">Você não tem permissão para criar cursos nesta empresa. Entre em contato com um administrador.</p>
+              </div>
+            )}
+
             {/* Ações */}
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t">
               <Button 
@@ -486,7 +513,7 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
               </Button>
               <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isAdmin}
                 className="w-full sm:w-auto"
               >
                 {isSubmitting ? (

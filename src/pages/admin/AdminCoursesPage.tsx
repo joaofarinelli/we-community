@@ -8,6 +8,8 @@ import { useCourses } from '@/hooks/useCourses';
 import { useDeleteCourse } from '@/hooks/useManageCourses';
 import { CreateCourseDialog } from '@/components/admin/CreateCourseDialog';
 import { EditCourseDialog } from '@/components/admin/EditCourseDialog';
+import { useIsAdmin } from '@/hooks/useUserRole';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Search, Plus, Edit, Trash2, BookOpen, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -30,6 +32,7 @@ export const AdminCoursesPage = () => {
   const navigate = useNavigate();
   const { data: courses, isLoading } = useCourses();
   const deleteCourse = useDeleteCourse();
+  const isAdmin = useIsAdmin();
 
   const filteredCourses = courses?.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -55,15 +58,27 @@ export const AdminCoursesPage = () => {
               Crie e gerencie os cursos da sua empresa
             </p>
           </div>
-          <Button 
-            onClick={() => setCreateDialogOpen(true)}
-            className="w-full sm:w-auto"
-            size="default"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Novo Curso</span>
-            <span className="sm:hidden">Criar</span>
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  onClick={() => setCreateDialogOpen(true)}
+                  className="w-full sm:w-auto"
+                  size="default"
+                  disabled={!isAdmin}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Novo Curso</span>
+                  <span className="sm:hidden">Criar</span>
+                </Button>
+              </TooltipTrigger>
+              {!isAdmin && (
+                <TooltipContent>
+                  <p>Você precisa ser admin ou owner para criar cursos</p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         {/* Search and Filters */}
@@ -237,14 +252,26 @@ export const AdminCoursesPage = () => {
               }
             </p>
             {!searchTerm && (
-              <Button 
-                onClick={() => setCreateDialogOpen(true)}
-                size="lg"
-                className="shadow-lg"
-              >
-                <Plus className="mr-2 h-5 w-5" />
-                Criar Primeiro Curso
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      onClick={() => setCreateDialogOpen(true)}
+                      size="lg"
+                      className="shadow-lg"
+                      disabled={!isAdmin}
+                    >
+                      <Plus className="mr-2 h-5 w-5" />
+                      Criar Primeiro Curso
+                    </Button>
+                  </TooltipTrigger>
+                  {!isAdmin && (
+                    <TooltipContent>
+                      <p>Você precisa ser admin ou owner para criar cursos</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             )}
             {searchTerm && (
               <Button 
