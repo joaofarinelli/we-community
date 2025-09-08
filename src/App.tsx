@@ -145,6 +145,7 @@ const AppRoutes = () => {
           <Route path="/admin/store" element={<AuthGuard><AdminStorePage /></AuthGuard>} />
           <Route path="/admin/store/categories" element={<AuthGuard><AdminStoreCategoriesPage /></AuthGuard>} />
           <Route path="/admin/challenges" element={<AuthGuard><AdminChallengesPage /></AuthGuard>} />
+          <Route path="/admin/challenges/submissions" element={<AuthGuard><AdminChallengeSubmissionsPage /></AuthGuard>} />
           <Route path="/admin/challenge-submissions" element={<AuthGuard><AdminChallengeSubmissionsPage /></AuthGuard>} />
           <Route path="/dashboard/challenges" element={<AuthGuard><ChallengesPage /></AuthGuard>} />
           <Route path="/dashboard/bank" element={<AuthGuard><BankPage /></AuthGuard>} />

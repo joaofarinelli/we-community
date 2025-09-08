@@ -29,6 +29,7 @@ export const CreateChallengeDialog = () => {
   const [accessTags, setAccessTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [requirements, setRequirements] = useState<any>({});
+  const [requiresSubmissionReview, setRequiresSubmissionReview] = useState<boolean>(true);
 
   // Deadline configuration
   const [deadlineType, setDeadlineType] = useState<'duration' | 'fixed_date'>('duration');
@@ -70,7 +71,8 @@ export const CreateChallengeDialog = () => {
       image_url: imageUrl || undefined,
       is_available_for_all_levels: isAvailableForAllLevels,
       required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined,
-      access_tags: accessTags
+      access_tags: accessTags,
+      requires_submission_review: requiresSubmissionReview
     };
 
     try {
@@ -95,6 +97,7 @@ export const CreateChallengeDialog = () => {
       setDurationDays(7);
       setDurationHours(0);
       setEndDate('');
+      setRequiresSubmissionReview(true);
     } catch (error) {
       console.error('Error creating challenge:', error);
     }
@@ -431,6 +434,24 @@ export const CreateChallengeDialog = () => {
               </div>
             )}
           </div>
+
+          {challengeType === 'proof_based' && (
+            <div className="space-y-4 border rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="requiresReview"
+                  checked={requiresSubmissionReview}
+                  onCheckedChange={setRequiresSubmissionReview}
+                />
+                <Label htmlFor="requiresReview">Requer análise das submissões?</Label>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {requiresSubmissionReview 
+                  ? "As submissões ficarão pendentes até serem aprovadas por um admin." 
+                  : "As submissões serão aprovadas automaticamente ao serem enviadas."}
+              </p>
+            </div>
+          )}
 
           <div className="space-y-4 border rounded-lg p-4">
             <Label>Prazo do Desafio</Label>

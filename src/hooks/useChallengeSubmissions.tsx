@@ -84,17 +84,19 @@ export const useAdminSubmissions = () => {
         .from('challenge_submissions')
         .select(`
           *,
-          user_challenge_participations!inner(
+          user_challenge_participations!challenge_submissions_participation_id_fkey(
             id,
-            user_id,
-            challenges!inner(
+            challenge_id,
+            challenges!user_challenge_participations_challenge_id_fkey(
+              id,
               title
-            ),
-            profiles!inner(
-              first_name,
-              last_name,
-              email
             )
+          ),
+          profiles!challenge_submissions_user_id_fkey(
+            id,
+            first_name,
+            last_name,
+            email
           )
         `)
         .order('submitted_at', { ascending: false });

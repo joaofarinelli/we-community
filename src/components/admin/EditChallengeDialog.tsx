@@ -30,6 +30,7 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
   const [isAvailableForAllLevels, setIsAvailableForAllLevels] = useState<boolean>(true);
   const [requiredLevelId, setRequiredLevelId] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean>(true);
+  const [requiresSubmissionReview, setRequiresSubmissionReview] = useState<boolean>(true);
 
   // Deadline
   const [deadlineType, setDeadlineType] = useState<'duration' | 'fixed_date'>('duration');
@@ -55,6 +56,7 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
       setIsAvailableForAllLevels(challenge.is_available_for_all_levels ?? true);
       setRequiredLevelId(challenge.required_level_id || '');
       setIsActive(challenge.is_active ?? true);
+      setRequiresSubmissionReview(challenge.requires_submission_review ?? true);
 
       const type = challenge.deadline_type || (challenge.end_date ? 'fixed_date' : 'duration');
       setDeadlineType(type);
@@ -91,7 +93,8 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
       image_url: imageUrl || undefined,
       is_available_for_all_levels: isAvailableForAllLevels,
       required_level_id: isAvailableForAllLevels ? undefined : requiredLevelId || undefined,
-      is_active: isActive
+      is_active: isActive,
+      requires_submission_review: requiresSubmissionReview
     };
 
     try {
@@ -303,7 +306,7 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Switch
                 id="isActive"
@@ -312,6 +315,24 @@ export const EditChallengeDialog = ({ challenge, open, onClose }: EditChallengeD
               />
               <Label htmlFor="isActive">Desafio ativo</Label>
             </div>
+
+            {challengeType === 'proof_based' && (
+              <div className="space-y-2 border rounded-lg p-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="requiresReview"
+                    checked={requiresSubmissionReview}
+                    onCheckedChange={setRequiresSubmissionReview}
+                  />
+                  <Label htmlFor="requiresReview">Requer análise das submissões?</Label>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {requiresSubmissionReview 
+                    ? "As submissões ficarão pendentes até serem aprovadas por um admin." 
+                    : "As submissões serão aprovadas automaticamente ao serem enviadas."}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4 border rounded-lg p-4">

@@ -54,6 +54,7 @@ export const useCreateChallenge = () => {
       is_available_for_all_levels?: boolean;
       required_level_id?: string;
       access_tags?: string[];
+      requires_submission_review?: boolean;
     }) => {
       if (!user?.id || !company?.id) throw new Error('User not authenticated or company not found');
 
@@ -116,6 +117,7 @@ export const useUpdateChallenge = () => {
         challenge_duration_days: number;
         challenge_duration_hours: number;
         deadline_type: 'duration' | 'fixed_date';
+        requires_submission_review: boolean;
       }>
     }) => {
       if (company?.id) {

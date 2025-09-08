@@ -640,6 +640,7 @@ export type Database = {
           order_index: number
           required_level_id: string | null
           requirements: Json
+          requires_submission_review: boolean
           reward_type: Database["public"]["Enums"]["reward_type"]
           reward_value: Json
           start_date: string
@@ -665,6 +666,7 @@ export type Database = {
           order_index?: number
           required_level_id?: string | null
           requirements?: Json
+          requires_submission_review?: boolean
           reward_type: Database["public"]["Enums"]["reward_type"]
           reward_value?: Json
           start_date?: string
@@ -690,6 +692,7 @@ export type Database = {
           order_index?: number
           required_level_id?: string | null
           requirements?: Json
+          requires_submission_review?: boolean
           reward_type?: Database["public"]["Enums"]["reward_type"]
           reward_value?: Json
           start_date?: string

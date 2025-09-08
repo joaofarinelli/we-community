@@ -99,6 +99,7 @@ const mainMenuItems = [
     subItems: [
       { label: 'Níveis', path: '/admin/levels' },
       { label: 'Desafios', path: '/admin/challenges' },
+      { label: 'Moderação de submissões', path: '/admin/challenges/submissions' },
       { label: 'Registros de atividades', path: '/admin/activity-logs' },
     ]
   },
