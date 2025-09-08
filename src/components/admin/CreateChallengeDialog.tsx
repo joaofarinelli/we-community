@@ -435,7 +435,8 @@ export const CreateChallengeDialog = () => {
             )}
           </div>
 
-          {challengeType === 'proof_based' && (
+          {/* Submission Review Configuration - Shows for all challenge types that allow submissions */}
+          {(challengeType === 'proof_based' || challengeType === 'course_completion' || challengeType === 'post_creation' || challengeType === 'marketplace_purchase' || challengeType === 'points_accumulation') && challengeType && (
             <div className="space-y-4 border rounded-lg p-4">
               <div className="flex items-center space-x-2">
                 <Switch
@@ -443,13 +444,49 @@ export const CreateChallengeDialog = () => {
                   checked={requiresSubmissionReview}
                   onCheckedChange={setRequiresSubmissionReview}
                 />
-                <Label htmlFor="requiresReview">Requer análise das submissões?</Label>
+                <Label htmlFor="requiresReview">Requer análise das submissões pelos administradores?</Label>
               </div>
               <p className="text-sm text-muted-foreground">
                 {requiresSubmissionReview 
-                  ? "As submissões ficarão pendentes até serem aprovadas por um admin." 
-                  : "As submissões serão aprovadas automaticamente ao serem enviadas."}
+                  ? "As submissões ficarão pendentes até serem aprovadas por um administrador. Os usuários poderão enviar texto, arquivos ou links como prova." 
+                  : "As submissões serão aprovadas automaticamente ao serem enviadas. Ideal para desafios automáticos baseados em dados do sistema."}
               </p>
+              
+              {requiresSubmissionReview && challengeType === 'proof_based' && (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Tipos de prova que serão aceitos:</p>
+                  <div className="flex gap-4">
+                    {(requirements.proof_types || ['text', 'image', 'file']).map((type: string) => (
+                      <div key={type} className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">
+                          {type === 'text' ? 'Texto' : type === 'image' ? 'Imagem' : 'Arquivo'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {requiresSubmissionReview && challengeType !== 'proof_based' && (
+                <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                  <p className="text-sm font-medium mb-2">Para este tipo de desafio, os usuários poderão enviar:</p>
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span className="text-sm">Texto explicativo</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span className="text-sm">Imagens de prova</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      <span className="text-sm">Arquivos/documentos</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

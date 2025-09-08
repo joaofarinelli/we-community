@@ -19,6 +19,7 @@ interface Challenge {
   deadline_type?: 'duration' | 'fixed_date';
   end_date?: string;
   requirements: Record<string, any>;
+  requires_submission_review?: boolean; // Added this property
 }
 
 interface AcceptChallengeDialogProps {

@@ -60,10 +60,23 @@ export const useCreateSubmission = () => {
         .single();
 
       if (error) throw error;
+
+      // Process the submission (auto-approve if needed)
+      const { error: processError } = await supabase.functions.invoke('process-challenge-submission', {
+        body: { submissionId: data.id }
+      });
+
+      if (processError) {
+        console.error('Error processing submission:', processError);
+        // Don't throw error here as submission was created successfully
+      }
+
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['challenge-submissions'] });
+      queryClient.invalidateQueries({ queryKey: ['challenge-participations'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-challenge-submissions'] });
       toast.success('Prova enviada com sucesso!');
     },
     onError: (error) => {

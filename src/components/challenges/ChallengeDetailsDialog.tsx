@@ -60,6 +60,7 @@ interface Challenge {
     completed_at?: string | null;
   }>;
   accepted_proof_types?: string[];
+  requires_submission_review?: boolean; // Added this property
 }
 
 interface ChallengeDetailsDialogProps {
@@ -97,7 +98,13 @@ export const ChallengeDetailsDialog = ({
   const isParticipationExpired = participation?.expires_at && new Date(participation.expires_at) < now;
   const isExpired = isChallengeExpired || isParticipationExpired;
   
-  const canSubmitProof = isProofBasedChallenge && hasAccepted && !isCompleted && !latestSubmission && !isExpired;
+  // User can submit proof if they've accepted and it's not completed/expired
+  // For proof-based challenges or challenges that require submission review
+  const canSubmitProof = hasAccepted && 
+                         !isCompleted && 
+                         !latestSubmission && 
+                         !isExpired && 
+                         (isProofBasedChallenge || challenge.requires_submission_review);
 
   const getChallengeTypeIcon = (type: string) => {
     switch (type) {
@@ -251,10 +258,10 @@ export const ChallengeDetailsDialog = ({
           {/* Progress Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">
-              {isProofBasedChallenge ? 'Status da Submissão' : 'Seu Progresso'}
+              {isProofBasedChallenge || challenge.requires_submission_review ? 'Status da Submissão' : 'Seu Progresso'}
             </h3>
             
-            {isProofBasedChallenge ? (
+            {(isProofBasedChallenge || challenge.requires_submission_review) ? (
               <Card className={
                 latestSubmission?.admin_review_status === 'approved' ? "border-green-200 bg-green-50/50" :
                 latestSubmission?.admin_review_status === 'rejected' ? "border-red-200 bg-red-50/50" :
