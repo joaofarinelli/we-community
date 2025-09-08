@@ -4061,20 +4061,18 @@ export type Database = {
             }
         Returns: {
           badge_ids: string[]
-          badge_names: string[]
-          courses_count: number
+          course_count: number
           email: string
           first_name: string
-          joined_at: string
+          id: string
+          join_date: string
           last_name: string
-          level_color: string
           level_id: string
           level_name: string
           phone: string
-          posts_count: number
+          post_count: number
           role: string
           tag_ids: string[]
-          tag_names: string[]
           user_id: string
         }[]
       }
