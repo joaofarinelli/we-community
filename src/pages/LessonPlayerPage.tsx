@@ -21,7 +21,7 @@ import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton'
 import { LessonCompletionReward } from '@/components/courses/LessonCompletionReward';
 import { CertificateDialog } from '@/components/courses/CertificateDialog';
 import { LessonQuizDialog } from '@/components/courses/LessonQuizDialog';
-import { useLessonQuiz } from '@/hooks/useLessonQuiz';
+import { useLessonQuiz, useQuizAttempts } from '@/hooks/useLessonQuiz';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -41,13 +41,21 @@ export const LessonPlayerPage = () => {
   const { data: lessons } = useCourseLessons(moduleId!);
   const { data: userProgress } = useUserCourseProgress(courseId);
   const markLessonComplete = useMarkLessonComplete();
-  const { data: lessonQuiz } = useLessonQuiz(lessonId);
+  const { data: lessonQuiz, isLoading: quizLoading } = useLessonQuiz(lessonId);
+  const { data: quizAttempts } = useQuizAttempts(lessonQuiz?.id);
   
   const course = courses?.find(c => c.id === courseId);
   const module = modules?.find(m => m.id === moduleId);
   const lesson = lessons?.find(l => l.id === lessonId);
   
   const isCompleted = userProgress?.some(p => p.lesson_id === lessonId);
+  
+  // Calculate if user has passed the quiz
+  const hasPassedAttempt = lessonQuiz && quizAttempts?.some(
+    attempt => attempt.status === 'completed' && 
+               attempt.score && attempt.max_score &&
+               (attempt.score / attempt.max_score) * 100 >= (lessonQuiz.passing_score || 70)
+  );
   const currentLessonIndex = lessons?.findIndex(l => l.id === lessonId) ?? -1;
   const nextLesson = lessons?.[currentLessonIndex + 1];
   const prevLesson = lessons?.[currentLessonIndex - 1];
@@ -65,12 +73,19 @@ export const LessonPlayerPage = () => {
   const handleCompleteLesson = async () => {
     if (!lesson || !courseId || !moduleId || isCompleted) return;
     
-    // If there's a quiz, require it to be completed first
-    if (lessonQuiz) {
+    // If quiz is still loading, open modal to show loading state
+    if (quizLoading) {
+      setQuizOpen(true);
+      return;
+    }
+
+    // If there's a quiz and user hasn't passed it yet, show the quiz
+    if (lessonQuiz && !hasPassedAttempt) {
       setQuizOpen(true);
       return;
     }
     
+    // Otherwise, mark lesson as complete
     setIsCompleting(true);
     try {
       const result = await markLessonComplete.mutateAsync({
@@ -206,11 +221,19 @@ export const LessonPlayerPage = () => {
                   {!isCompleted ? (
                     <Button
                       onClick={handleCompleteLesson}
-                      disabled={isCompleting}
+                      disabled={isCompleting || quizLoading}
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      {lessonQuiz ? (isCompleting ? 'Fazendo prova...' : 'Fazer Prova') : (isCompleting ? 'Marcando...' : 'Concluir')}
+                      {isCompleting ? (
+                        'Processando...'
+                      ) : quizLoading ? (
+                        'Verificando prova...'
+                      ) : lessonQuiz && !hasPassedAttempt ? (
+                        'Fazer Prova'
+                      ) : (
+                        'Concluir Aula'
+                      )}
                     </Button>
                   ) : (
                     <Badge variant="default" className="bg-green-100 text-green-700">
@@ -375,14 +398,13 @@ export const LessonPlayerPage = () => {
         />
 
         {/* Quiz Dialog */}
-        {lessonQuiz && (
+        {lessonId && (
           <LessonQuizDialog
             open={quizOpen}
             onOpenChange={setQuizOpen}
-            lessonId={lessonId!}
+            lessonId={lessonId}
             onQuizPassed={() => {
               setQuizOpen(false);
-              handleCompleteLesson();
             }}
           />
         )}

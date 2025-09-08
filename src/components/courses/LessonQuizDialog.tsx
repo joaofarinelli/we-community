@@ -24,7 +24,7 @@ export const LessonQuizDialog = ({
   onQuizPassed 
 }: LessonQuizDialogProps) => {
   const { currentCompanyId } = useCompanyContext();
-  const { data: quiz } = useLessonQuiz(lessonId);
+  const { data: quiz, isLoading: quizLoading } = useLessonQuiz(lessonId);
   const { data: attempts } = useQuizAttempts(quiz?.id);
   const startAttempt = useStartQuizAttempt();
   const submitQuiz = useSubmitQuiz();
@@ -32,6 +32,25 @@ export const LessonQuizDialog = ({
   const [currentAttemptId, setCurrentAttemptId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  // Show loading state if dialog is open but quiz data hasn't loaded yet
+  if (open && quizLoading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Prova da Aula</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center justify-center py-8">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="text-muted-foreground">Carregando prova...</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   if (!quiz) return null;
 
