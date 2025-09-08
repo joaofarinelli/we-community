@@ -232,11 +232,13 @@ export function AdminMarketplaceModerationPage() {
           )}
         </div>
 
-        <MarketplaceItemPreviewDialog
-          open={!!previewItem}
-          onOpenChange={(open) => !open && setPreviewItem(null)}
-          item={previewItem}
-        />
+        {previewItem && (
+          <MarketplaceItemPreviewDialog
+            open={!!previewItem}
+            onOpenChange={(open) => !open && setPreviewItem(null)}
+            item={previewItem}
+          />
+        )}
 
         <Dialog open={!!moderationDialog} onOpenChange={() => setModerationDialog(null)}>
           <DialogContent>
