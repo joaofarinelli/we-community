@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Play, Award, MapPin, Calendar, Users, Eye } from 'lucide-react';
+import { Play, Award, MapPin, Calendar, Users, Eye, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { useAvailableTrails, useJoinTrail } from '@/hooks/useTrails';
 import { useTrailTemplates } from '@/hooks/useTrailTemplates';
 import { TrailTemplateDetailsDialog } from './TrailTemplateDetailsDialog';
+import { TrailCard } from './TrailCard';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -138,7 +139,8 @@ export const AvailableTrailsSection = () => {
     setDetailsDialogOpen(true);
   };
 
-  const handleStartFromDetails = () => {
+  const handleStartFromDetails = (template: any) => {
+    setSelectedTrail(template);
     setDetailsDialogOpen(false);
     setJoinDialogOpen(true);
   };
@@ -181,60 +183,12 @@ export const AvailableTrailsSection = () => {
     <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {allAvailableTrails.map((trail) => (
-          <Card key={`${trail.type}-${trail.id}`} className="hover:shadow-md transition-shadow">
-            <CardHeader className="space-y-1">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">{trail.name}</CardTitle>
-                <Badge variant={trail.type === 'template' ? 'secondary' : 'default'}>
-                  {trail.type === 'template' ? 'Template' : 'Trilha'}
-                </Badge>
-              </div>
-              {trail.description && (
-                <CardDescription className="line-clamp-2">
-                  {trail.description}
-                </CardDescription>
-              )}
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Details */}
-              <div className="space-y-2 text-sm text-muted-foreground">
-                {trail.life_area && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    <span>{trail.life_area}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    Criada em {format(new Date(trail.created_at), 'dd/MM/yyyy', { locale: ptBR })}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button 
-                  variant="outline"
-                  onClick={() => handleViewDetails(trail)}
-                  className="flex-1"
-                  size="sm"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Ver Detalhes
-                </Button>
-                <Button 
-                  onClick={() => handleStartTrail(trail)}
-                  className="flex-1"
-                  size="sm"
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Iniciar
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <TrailCard
+            key={`${trail.type}-${trail.id}`}
+            trail={trail}
+            onViewDetails={handleViewDetails}
+            onStartTrail={handleStartTrail}
+          />
         ))}
       </div>
 

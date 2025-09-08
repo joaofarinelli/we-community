@@ -3916,6 +3916,10 @@ export type Database = {
         Args: { p_coins: number; p_company_id: string; p_user_id: string }
         Returns: string
       }
+      can_start_trail: {
+        Args: { p_company_id: string; p_template_id: string; p_user_id: string }
+        Returns: boolean
+      }
       can_user_see_space: {
         Args: { space_id: string; user_id: string }
         Returns: boolean

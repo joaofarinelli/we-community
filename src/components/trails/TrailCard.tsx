@@ -1,96 +1,70 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Play, Eye, MapPin, Calendar, Lock } from 'lucide-react';
+import { useTrailStartEligibility } from '@/hooks/useTrailStartEligibility';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Calendar, MapPin, PlayCircle, CheckCircle, PauseCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Button } from '@/components/ui/button';
-import { Trail } from '@/hooks/useTrails';
-import { TrailDetailDialog } from './TrailDetailDialog';
 
 interface TrailCardProps {
-  trail: Trail;
+  trail: any;
+  onViewDetails?: (trail: any) => void;
+  onStartTrail?: (trail: any) => void;
 }
 
-export const TrailCard = ({ trail }: TrailCardProps) => {
-  const navigate = useNavigate();
-  const [showDetailDialog, setShowDetailDialog] = useState(false);
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'active':
-        return <PlayCircle className="h-4 w-4" />;
-      case 'completed':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'paused':
-        return <PauseCircle className="h-4 w-4" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'completed':
-        return 'secondary';
-      case 'paused':
-        return 'outline';
-      default:
-        return 'outline';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'Ativa';
-      case 'completed':
-        return 'Concluída';
-      case 'paused':
-        return 'Pausada';
-      default:
-        return status;
-    }
-  };
-
-  const handleContinueTrail = () => {
-    navigate(`/dashboard/trails/${trail.id}/stages`);
-  };
-
-  const handleViewDetails = () => {
-    setShowDetailDialog(true);
-  };
+export const TrailCard = ({ trail, onViewDetails, onStartTrail }: TrailCardProps) => {
+  const { canStart, unmetPrerequisites, isLoading } = useTrailStartEligibility(trail.id);
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+    <Card className="hover:shadow-md transition-shadow relative">
+      {/* Lock overlay for blocked trails */}
+      {!canStart && (
+        <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center z-10">
+          <div className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg">
+            <Lock className="h-6 w-6 text-orange-500 mx-auto mb-1" />
+            <p className="text-xs text-center font-medium">Bloqueada</p>
+          </div>
+        </div>
+      )}
+      
       <CardHeader className="space-y-1">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{trail.name}</CardTitle>
-          <Badge variant={getStatusVariant(trail.status)}>
-            {getStatusIcon(trail.status)}
-            <span className="ml-1">{getStatusLabel(trail.status)}</span>
-          </Badge>
+          <div className="flex gap-1">
+            <Badge variant={trail.type === 'template' ? 'secondary' : 'default'}>
+              {trail.type === 'template' ? 'Template' : 'Trilha'}
+            </Badge>
+            {!canStart && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Badge variant="destructive">
+                      <Lock className="h-3 w-3 mr-1" />
+                      Bloqueada
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium mb-1">Pré-requisitos não cumpridos:</p>
+                    <ul className="text-xs">
+                      {unmetPrerequisites.map((prereq) => (
+                        <li key={prereq.id}>• {prereq.name}</li>
+                      ))}
+                    </ul>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         </div>
         {trail.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <CardDescription className="line-clamp-2">
             {trail.description}
-          </p>
+          </CardDescription>
         )}
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Progress */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
-            <span>Progresso</span>
-            <span className="font-medium">{trail.progress_percentage}%</span>
-          </div>
-          <Progress value={trail.progress_percentage} className="h-2" />
-        </div>
-
         {/* Details */}
         <div className="space-y-2 text-sm text-muted-foreground">
           {trail.life_area && (
@@ -102,47 +76,57 @@ export const TrailCard = ({ trail }: TrailCardProps) => {
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span>
-              Iniciada em {format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })}
+              Criada em {format(new Date(trail.created_at), 'dd/MM/yyyy', { locale: ptBR })}
             </span>
           </div>
-          {trail.completed_at && (
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4" />
-              <span>
-                Concluída em {format(new Date(trail.completed_at), 'dd/MM/yyyy', { locale: ptBR })}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 pt-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1"
-            onClick={handleViewDetails}
-          >
-            Ver Detalhes
-          </Button>
-          {trail.status === 'active' && (
-            <Button 
-              size="sm" 
-              className="flex-1"
-              onClick={handleContinueTrail}
-            >
-              Continuar
-            </Button>
-          )}
-        </div>
+        {/* Prerequisites warning for blocked trails */}
+        {!canStart && unmetPrerequisites.length > 0 && (
+          <div className="bg-orange-50 dark:bg-orange-950/20 p-2 rounded border border-orange-200 dark:border-orange-800">
+            <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+              Complete primeiro: {unmetPrerequisites.map(p => p.name).join(', ')}
+            </p>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        {(onViewDetails || onStartTrail) && (
+          <div className="flex gap-2">
+            {onViewDetails && (
+              <Button 
+                variant="outline"
+                onClick={() => onViewDetails(trail)}
+                className="flex-1"
+                size="sm"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Ver Detalhes
+              </Button>
+            )}
+            {onStartTrail && (
+              <Button 
+                onClick={() => onStartTrail(trail)}
+                className="flex-1"
+                size="sm"
+                disabled={!canStart || isLoading}
+              >
+                {!canStart ? (
+                  <>
+                    <Lock className="h-4 w-4 mr-2" />
+                    Bloqueada
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    Iniciar
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
-
-      <TrailDetailDialog
-        open={showDetailDialog}
-        onOpenChange={setShowDetailDialog}
-        trail={trail}
-        onContinue={handleContinueTrail}
-      />
     </Card>
   );
 };

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { useTrailStartEligibility } from '@/hooks/useTrailStartEligibility';
 import { 
   Eye,
   MapPin,
@@ -22,7 +23,8 @@ import {
   PauseCircle,
   Users,
   Target,
-  Rocket
+  Rocket,
+  Lock
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -58,7 +60,7 @@ interface TrailTemplateDetailsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   trailTemplate: TrailTemplate;
-  onStartTrail?: () => void;
+  onStartTrail?: (template: TrailTemplate) => void;
 }
 
 export const TrailTemplateDetailsDialog = ({ 
@@ -67,6 +69,8 @@ export const TrailTemplateDetailsDialog = ({
   trailTemplate,
   onStartTrail 
 }: TrailTemplateDetailsDialogProps) => {
+  const { canStart, unmetPrerequisites, isLoading } = useTrailStartEligibility(trailTemplate?.id || '');
+  
   const getDifficultyInfo = (level: string) => {
     switch (level) {
       case 'beginner':
@@ -100,7 +104,7 @@ export const TrailTemplateDetailsDialog = ({
   const stagesCount = trailTemplate.trail_stages?.length || 0;
 
   const handleStartTrail = () => {
-    onStartTrail?.();
+    onStartTrail?.(trailTemplate);
     onOpenChange(false);
   };
 
@@ -157,6 +161,29 @@ export const TrailTemplateDetailsDialog = ({
           </div>
 
           <Separator />
+
+          {/* Prerequisites Section */}
+          {unmetPrerequisites.length > 0 && (
+            <>
+              <div className="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-orange-700 dark:text-orange-300 mb-3">
+                  <Lock className="h-5 w-5" />
+                  Pré-requisitos Não Cumpridos
+                </h3>
+                <p className="text-orange-600 dark:text-orange-400 mb-2">
+                  Para iniciar esta jornada, você precisa concluir primeiro:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {unmetPrerequisites.map((prerequisite) => (
+                    <Badge key={prerequisite.id} variant="outline" className="border-orange-300 text-orange-700 dark:text-orange-300">
+                      {prerequisite.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Trail Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -293,9 +320,10 @@ export const TrailTemplateDetailsDialog = ({
             <Button 
               onClick={handleStartTrail}
               className="w-full sm:w-auto"
+              disabled={!canStart || isLoading}
             >
               <Rocket className="h-4 w-4 mr-2" />
-              Iniciar Trilha
+              {!canStart ? 'Jornada Bloqueada' : 'Iniciar Trilha'}
             </Button>
           )}
         </DialogFooter>

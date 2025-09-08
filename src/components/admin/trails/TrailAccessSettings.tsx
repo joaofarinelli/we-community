@@ -8,20 +8,25 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
+import { useTrailTemplates } from '@/hooks/useTrailTemplates';
 import type { TrailAccessCriteria } from '@/hooks/useTrailAccess';
 
 interface TrailAccessSettingsProps {
   accessCriteria: TrailAccessCriteria;
   onAccessCriteriaChange: (criteria: TrailAccessCriteria) => void;
+  currentTemplateId?: string; // To exclude current template from prerequisites
 }
 
 export const TrailAccessSettings = ({ 
   accessCriteria, 
-  onAccessCriteriaChange 
+  onAccessCriteriaChange,
+  currentTemplateId
 }: TrailAccessSettingsProps) => {
   const { data: levels } = useCompanyLevels();
+  const { data: trailTemplates } = useTrailTemplates();
   const [newTag, setNewTag] = useState('');
   const [newRole, setNewRole] = useState('');
+  const [selectedPrerequisite, setSelectedPrerequisite] = useState('');
 
   const toggleAvailableForAll = (checked: boolean) => {
     onAccessCriteriaChange({
@@ -70,6 +75,26 @@ export const TrailAccessSettings = ({
       required_roles: accessCriteria.required_roles?.filter(r => r !== role) || []
     });
   };
+
+  const addPrerequisite = () => {
+    if (selectedPrerequisite && !accessCriteria.required_trail_template_ids?.includes(selectedPrerequisite)) {
+      onAccessCriteriaChange({
+        ...accessCriteria,
+        required_trail_template_ids: [...(accessCriteria.required_trail_template_ids || []), selectedPrerequisite]
+      });
+      setSelectedPrerequisite('');
+    }
+  };
+
+  const removePrerequisite = (templateId: string) => {
+    onAccessCriteriaChange({
+      ...accessCriteria,
+      required_trail_template_ids: accessCriteria.required_trail_template_ids?.filter(id => id !== templateId) || []
+    });
+  };
+
+  // Filter out current template from prerequisite options
+  const availableTemplates = trailTemplates?.filter(template => template.id !== currentTemplateId) || [];
 
   return (
     <Card>
@@ -177,6 +202,42 @@ export const TrailAccessSettings = ({
                     />
                   </Badge>
                 ))}
+              </div>
+            </div>
+
+            {/* Trilhas pré-requisito */}
+            <div className="space-y-2">
+              <Label>Trilhas Pré-requisito</Label>
+              <div className="flex gap-2">
+                <Select value={selectedPrerequisite} onValueChange={setSelectedPrerequisite}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma trilha pré-requisito" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTemplates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        {template.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" onClick={addPrerequisite} variant="outline">
+                  Adicionar
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {accessCriteria.required_trail_template_ids?.map((templateId) => {
+                  const template = trailTemplates?.find(t => t.id === templateId);
+                  return (
+                    <Badge key={templateId} variant="secondary" className="flex items-center gap-1">
+                      {template?.name || 'Trilha não encontrada'}
+                      <X 
+                        className="h-3 w-3 cursor-pointer" 
+                        onClick={() => removePrerequisite(templateId)}
+                      />
+                    </Badge>
+                  );
+                })}
               </div>
             </div>
           </div>

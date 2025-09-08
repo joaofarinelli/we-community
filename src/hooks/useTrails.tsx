@@ -188,6 +188,38 @@ export const useJoinTrail = () => {
     }) => {
       if (!user || !currentCompanyId) throw new Error('User not authenticated');
 
+      // Check prerequisites before attempting to start trail
+      const { data: eligibilityResult, error: eligibilityError } = await supabase
+        .rpc('can_start_trail', {
+          p_user_id: user.id,
+          p_company_id: currentCompanyId,
+          p_template_id: trailData.template_id
+        });
+
+      if (eligibilityError) {
+        console.error('Error checking trail eligibility:', eligibilityError);
+      } else if (!eligibilityResult) {
+        // Get prerequisite details for error message
+        const { data: template } = await supabase
+          .from('trail_templates')
+          .select('access_criteria')
+          .eq('id', trailData.template_id)
+          .single();
+        
+        const accessCriteria = template?.access_criteria || {};
+        const requiredTemplateIds = (accessCriteria as any).required_trail_template_ids || [];
+        
+        if (requiredTemplateIds.length > 0) {
+          const { data: prereqTemplates } = await supabase
+            .from('trail_templates')
+            .select('name')
+            .in('id', requiredTemplateIds);
+          
+          const prerequisiteNames = prereqTemplates?.map(t => t.name).join(', ') || 'trilhas anteriores';
+          throw new Error(`Para iniciar esta jornada, você precisa concluir primeiro: ${prerequisiteNames}`);
+        }
+      }
+
       // Ensure company context is set for multi-company users
       console.debug('useJoinTrail: setting context', {
         userId: user.id,

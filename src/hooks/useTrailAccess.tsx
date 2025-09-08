@@ -10,6 +10,7 @@ export interface TrailAccessCriteria {
   required_level_id?: string;
   required_tags?: string[];
   required_roles?: string[];
+  required_trail_template_ids?: string[];
   is_available_for_all?: boolean;
 }
 
