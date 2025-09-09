@@ -404,7 +404,7 @@ export const LessonPlayerPage = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-80 border-l bg-background/50 hidden lg:block sticky top-4 self-start">
+          <div className="w-96 border-l bg-background/50 hidden lg:block sticky top-4 self-start">
             <div className="p-4">
               <div className="mb-4">
                 <h3 className="font-semibold text-sm mb-2">Módulos do Curso</h3>
