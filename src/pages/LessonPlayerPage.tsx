@@ -315,7 +315,7 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Lesson Player Banner */}
-            <LessonPlayerBanner />
+            <LessonPlayerBanner lessonId={lessonId} />
 
             {/* Tabs Content */}
             <div>

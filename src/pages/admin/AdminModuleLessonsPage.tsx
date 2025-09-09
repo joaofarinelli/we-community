@@ -12,9 +12,10 @@ import { useDeleteLesson } from '@/hooks/useManageCourses';
 import { CreateLessonDialog } from '@/components/admin/CreateLessonDialog';
 import { EditLessonDialog } from '@/components/admin/EditLessonDialog';
 import { LessonQuizEditor } from '@/components/admin/LessonQuizEditor';
+import { LessonBannerDialog } from '@/components/admin/LessonBannerDialog';
 import { QuizButton } from '@/components/admin/QuizButton';
 import { useLessonQuiz } from '@/hooks/useLessonQuiz';
-import { Search, Plus, Edit, Trash2, ArrowLeft, Video, FileText, Clock, Eye } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, ArrowLeft, Video, FileText, Clock, Eye, Palette } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,8 @@ export const AdminModuleLessonsPage = () => {
   const [editingLesson, setEditingLesson] = useState<any>(null);
   const [quizEditorOpen, setQuizEditorOpen] = useState(false);
   const [selectedLessonForQuiz, setSelectedLessonForQuiz] = useState<string | null>(null);
+  const [bannerDialogOpen, setBannerDialogOpen] = useState(false);
+  const [selectedLessonForBanner, setSelectedLessonForBanner] = useState<{ id: string; title: string } | null>(null);
   
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
@@ -228,7 +231,7 @@ export const AdminModuleLessonsPage = () => {
                 <CardContent className="space-y-3">
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <div className="grid grid-cols-4 gap-1 sm:gap-2 flex-1">
+                    <div className="grid grid-cols-5 gap-1 sm:gap-2 flex-1">
                       <Button
                         variant="outline"
                         size="sm"
@@ -248,6 +251,19 @@ export const AdminModuleLessonsPage = () => {
                       >
                         <Edit className="h-3 w-3 sm:mr-1" />
                         <span className="hidden sm:inline">Editar</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedLessonForBanner({ id: lesson.id, title: lesson.title });
+                          setBannerDialogOpen(true);
+                        }}
+                        className="text-xs h-8 px-2"
+                        title="Banner da Aula"
+                      >
+                        <Palette className="h-3 w-3 sm:mr-1" />
+                        <span className="hidden sm:inline">Banner</span>
                       </Button>
                       <QuizButton
                         lessonId={lesson.id}
@@ -342,6 +358,20 @@ export const AdminModuleLessonsPage = () => {
     }}
     lessonId={selectedLessonForQuiz}
     quiz={existingQuiz}
+  />
+)}
+
+{selectedLessonForBanner && (
+  <LessonBannerDialog
+    open={bannerDialogOpen}
+    onOpenChange={(open) => {
+      setBannerDialogOpen(open);
+      if (!open) {
+        setSelectedLessonForBanner(null);
+      }
+    }}
+    lessonId={selectedLessonForBanner.id}
+    lessonTitle={selectedLessonForBanner.title}
   />
 )}
       </div>

@@ -1,9 +1,29 @@
 import { useLessonPlayerBanner } from '@/hooks/useLessonPlayerBanner';
+import { useLessonBanner } from '@/hooks/useLessonBanner';
 import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 import { ExternalLink } from 'lucide-react';
 
-export const LessonPlayerBanner = () => {
-  const { bannerConfig, isLoading } = useLessonPlayerBanner();
+interface LessonPlayerBannerProps {
+  lessonId?: string;
+}
+
+export const LessonPlayerBanner = ({ lessonId }: LessonPlayerBannerProps) => {
+  // First check for lesson-specific banner
+  const { bannerConfig: lessonBanner, isLoading: lessonLoading } = useLessonBanner(lessonId);
+  
+  // Fallback to global lesson player banner
+  const { bannerConfig: globalBanner, isLoading: globalLoading } = useLessonPlayerBanner();
+
+  // Determine which banner to use
+  const bannerConfig = lessonBanner?.banner_url 
+    ? {
+        imageUrl: lessonBanner.banner_url,
+        linkUrl: lessonBanner.banner_link_url,
+        openInNewTab: lessonBanner.banner_open_new_tab
+      }
+    : globalBanner;
+
+  const isLoading = lessonLoading || globalLoading;
 
   if (isLoading || !bannerConfig?.imageUrl) {
     return null;

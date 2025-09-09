@@ -906,6 +906,9 @@ export type Database = {
       }
       course_lessons: {
         Row: {
+          banner_link_url: string | null
+          banner_open_new_tab: boolean | null
+          banner_url: string | null
           content: string | null
           created_at: string
           description: string | null
@@ -920,6 +923,9 @@ export type Database = {
           video_url: string | null
         }
         Insert: {
+          banner_link_url?: string | null
+          banner_open_new_tab?: boolean | null
+          banner_url?: string | null
           content?: string | null
           created_at?: string
           description?: string | null
@@ -934,6 +940,9 @@ export type Database = {
           video_url?: string | null
         }
         Update: {
+          banner_link_url?: string | null
+          banner_open_new_tab?: boolean | null
+          banner_url?: string | null
           content?: string | null
           created_at?: string
           description?: string | null
