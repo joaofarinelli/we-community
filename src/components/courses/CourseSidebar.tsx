@@ -168,7 +168,7 @@ const ModuleSection = ({
                     {/* Thumbnail */}
                     <div className="flex-shrink-0">
                       {thumbnailUrl ? (
-                        <div className="w-16 h-12 rounded overflow-hidden bg-muted">
+                        <div className="w-[100px] h-[70px] rounded overflow-hidden bg-muted">
                           <img 
                             src={thumbnailUrl} 
                             alt={lesson.title}
@@ -176,7 +176,7 @@ const ModuleSection = ({
                           />
                         </div>
                       ) : (
-                        <div className="w-16 h-12 rounded bg-muted flex items-center justify-center">
+                        <div className="w-[100px] h-[70px] rounded bg-muted flex items-center justify-center">
                           <Play className="h-4 w-4 text-muted-foreground" />
                         </div>
                       )}
