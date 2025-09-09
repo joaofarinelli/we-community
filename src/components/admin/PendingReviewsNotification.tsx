@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { usePendingReviewsCount } from '@/hooks/useEssayQuestionReviews';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
@@ -15,28 +14,7 @@ export const PendingReviewsNotification = () => {
   const navigate = useNavigate();
   useSupabaseContext();
   
-  const { data: pendingCount, isLoading } = useQuery({
-    queryKey: ['pending-reviews-count', currentCompanyId],
-    queryFn: async () => {
-      if (!user?.id || !currentCompanyId) return 0;
-      
-      const { data, error } = await supabase
-        .from('lesson_quiz_answers')
-        .select('id', { count: 'exact' })
-        .eq('review_status', 'pending')
-        .eq('lesson_quiz_attempts.company_id', currentCompanyId)
-        .not('text_answer', 'is', null);
-        
-      if (error) {
-        console.error('Error fetching pending reviews count:', error);
-        return 0;
-      }
-      
-      return data?.length || 0;
-    },
-    enabled: !!user?.id && !!currentCompanyId,
-    refetchInterval: 30000, // Refetch every 30 seconds
-  });
+  const { data: pendingCount, isLoading } = usePendingReviewsCount(currentCompanyId);
 
   if (isLoading || !pendingCount || pendingCount === 0) {
     return null;

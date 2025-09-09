@@ -30,7 +30,7 @@ export const AdminEssayReviewsPage = () => {
   const handleReviewClick = (answer: any) => {
     setSelectedAnswer(answer);
     setReviewNotes('');
-    setPointsEarned(answer.lesson_quiz_questions.points || 0);
+    setPointsEarned(answer.question_points || 0);
     setReviewDialogOpen(true);
   };
 
@@ -64,12 +64,7 @@ export const AdminEssayReviewsPage = () => {
   };
 
   const formatPath = (answer: any) => {
-    const course = answer.lesson_quiz_attempts?.lesson_quizzes?.course_lessons?.course_modules?.courses?.title;
-    const module = answer.lesson_quiz_attempts?.lesson_quizzes?.course_lessons?.course_modules?.title;
-    const lesson = answer.lesson_quiz_attempts?.lesson_quizzes?.course_lessons?.title;
-    const quiz = answer.lesson_quiz_attempts?.lesson_quizzes?.title;
-    
-    return `${course} > ${module} > ${lesson} > ${quiz}`;
+    return `${answer.course_title} > ${answer.module_title} > ${answer.lesson_title} > ${answer.quiz_title}`;
   };
 
   const renderAnswerCard = (answer: any, showActions = true) => (
@@ -80,7 +75,7 @@ export const AdminEssayReviewsPage = () => {
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-muted-foreground" />
               <CardTitle className="text-base">
-                {answer.lesson_quiz_attempts?.profiles?.first_name} {answer.lesson_quiz_attempts?.profiles?.last_name}
+                {answer.user_name}
               </CardTitle>
               {getStatusBadge(answer.review_status)}
             </div>
@@ -98,10 +93,10 @@ export const AdminEssayReviewsPage = () => {
         <div>
           <Label className="text-sm font-medium flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            Pergunta ({answer.lesson_quiz_questions?.points || 0} pontos)
+            Pergunta ({answer.question_points || 0} pontos)
           </Label>
           <p className="text-sm mt-1 p-3 bg-muted rounded-lg">
-            {answer.lesson_quiz_questions?.question_text}
+            {answer.question_text}
           </p>
         </div>
         
@@ -121,7 +116,7 @@ export const AdminEssayReviewsPage = () => {
               </Label>
               {answer.points_earned !== null && (
                 <Badge variant="outline">
-                  {answer.points_earned}/{answer.lesson_quiz_questions?.points || 0} pontos
+                  {answer.points_earned}/{answer.question_points || 0} pontos
                 </Badge>
               )}
             </div>
@@ -132,7 +127,7 @@ export const AdminEssayReviewsPage = () => {
             )}
             {answer.reviewed_at && (
               <p className="text-xs text-muted-foreground">
-                Avaliado {answer.profiles ? `por ${answer.profiles.first_name} ${answer.profiles.last_name}` : ''} em {' '}
+                Avaliado {answer.reviewer_name ? `por ${answer.reviewer_name}` : ''} em {' '}
                 {formatDistanceToNow(new Date(answer.reviewed_at), { addSuffix: true, locale: ptBR })}
               </p>
             )}
@@ -190,7 +185,7 @@ export const AdminEssayReviewsPage = () => {
                   </Card>
                 ))}
               </div>
-            ) : pendingReviews?.length === 0 ? (
+            ) : (!pendingReviews || pendingReviews.data.length === 0) ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <CheckCircle className="h-12 w-12 text-muted-foreground mb-4" />
@@ -202,7 +197,7 @@ export const AdminEssayReviewsPage = () => {
               </Card>
             ) : (
               <div className="space-y-4">
-                {pendingReviews?.map((answer) => renderAnswerCard(answer))}
+                {pendingReviews?.data.map((answer) => renderAnswerCard(answer))}
               </div>
             )}
           </TabsContent>
@@ -225,7 +220,24 @@ export const AdminEssayReviewsPage = () => {
                   </Card>
                 ))}
               </div>
-            ) : allReviews?.length === 0 ? (
+            ) : allLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardHeader>
+                      <div className="h-6 bg-muted rounded w-1/3" />
+                      <div className="h-4 bg-muted rounded w-2/3" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="h-4 bg-muted rounded w-full" />
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : allReviews?.data.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <FileText className="h-12 w-12 text-muted-foreground mb-4" />
@@ -237,7 +249,7 @@ export const AdminEssayReviewsPage = () => {
               </Card>
             ) : (
               <div className="space-y-4">
-                {allReviews?.map((answer) => renderAnswerCard(answer, false))}
+                {allReviews?.data.map((answer) => renderAnswerCard(answer, false))}
               </div>
             )}
           </TabsContent>
@@ -255,7 +267,7 @@ export const AdminEssayReviewsPage = () => {
                 <div>
                   <Label className="text-sm font-medium">Aluno</Label>
                   <p className="text-sm mt-1">
-                    {selectedAnswer.lesson_quiz_attempts?.profiles?.first_name} {selectedAnswer.lesson_quiz_attempts?.profiles?.last_name}
+                    {selectedAnswer.user_name}
                   </p>
                 </div>
 
