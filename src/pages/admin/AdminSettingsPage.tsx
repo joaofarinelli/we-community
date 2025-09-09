@@ -15,6 +15,7 @@ import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
 import { CoinNameSection } from '@/components/admin/CoinNameSection';
 import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection';
+import { CourseProgressionSection } from '@/components/admin/CourseProgressionSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -69,6 +70,8 @@ export const AdminSettingsPage = () => {
               </Card>
 
               <CoinNameSection />
+
+              <CourseProgressionSection />
 
               <Card>
                 <CardHeader>

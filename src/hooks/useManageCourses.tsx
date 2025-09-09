@@ -17,6 +17,7 @@ export const useCreateCourse = () => {
       thumbnail_url?: string;
       order_index?: number;
       certificate_enabled?: boolean;
+      linear_module_progression?: boolean;
       mentor_name?: string | null;
       mentor_role?: string | null;
       mentor_signature_url?: string | null;
