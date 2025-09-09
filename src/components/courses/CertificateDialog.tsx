@@ -192,36 +192,31 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
             <div className="rounded-lg border bg-card p-4 sm:p-6">
               {certificate ? (
                 <div
-                  className="relative mx-auto w-full max-w-4xl aspect-[1.414] bg-white overflow-hidden shadow"
-                  style={
-                    course?.certificate_background_url
-                      ? {
-                          backgroundImage: `url(${course.certificate_background_url})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                        }
-                      : {}
-                  }
+                  className="relative mx-auto w-full max-w-4xl aspect-[1.414] overflow-hidden shadow"
+                  style={{
+                    background: 'radial-gradient(circle farthest-corner at 35% 25%, hsl(var(--background)), color-mix(in hsl, hsl(var(--primary)), #000000 20%))',
+                    printColorAdjust: 'exact',
+                  }}
                 >
                   <div className="absolute inset-0 p-6 sm:p-10 flex flex-col">
                     <div className="text-center">
-                      <div className="text-xs tracking-widest text-muted-foreground">CERTIFICADO DE CONCLUSÃO</div>
-                      <h2 className="text-2xl sm:text-3xl font-bold mt-2">{certificate.course_title}</h2>
+                      <div className="text-xs tracking-widest text-foreground opacity-70">CERTIFICADO DE CONCLUSÃO</div>
+                      <h2 className="text-2xl sm:text-3xl font-bold mt-2 text-foreground">{certificate.course_title}</h2>
                     </div>
 
                     <div className="mt-8 text-center">
-                      <p className="text-sm sm:text-base text-muted-foreground">Conferido a</p>
-                      <p className="text-xl sm:text-2xl font-semibold mt-1">
+                      <p className="text-sm sm:text-base text-foreground opacity-80">Conferido a</p>
+                      <p className="text-xl sm:text-2xl font-semibold mt-1 text-foreground">
                         {/* Nome do usuário não está na tabela; poderíamos buscar do perfil se necessário */}
                         Aluna
                       </p>
-                      <p className="mt-3 text-sm sm:text-base">
+                      <p className="mt-3 text-sm sm:text-base text-foreground">
                         pela conclusão do curso com carga horária de {hoursText}.
                       </p>
                     </div>
 
                     <div className="mt-auto grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
-                      <div className="sm:col-span-2 text-sm text-muted-foreground">
+                      <div className="sm:col-span-2 text-sm text-foreground opacity-80">
                         <div>Código do certificado: <span className="font-mono font-medium text-foreground">{certificate.certificate_code}</span></div>
                         <div className="mt-1">Emitido em: {new Date(certificate.issued_at).toLocaleDateString()}</div>
                         {course?.certificate_footer_text && (
