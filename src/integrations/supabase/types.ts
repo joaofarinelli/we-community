@@ -1007,6 +1007,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          linear_module_progression: boolean
           mentor_name: string | null
           mentor_role: string | null
           mentor_signature_url: string | null
@@ -1026,6 +1027,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          linear_module_progression?: boolean
           mentor_name?: string | null
           mentor_role?: string | null
           mentor_signature_url?: string | null
@@ -1045,6 +1047,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          linear_module_progression?: boolean
           mentor_name?: string | null
           mentor_role?: string | null
           mentor_signature_url?: string | null
