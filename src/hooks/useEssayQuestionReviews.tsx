@@ -320,14 +320,14 @@ export const useCompanyEssayReviews = (companyId?: string, page = 0, limit = 20)
         .in('id', courseIds);
 
       // Create lookup maps
-      const attemptMap = new Map(attempts?.map(a => [a.id, a]) || []);
-      const questionMap = new Map(questions?.map(q => [q.id, q]) || []);
-      const profileMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
-      const reviewerMap = new Map(reviewersResult.data?.map(r => [r.user_id, r]) || []);
-      const quizMap = new Map(quizzes?.map(q => [q.id, q]) || []);
-      const lessonMap = new Map(lessons?.map(l => [l.id, l]) || []);
-      const moduleMap = new Map(modules?.map(m => [m.id, m]) || []);
-      const courseMap = new Map(courses?.map(c => [c.id, c]) || []);
+      const attemptMap = new Map<string, any>(attempts?.map(a => [a.id, a]) || []);
+      const questionMap = new Map<string, any>(questions?.map(q => [q.id, q]) || []);
+      const profileMap = new Map<string, any>(profilesResult.data?.map(p => [p.user_id, p]) || []);
+      const reviewerMap = new Map<string, any>((reviewersResult as any).data?.map((r: any) => [r.user_id, r]) || []);
+      const quizMap = new Map<string, any>(quizzes?.map(q => [q.id, q]) || []);
+      const lessonMap = new Map<string, any>(lessons?.map(l => [l.id, l]) || []);
+      const moduleMap = new Map<string, any>(modules?.map(m => [m.id, m]) || []);
+      const courseMap = new Map<string, any>(courses?.map(c => [c.id, c]) || []);
 
       // Transform data
       const transformedData: EssayAnswer[] = filteredAnswers.map(answer => {

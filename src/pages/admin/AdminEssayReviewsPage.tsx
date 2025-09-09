@@ -160,7 +160,7 @@ export const AdminEssayReviewsPage = () => {
         <Tabs defaultValue="pending" className="space-y-4">
           <TabsList>
             <TabsTrigger value="pending">
-              Pendentes ({pendingReviews?.length || 0})
+              Pendentes ({pendingReviews?.data?.length || 0})
             </TabsTrigger>
             <TabsTrigger value="all">
               Todas as Avaliações
