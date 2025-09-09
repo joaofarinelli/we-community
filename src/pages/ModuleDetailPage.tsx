@@ -12,6 +12,7 @@ import { useIsAdmin } from '@/hooks/useUserRole';
 import { ArrowLeft, BookOpen, Clock, ArrowUpDown, GripVertical } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import CertificateDialog from '@/components/courses/CertificateDialog';
+import { AccessGuard } from '@/components/courses/AccessGuard';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
@@ -126,8 +127,9 @@ export const ModuleDetailPage = () => {
   const [certOpen, setCertOpen] = useState(false);
 
   return (
-    <DashboardLayout>
-      <div className="p-8 space-y-6">
+    <AccessGuard courseId={courseId!} moduleId={moduleId!}>
+      <DashboardLayout>
+        <div className="p-8 space-y-6">
         {/* Back Button */}
         <div className="flex items-center gap-4">
           <Button
@@ -257,5 +259,6 @@ export const ModuleDetailPage = () => {
         )}
       </div>
     </DashboardLayout>
+    </AccessGuard>
   );
 };

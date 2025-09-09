@@ -61,45 +61,54 @@ export const useModuleAccess = (courseId: string) => {
   const { data: allUserProgress = [] } = useUserCourseProgress(courseId);
 
   return useQuery({
-    queryKey: ['module-access', courseId, user?.id, currentCompanyId],
+    queryKey: ['module-access', courseId, user?.id, currentCompanyId, allUserProgress.length],
     queryFn: async () => {
       if (!user?.id || !currentCompanyId || !courseId) {
         return {};
       }
 
+      console.log('🔒 Checking module access for course:', courseId);
+
       // Get course details to check linear progression setting
-      const { data: course } = await supabase
+      const { data: course, error: courseError } = await supabase
         .from('courses')
-        .select('*')
+        .select('linear_module_progression')
         .eq('id', courseId)
         .single();
 
-      const isLinearProgression = (course as any)?.linear_module_progression || false;
+      if (courseError) {
+        console.error('Error fetching course:', courseError);
+        return {};
+      }
+
+      const isLinearProgression = course?.linear_module_progression || false;
+      console.log('📈 Linear progression enabled:', isLinearProgression);
+      
+      // Get all modules for this course
+      const { data: modules, error: modulesError } = await supabase
+        .from('course_modules')
+        .select('id')
+        .eq('course_id', courseId)
+        .order('order_index', { ascending: true });
+
+      if (modulesError || !modules) {
+        console.error('Error fetching modules:', modulesError);
+        return {};
+      }
+
+      const accessMap: Record<string, boolean> = {};
       
       if (!isLinearProgression) {
         // If progression is free, all modules are accessible
-        const { data: modules } = await supabase
-          .from('course_modules')
-          .select('id')
-          .eq('course_id', courseId);
-        
-        const accessMap: Record<string, boolean> = {};
-        modules?.forEach(module => {
+        console.log('🆓 Free progression - all modules accessible');
+        modules.forEach(module => {
           accessMap[module.id] = true;
         });
         return accessMap;
       }
 
       // For linear progression, check completion status of previous modules
-      const { data: modules } = await supabase
-        .from('course_modules')
-        .select('id')
-        .eq('course_id', courseId)
-        .order('order_index', { ascending: true });
-
-      if (!modules) return {};
-
-      const accessMap: Record<string, boolean> = {};
+      console.log('🔐 Linear progression - checking completions');
       
       for (let i = 0; i < modules.length; i++) {
         const module = modules[i];
@@ -107,11 +116,13 @@ export const useModuleAccess = (courseId: string) => {
         if (i === 0) {
           // First module is always accessible
           accessMap[module.id] = true;
+          console.log(`✅ Module ${i + 1} (${module.id}): accessible (first module)`);
         } else {
           // Check if previous module is completed
           const previousModule = modules[i - 1];
           const isPreviousCompleted = await checkModuleCompletion(previousModule.id, user.id);
           accessMap[module.id] = isPreviousCompleted;
+          console.log(`${isPreviousCompleted ? '✅' : '🔒'} Module ${i + 1} (${module.id}): ${isPreviousCompleted ? 'accessible' : 'locked'} (previous completed: ${isPreviousCompleted})`);
         }
       }
 

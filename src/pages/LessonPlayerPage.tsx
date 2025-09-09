@@ -22,6 +22,7 @@ import { LessonCompletionReward } from '@/components/courses/LessonCompletionRew
 import { CertificateDialog } from '@/components/courses/CertificateDialog';
 import { LessonQuizDialog } from '@/components/courses/LessonQuizDialog';
 import { useLessonQuiz, useQuizAttempts } from '@/hooks/useLessonQuiz';
+import { AccessGuard } from '@/components/courses/AccessGuard';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -116,34 +117,59 @@ export const LessonPlayerPage = () => {
   const handleNextLesson = () => {
     if (nextLesson) {
       navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${nextLesson.id}`);
+    } else {
+      // Try to navigate to next module's first lesson
+      const currentModuleIndex = modules?.findIndex(m => m.id === moduleId) ?? -1;
+      const nextModule = modules?.[currentModuleIndex + 1];
+      
+      if (nextModule) {
+        navigate(`/courses/${courseId}/modules/${nextModule.id}`);
+      } else {
+        // No more lessons/modules, show completion message
+        toast.success('Parabéns! Você completou todos os módulos do curso!');
+        if (course?.certificate_enabled) {
+          setCertificateOpen(true);
+        }
+      }
     }
   };
 
   const handlePrevLesson = () => {
     if (prevLesson) {
       navigate(`/courses/${courseId}/modules/${moduleId}/lessons/${prevLesson.id}`);
+    } else {
+      // Try to navigate to previous module's last lesson
+      const currentModuleIndex = modules?.findIndex(m => m.id === moduleId) ?? -1;
+      const prevModule = modules?.[currentModuleIndex - 1];
+      
+      if (prevModule) {
+        navigate(`/courses/${courseId}/modules/${prevModule.id}`);
+      }
     }
   };
 
   if (!course || !module || !lesson) {
     return (
-      <DashboardLayout>
-        <div className="flex flex-col items-center justify-center py-12">
-          <h2 className="text-xl font-semibold mb-2">Aula não encontrada</h2>
-          <p className="text-muted-foreground mb-4">
-            A aula que você está procurando não existe ou foi removida.
-          </p>
-          <Button onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}`)}>
-            Voltar ao Módulo
-          </Button>
-        </div>
-      </DashboardLayout>
+      <AccessGuard courseId={courseId!} moduleId={moduleId!}>
+        <DashboardLayout>
+          <div className="flex flex-col items-center justify-center py-12">
+            <h2 className="text-xl font-semibold mb-2">Aula não encontrada</h2>
+            <p className="text-muted-foreground mb-4">
+              A aula que você está procurando não existe ou foi removida.
+            </p>
+            <Button onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}`)}>
+              Voltar ao Módulo
+            </Button>
+          </div>
+        </DashboardLayout>
+      </AccessGuard>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <AccessGuard courseId={courseId!} moduleId={moduleId!}>
+      <DashboardLayout>
+        <div className="flex flex-col min-h-[calc(100vh-4rem)]">
         {/* Fixed Header */}
         <div className="flex-shrink-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between p-4">
@@ -410,5 +436,6 @@ export const LessonPlayerPage = () => {
         )}
       </div>
     </DashboardLayout>
+    </AccessGuard>
   );
 };

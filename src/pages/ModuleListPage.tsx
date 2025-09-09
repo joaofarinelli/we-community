@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { ModuleAccessGuard } from '@/components/courses/ModuleAccessGuard';
 
 const ModuleCardWithAccess = ({ module, courseId }: { module: any; courseId: string }) => {
   const { data: lessons } = useCourseLessons(module.id);
