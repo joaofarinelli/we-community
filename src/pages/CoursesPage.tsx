@@ -8,6 +8,7 @@ import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
+import { useModuleAccess } from '@/hooks/useCourseAccess';
 import { useReorderCourses } from '@/hooks/useReorderCourses';
 import { useReorderModules } from '@/hooks/useReorderModules';
 import { useIsAdmin } from '@/hooks/useUserRole';
@@ -24,6 +25,7 @@ const ModuleCardWithData = ({ module, courseId, userProgress }: {
   userProgress: any[] 
 }) => {
   const { data: lessons } = useCourseLessons(module.id);
+  const { data: moduleAccess, isLoading: accessLoading } = useModuleAccess(courseId);
   const lessonCount = lessons?.length || 0;
   
   const completedLessons = userProgress?.filter(p => 
@@ -31,6 +33,7 @@ const ModuleCardWithData = ({ module, courseId, userProgress }: {
   ).length || 0;
   
   const isCompleted = lessonCount > 0 && completedLessons === lessonCount;
+  const isLocked = !accessLoading && moduleAccess && moduleAccess[module.id] === false;
 
   return (
     <ModuleCard
@@ -38,6 +41,8 @@ const ModuleCardWithData = ({ module, courseId, userProgress }: {
       lessonCount={lessonCount}
       completedLessons={completedLessons}
       isCompleted={isCompleted}
+      isLocked={isLocked}
+      isClickDisabled={accessLoading}
     />
   );
 };
@@ -49,6 +54,7 @@ const SortableModuleCard = ({ module, courseId, userProgress, isReordering }: {
   isReordering: boolean;
 }) => {
   const { data: lessons } = useCourseLessons(module.id);
+  const { data: moduleAccess, isLoading: accessLoading } = useModuleAccess(courseId);
   const lessonCount = lessons?.length || 0;
   
   const completedLessons = userProgress?.filter(p => 
@@ -56,6 +62,7 @@ const SortableModuleCard = ({ module, courseId, userProgress, isReordering }: {
   ).length || 0;
   
   const isCompleted = lessonCount > 0 && completedLessons === lessonCount;
+  const isLocked = !accessLoading && moduleAccess && moduleAccess[module.id] === false;
 
   const {
     attributes,
@@ -88,7 +95,8 @@ const SortableModuleCard = ({ module, courseId, userProgress, isReordering }: {
         lessonCount={lessonCount}
         completedLessons={completedLessons}
         isCompleted={isCompleted}
-        isClickDisabled={isReordering}
+        isClickDisabled={isReordering || accessLoading}
+        isLocked={isLocked}
       />
     </div>
   );
