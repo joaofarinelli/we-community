@@ -34,6 +34,7 @@ export default {
 				sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
 				inter: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
 				emoji: ["var(--font-emoji)"],
+				whisper: ["Whisper", "cursive"],
 			},
 			letterSpacing: {
 				tighter: "var(--letter-spacing-tight)",

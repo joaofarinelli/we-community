@@ -229,17 +229,11 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                         )}
                       </div>
                       <div className="text-center">
-                        {course?.mentor_signature_url && (
-                          <img
-                            src={course.mentor_signature_url}
-                            alt="Assinatura do Mentor(a)"
-                            className="mx-auto h-12 sm:h-16 object-contain"
-                          />
-                        )}
-                        {(course?.mentor_name || course?.mentor_role) && (
-                          <div className="mt-2 text-sm">
-                            <div className="font-medium">{course?.mentor_name}</div>
-                            <div className="text-muted-foreground">{course?.mentor_role}</div>
+                        {course?.mentor_name && (
+                          <div className="mt-2">
+                            <div className="font-whisper text-2xl sm:text-3xl font-normal text-foreground">
+                              {course.mentor_name}
+                            </div>
                           </div>
                         )}
                       </div>
