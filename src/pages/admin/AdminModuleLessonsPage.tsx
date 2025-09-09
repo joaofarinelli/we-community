@@ -40,6 +40,7 @@ export const AdminModuleLessonsPage = () => {
   const { data: courses } = useCourses();
   const { data: modules } = useCourseModules(courseId!);
   const { data: lessons, isLoading } = useCourseLessons(moduleId!);
+  const { data: existingQuiz } = useLessonQuiz(selectedLessonForQuiz || undefined);
   const deleteLesson = useDeleteLesson();
 
   const course = courses?.find(c => c.id === courseId);
@@ -333,8 +334,14 @@ export const AdminModuleLessonsPage = () => {
 {selectedLessonForQuiz && (
   <LessonQuizEditor
     open={quizEditorOpen}
-    onOpenChange={setQuizEditorOpen}
+    onOpenChange={(open) => {
+      setQuizEditorOpen(open);
+      if (!open) {
+        setSelectedLessonForQuiz(null);
+      }
+    }}
     lessonId={selectedLessonForQuiz}
+    quiz={existingQuiz}
   />
 )}
       </div>
