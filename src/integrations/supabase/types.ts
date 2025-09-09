@@ -1522,6 +1522,10 @@ export type Database = {
           is_correct: boolean | null
           points_earned: number | null
           question_id: string
+          review_notes: string | null
+          review_status: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           selected_option_id: string | null
           text_answer: string | null
         }
@@ -1532,6 +1536,10 @@ export type Database = {
           is_correct?: boolean | null
           points_earned?: number | null
           question_id: string
+          review_notes?: string | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selected_option_id?: string | null
           text_answer?: string | null
         }
@@ -1542,6 +1550,10 @@ export type Database = {
           is_correct?: boolean | null
           points_earned?: number | null
           question_id?: string
+          review_notes?: string | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           selected_option_id?: string | null
           text_answer?: string | null
         }

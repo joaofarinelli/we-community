@@ -36,6 +36,7 @@ import { LessonPlayerPage } from "./pages/LessonPlayerPage";
 import { AdminCoursesPage } from "./pages/admin/AdminCoursesPage";
 import { AdminCourseModulesPage } from "./pages/admin/AdminCourseModulesPage";
 import { AdminModuleLessonsPage } from "./pages/admin/AdminModuleLessonsPage";
+import { AdminEssayReviewsPage } from "./pages/admin/AdminEssayReviewsPage";
 import { MarketplacePage } from "./pages/MarketplacePage";
 import { MarketplacePurchasesPage } from "./pages/MarketplacePurchasesPage";
 import { AdminMarketplacePage } from "./pages/admin/AdminMarketplacePage";
@@ -135,6 +136,7 @@ const AppRoutes = () => {
           <Route path="/admin/courses" element={<AuthGuard><AdminCoursesPage /></AuthGuard>} />
           <Route path="/admin/courses/:courseId/modules" element={<AuthGuard><AdminCourseModulesPage /></AuthGuard>} />
           <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthGuard><AdminModuleLessonsPage /></AuthGuard>} />
+          <Route path="/admin/quiz-reviews" element={<AuthGuard><AdminEssayReviewsPage /></AuthGuard>} />
           <Route path="/dashboard/marketplace" element={<AuthGuard><MarketplacePage /></AuthGuard>} />
           <Route path="/dashboard/store" element={<AuthGuard><StorePage /></AuthGuard>} />
           <Route path="/dashboard/marketplace/purchases" element={<AuthGuard><MarketplacePurchasesPage /></AuthGuard>} />

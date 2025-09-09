@@ -119,16 +119,23 @@ Deno.serve(async (req) => {
       }
 
       // Insert the answer
+      const answerData: any = {
+        attempt_id: attemptId,
+        question_id: answer.questionId,
+        selected_option_id: answer.selectedOptionId || null,
+        text_answer: answer.textAnswer || null,
+        is_correct: isCorrect,
+        points_earned: pointsEarned
+      };
+
+      // For text questions, set review_status to pending
+      if (question.question_type === 'text') {
+        answerData.review_status = 'pending';
+      }
+
       const { error: answerError } = await supabase
         .from('lesson_quiz_answers')
-        .insert({
-          attempt_id: attemptId,
-          question_id: answer.questionId,
-          selected_option_id: answer.selectedOptionId || null,
-          text_answer: answer.textAnswer || null,
-          is_correct: isCorrect,
-          points_earned: pointsEarned
-        });
+        .insert(answerData);
 
       if (answerError) {
         console.error('Error inserting answer:', answerError);

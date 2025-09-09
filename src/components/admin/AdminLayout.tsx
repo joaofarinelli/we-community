@@ -69,6 +69,7 @@ const mainMenuItems = [
     key: 'courses',
     subItems: [
       { label: 'Gerenciar cursos', path: '/admin/courses' },
+      { label: 'Revisão de questões dissertativas', path: '/admin/quiz-reviews' },
     ]
   },
   {
