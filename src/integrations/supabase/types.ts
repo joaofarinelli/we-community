@@ -1646,6 +1646,51 @@ export type Database = {
         }
         Relationships: []
       }
+      lesson_quiz_question_attempts: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          points_earned: number
+          question_id: string
+          review_notes: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          text_answer: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          points_earned?: number
+          question_id: string
+          review_notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          text_answer?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          points_earned?: number
+          question_id?: string
+          review_notes?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          text_answer?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lesson_quiz_questions: {
         Row: {
           created_at: string
@@ -4606,6 +4651,15 @@ export type Database = {
       reset_monthly_coins: {
         Args: { p_company_id: string }
         Returns: undefined
+      }
+      review_essay_answer: {
+        Args: {
+          p_answer_id: string
+          p_points_earned?: number
+          p_review_notes?: string
+          p_review_status: string
+        }
+        Returns: Json
       }
       set_current_company_context: {
         Args: { p_company_id: string }

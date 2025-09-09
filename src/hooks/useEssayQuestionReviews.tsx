@@ -4,6 +4,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { toast } from 'sonner';
 
+// Temporary type definitions until Supabase types are regenerated
+interface LessonQuizQuestionAttempt {
+  id: string;
+  user_id: string;
+  question_id: string;
+  text_answer: string;
+  review_status: string;  
+  review_notes?: string;
+  points_earned: number;
+  created_at: string;
+  updated_at: string;
+  reviewed_at?: string;
+  reviewed_by?: string;
+  company_id: string;
+}
+
 export interface EssayAnswer {
   id: string;
   user_id: string;
@@ -52,8 +68,8 @@ export const usePendingEssayReviews = (companyId?: string, page = 0, limit = 20,
       
       console.log('Fetching pending essay reviews:', { companyId, page, limit, filters });
 
-      // Build query for data
-      let dataQuery = supabase
+      // Build query for data - using type assertion since table types are not updated yet
+      const { data, error } = await (supabase as any)
         .from('lesson_quiz_question_attempts')
         .select(`
           id,
@@ -103,12 +119,8 @@ export const usePendingEssayReviews = (companyId?: string, page = 0, limit = 20,
         `)
         .eq('review_status', 'pending')
         .neq('text_answer', '')
-        .not('text_answer', 'is', null);
-
-      // Filter by company via courses
-      dataQuery = dataQuery.eq('lesson_quiz_questions.lesson_quizzes.course_lessons.course_modules.courses.company_id', companyId);
-
-      const { data, error } = await dataQuery
+        .not('text_answer', 'is', null)
+        .eq('lesson_quiz_questions.lesson_quizzes.course_lessons.course_modules.courses.company_id', companyId)
         .range(page * limit, (page + 1) * limit - 1)
         .order('created_at', { ascending: false });
 
@@ -227,13 +239,15 @@ export const useReviewEssayAnswer = () => {
       });
 
       if (error) throw error;
-      return data;
+      return data as { review_status: string };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['pending-essay-reviews'] });
       queryClient.invalidateQueries({ queryKey: ['company-essay-reviews'] });
       queryClient.invalidateQueries({ queryKey: ['pending-reviews-count'] });
-      toast.success(`Resposta ${data.review_status === 'approved' ? 'aprovada' : 'rejeitada'} com sucesso!`);
+      
+      const statusText = (data as any)?.review_status === 'approved' ? 'aprovada' : 'rejeitada';
+      toast.success(`Resposta ${statusText} com sucesso!`);
     },
     onError: (error) => {
       toast.error('Erro ao revisar resposta: ' + error.message);
@@ -268,7 +282,7 @@ export const usePendingReviewsCount = (companyId?: string) => {
     queryFn: async (): Promise<number> => {
       if (!user?.id || !companyId) return 0;
 
-      const { count, error } = await supabase
+      const { count, error } = await (supabase as any)
         .from('lesson_quiz_question_attempts')
         .select('*', { count: 'exact', head: true })
         .eq('review_status', 'pending')
