@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
+import { useCompany } from '@/hooks/useCompany';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +25,7 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: userProfile } = useUserProfile();
+  const { data: company } = useCompany();
   useSupabaseContext();
 
   const {
@@ -233,6 +235,31 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                   }}
                 >
                   <div className="absolute inset-0 p-6 sm:p-10 flex flex-col">
+                    {/* Logo da plataforma no topo */}
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex-1">
+                        {company?.logo_url && (
+                          <img 
+                            src={company.logo_url} 
+                            alt={company.name}
+                            className="h-12 w-auto object-contain"
+                          />
+                        )}
+                      </div>
+                      
+                      {/* QR Code no canto superior direito */}
+                      {qrCodeUrl && (
+                        <div className="flex flex-col items-center gap-1">
+                          <img 
+                            src={qrCodeUrl} 
+                            alt="QR Code para validação" 
+                            className="w-16 h-16 opacity-90"
+                          />
+                          <span className="text-xs text-foreground opacity-60">Validar</span>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="text-center">
                       <div className="text-xs tracking-widest text-foreground opacity-70">CERTIFICADO DE CONCLUSÃO</div>
                       <h2 className="text-2xl sm:text-3xl font-bold mt-2 text-foreground">{certificate.course_title}</h2>
@@ -248,8 +275,8 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                       </p>
                     </div>
 
-                    <div className="mt-auto grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
-                      <div className="sm:col-span-2 text-sm text-foreground opacity-80">
+                    <div className="mt-auto grid grid-cols-1 sm:grid-cols-2 gap-6 items-end">
+                      <div className="text-sm text-foreground opacity-80">
                         <div>Código do certificado: <span className="font-mono font-medium text-foreground">{certificate.certificate_code}</span></div>
                         <div className="mt-1">Emitido em: {new Date(certificate.issued_at).toLocaleDateString()}</div>
                         {course?.certificate_footer_text && (
@@ -258,17 +285,6 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                       </div>
                       
                       <div className="text-center">
-                        {qrCodeUrl && (
-                          <div className="flex flex-col items-center gap-2 mb-4">
-                            <img 
-                              src={qrCodeUrl} 
-                              alt="QR Code para validação" 
-                              className="w-20 h-20 opacity-80"
-                            />
-                            <span className="text-xs text-foreground opacity-60">Validar certificado</span>
-                          </div>
-                        )}
-                        
                         {course?.mentor_name && (
                           <div className="mt-2">
                             <div className="font-whisper text-2xl sm:text-3xl font-normal text-foreground">
