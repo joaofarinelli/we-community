@@ -15,6 +15,7 @@ import { DifficultyBadge } from '@/components/courses/DifficultyBadge';
 import { LessonComments } from '@/components/courses/LessonComments';
 import { LessonMaterials } from '@/components/courses/LessonMaterials';
 import { LessonNotes } from '@/components/courses/LessonNotes';
+import { LessonPlayerBanner } from '@/components/lessons/LessonPlayerBanner';
 import { CourseSidebar } from '@/components/courses/CourseSidebar';
 import { LessonLikeButton } from '@/components/courses/LessonLikeButton';
 import { LessonFavoriteButton } from '@/components/courses/LessonFavoriteButton';
@@ -312,6 +313,9 @@ export const LessonPlayerPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Lesson Player Banner */}
+            <LessonPlayerBanner />
 
             {/* Tabs Content */}
             <div>

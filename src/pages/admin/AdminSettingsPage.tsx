@@ -16,6 +16,7 @@ import { CoinNameSection } from '@/components/admin/CoinNameSection';
 import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection';
 import { CourseProgressionSection } from '@/components/admin/CourseProgressionSection';
+import { LessonPlayerBannerSection } from '@/components/admin/LessonPlayerBannerSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -164,6 +165,8 @@ export const AdminSettingsPage = () => {
                 title="Banner da Página de Espaços" 
                 description="Configure o banner que aparecerá na página de espaços" 
               />
+              
+              <LessonPlayerBannerSection />
             </div>
           </TabsContent>
 
