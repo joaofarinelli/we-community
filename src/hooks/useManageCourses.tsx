@@ -90,6 +90,13 @@ export const useUpdateCourse = () => {
       thumbnail_url?: string;
       is_active?: boolean;
       order_index?: number;
+      certificate_enabled?: boolean;
+      linear_module_progression?: boolean;
+      mentor_name?: string | null;
+      mentor_role?: string | null;
+      mentor_signature_url?: string | null;
+      certificate_background_url?: string | null;
+      certificate_footer_text?: string | null;
     }) => {
       const { data, error } = await supabase
         .from('courses')

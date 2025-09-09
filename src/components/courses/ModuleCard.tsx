@@ -1,4 +1,4 @@
-import { Clock, BookOpen } from 'lucide-react';
+import { Clock, BookOpen, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useModuleNextLesson } from '@/hooks/useModuleNextLesson';
 
@@ -14,6 +14,8 @@ interface ModuleCardProps {
   completedLessons?: number;
   isCompleted?: boolean;
   isClickDisabled?: boolean;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
 export const ModuleCard = ({ 
@@ -21,13 +23,15 @@ export const ModuleCard = ({
   lessonCount = 0, 
   completedLessons = 0,
   isCompleted = false,
-  isClickDisabled = false
+  isClickDisabled = false,
+  isLocked = false,
+  lockReason = ''
 }: ModuleCardProps) => {
   const navigate = useNavigate();
   const { data: nextLesson, isLoading } = useModuleNextLesson(module.id, module.course_id);
 
   const handleClick = () => {
-    if (isLoading || isClickDisabled) return;
+    if (isLoading || isClickDisabled || isLocked) return;
     
     if (nextLesson) {
       navigate(`/courses/${module.course_id}/modules/${module.id}/lessons/${nextLesson.id}`);

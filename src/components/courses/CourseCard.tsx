@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Clock, Users } from 'lucide-react';
+import { BookOpen, Clock, Users, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CourseCardProps {
@@ -14,23 +14,48 @@ interface CourseCardProps {
   moduleCount?: number;
   lessonCount?: number;
   progress?: number;
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
-export const CourseCard = ({ course, moduleCount = 0, lessonCount = 0, progress = 0 }: CourseCardProps) => {
+export const CourseCard = ({ 
+  course, 
+  moduleCount = 0, 
+  lessonCount = 0, 
+  progress = 0,
+  isLocked = false,
+  lockReason = ''
+}: CourseCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <Card className="h-full transition-all hover:shadow-lg">
-      <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
+    <Card className={`h-full transition-all hover:shadow-lg ${isLocked ? 'opacity-60' : ''}`}>
+      <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted relative">
         {course.thumbnail_url ? (
-          <img 
-            src={course.thumbnail_url} 
-            alt={course.title}
-            className="h-full w-full object-cover"
-          />
+          <>
+            <img 
+              src={course.thumbnail_url} 
+              alt={course.title}
+              className={`h-full w-full object-cover ${isLocked ? 'grayscale' : ''}`}
+            />
+            {isLocked && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="bg-white/90 rounded-full p-3">
+                  <Lock className="h-6 w-6 text-muted-foreground" />
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex h-full items-center justify-center">
-            <BookOpen className="h-12 w-12 text-muted-foreground" />
+            {isLocked ? (
+              <div className="flex flex-col items-center gap-2">
+                <Lock className="h-8 w-8 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">Bloqueado</span>
+              </div>
+            ) : (
+              <BookOpen className="h-12 w-12 text-muted-foreground" />
+            )}
           </div>
         )}
       </div>
@@ -79,8 +104,16 @@ export const CourseCard = ({ course, moduleCount = 0, lessonCount = 0, progress 
         <Button 
           className="w-full"
           onClick={() => navigate(`/courses/${course.id}`)}
+          disabled={isLocked}
         >
-          {progress > 0 ? 'Continuar Curso' : 'Iniciar Curso'}
+          {isLocked ? (
+            <>
+              <Lock className="mr-2 h-4 w-4" />
+              {lockReason || 'Curso Bloqueado'}
+            </>
+          ) : (
+            progress > 0 ? 'Continuar Curso' : 'Iniciar Curso'
+          )}
         </Button>
       </CardContent>
     </Card>

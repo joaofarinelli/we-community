@@ -31,6 +31,7 @@ const courseSchema = z.object({
   thumbnail_url: z.string().optional(),
   is_active: z.boolean(),
   certificate_enabled: z.boolean().optional(),
+  linear_module_progression: z.boolean().optional(),
   mentor_name: z.string().optional(),
   mentor_role: z.string().optional(),
   mentor_signature_url: z.string().optional(),
@@ -58,6 +59,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
       thumbnail_url: '',
       is_active: true,
       certificate_enabled: false,
+      linear_module_progression: false,
       mentor_name: '',
       mentor_role: '',
       mentor_signature_url: '',
@@ -74,6 +76,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         thumbnail_url: course.thumbnail_url || '',
         is_active: course.is_active ?? true,
         certificate_enabled: course.certificate_enabled ?? false,
+        linear_module_progression: (course as any)?.linear_module_progression ?? false,
         mentor_name: course.mentor_name || '',
         mentor_role: course.mentor_role || '',
         mentor_signature_url: course.mentor_signature_url || '',
@@ -95,6 +98,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         thumbnail_url: data.thumbnail_url || undefined,
         is_active: data.is_active,
         certificate_enabled: data.certificate_enabled ?? false,
+        linear_module_progression: data.linear_module_progression ?? false,
         mentor_name: data.mentor_name || null,
         mentor_role: data.mentor_role || null,
         mentor_signature_url: data.mentor_signature_url || null,
@@ -196,6 +200,31 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Progressão de Módulos */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+                Progressão de Módulos
+              </div>
+              
+              <FormField
+                control={form.control}
+                name="linear_module_progression"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-medium">Progressão Linear</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Quando ativada, usuários precisam completar módulos em ordem sequencial
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />

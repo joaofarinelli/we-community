@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { BookOpen, Loader2, Stamp, Users, Shield, Award } from 'lucide-react';
 import { useCreateCourse } from '@/hooks/useManageCourses';
@@ -386,6 +387,32 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
                       )}
                     </div>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Progressão de Módulos */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <BookOpen className="h-4 w-4" />
+                Progressão de Módulos
+              </div>
+
+              <FormField
+                control={form.control}
+                name="linear_module_progression"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base font-medium">Progressão Linear</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Quando ativada, usuários precisam completar módulos em ordem sequencial
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
                   </FormItem>
                 )}
               />
