@@ -195,7 +195,7 @@ const ModuleSection = ({
                       {isCompleted ? (
                         <Button 
                           size="sm" 
-                          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4"
+                          className="bg-orange-500 hover:bg-orange-600 text-white rounded-full px-4 text-xs"
                         >
                           <Check className="h-4 w-4 mr-1" />
                           Concluída
