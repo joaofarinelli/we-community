@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Plus, Trash2, GripVertical, AlertCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { useCreateLessonQuiz, useUpdateLessonQuiz } from '@/hooks/useManageLessonQuizzes';
 
 interface Question {
@@ -116,6 +117,37 @@ export const LessonQuizEditor = ({
     setQuestions(updated);
   };
 
+  const setCorrectAnswer = (questionIndex: number, correctOptionIndex: number) => {
+    const updated = [...questions];
+    if (updated[questionIndex].options) {
+      updated[questionIndex].options = updated[questionIndex].options.map((option, index) => ({
+        ...option,
+        isCorrect: index === correctOptionIndex
+      }));
+    }
+    setQuestions(updated);
+  };
+
+  const isQuizValid = () => {
+    return questions.every(question => {
+      if (question.questionType === 'multiple_choice' || question.questionType === 'true_false') {
+        return question.options?.some(option => option.isCorrect) || false;
+      }
+      return true; // Text questions don't need correct answers
+    });
+  };
+
+  const getValidationErrors = () => {
+    const errors: string[] = [];
+    questions.forEach((question, index) => {
+      if ((question.questionType === 'multiple_choice' || question.questionType === 'true_false') && 
+          !question.options?.some(option => option.isCorrect)) {
+        errors.push(`Questão ${index + 1} precisa ter uma resposta correta selecionada.`);
+      }
+    });
+    return errors;
+  };
+
   const removeOption = (questionIndex: number, optionIndex: number) => {
     const updated = [...questions];
     updated[questionIndex].options = updated[questionIndex].options?.filter((_, i) => i !== optionIndex);
@@ -124,6 +156,16 @@ export const LessonQuizEditor = ({
 
   const handleSave = async () => {
     if (!title.trim() || questions.length === 0) {
+      return;
+    }
+
+    const validationErrors = getValidationErrors();
+    if (validationErrors.length > 0) {
+      toast({
+        title: "Erro de validação",
+        description: validationErrors.join('\n'),
+        variant: "destructive"
+      });
       return;
     }
 
@@ -299,7 +341,12 @@ export const LessonQuizEditor = ({
                     {(question.questionType === 'multiple_choice' || question.questionType === 'true_false') && (
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label>Opções</Label>
+                          <Label className="flex items-center gap-2">
+                            Opções
+                            {!question.options?.some(option => option.isCorrect) && (
+                              <AlertCircle className="w-4 h-4 text-destructive" />
+                            )}
+                          </Label>
                           {question.questionType === 'multiple_choice' && (
                             <Button
                               variant="outline"
@@ -312,34 +359,54 @@ export const LessonQuizEditor = ({
                           )}
                         </div>
 
-                        {question.options?.map((option, optionIndex) => (
-                          <div key={optionIndex} className="flex items-center gap-2">
-                            <Checkbox
-                              checked={option.isCorrect}
-                              onCheckedChange={(checked) => 
-                                updateOption(questionIndex, optionIndex, 'isCorrect', checked)
-                              }
-                            />
-                            <Input
-                              value={option.optionText}
-                              onChange={(e) => 
-                                updateOption(questionIndex, optionIndex, 'optionText', e.target.value)
-                              }
-                              placeholder="Digite o texto da opção"
-                              className="flex-1"
-                              disabled={question.questionType === 'true_false'}
-                            />
-                            {question.questionType === 'multiple_choice' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeOption(questionIndex, optionIndex)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
+                        {!question.options?.some(option => option.isCorrect) && (
+                          <div className="text-sm text-destructive bg-destructive/10 p-2 rounded">
+                            Selecione uma resposta correta
                           </div>
-                        ))}
+                        )}
+
+                        <div className="space-y-2">
+                          <div className="text-sm text-muted-foreground">Resposta correta:</div>
+                          <RadioGroup
+                            value={question.options?.findIndex(option => option.isCorrect)?.toString() || ""}
+                            onValueChange={(value) => setCorrectAnswer(questionIndex, parseInt(value))}
+                          >
+                            {question.options?.map((option, optionIndex) => (
+                              <div key={optionIndex} className="flex items-center gap-2">
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem 
+                                    value={optionIndex.toString()} 
+                                    id={`q${questionIndex}-option${optionIndex}`} 
+                                  />
+                                  <Label 
+                                    htmlFor={`q${questionIndex}-option${optionIndex}`}
+                                    className="text-sm font-medium cursor-pointer"
+                                  >
+                                    Correta
+                                  </Label>
+                                </div>
+                                <Input
+                                  value={option.optionText}
+                                  onChange={(e) => 
+                                    updateOption(questionIndex, optionIndex, 'optionText', e.target.value)
+                                  }
+                                  placeholder="Digite o texto da opção"
+                                  className="flex-1"
+                                  disabled={question.questionType === 'true_false'}
+                                />
+                                {question.questionType === 'multiple_choice' && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeOption(questionIndex, optionIndex)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                          </RadioGroup>
+                        </div>
                       </div>
                     )}
 
@@ -371,7 +438,7 @@ export const LessonQuizEditor = ({
             </Button>
             <Button 
               onClick={handleSave}
-              disabled={!title.trim() || questions.length === 0 || createQuiz.isPending || updateQuiz.isPending}
+              disabled={!title.trim() || questions.length === 0 || !isQuizValid() || createQuiz.isPending || updateQuiz.isPending}
             >
               {(createQuiz.isPending || updateQuiz.isPending) ? 'Salvando...' : 'Salvar Prova'}
             </Button>
