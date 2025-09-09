@@ -6,7 +6,9 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Play, CheckCircle2, Clock, Lock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Play, CheckCircle2, Clock, Lock, Check } from 'lucide-react';
+import { DifficultyBadge } from './DifficultyBadge';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -156,54 +158,100 @@ const ModuleSection = ({
             </div>
           ) : lessons && lessons.length > 0 ? (
             <div className="border-t">
-              {lessons.map((lesson, index) => {
-                const isCompleted = isLessonCompleted(lesson.id);
-                const isCurrent = lesson.id === currentLessonId;
+              <div className="space-y-2 p-2">
+                {lessons.map((lesson, index) => {
+                  const isCompleted = isLessonCompleted(lesson.id);
+                  const isCurrent = lesson.id === currentLessonId;
+                  const hasAccess = !isLocked;
+                  const thumbnailUrl = lesson.thumbnail_url || module.thumbnail_url;
 
-                return (
-                  <Button
-                    key={lesson.id}
-                    variant="ghost"
-                    onClick={() => {
-                      if (isLocked) {
-                        toast.error('Complete o módulo anterior para acessar este conteúdo');
-                        return;
-                      }
-                      navigate(`/courses/${courseId}/modules/${module.id}/lessons/${lesson.id}`)
-                    }}
-                    className={`w-full justify-start p-4 h-auto text-left rounded-none border-b last:border-b-0 ${
-                      isCurrent ? 'bg-orange-500/10 border-l-2 border-orange-500 text-foreground' : 'hover:bg-muted/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 w-full">
+                  return (
+                    <div
+                      key={lesson.id}
+                      onClick={() => {
+                        if (hasAccess) {
+                          navigate(`/courses/${courseId}/modules/${module.id}/lessons/${lesson.id}`);
+                        } else {
+                          toast.error('Complete o módulo anterior para acessar este conteúdo');
+                        }
+                      }}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer",
+                        "border border-border/50",
+                        hasAccess ? "hover:bg-accent/50" : "opacity-60 cursor-not-allowed",
+                        isCurrent && "border-orange-500 bg-orange-500/10",
+                        isCompleted && "bg-green-500/10 border-green-500/30"
+                      )}
+                    >
+                      {/* Thumbnail */}
                       <div className="flex-shrink-0">
-                        {isCompleted ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : isCurrent ? (
-                          <Play className="h-5 w-5 text-primary" />
+                        {thumbnailUrl ? (
+                          <div className="relative w-12 h-8 rounded overflow-hidden">
+                            <img 
+                              src={thumbnailUrl} 
+                              alt={lesson.title}
+                              className="w-full h-full object-cover"
+                            />
+                            {isCompleted && (
+                              <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                <Check className="h-3 w-3 text-green-600" />
+                              </div>
+                            )}
+                            {isCurrent && !isCompleted && (
+                              <div className="absolute inset-0 bg-orange-500/20 flex items-center justify-center">
+                                <Play className="h-3 w-3 text-orange-600" />
+                              </div>
+                            )}
+                          </div>
                         ) : (
-                          <div className="h-5 w-5 border-2 border-muted-foreground rounded-full flex items-center justify-center">
-                            <span className="text-xs font-medium">{index + 1}</span>
+                          <div className={cn(
+                            "w-12 h-8 rounded bg-muted/50 flex items-center justify-center",
+                            isCurrent && "bg-orange-500/20",
+                            isCompleted && "bg-green-500/20"
+                          )}>
+                            {isCompleted ? (
+                              <Check className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Play className={cn(
+                                "h-3 w-3",
+                                isCurrent ? "text-orange-600" : "text-muted-foreground"
+                              )} />
+                            )}
                           </div>
                         )}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm mb-1 truncate">{lesson.title}</p>
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{formatDuration(lesson.duration || 0)}</span>
-                          </div>
+                        <p className={cn(
+                          "font-medium text-sm truncate",
+                          isCurrent && "text-orange-600"
+                        )}>
+                          {lesson.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <DifficultyBadge difficulty={lesson.difficulty_level as 'beginner' | 'intermediate' | 'advanced'} />
+                          {lesson.duration && (
+                            <span className="text-xs text-muted-foreground">
+                              {lesson.duration}min
+                            </span>
+                          )}
                           {isCompleted && (
-                            <span className="ml-auto rounded-full bg-orange-600 text-white text-xs px-2.5 py-0.5">Concluída</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
+                              Concluída
+                            </span>
                           )}
                         </div>
                       </div>
+                      
+                      {!hasAccess && (
+                        <div className="flex-shrink-0">
+                          <Lock className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
-                  </Button>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           ) : (
             <div className="p-4 text-center text-sm text-muted-foreground">

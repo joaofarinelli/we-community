@@ -22,6 +22,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { LessonMaterialUploader } from '@/components/ui/lesson-material-uploader';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { useCreateLesson } from '@/hooks/useManageCourses';
 import { useCreateLessonMaterial } from '@/hooks/useLessonMaterials';
 
@@ -32,6 +33,7 @@ const lessonSchema = z.object({
   video_url: z.string().url('URL deve ser válida').optional().or(z.literal('')),
   duration: z.number().min(0, 'Duração deve ser positiva').optional(),
   difficulty_level: z.enum(['beginner', 'intermediate', 'advanced']),
+  thumbnail_url: z.string().url('URL inválida').optional().or(z.literal('')),
   materials: z.array(z.object({
     title: z.string().min(1, 'Título do material é obrigatório'),
     file_url: z.string().min(1, 'Arquivo é obrigatório'),
@@ -61,6 +63,7 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
       video_url: '',
       duration: 0,
       difficulty_level: 'beginner',
+      thumbnail_url: '',
       materials: [],
     }
   });
@@ -76,6 +79,7 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
         video_url: data.video_url || undefined,
         duration: data.duration || undefined,
         difficulty_level: data.difficulty_level,
+        thumbnail_url: data.thumbnail_url || undefined,
       });
 
       // Criar materiais da aula se houver
@@ -220,11 +224,31 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
                     </SelectContent>
                   </Select>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
+                <FormField
+                  control={form.control}
+                  name="thumbnail_url"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Thumbnail da Aula</FormLabel>
+                      <FormControl>
+                        <ImageUpload
+                          value={field.value || ''}
+                          onChange={field.onChange}
+                          onRemove={() => field.onChange('')}
+                          bucketName="lesson-thumbnails"
+                          maxSizeKB={5000}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
               control={form.control}
               name="content"
               render={({ field }) => (

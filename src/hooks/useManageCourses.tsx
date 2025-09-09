@@ -251,6 +251,7 @@ export const useCreateLesson = () => {
       duration?: number;
       order_index?: number;
       difficulty_level?: string;
+      thumbnail_url?: string;
     }) => {
       if (!currentCompanyId) throw new Error('Empresa não encontrada');
       
@@ -293,6 +294,7 @@ export const useUpdateLesson = () => {
       duration?: number;
       order_index?: number;
       difficulty_level?: string;
+      thumbnail_url?: string;
     }) => {
       const { data, error } = await supabase
         .from('course_lessons')
