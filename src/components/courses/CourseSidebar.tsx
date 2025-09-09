@@ -184,8 +184,8 @@ const ModuleSection = ({
                     
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground mb-2">{lesson.title}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
+                      <h4 className="font-medium text-foreground mb-2 text-sm">{lesson.title}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-2">
                         {lesson.description || `Seja muito bem recepcionado com o Fundador do CAE Club, ${module.title} que está há mais de 10 anos investindo em pessoas e gerando oportunidades valiosas através do Networking`}
                       </p>
                     </div>
