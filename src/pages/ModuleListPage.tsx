@@ -16,7 +16,7 @@ import { ModuleAccessGuard } from '@/components/courses/ModuleAccessGuard';
 const ModuleCardWithAccess = ({ module, courseId }: { module: any; courseId: string }) => {
   const { data: lessons } = useCourseLessons(module.id);
   const { data: userProgress } = useUserCourseProgress(courseId);
-  const { data: moduleAccess } = useModuleAccess(courseId);
+  const { data: moduleAccess, isLoading: accessLoading } = useModuleAccess(courseId);
   
   const lessonCount = lessons?.length || 0;
   const completedLessons = userProgress?.filter(p => 
@@ -24,7 +24,8 @@ const ModuleCardWithAccess = ({ module, courseId }: { module: any; courseId: str
   ).length || 0;
   
   const isCompleted = lessonCount > 0 && completedLessons === lessonCount;
-  const isLocked = moduleAccess && !moduleAccess[module.id];
+  // Module is locked if access data exists and specifically denies access to this module
+  const isLocked = !accessLoading && moduleAccess && moduleAccess[module.id] === false;
   
   return (
     <ModuleCard

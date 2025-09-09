@@ -32,10 +32,12 @@ export const ModuleCard = ({
   const { data: nextLesson, isLoading } = useModuleNextLesson(module.id, module.course_id);
 
   const handleClick = () => {
-    if (isLoading || isClickDisabled || isLocked) {
-      if (isLocked) {
-        toast.error('Complete o módulo anterior para acessar este conteúdo');
-      }
+    if (isLocked) {
+      toast.error('Complete o módulo anterior para acessar este conteúdo');
+      return;
+    }
+    
+    if (isLoading || isClickDisabled) {
       return;
     }
     
