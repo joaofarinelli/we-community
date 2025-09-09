@@ -8,12 +8,18 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { usePendingEssayReviews, useReviewEssayAnswer, useCompanyEssayReviews } from '@/hooks/useEssayQuestionReviews';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Checkbox } from '@/components/ui/checkbox';
+import { usePendingEssayReviews, useReviewEssayAnswer, useCompanyEssayReviews, EssayReviewFilters } from '@/hooks/useEssayQuestionReviews';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { useTags } from '@/hooks/useTags';
+import { useCompanyLevels } from '@/hooks/useCompanyLevels';
+import { useTrailBadges } from '@/hooks/useTrailBadges';
 import { PendingReviewsNotification } from '@/components/admin/PendingReviewsNotification';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { CheckCircle, XCircle, Clock, User, BookOpen, FileText, Award } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, BookOpen, FileText, Award, Filter, X, Search } from 'lucide-react';
 
 export const AdminEssayReviewsPage = () => {
   const { currentCompanyId } = useCompanyContext();
@@ -23,9 +29,40 @@ export const AdminEssayReviewsPage = () => {
   const [reviewNotes, setReviewNotes] = useState('');
   const [pointsEarned, setPointsEarned] = useState<number>(0);
   
+  // Filter states
+  const [filters, setFilters] = useState<EssayReviewFilters>({});
+  const [showFilters, setShowFilters] = useState(false);
+  const [userNameSearch, setUserNameSearch] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
+  
+  // Fetch filter options
+  const { data: tags = [] } = useTags();
+  const { data: levels = [] } = useCompanyLevels();
+  const { data: badges = [] } = useTrailBadges();
+  
+  // Apply filters to queries
+  const currentFilters: EssayReviewFilters = {
+    userName: userNameSearch || undefined,
+    tagIds: selectedTags.length > 0 ? selectedTags : undefined,
+    levelIds: selectedLevels.length > 0 ? selectedLevels : undefined,
+    badgeIds: selectedBadges.length > 0 ? selectedBadges : undefined,
+  };
+  
   const { data: pendingReviews, isLoading: pendingLoading } = usePendingEssayReviews(currentCompanyId);
   const { data: allReviews, isLoading: allLoading } = useCompanyEssayReviews(currentCompanyId);
   const reviewAnswer = useReviewEssayAnswer();
+
+  // Filter functions
+  const clearFilters = () => {
+    setUserNameSearch('');
+    setSelectedTags([]);
+    setSelectedLevels([]);
+    setSelectedBadges([]);
+  };
+
+  const hasActiveFilters = userNameSearch || selectedTags.length > 0 || selectedLevels.length > 0 || selectedBadges.length > 0;
 
   const handleReviewClick = (answer: any) => {
     setSelectedAnswer(answer);
@@ -156,6 +193,204 @@ export const AdminEssayReviewsPage = () => {
         </div>
 
         <PendingReviewsNotification />
+
+        {/* Filters Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome do usuário..."
+                  value={userNameSearch}
+                  onChange={(e) => setUserNameSearch(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Popover open={showFilters} onOpenChange={setShowFilters}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filtros {hasActiveFilters && `(${[selectedTags.length, selectedLevels.length, selectedBadges.length].filter(n => n > 0).length})`}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-4" align="start">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Filtros Avançados</h4>
+                      {hasActiveFilters && (
+                        <Button variant="ghost" size="sm" onClick={clearFilters}>
+                          <X className="h-4 w-4 mr-2" />
+                          Limpar
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Tags Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Tags</Label>
+                      <div className="max-h-32 overflow-y-auto space-y-2">
+                        {tags.map((tag) => (
+                          <div key={tag.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`tag-${tag.id}`}
+                              checked={selectedTags.includes(tag.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedTags([...selectedTags, tag.id]);
+                                } else {
+                                  setSelectedTags(selectedTags.filter(id => id !== tag.id));
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={`tag-${tag.id}`}
+                              className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: tag.color }}
+                              />
+                              {tag.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Levels Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Níveis</Label>
+                      <div className="max-h-32 overflow-y-auto space-y-2">
+                        {levels.map((level) => (
+                          <div key={level.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`level-${level.id}`}
+                              checked={selectedLevels.includes(level.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedLevels([...selectedLevels, level.id]);
+                                } else {
+                                  setSelectedLevels(selectedLevels.filter(id => id !== level.id));
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={`level-${level.id}`}
+                              className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: level.level_color }}
+                              />
+                              {level.level_name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Badges Filter */}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Selos</Label>
+                      <div className="max-h-32 overflow-y-auto space-y-2">
+                        {badges.map((badge) => (
+                          <div key={badge.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`badge-${badge.id}`}
+                              checked={selectedBadges.includes(badge.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedBadges([...selectedBadges, badge.id]);
+                                } else {
+                                  setSelectedBadges(selectedBadges.filter(id => id !== badge.id));
+                                }
+                              }}
+                            />
+                            <Label
+                              htmlFor={`badge-${badge.id}`}
+                              className="text-sm font-normal cursor-pointer flex items-center gap-2"
+                            >
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: badge.background_color }}
+                              />
+                              {badge.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2">
+              {userNameSearch && (
+                <Badge variant="secondary" className="gap-1">
+                  Nome: {userNameSearch}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => setUserNameSearch('')}
+                  />
+                </Badge>
+              )}
+              {selectedTags.map(tagId => {
+                const tag = tags.find(t => t.id === tagId);
+                return tag ? (
+                  <Badge key={tagId} variant="secondary" className="gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    {tag.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setSelectedTags(selectedTags.filter(id => id !== tagId))}
+                    />
+                  </Badge>
+                ) : null;
+              })}
+              {selectedLevels.map(levelId => {
+                const level = levels.find(l => l.id === levelId);
+                return level ? (
+                  <Badge key={levelId} variant="secondary" className="gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: level.level_color }}
+                    />
+                    {level.level_name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setSelectedLevels(selectedLevels.filter(id => id !== levelId))}
+                    />
+                  </Badge>
+                ) : null;
+              })}
+              {selectedBadges.map(badgeId => {
+                const badge = badges.find(b => b.id === badgeId);
+                return badge ? (
+                  <Badge key={badgeId} variant="secondary" className="gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: badge.background_color }}
+                    />
+                    {badge.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setSelectedBadges(selectedBadges.filter(id => id !== badgeId))}
+                    />
+                  </Badge>
+                ) : null;
+              })}
+            </div>
+          )}
+        </div>
 
         <Tabs defaultValue="pending" className="space-y-4">
           <TabsList>
