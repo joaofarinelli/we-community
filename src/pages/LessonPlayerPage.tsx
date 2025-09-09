@@ -212,7 +212,7 @@ export const LessonPlayerPage = () => {
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Video/Content Player */}
-            <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black max-w-3xl w-full aspect-[16/9] max-h-96">
+            <div className="relative overflow-hidden border border-white/10 bg-black max-w-3xl w-full aspect-[16/9] max-h-96">
               {lesson.video_url ? (
                 <>
                   <iframe
