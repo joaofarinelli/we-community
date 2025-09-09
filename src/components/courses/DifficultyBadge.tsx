@@ -11,31 +11,31 @@ export const DifficultyBadge = ({ difficulty, className }: DifficultyBadgeProps)
     switch (level) {
       case 'beginner':
         return {
-          label: 'Iniciante',
+          label: 'Básico',
           icon: Star,
           variant: 'secondary' as const,
-          className: 'bg-green-100 text-green-800 hover:bg-green-100'
+          className: 'rounded-full bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-xs gap-1'
         };
       case 'intermediate':
         return {
           label: 'Intermediário',
           icon: TrendingUp,
           variant: 'secondary' as const,
-          className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100'
+          className: 'rounded-full bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-xs gap-1'
         };
       case 'advanced':
         return {
           label: 'Avançado',
           icon: Zap,
           variant: 'secondary' as const,
-          className: 'bg-red-100 text-red-800 hover:bg-red-100'
+          className: 'rounded-full bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-xs gap-1'
         };
       default:
         return {
-          label: 'Iniciante',
+          label: 'Básico',
           icon: Star,
           variant: 'secondary' as const,
-          className: 'bg-green-100 text-green-800 hover:bg-green-100'
+          className: 'rounded-full bg-white/5 text-white/80 hover:bg-white/10 px-3 py-1 text-xs gap-1'
         };
     }
   };
@@ -48,7 +48,7 @@ export const DifficultyBadge = ({ difficulty, className }: DifficultyBadgeProps)
       variant={config.variant} 
       className={`${config.className} ${className}`}
     >
-      <Icon className="h-3 w-3 mr-1" />
+      <Icon className="h-3 w-3 mr-1 opacity-80" />
       {config.label}
     </Badge>
   );

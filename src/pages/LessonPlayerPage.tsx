@@ -212,21 +212,21 @@ export const LessonPlayerPage = () => {
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Video/Content Player */}
-            <div className="flex-shrink-0 bg-black">
+            <div className="aspect-video relative overflow-hidden rounded-xl border border-white/10 bg-black">
               {lesson.video_url ? (
-                <div className="aspect-video relative">
+                <>
                   <iframe
                     src={lesson.video_url}
                     title={lesson.title}
                     className="h-full w-full"
                     allowFullScreen
                   />
-                  <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-1 rounded text-sm">
+                  <div className="absolute top-4 left-4 bg-black/60 text-white rounded px-3 py-1 text-sm backdrop-blur-sm">
                     {lesson.title}
                   </div>
-                </div>
+                </>
               ) : (
-                <div className="aspect-video flex items-center justify-center">
+                <div className="flex items-center justify-center h-full">
                   <div className="text-center text-white">
                     <FileText className="h-16 w-16 mx-auto mb-4 opacity-70" />
                     <p className="text-lg font-medium">Aula em Texto</p>
@@ -237,7 +237,7 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Action Bar */}
-            <div className="flex-shrink-0 border-b bg-background p-4">
+            <div className="bg-card/60 border border-white/10 rounded-b-xl -mt-px p-4 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
@@ -258,7 +258,7 @@ export const LessonPlayerPage = () => {
                     <Button
                       onClick={handleCompleteLesson}
                       disabled={isCompleting || quizLoading}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="rounded-full h-10 px-5 bg-orange-600 hover:bg-orange-700 text-white"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
                       {isCompleting ? (
@@ -272,10 +272,10 @@ export const LessonPlayerPage = () => {
                       )}
                     </Button>
                   ) : (
-                    <Badge variant="default" className="bg-green-100 text-green-700">
-                      <CheckCircle className="mr-1 h-3 w-3" />
+                    <span className="rounded-full bg-orange-600 text-white text-sm px-3 py-1 flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3" />
                       Concluída
-                    </Badge>
+                    </span>
                   )}
                   
                   {isLastLessonOfCourse ? (
@@ -283,6 +283,7 @@ export const LessonPlayerPage = () => {
                       <Button
                         onClick={() => setCertificateOpen(true)}
                         variant="outline"
+                        className="rounded-full h-10 px-5 border-white/20 hover:border-white/30"
                       >
                         Emitir Certificado
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -291,6 +292,7 @@ export const LessonPlayerPage = () => {
                       <Button
                         onClick={() => navigate('/courses')}
                         variant="outline"
+                        className="rounded-full h-10 px-5 border-white/20 hover:border-white/30"
                       >
                         Finalizar
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -301,6 +303,7 @@ export const LessonPlayerPage = () => {
                       onClick={handleNextLesson}
                       disabled={!nextLesson}
                       variant="outline"
+                      className="rounded-full h-10 px-5 border-white/20 hover:border-white/30"
                     >
                       Próxima
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -313,26 +316,26 @@ export const LessonPlayerPage = () => {
             {/* Tabs Content */}
             <div>
               <Tabs defaultValue="description" className="flex flex-col">
-                <TabsList className="w-full justify-start rounded-none border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-12 sticky top-0 z-10">
-                  <TabsTrigger value="description" className="gap-2">
-                    <BookOpen className="h-4 w-4" />
+                <TabsList className="w-full justify-start rounded-none border-b bg-transparent h-12 sticky top-0 z-10 backdrop-blur">
+                  <TabsTrigger value="description" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 text-muted-foreground">
+                    <BookOpen className="h-4 w-4 opacity-60 data-[state=active]:opacity-100" />
                     Descrição
                   </TabsTrigger>
-                  <TabsTrigger value="materials" className="gap-2">
-                    <FileDown className="h-4 w-4" />
+                  <TabsTrigger value="materials" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 text-muted-foreground">
+                    <FileDown className="h-4 w-4 opacity-60 data-[state=active]:opacity-100" />
                     Materiais
                   </TabsTrigger>
-                  <TabsTrigger value="comments" className="gap-2">
-                    <MessageCircle className="h-4 w-4" />
+                  <TabsTrigger value="comments" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 text-muted-foreground">
+                    <MessageCircle className="h-4 w-4 opacity-60 data-[state=active]:opacity-100" />
                     Comentários
                   </TabsTrigger>
-                  <TabsTrigger value="notes" className="gap-2">
-                    <StickyNote className="h-4 w-4" />
+                  <TabsTrigger value="notes" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 text-muted-foreground">
+                    <StickyNote className="h-4 w-4 opacity-60 data-[state=active]:opacity-100" />
                     Anotações
                   </TabsTrigger>
                   {lessonQuiz && (
-                    <TabsTrigger value="quiz" className="gap-2">
-                      <FileText className="h-4 w-4" />
+                    <TabsTrigger value="quiz" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-500 text-muted-foreground">
+                      <FileText className="h-4 w-4 opacity-60 data-[state=active]:opacity-100" />
                       Prova
                     </TabsTrigger>
                   )}

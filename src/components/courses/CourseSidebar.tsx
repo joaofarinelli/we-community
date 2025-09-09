@@ -120,7 +120,10 @@ const ModuleSection = ({
             className="w-full justify-between p-4 h-auto text-left rounded-none hover:bg-muted/50 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <div className="flex-1">
-              <h3 className="font-semibold text-sm mb-1">{module.title}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-sm mb-1">{module.title}</h3>
+                {isLocked && <Lock className="h-3 w-3 text-muted-foreground" />}
+              </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>{completedLessons}/{totalLessons} aulas</span>
                 {progressPercentage > 0 && (
@@ -131,11 +134,16 @@ const ModuleSection = ({
                 )}
               </div>
             </div>
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            )}
+            <div className="flex items-center gap-2">
+              {!lessonsLoading && completedLessons === totalLessons && totalLessons > 0 && (
+                <span className="rounded-full bg-orange-600 text-white text-xs px-2.5 py-0.5">Concluída</span>
+              )}
+              {isOpen ? (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
           </Button>
         </CollapsibleTrigger>
 
@@ -164,7 +172,7 @@ const ModuleSection = ({
                       navigate(`/courses/${courseId}/modules/${module.id}/lessons/${lesson.id}`)
                     }}
                     className={`w-full justify-start p-4 h-auto text-left rounded-none border-b last:border-b-0 ${
-                      isCurrent ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50'
+                      isCurrent ? 'bg-orange-500/10 border-l-2 border-orange-500 text-foreground' : 'hover:bg-muted/50'
                     }`}
                   >
                     <div className="flex items-center gap-3 w-full">
@@ -182,9 +190,14 @@ const ModuleSection = ({
                       
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm mb-1 truncate">{lesson.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{formatDuration(lesson.duration || 0)}</span>
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatDuration(lesson.duration || 0)}</span>
+                          </div>
+                          {isCompleted && (
+                            <span className="ml-auto rounded-full bg-orange-600 text-white text-xs px-2.5 py-0.5">Concluída</span>
+                          )}
                         </div>
                       </div>
                     </div>
