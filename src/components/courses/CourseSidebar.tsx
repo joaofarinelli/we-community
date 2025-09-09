@@ -1,10 +1,12 @@
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
+import { useModuleAccess } from '@/hooks/useCourseAccess';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Play, CheckCircle2, Clock } from 'lucide-react';
+import { ChevronDown, ChevronRight, Play, CheckCircle2, Clock, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,6 +23,7 @@ export const CourseSidebar = ({ courseId, currentLessonId, currentModuleId }: Co
   });
 
   const { data: modules, isLoading: modulesLoading } = useCourseModules(courseId);
+  const { data: moduleAccess, isLoading: accessLoading } = useModuleAccess(courseId);
   const { data: progress } = useUserCourseProgress(courseId);
 
   const toggleModule = (moduleId: string) => {
@@ -70,6 +73,7 @@ export const CourseSidebar = ({ courseId, currentLessonId, currentModuleId }: Co
           currentLessonId={currentLessonId}
           isLessonCompleted={isLessonCompleted}
           formatDuration={formatDuration}
+          isLocked={!accessLoading && moduleAccess && moduleAccess[module.id] === false}
           navigate={navigate}
         />
       ))}
@@ -85,6 +89,7 @@ interface ModuleSectionProps {
   currentLessonId?: string;
   isLessonCompleted: (lessonId: string) => boolean;
   formatDuration: (seconds: number) => string;
+  isLocked: boolean;
   navigate: (path: string) => void;
 }
 
@@ -96,6 +101,7 @@ const ModuleSection = ({
   currentLessonId,
   isLessonCompleted,
   formatDuration,
+  isLocked,
   navigate
 }: ModuleSectionProps) => {
   const { data: lessons, isLoading: lessonsLoading } = useCourseLessons(module.id);
@@ -110,7 +116,8 @@ const ModuleSection = ({
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
-            className="w-full justify-between p-4 h-auto text-left rounded-none hover:bg-muted/50"
+            disabled={isLocked}
+            className="w-full justify-between p-4 h-auto text-left rounded-none hover:bg-muted/50 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <div className="flex-1">
               <h3 className="font-semibold text-sm mb-1">{module.title}</h3>
@@ -149,7 +156,13 @@ const ModuleSection = ({
                   <Button
                     key={lesson.id}
                     variant="ghost"
-                    onClick={() => navigate(`/courses/${courseId}/modules/${module.id}/lessons/${lesson.id}`)}
+                    onClick={() => {
+                      if (isLocked) {
+                        toast.error('Complete o módulo anterior para acessar este conteúdo');
+                        return;
+                      }
+                      navigate(`/courses/${courseId}/modules/${module.id}/lessons/${lesson.id}`)
+                    }}
                     className={`w-full justify-start p-4 h-auto text-left rounded-none border-b last:border-b-0 ${
                       isCurrent ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50'
                     }`}

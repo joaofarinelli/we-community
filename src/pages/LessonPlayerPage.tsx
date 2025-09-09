@@ -23,6 +23,7 @@ import { CertificateDialog } from '@/components/courses/CertificateDialog';
 import { LessonQuizDialog } from '@/components/courses/LessonQuizDialog';
 import { useLessonQuiz, useQuizAttempts } from '@/hooks/useLessonQuiz';
 import { AccessGuard } from '@/components/courses/AccessGuard';
+import { useModuleAccess } from '@/hooks/useCourseAccess';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -44,6 +45,7 @@ export const LessonPlayerPage = () => {
   const markLessonComplete = useMarkLessonComplete();
   const { data: lessonQuiz, isLoading: quizLoading } = useLessonQuiz(lessonId);
   const { data: quizAttempts } = useQuizAttempts(lessonQuiz?.id);
+  const { data: moduleAccess } = useModuleAccess(courseId!);
   
   const course = courses?.find(c => c.id === courseId);
   const module = modules?.find(m => m.id === moduleId);
@@ -123,6 +125,10 @@ export const LessonPlayerPage = () => {
       const nextModule = modules?.[currentModuleIndex + 1];
       
       if (nextModule) {
+        if (moduleAccess && moduleAccess[nextModule.id] === false) {
+          toast.error('Complete o módulo anterior para acessar este conteúdo');
+          return;
+        }
         navigate(`/courses/${courseId}/modules/${nextModule.id}`);
       } else {
         // No more lessons/modules, show completion message
@@ -143,6 +149,10 @@ export const LessonPlayerPage = () => {
       const prevModule = modules?.[currentModuleIndex - 1];
       
       if (prevModule) {
+        if (moduleAccess && moduleAccess[prevModule.id] === false) {
+          toast.error('Complete o módulo anterior para acessar este conteúdo');
+          return;
+        }
         navigate(`/courses/${courseId}/modules/${prevModule.id}`);
       }
     }
