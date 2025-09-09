@@ -237,7 +237,7 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Action Bar */}
-            <div className="bg-card/60 border border-white/10 rounded-b-xl -mt-px p-4 backdrop-blur-sm">
+            <div className="bg-card/60 border border-white/10 rounded-b-xl -mt-px p-4 backdrop-blur-sm max-w-3xl w-full">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
