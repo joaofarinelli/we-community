@@ -4643,6 +4643,19 @@ export type Database = {
         Args: { p_course_id: string; p_user_id: string }
         Returns: boolean
       }
+      verify_certificate: {
+        Args: { p_certificate_code: string }
+        Returns: {
+          company_name: string
+          course_title: string
+          duration_minutes: number
+          is_valid: boolean
+          issued_at: string
+          mentor_name: string
+          mentor_role: string
+          user_name: string
+        }[]
+      }
     }
     Enums: {
       challenge_type:

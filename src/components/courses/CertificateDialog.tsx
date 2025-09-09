@@ -1,8 +1,9 @@
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, FileDown, Printer } from 'lucide-react';
+import QRCode from 'qrcode';
 
 interface CertificateDialogProps {
   open: boolean;
@@ -21,6 +23,7 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { data: userProfile } = useUserProfile();
   useSupabaseContext();
 
   const {
@@ -119,6 +122,37 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
     return `${hours} hora${hours === 1 ? '' : 's'}`;
   }, [certificate]);
 
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (certificate && open) {
+      const generateQRCode = async () => {
+        try {
+          const verificationUrl = `${window.location.origin}/certificate/${certificate.certificate_code}`;
+          const qrDataUrl = await QRCode.toDataURL(verificationUrl, {
+            width: 120,
+            margin: 1,
+            color: {
+              dark: 'currentColor',
+              light: '#00000000' // transparent background
+            }
+          });
+          setQrCodeUrl(qrDataUrl);
+        } catch (error) {
+          console.error('Error generating QR code:', error);
+        }
+      };
+      generateQRCode();
+    }
+  }, [certificate, open]);
+
+  const userName = useMemo(() => {
+    if (userProfile?.first_name || userProfile?.last_name) {
+      return `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim();
+    }
+    return 'Usuário';
+  }, [userProfile]);
+
   useEffect(() => {
     if (!open) return;
     // Log útil para depuração em tempo real
@@ -207,8 +241,7 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                     <div className="mt-8 text-center">
                       <p className="text-sm sm:text-base text-foreground opacity-80">Conferido a</p>
                       <p className="text-xl sm:text-2xl font-semibold mt-1 text-foreground">
-                        {/* Nome do usuário não está na tabela; poderíamos buscar do perfil se necessário */}
-                        Aluna
+                        {userName}
                       </p>
                       <p className="mt-3 text-sm sm:text-base text-foreground">
                         pela conclusão do curso com carga horária de {hoursText}.
@@ -223,7 +256,19 @@ export const CertificateDialog = ({ open, onOpenChange, courseId }: CertificateD
                           <div className="mt-4 text-xs">{course.certificate_footer_text}</div>
                         )}
                       </div>
+                      
                       <div className="text-center">
+                        {qrCodeUrl && (
+                          <div className="flex flex-col items-center gap-2 mb-4">
+                            <img 
+                              src={qrCodeUrl} 
+                              alt="QR Code para validação" 
+                              className="w-20 h-20 opacity-80"
+                            />
+                            <span className="text-xs text-foreground opacity-60">Validar certificado</span>
+                          </div>
+                        )}
+                        
                         {course?.mentor_name && (
                           <div className="mt-2">
                             <div className="font-whisper text-2xl sm:text-3xl font-normal text-foreground">
