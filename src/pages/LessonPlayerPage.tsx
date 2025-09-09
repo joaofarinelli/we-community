@@ -212,7 +212,7 @@ export const LessonPlayerPage = () => {
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
             {/* Video/Content Player */}
-            <div className="relative overflow-hidden border border-white/10 bg-black max-w-3xl w-full aspect-[16/9] max-h-96">
+            <div className="relative overflow-hidden border border-white/10 bg-black max-w-2xl w-full aspect-[16/9] max-h-80">
               {lesson.video_url ? (
                 <>
                   <iframe
@@ -237,7 +237,7 @@ export const LessonPlayerPage = () => {
             </div>
 
             {/* Action Bar */}
-            <div className="bg-card/60 border border-white/10 rounded-b-xl -mt-px p-4 backdrop-blur-sm max-w-3xl w-full">
+            <div className="bg-card/60 border border-white/10 rounded-b-xl -mt-px p-4 backdrop-blur-sm max-w-2xl w-full">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <DifficultyBadge difficulty={(lesson as any).difficulty_level || 'beginner'} />
@@ -404,7 +404,7 @@ export const LessonPlayerPage = () => {
           </div>
 
           {/* Right Sidebar */}
-          <div className="w-96 border-l bg-background/50 hidden lg:block sticky top-4 self-start">
+          <div className="w-[450px] border-l bg-background/50 hidden lg:block sticky top-4 self-start">
             <div className="p-4">
               <div className="mb-4">
                 <h3 className="font-semibold text-sm mb-2">Módulos do Curso</h3>
