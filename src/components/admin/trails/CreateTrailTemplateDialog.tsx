@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ImageUploader } from '@/components/ui/image-uploader';
 import { useCreateTrailTemplate } from '@/hooks/useTrailTemplates';
 import { TrailAccessSettings } from './TrailAccessSettings';
 import type { TrailAccessCriteria } from '@/hooks/useTrailAccess';
@@ -16,6 +17,7 @@ const createTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   description: z.string().optional(),
   life_area: z.string().optional(),
+  cover_url: z.string().optional(),
 });
 
 type CreateTemplateFormData = z.infer<typeof createTemplateSchema>;
@@ -54,6 +56,7 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
       name: '',
       description: '',
       life_area: 'none',
+      cover_url: '',
     },
   });
 
@@ -145,6 +148,24 @@ export const CreateTrailTemplateDialog = ({ open, onOpenChange }: CreateTrailTem
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cover_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem de Capa (Opcional)</FormLabel>
+                  <FormControl>
+                    <ImageUploader
+                      value={field.value}
+                      onChange={field.onChange}
+                      bucket="post-images"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

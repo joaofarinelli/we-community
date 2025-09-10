@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ImageUploader } from '@/components/ui/image-uploader';
 import { useCreateTrailTemplate, TrailTemplate } from '@/hooks/useTrailTemplates';
 
 const copyTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   description: z.string().optional(),
   life_area: z.string().optional(),
+  cover_url: z.string().optional(),
 });
 
 type CopyTemplateFormData = z.infer<typeof copyTemplateSchema>;
@@ -47,6 +49,7 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
       name: '',
       description: '',
       life_area: 'none',
+      cover_url: '',
     },
   });
 
@@ -56,6 +59,7 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
         name: `Cópia de ${template.name}`,
         description: template.description || '',
         life_area: template.life_area || 'none',
+        cover_url: template.cover_url || '',
       });
     }
   }, [template, open, form]);
@@ -142,6 +146,24 @@ export const CopyTrailTemplateDialog = ({ open, onOpenChange, template }: CopyTr
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cover_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem de Capa (Opcional)</FormLabel>
+                  <FormControl>
+                    <ImageUploader
+                      value={field.value}
+                      onChange={field.onChange}
+                      bucket="post-images"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

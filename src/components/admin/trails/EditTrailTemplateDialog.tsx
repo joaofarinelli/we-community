@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { ImageUploader } from '@/components/ui/image-uploader';
 import { useUpdateTrailTemplate, TrailTemplate } from '@/hooks/useTrailTemplates';
 import { TrailAccessSettings } from './TrailAccessSettings';
 import type { TrailAccessCriteria } from '@/hooks/useTrailAccess';
@@ -16,6 +17,7 @@ const editTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   description: z.string().optional(),
   life_area: z.string().optional(),
+  cover_url: z.string().optional(),
 });
 
 type EditTemplateFormData = z.infer<typeof editTemplateSchema>;
@@ -55,6 +57,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
       name: '',
       description: '',
       life_area: 'none',
+      cover_url: '',
     },
   });
 
@@ -64,6 +67,7 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
         name: template.name,
         description: template.description || '',
         life_area: template.life_area || 'none',
+        cover_url: template.cover_url || '',
       });
       setAccessCriteria(template.access_criteria || {
         is_available_for_all: true,
@@ -161,6 +165,24 @@ export const EditTrailTemplateDialog = ({ open, onOpenChange, template }: EditTr
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="cover_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Imagem de Capa (Opcional)</FormLabel>
+                  <FormControl>
+                    <ImageUploader
+                      value={field.value}
+                      onChange={field.onChange}
+                      bucket="post-images"
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

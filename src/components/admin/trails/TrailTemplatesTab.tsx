@@ -89,6 +89,18 @@ export const TrailTemplatesTab = () => {
             )}
           </CardHeader>
 
+          {template.cover_url && (
+            <div className="px-6 pb-4">
+              <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src={template.cover_url} 
+                  alt={`Capa do template ${template.name}`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+
           <CardContent className="space-y-4">
             {/* Details */}
             <div className="space-y-2 text-sm text-muted-foreground">

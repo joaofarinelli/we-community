@@ -3359,6 +3359,7 @@ export type Database = {
         Row: {
           access_criteria: Json | null
           company_id: string
+          cover_url: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -3371,6 +3372,7 @@ export type Database = {
         Insert: {
           access_criteria?: Json | null
           company_id: string
+          cover_url?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -3383,6 +3385,7 @@ export type Database = {
         Update: {
           access_criteria?: Json | null
           company_id?: string
+          cover_url?: string | null
           created_at?: string
           created_by?: string
           description?: string | null

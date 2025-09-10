@@ -10,6 +10,7 @@ export interface TrailTemplate {
   name: string;
   description?: string;
   life_area?: string;
+  cover_url?: string;
   is_active: boolean;
   access_criteria?: {
     required_level_id?: string;
@@ -65,6 +66,7 @@ export const useCreateTrailTemplate = () => {
       name: string;
       description?: string;
       life_area?: string;
+      cover_url?: string;
       access_criteria?: {
         required_level_id?: string;
         required_tags?: string[];

@@ -33,6 +33,19 @@ export const ViewTrailTemplateDialog = ({ open, onOpenChange, template }: ViewTr
               <CardTitle className="text-lg">Informações Gerais</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
+              {template.cover_url && (
+                <div>
+                  <span className="font-medium text-sm">Imagem de Capa:</span>
+                  <div className="mt-2 w-full h-48 bg-muted rounded-lg overflow-hidden">
+                    <img 
+                      src={template.cover_url} 
+                      alt={`Capa do template ${template.name}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div>
                 <span className="font-medium text-sm">Nome:</span>
                 <p className="text-foreground">{template.name}</p>
