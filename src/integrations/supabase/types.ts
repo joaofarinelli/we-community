@@ -2387,6 +2387,111 @@ export type Database = {
           },
         ]
       }
+      payment_provider_configs: {
+        Row: {
+          coins_per_brl: number
+          company_id: string
+          created_at: string
+          created_by: string
+          credentials: Json
+          environment: string
+          id: string
+          is_active: boolean
+          provider: string
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          coins_per_brl?: number
+          company_id: string
+          created_at?: string
+          created_by: string
+          credentials?: Json
+          environment?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          coins_per_brl?: number
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          credentials?: Json
+          environment?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_cents: number
+          barcode: string | null
+          boleto_expiration: string | null
+          boleto_url: string | null
+          company_id: string
+          created_at: string
+          currency: string
+          id: string
+          linha_digitavel: string | null
+          metadata: Json
+          payer_data: Json
+          provider: string
+          provider_order_id: string | null
+          purpose_type: string
+          reference_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          barcode?: string | null
+          boleto_expiration?: string | null
+          boleto_url?: string | null
+          company_id: string
+          created_at?: string
+          currency?: string
+          id?: string
+          linha_digitavel?: string | null
+          metadata?: Json
+          payer_data?: Json
+          provider?: string
+          provider_order_id?: string | null
+          purpose_type: string
+          reference_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          barcode?: string | null
+          boleto_expiration?: string | null
+          boleto_url?: string | null
+          company_id?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          linha_digitavel?: string | null
+          metadata?: Json
+          payer_data?: Json
+          provider?: string
+          provider_order_id?: string | null
+          purpose_type?: string
+          reference_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       point_transactions: {
         Row: {
           action_type: string
@@ -4325,6 +4430,17 @@ export type Database = {
       expire_challenges: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      finalize_marketplace_purchase_external: {
+        Args: {
+          p_company_id: string
+          p_delivery?: Json
+          p_item_id: string
+          p_payment_id: string
+          p_quantity?: number
+          p_user_id: string
+        }
+        Returns: Json
       }
       find_or_create_direct_conversation: {
         Args: { p_company_id: string; p_user1_id: string; p_user2_id: string }

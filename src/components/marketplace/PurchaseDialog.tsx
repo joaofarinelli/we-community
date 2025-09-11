@@ -13,6 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { DigitalDeliveryDialog } from './DigitalDeliveryDialog';
+import { usePaymentProviderConfig, useCreateBoleto } from '@/hooks/usePaymentProvider';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { BoletoDialog } from '@/components/payments/BoletoDialog';
+import { Separator } from '@/components/ui/separator';
 
 interface MarketplaceItem {
   id: string;
@@ -34,8 +38,16 @@ interface PurchaseDialogProps {
 
 export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: PurchaseDialogProps) => {
   const purchaseItem = usePurchaseItem();
-  const canAfford = userCoins >= item.price_coins;
+  const { currentCompanyId } = useCompanyContext();
+  const { data: paymentConfig } = usePaymentProviderConfig();
+  const createBoleto = useCreateBoleto();
+  
   const [showDigitalDelivery, setShowDigitalDelivery] = useState(false);
+  const [showBoletoDialog, setShowBoletoDialog] = useState(false);
+  const [boletoPayment, setBoletoPayment] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'coins' | 'boleto'>('coins');
+  const [payerName, setPayerName] = useState('');
+  const [payerCpf, setPayerCpf] = useState('');
 
   const [delivery, setDelivery] = useState({
     address: '',
@@ -45,28 +57,74 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
     state: '',
     postal_code: '',
   });
+  
+  const canAffordCoins = userCoins >= item.price_coins;
   const requiresDelivery = item.item_type !== 'digital';
-  const isDeliveryValid =
-    !requiresDelivery ||
-    (delivery.address && delivery.number && delivery.neighborhood && delivery.city && delivery.state && delivery.postal_code);
+  const isDeliveryValid = !requiresDelivery || (delivery.address && delivery.number && delivery.neighborhood && delivery.city && delivery.state && delivery.postal_code);
+  const canPurchase = paymentMethod === 'coins' ? canAffordCoins && isDeliveryValid : payerName.trim() && payerCpf.trim() && isDeliveryValid;
+  const hasBoletoOption = !!paymentConfig?.is_active;
+
+  const onClose = () => onOpenChange(false);
 
   const handlePurchase = async () => {
-    if (!canAfford || (requiresDelivery && !isDeliveryValid)) return;
-    
-    try {
-      const result = await purchaseItem.mutateAsync({ 
-        itemId: item.id, 
-        delivery: requiresDelivery ? delivery : {} 
-      });
-      
-      onOpenChange(false);
-      
-      // Se for produto digital e tiver link de entrega, abrir dialog de entrega
-      if (item.item_type === 'digital' && item.digital_delivery_url) {
-        setShowDigitalDelivery(true);
+    if (!canPurchase) return;
+
+    const deliveryData = {
+      address: delivery.address,
+      number: delivery.number,
+      neighborhood: delivery.neighborhood,
+      city: delivery.city,
+      state: delivery.state,
+      postal_code: delivery.postal_code,
+    };
+
+    if (paymentMethod === 'coins') {
+      try {
+        const result = await purchaseItem.mutateAsync({
+          itemId: item.id,
+          quantity: 1,
+          delivery: deliveryData,
+        });
+
+        onClose();
+        
+        // Se for produto digital e tiver link de entrega, abrir dialog de entrega
+        if (item.item_type === 'digital' && item.digital_delivery_url) {
+          setShowDigitalDelivery(true);
+        }
+      } catch (error) {
+        // Error handling is done in the mutation
       }
-    } catch (error) {
-      // Error handling is done in the mutation
+    } else if (paymentMethod === 'boleto') {
+      try {
+        const boletoData = await createBoleto.mutateAsync({
+          companyId: currentCompanyId!,
+          purposeType: 'marketplace_item',
+          referenceId: item.id,
+          amountCents: item.price_coins * 100, // Convert coins to cents (1:1 ratio)
+          payerData: {
+            name: payerName,
+            cpf: payerCpf,
+            address: requiresDelivery ? {
+              street: delivery.address,
+              number: delivery.number,
+              neighborhood: delivery.neighborhood,
+              city: delivery.city,
+              state: delivery.state,
+              postal_code: delivery.postal_code,
+            } : undefined
+          },
+          metadata: {
+            quantity: 1,
+            delivery: deliveryData
+          }
+        });
+
+        setBoletoPayment(boletoData.payment);
+        setShowBoletoDialog(true);
+      } catch (error) {
+        // Error handling is done in the mutation
+      }
     }
   };
 
@@ -76,7 +134,7 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
         <DialogHeader>
           <DialogTitle>Confirmar Compra</DialogTitle>
           <DialogDescription>
-            Você está prestes a comprar este item usando suas WomanCoins.
+            Escolha a forma de pagamento para este item.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,30 +163,90 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
           </div>
 
           <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Preço:</span>
-              <div className="flex items-center gap-1">
-                <Coins className="h-4 w-4 text-primary" />
-                <span className="font-medium">{item.price_coins}</span>
-              </div>
+            <div className="flex items-center justify-between py-3">
+              <span className="font-medium">Preço:</span>
+              <span className="text-lg font-semibold text-primary">
+                {paymentMethod === 'coins' 
+                  ? `${item.price_coins} moedas`
+                  : `R$ ${(item.price_coins * 1.00).toFixed(2)}`
+                }
+              </span>
             </div>
             
-            <div className="flex justify-between items-center">
-              <span className="text-sm">Suas moedas:</span>
-              <div className="flex items-center gap-1">
-                <Coins className="h-4 w-4 text-primary" />
-                <span className="font-medium">{userCoins}</span>
+            {paymentMethod === 'coins' && (
+              <div className="flex items-center justify-between py-3">
+                <span className="font-medium">Seu saldo:</span>
+                <span className={`text-lg font-semibold ${canAffordCoins ? 'text-green-600' : 'text-red-600'}`}>
+                  {userCoins} moedas
+                </span>
               </div>
-            </div>
-            
-            <div className="flex justify-between items-center border-t pt-2">
-              <span className="text-sm font-medium">Moedas após compra:</span>
-              <div className="flex items-center gap-1">
-                <Coins className="h-4 w-4 text-primary" />
-                <span className="font-medium">{userCoins - item.price_coins}</span>
-              </div>
-            </div>
+            )}
+
+            {hasBoletoOption && (
+              <>
+                <Separator className="my-4" />
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">Forma de Pagamento</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('coins')}
+                      className={`p-3 border rounded-lg text-center transition-colors ${
+                        paymentMethod === 'coins'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="font-medium">Moedas</div>
+                      <div className="text-xs text-muted-foreground">Usar saldo</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('boleto')}
+                      className={`p-3 border rounded-lg text-center transition-colors ${
+                        paymentMethod === 'boleto'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="font-medium">Boleto</div>
+                      <div className="text-xs text-muted-foreground">Pagamento bancário</div>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {paymentMethod === 'boleto' && (
+              <>
+                <Separator className="my-4" />
+                <div className="space-y-4">
+                  <Label className="text-sm font-medium">Dados do Pagador</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="payer-name">Nome Completo</Label>
+                      <Input
+                        id="payer-name"
+                        value={payerName}
+                        onChange={(e) => setPayerName(e.target.value)}
+                        placeholder="Seu nome completo"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="payer-cpf">CPF</Label>
+                      <Input
+                        id="payer-cpf"
+                        value={payerCpf}
+                        onChange={(e) => setPayerCpf(e.target.value)}
+                        placeholder="000.000.000-00"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
+
           {requiresDelivery && (
             <div className="space-y-3">
               <h4 className="text-sm font-medium">Endereço de entrega</h4>
@@ -219,29 +337,40 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
               </div>
             </div>
           )}
-
-          {!canAfford && (
-            <p className="text-sm text-destructive">
-              Você não tem moedas suficientes para esta compra.
-            </p>
-          )}
         </div>
 
         <DialogFooter>
           <Button 
             variant="outline" 
-            onClick={() => onOpenChange(false)}
-            disabled={purchaseItem.isPending}
+            onClick={onClose}
+            disabled={purchaseItem.isPending || createBoleto.isPending}
           >
             Cancelar
           </Button>
           <Button 
             onClick={handlePurchase}
-            disabled={!canAfford || purchaseItem.isPending || !isDeliveryValid}
+            disabled={!canPurchase || purchaseItem.isPending || createBoleto.isPending}
           >
-            {purchaseItem.isPending ? 'Processando...' : 'Confirmar Compra'}
+            {(purchaseItem.isPending || createBoleto.isPending) 
+              ? 'Processando...' 
+              : paymentMethod === 'coins' 
+                ? 'Confirmar Compra' 
+                : 'Gerar Boleto'
+            }
           </Button>
         </DialogFooter>
+        
+        {paymentMethod === 'coins' && !canAffordCoins && (
+          <p className="text-sm text-destructive text-center mt-2">
+            Saldo insuficiente para esta compra
+          </p>
+        )}
+        
+        {paymentMethod === 'boleto' && (!payerName.trim() || !payerCpf.trim()) && (
+          <p className="text-sm text-destructive text-center mt-2">
+            Preencha nome e CPF para continuar
+          </p>
+        )}
       </DialogContent>
       
       <DigitalDeliveryDialog
@@ -250,6 +379,23 @@ export const PurchaseDialog = ({ open, onOpenChange, item, userCoins }: Purchase
         productName={item.name}
         deliveryUrl={item.digital_delivery_url || ''}
       />
+
+      {boletoPayment && (
+        <BoletoDialog
+          open={showBoletoDialog}
+          onClose={() => {
+            setShowBoletoDialog(false);
+            setBoletoPayment(null);
+            onClose();
+          }}
+          payment={boletoPayment}
+          onPaymentConfirmed={() => {
+            setShowBoletoDialog(false);
+            setBoletoPayment(null);
+            onClose();
+          }}
+        />
+      )}
     </Dialog>
   );
 };
