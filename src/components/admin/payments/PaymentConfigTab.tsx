@@ -6,10 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePaymentProviderConfig, useCreateOrUpdatePaymentConfig } from '@/hooks/usePaymentProvider';
-import { AlertCircle, Save, TestTube, CheckCircle, XCircle, Copy } from 'lucide-react';
+import { AlertCircle, Save, TestTube, CheckCircle, XCircle, Copy, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useTMBProductSync } from '@/hooks/useTMBSync';
 
 export const PaymentConfigTab = () => {
   const { data: config, isLoading } = usePaymentProviderConfig();
@@ -24,6 +25,8 @@ export const PaymentConfigTab = () => {
   const [webhookUrl, setWebhookUrl] = useState(config?.webhook_url || '');
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  
+  const syncProductsMutation = useTMBProductSync();
 
   // Sincronizar estados locais com dados carregados
   useEffect(() => {
@@ -240,17 +243,38 @@ export const PaymentConfigTab = () => {
                 <Label htmlFor="is-active">Habilitar pagamentos via boleto</Label>
               </div>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleTestConnection}
-                disabled={!isConfigComplete || isTestingConnection}
-              >
-                {connectionStatus === 'success' && <CheckCircle className="w-4 h-4 mr-2 text-green-500" />}
-                {connectionStatus === 'error' && <XCircle className="w-4 h-4 mr-2 text-red-500" />}
-                {connectionStatus === 'idle' && <TestTube className="w-4 h-4 mr-2" />}
-                {isTestingConnection ? 'Testando...' : 'Testar Conexão'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTestConnection}
+                  disabled={!isConfigComplete || isTestingConnection}
+                >
+                  {connectionStatus === 'success' && <CheckCircle className="w-4 h-4 mr-2 text-green-500" />}
+                  {connectionStatus === 'error' && <XCircle className="w-4 h-4 mr-2 text-red-500" />}
+                  {connectionStatus === 'idle' && <TestTube className="w-4 h-4 mr-2" />}
+                  {isTestingConnection ? 'Testando...' : 'Testar Conexão'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => syncProductsMutation.mutate()}
+                  disabled={!isConfigComplete || syncProductsMutation.isPending}
+                >
+                  {syncProductsMutation.isPending ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Sincronizando...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Sincronizar Produtos
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
 
             <Button
@@ -304,6 +328,37 @@ export const PaymentConfigTab = () => {
                 Após salvar, teste gerando um boleto no ambiente sandbox antes de ativar em produção.
               </p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Sincronização de Produtos TMB</CardTitle>
+          <CardDescription>
+            Sincronize automaticamente os produtos da TMB Educação com seu marketplace
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4 text-sm">
+            <div>
+              <h4 className="font-medium mb-2">Como funciona a sincronização:</h4>
+              <ul className="text-muted-foreground space-y-1 ml-4">
+                <li>• Busca todos os produtos ativos da API da TMB</li>
+                <li>• Cria automaticamente a categoria "Produtos TMB" se não existir</li>
+                <li>• Converte preços em moedas usando a taxa configurada</li>
+                <li>• Atualiza produtos existentes ou cria novos</li>
+                <li>• Identifica produtos TMB pelo seller_type "tmb_educacao"</li>
+              </ul>
+            </div>
+            
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                A sincronização requer uma configuração válida e API Key ativa. 
+                Certifique-se de testar a conexão antes de sincronizar.
+              </AlertDescription>
+            </Alert>
           </div>
         </CardContent>
       </Card>
