@@ -55,7 +55,6 @@ export const usePaymentProviderConfig = () => {
         .select('*')
         .eq('company_id', currentCompanyId)
         .eq('provider', 'tmb_educacao')
-        .eq('is_active', true)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;

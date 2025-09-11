@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,20 @@ export const PaymentConfigTab = () => {
   const [webhookUrl, setWebhookUrl] = useState(config?.webhook_url || '');
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // Sincronizar estados locais com dados carregados
+  useEffect(() => {
+    if (config) {
+      console.log('PaymentConfigTab: Configuração carregada:', config);
+      setEnvironment(config.environment || 'sandbox');
+      setApiKey(config.credentials?.api_key || '');
+      setWebhookSecret(config.webhook_secret || '');
+      setCoinsPerBrl(config.coins_per_brl || 1.0);
+      setIsActive(config.is_active || false);
+      setBoletoExpirationDays(config.boleto_expiration_days || 7);
+      setWebhookUrl(config.webhook_url || '');
+    }
+  }, [config]);
 
   const handleSave = async () => {
     try {

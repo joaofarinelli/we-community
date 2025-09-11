@@ -1,1 +1,4 @@
 project_id = "vzwnlgvggxfcbyamdarv"
+
+[functions.tmb-test-connection]
+verify_jwt = false
