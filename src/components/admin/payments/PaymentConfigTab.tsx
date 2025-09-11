@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePaymentProviderConfig, useCreateOrUpdatePaymentConfig } from '@/hooks/usePaymentProvider';
-import { AlertCircle, Save, TestTube, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, Save, TestTube, CheckCircle, XCircle, Copy } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -154,6 +154,30 @@ export const PaymentConfigTab = () => {
             </div>
           </div>
 
+          {/* URL do Webhook para configurar no TMB */}
+          <div className="p-4 border rounded-lg bg-muted/50">
+            <Label className="text-sm font-medium">URL do Webhook para configurar no TMB:</Label>
+            <div className="flex items-center gap-2 mt-2">
+              <code className="flex-1 text-xs bg-background p-2 rounded border">
+                https://vzwnlgvggxfcbyamdarv.supabase.co/functions/v1/tmb-webhook-receiver
+              </code>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  navigator.clipboard.writeText('https://vzwnlgvggxfcbyamdarv.supabase.co/functions/v1/tmb-webhook-receiver');
+                  toast.success('URL copiada para a área de transferência!');
+                }}
+              >
+                <Copy className="w-4 h-4 mr-1" />
+                Copiar
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Configure esta URL no painel do TMB para receber notificações automáticas de status dos boletos.
+            </p>
+          </div>
+
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="api-key">API Key (Bearer Token)</Label>
@@ -254,7 +278,14 @@ export const PaymentConfigTab = () => {
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">4. Teste a integração</h4>
+              <h4 className="font-medium mb-2">4. Configure o webhook no TMB</h4>
+              <p className="text-muted-foreground">
+                No painel do TMB, configure a URL do webhook acima para receber notificações automáticas de pagamento.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-medium mb-2">5. Teste a integração</h4>
               <p className="text-muted-foreground">
                 Após salvar, teste gerando um boleto no ambiente sandbox antes de ativar em produção.
               </p>
