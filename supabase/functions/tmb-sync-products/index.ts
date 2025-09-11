@@ -78,6 +78,28 @@ serve(async (req) => {
     const tmbProducts: TMBProduct[] = await response.json();
     console.log(`TMB Sync Products: ${tmbProducts.length} produtos encontrados na API TMB`);
 
+    // Buscar um usuário admin/owner da empresa para usar como created_by
+    const { data: adminUser, error: adminError } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('company_id', companyId)
+      .eq('is_active', true)
+      .in('role', ['owner', 'admin'])
+      .limit(1)
+      .maybeSingle();
+
+    if (adminError) {
+      console.error('TMB Sync Products: Erro ao buscar usuário admin:', adminError);
+      throw new Error('Não foi possível encontrar um usuário administrador para a empresa');
+    }
+
+    if (!adminUser) {
+      throw new Error('Nenhum usuário administrador ativo encontrado para esta empresa');
+    }
+
+    const createdBy = adminUser.user_id;
+    console.log('TMB Sync Products: Usando created_by:', createdBy);
+
     // Buscar categoria padrão para produtos TMB ou criar uma
     let { data: category, error: categoryError } = await supabase
       .from('marketplace_categories')
@@ -94,7 +116,12 @@ serve(async (req) => {
           company_id: companyId,
           name: 'Produtos TMB',
           description: 'Produtos sincronizados da TMB Educação',
-          color: '#0066CC'
+          color: '#0066CC',
+          icon_library: 'lucide',
+          icon_value: 'Package',
+          order_index: 0,
+          is_active: true,
+          created_by: createdBy
         })
         .select()
         .single();
