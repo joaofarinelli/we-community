@@ -92,7 +92,6 @@ const mainMenuItems = [
       { label: 'Termos do marketplace', path: '/admin/marketplace/terms' },
       { label: 'Gerenciar loja', path: '/admin/store' },
       { label: 'Categorias da loja', path: '/admin/store/categories' },
-      { label: 'Produtos TMB', path: '/admin/tmb/products' },
     ]
   },
   {
@@ -118,10 +117,11 @@ const mainMenuItems = [
     icon: DollarSign,
     label: 'Financeiro',
     key: 'financial',
-    subItems: [
+  subItems: [
       { label: 'Configuração de Pagamentos', path: '/admin/financial/config' },
       { label: 'Vendas & Transações', path: '/admin/financial/transactions' },
       { label: 'Relatórios Financeiros', path: '/admin/financial/reports' },
+      { label: 'Produtos TMB', path: '/admin/tmb/products' },
       { label: 'Reconciliação', path: '/admin/financial/reconciliation' },
     ]
   },

@@ -43,12 +43,12 @@ export const TMBProductsFilters = ({
         </div>
 
         {/* Category Filter */}
-        <Select value={category} onValueChange={onCategoryChange}>
+        <Select value={category} onValueChange={(v) => onCategoryChange(v === '__all__' ? '' : v)}>
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Todas as categorias" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas as categorias</SelectItem>
+            <SelectItem value="__all__">Todas as categorias</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat} value={cat}>
                 {cat}
@@ -58,12 +58,12 @@ export const TMBProductsFilters = ({
         </Select>
 
         {/* Status Filter */}
-        <Select value={status} onValueChange={onStatusChange}>
+        <Select value={status} onValueChange={(v) => onStatusChange(v === '__all__' ? '' : v)}>
           <SelectTrigger className="w-full sm:w-32">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos</SelectItem>
+            <SelectItem value="__all__">Todos</SelectItem>
             <SelectItem value="active">Ativos</SelectItem>
             <SelectItem value="inactive">Inativos</SelectItem>
           </SelectContent>
