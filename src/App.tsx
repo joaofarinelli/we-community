@@ -78,6 +78,10 @@ import { BulkActionCreateEditPage } from "./pages/admin/BulkActionCreateEditPage
 import { BulkActionExecutionsPage } from "./pages/admin/BulkActionExecutionsPage";
 import { LikedLessonsPage } from "./pages/LikedLessonsPage";
 import { LessonNotesPage } from "./pages/LessonNotesPage";
+import { AdminFinancialConfigPage } from "./pages/admin/AdminFinancialConfigPage";
+import { AdminFinancialTransactionsPage } from "./pages/admin/AdminFinancialTransactionsPage";
+import { AdminFinancialReportsPage } from "./pages/admin/AdminFinancialReportsPage";
+import { AdminFinancialReconciliationPage } from "./pages/admin/AdminFinancialReconciliationPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
@@ -173,6 +177,10 @@ const AppRoutes = () => {
           <Route path="/admin/bulk-actions/:id/edit" element={<AuthGuard><BulkActionCreateEditPage /></AuthGuard>} />
           <Route path="/admin/bulk-actions/:id/executions" element={<AuthGuard><BulkActionExecutionsPage /></AuthGuard>} />
           <Route path="/admin/analytics" element={<AuthGuard><AdminAnalyticsPage /></AuthGuard>} />
+          <Route path="/admin/financial/config" element={<AuthGuard><AdminFinancialConfigPage /></AuthGuard>} />
+          <Route path="/admin/financial/transactions" element={<AuthGuard><AdminFinancialTransactionsPage /></AuthGuard>} />
+          <Route path="/admin/financial/reports" element={<AuthGuard><AdminFinancialReportsPage /></AuthGuard>} />
+          <Route path="/admin/financial/reconciliation" element={<AuthGuard><AdminFinancialReconciliationPage /></AuthGuard>} />
           <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />

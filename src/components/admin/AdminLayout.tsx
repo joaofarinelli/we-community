@@ -22,7 +22,8 @@ import {
   ShoppingBag,
   Store,
   MapPin,
-  Megaphone
+  Megaphone,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
@@ -110,6 +111,17 @@ const mainMenuItems = [
     key: 'operations',
     subItems: [
       { label: 'Ações em massa', path: '/admin/bulk-actions' },
+    ]
+  },
+  {
+    icon: DollarSign,
+    label: 'Financeiro',
+    key: 'financial',
+    subItems: [
+      { label: 'Configuração de Pagamentos', path: '/admin/financial/config' },
+      { label: 'Vendas & Transações', path: '/admin/financial/transactions' },
+      { label: 'Relatórios Financeiros', path: '/admin/financial/reports' },
+      { label: 'Reconciliação', path: '/admin/financial/reconciliation' },
     ]
   },
   {
