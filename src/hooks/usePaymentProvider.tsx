@@ -11,7 +11,9 @@ export interface PaymentProviderConfig {
   environment: string;
   credentials: Record<string, any>;
   webhook_secret?: string;
+  webhook_url?: string;
   coins_per_brl: number;
+  boleto_expiration_days?: number;
   is_active: boolean;
   created_by: string;
   created_at: string;
@@ -73,7 +75,10 @@ export const useCreateOrUpdatePaymentConfig = () => {
       environment: string;
       credentials: Record<string, any>;
       webhook_secret?: string;
+      webhook_url?: string;
       coins_per_brl: number;
+      boleto_expiration_days?: number;
+      is_active?: boolean;
     }) => {
       if (!user?.id || !currentCompanyId) {
         throw new Error('User not authenticated or company not found');
@@ -87,8 +92,10 @@ export const useCreateOrUpdatePaymentConfig = () => {
           environment: configData.environment,
           credentials: configData.credentials,
           webhook_secret: configData.webhook_secret,
+          webhook_url: configData.webhook_url,
           coins_per_brl: configData.coins_per_brl,
-          is_active: true,
+          boleto_expiration_days: configData.boleto_expiration_days,
+          is_active: configData.is_active ?? true,
           created_by: user.id
         }, {
           onConflict: 'company_id,provider'

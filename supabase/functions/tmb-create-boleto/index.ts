@@ -59,44 +59,100 @@ serve(async (req) => {
     const credentials = config.credentials as any;
     const isProduction = config.environment === 'production';
 
-    // TMB Educacao API base URL - you'll need to update this with the actual URL
-    const baseUrl = isProduction 
-      ? 'https://api.tmbeducacao.com.br/v1'  // Replace with actual production URL
-      : 'https://sandbox-api.tmbeducacao.com.br/v1';  // Replace with actual sandbox URL
+    // Validate required payer data
+    if (!payerData?.name || !payerData?.cpf) {
+      throw new Error('Nome e CPF do pagador são obrigatórios');
+    }
 
-    // Create boleto via TMB API - you'll need to update this with actual API structure
+    // Validate CPF
+    const validateCPF = (cpf: string): boolean => {
+      const cleanCPF = cpf.replace(/\D/g, '');
+      if (cleanCPF.length !== 11) return false;
+      if (/^(\d)\1+$/.test(cleanCPF)) return false;
+      
+      let sum = 0;
+      for (let i = 0; i < 9; i++) {
+        sum += parseInt(cleanCPF[i]) * (10 - i);
+      }
+      let digit = 11 - (sum % 11);
+      if (digit >= 10) digit = 0;
+      if (digit !== parseInt(cleanCPF[9])) return false;
+      
+      sum = 0;
+      for (let i = 0; i < 10; i++) {
+        sum += parseInt(cleanCPF[i]) * (11 - i);
+      }
+      digit = 11 - (sum % 11);
+      if (digit >= 10) digit = 0;
+      return digit === parseInt(cleanCPF[10]);
+    };
+
+    if (!validateCPF(payerData.cpf)) {
+      throw new Error('CPF inválido');
+    }
+
+    // TMB Educacao API base URL
+    const baseUrl = isProduction 
+      ? 'https://api.tmbeducacao.com.br/v1'
+      : 'https://sandbox-api.tmbeducacao.com.br/v1';
+
+    // Calculate expiration date using configured days
+    const expirationDays = config.boleto_expiration_days || 7;
+    const expirationDate = new Date(Date.now() + expirationDays * 24 * 60 * 60 * 1000);
+
+    // Enhanced boleto payload based on TMB API structure
     const boletoPayload = {
-      valor: amountCents / 100, // Convert cents to BRL
-      vencimento: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 days
+      valor: amountCents / 100,
+      vencimento: expirationDate.toISOString().split('T')[0],
       pagador: {
         nome: payerData.name,
-        cpf: payerData.cpf,
+        documento: payerData.cpf.replace(/\D/g, ''),
+        tipo_documento: 'cpf',
         email: payerData.email || user.email,
+        telefone: payerData.phone || '',
         endereco: payerData.address ? {
-          logradouro: payerData.address.street,
-          numero: payerData.address.number,
-          bairro: payerData.address.neighborhood,
-          cidade: payerData.address.city,
-          uf: payerData.address.state,
-          cep: payerData.address.postal_code
+          logradouro: payerData.address.street || '',
+          numero: payerData.address.number || '',
+          complemento: payerData.address.complement || '',
+          bairro: payerData.address.neighborhood || '',
+          cidade: payerData.address.city || '',
+          uf: payerData.address.state || '',
+          cep: payerData.address.postal_code?.replace(/\D/g, '') || ''
         } : undefined
       },
       descricao: purposeType === 'coin_topup' 
-        ? `Recarga de moedas - ${amountCents / 100} moedas`
-        : 'Compra no marketplace'
+        ? `Recarga de ${Math.floor(amountCents / 100 * config.coins_per_brl)} moedas`
+        : metadata.item_name || 'Compra no marketplace',
+      instrucoes: 'Pagamento processado automaticamente após compensação bancária.',
+      webhook_url: config.webhook_url || undefined,
+      metadata: {
+        user_id: user.id,
+        company_id: companyId,
+        purpose_type: purposeType,
+        reference_id: referenceId,
+        ...metadata
+      }
     };
 
     console.log('TMB API payload:', boletoPayload);
 
-    // Make API call to TMB (replace with actual API endpoint and authentication)
+    // Make API call to TMB with timeout and proper error handling
+    console.log('Creating boleto with TMB:', { 
+      environment, 
+      amount: amountCents / 100,
+      expiration: expirationDate 
+    });
+
     const tmbResponse = await fetch(`${baseUrl}/boletos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${credentials.api_key}`, // Replace with actual auth method
-        // Add other required headers based on TMB API documentation
+        'Authorization': `Bearer ${credentials.api_key}`,
+        'X-API-Secret': credentials.api_secret,
+        'User-Agent': 'Lovable-Platform/1.0',
       },
-      body: JSON.stringify(boletoPayload)
+      body: JSON.stringify(boletoPayload),
+      signal: AbortSignal.timeout(30000), // 30 second timeout
     });
 
     if (!tmbResponse.ok) {
