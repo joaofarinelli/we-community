@@ -106,6 +106,13 @@ serve(async (req) => {
     // Processar cada produto TMB
     for (const product of tmbProducts) {
       try {
+        // Validar se o produto tem ID válido
+        if (!product.id) {
+          console.error(`TMB Sync Products: Produto sem ID encontrado:`, product);
+          errors.push(`Produto sem ID encontrado: ${product.name || 'Nome não disponível'}`);
+          continue;
+        }
+
         // Calcular preço em moedas baseado na configuração
         const priceCoins = Math.round((product.price || 0) * (paymentConfig.coin_conversion_rate || 100));
 

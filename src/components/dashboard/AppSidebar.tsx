@@ -1,5 +1,5 @@
 
-import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings, Calendar, Package } from "lucide-react";
+import { Rss, Grid3X3, Map, Users, Trophy, BookOpen, ShoppingBag, Store, Wallet, Target, Settings, Calendar } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -53,10 +53,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
     ...(isChallengesEnabled ? [{ title: "Desafios", url: "/dashboard/challenges", icon: Target }] : []),
     ...(isCalendarEnabled ? [{ title: "Calendário", url: "/dashboard/calendar", icon: Calendar }] : []),
-    ...(isAdmin ? [
-      { title: "Administração", url: "/admin/settings", icon: Settings },
-      { title: "Produtos TMB", url: "/admin/tmb/products", icon: Package }
-    ] : []),
+    ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
 
   const isActive = (path: string) => {
@@ -67,10 +64,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
       return currentPath.startsWith("/courses");
     }
     if (path === "/admin/settings") {
-      return currentPath.startsWith("/admin") && currentPath !== "/admin/tmb/products";
-    }
-    if (path === "/admin/tmb/products") {
-      return currentPath === "/admin/tmb/products";
+      return currentPath.startsWith("/admin");
     }
     return currentPath.startsWith(path);
   };

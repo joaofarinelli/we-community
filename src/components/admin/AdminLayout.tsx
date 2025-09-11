@@ -92,6 +92,7 @@ const mainMenuItems = [
       { label: 'Termos do marketplace', path: '/admin/marketplace/terms' },
       { label: 'Gerenciar loja', path: '/admin/store' },
       { label: 'Categorias da loja', path: '/admin/store/categories' },
+      { label: 'Produtos TMB', path: '/admin/tmb/products' },
     ]
   },
   {
