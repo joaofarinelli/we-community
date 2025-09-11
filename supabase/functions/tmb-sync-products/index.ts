@@ -10,13 +10,12 @@ const corsHeaders = {
 
 interface TMBProduct {
   id: string;
-  nome: string;
-  descricao?: string;
-  preco: number;
-  categoria?: string;
-  ativo: boolean;
-  estoque?: number;
-  imagem_url?: string;
+  name: string;
+  description?: string;
+  price?: number;
+  category?: string;
+  image_url?: string;
+  stock_quantity?: number;
 }
 
 serve(async (req) => {
@@ -100,125 +99,78 @@ serve(async (req) => {
     const createdBy = adminUser.user_id;
     console.log('TMB Sync Products: Usando created_by:', createdBy);
 
-    // Buscar categoria padrão para produtos TMB ou criar uma
-    let { data: category, error: categoryError } = await supabase
-      .from('marketplace_categories')
-      .select('*')
-      .eq('company_id', companyId)
-      .eq('name', 'Produtos TMB')
-      .maybeSingle();
+    let synced_count = 0;
+    let updated_count = 0;
+    const errors: string[] = [];
 
-    if (!category) {
-      console.log('TMB Sync Products: Criando categoria padrão para produtos TMB');
-      const { data: newCategory, error: createCategoryError } = await supabase
-        .from('marketplace_categories')
-        .insert({
-          company_id: companyId,
-          name: 'Produtos TMB',
-          description: 'Produtos sincronizados da TMB Educação',
-          color: '#0066CC',
-          icon_library: 'lucide',
-          icon_value: 'Package',
-          order_index: 0,
-          is_active: true,
-          created_by: createdBy
-        })
-        .select()
-        .single();
-
-      if (createCategoryError) {
-        console.error('TMB Sync Products: Erro ao criar categoria:', createCategoryError);
-        throw createCategoryError;
-      }
-      category = newCategory;
-    }
-
-    let syncedCount = 0;
-    let updatedCount = 0;
-    let errors: string[] = [];
-
-    // Sincronizar cada produto
+    // Processar cada produto TMB
     for (const product of tmbProducts) {
       try {
-        console.log(`TMB Sync Products: Processando produto ${product.id} - ${product.nome}`);
+        // Calcular preço em moedas baseado na configuração
+        const priceCoins = Math.round((product.price || 0) * (paymentConfig.coin_conversion_rate || 100));
 
-        // Verificar se produto já existe (pelo TMB ID no seller_id)
-        const { data: existingProduct } = await supabase
-          .from('marketplace_items')
-          .select('*')
-          .eq('company_id', companyId)
-          .eq('seller_id', product.id)
-          .eq('seller_type', 'tmb_educacao')
-          .maybeSingle();
-
+        // Preparar dados do produto para a tabela tmb_products
         const productData = {
           company_id: companyId,
-          category_id: category.id,
-          name: product.nome,
-          description: product.descricao || '',
-          price_coins: Math.floor(product.preco * (paymentConfig.coins_per_brl || 1)),
-          seller_id: product.id,
-          seller_type: 'tmb_educacao',
-          store_type: 'marketplace',
-          item_type: 'digital',
-          is_active: product.ativo,
-          stock_quantity: product.estoque || null,
-          image_url: product.imagem_url || null,
-          moderation_status: 'approved',
-          is_featured: false,
-          access_tags: ['tmb_products']
+          tmb_product_id: product.id.toString(),
+          name: product.name,
+          description: product.description || '',
+          price_brl: product.price || 0,
+          price_coins: priceCoins,
+          category: product.category || 'Geral',
+          image_url: product.image_url,
+          stock_quantity: product.stock_quantity,
+          is_active: true,
+          tmb_data: product,
+          last_synced_at: new Date().toISOString()
         };
 
-        if (existingProduct) {
-          // Atualizar produto existente
-          const { error: updateError } = await supabase
-            .from('marketplace_items')
-            .update({
-              ...productData,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', existingProduct.id);
+        // Tentar fazer upsert (insert ou update se já existe)
+        const { data: upsertResult, error: upsertError } = await supabase
+          .from('tmb_products')
+          .upsert(productData, {
+            onConflict: 'company_id,tmb_product_id',
+            ignoreDuplicates: false
+          })
+          .select('id, name')
+          .maybeSingle();
 
-          if (updateError) {
-            console.error(`TMB Sync Products: Erro ao atualizar produto ${product.id}:`, updateError);
-            errors.push(`Erro ao atualizar ${product.nome}: ${updateError.message}`);
-          } else {
-            updatedCount++;
-            console.log(`TMB Sync Products: Produto ${product.nome} atualizado com sucesso`);
-          }
+        if (upsertError) {
+          console.error(`TMB Sync Products: Erro ao sincronizar produto ${product.name}:`, upsertError);
+          errors.push(`Erro ao sincronizar ${product.name}: ${upsertError.message}`);
         } else {
-          // Criar novo produto
-          const { error: insertError } = await supabase
-            .from('marketplace_items')
-            .insert({
-              ...productData,
-              created_by: 'tmb_sync_system'
-            });
+          // Verificar se foi inserção (novo) ou atualização
+          const { data: existingCheck } = await supabase
+            .from('tmb_products')
+            .select('created_at, updated_at')
+            .eq('company_id', companyId)
+            .eq('tmb_product_id', product.id.toString())
+            .single();
 
-          if (insertError) {
-            console.error(`TMB Sync Products: Erro ao criar produto ${product.id}:`, insertError);
-            errors.push(`Erro ao criar ${product.nome}: ${insertError.message}`);
+          if (existingCheck && existingCheck.created_at !== existingCheck.updated_at) {
+            updated_count++;
+            console.log(`TMB Sync Products: Produto atualizado: ${product.name}`);
           } else {
-            syncedCount++;
-            console.log(`TMB Sync Products: Produto ${product.nome} criado com sucesso`);
+            synced_count++;
+            console.log(`TMB Sync Products: Novo produto criado: ${product.name}`);
           }
         }
-      } catch (error) {
-        console.error(`TMB Sync Products: Erro ao processar produto ${product.id}:`, error);
-        errors.push(`Erro ao processar ${product.nome}: ${error.message}`);
+      } catch (productError) {
+        console.error(`TMB Sync Products: Erro ao processar produto ${product.name}:`, productError);
+        errors.push(`Erro ao processar ${product.name}: ${productError}`);
       }
     }
 
-    console.log(`TMB Sync Products: Sincronização concluída. ${syncedCount} criados, ${updatedCount} atualizados`);
+    console.log(`TMB Sync Products: Sincronização concluída. ${synced_count} criados, ${updated_count} atualizados`);
 
     return new Response(JSON.stringify({
       success: true,
       message: `Sincronização concluída com sucesso`,
       data: {
         total_products: tmbProducts.length,
-        synced_count: syncedCount,
-        updated_count: updatedCount,
-        errors: errors
+        synced_count,
+        updated_count,
+        errors
       }
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

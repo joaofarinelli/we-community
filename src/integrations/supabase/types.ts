@@ -3178,6 +3178,60 @@ export type Database = {
         }
         Relationships: []
       }
+      tmb_products: {
+        Row: {
+          category: string | null
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          last_synced_at: string | null
+          name: string
+          price_brl: number | null
+          price_coins: number | null
+          stock_quantity: number | null
+          tmb_data: Json | null
+          tmb_product_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          last_synced_at?: string | null
+          name: string
+          price_brl?: number | null
+          price_coins?: number | null
+          stock_quantity?: number | null
+          tmb_data?: Json | null
+          tmb_product_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          last_synced_at?: string | null
+          name?: string
+          price_brl?: number | null
+          price_coins?: number | null
+          stock_quantity?: number | null
+          tmb_data?: Json | null
+          tmb_product_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trail_badges: {
         Row: {
           background_color: string | null

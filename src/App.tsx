@@ -82,6 +82,7 @@ import { AdminFinancialConfigPage } from "./pages/admin/AdminFinancialConfigPage
 import { AdminFinancialTransactionsPage } from "./pages/admin/AdminFinancialTransactionsPage";
 import { AdminFinancialReportsPage } from "./pages/admin/AdminFinancialReportsPage";
 import { AdminFinancialReconciliationPage } from "./pages/admin/AdminFinancialReconciliationPage";
+import { TMBProductsPage } from "./pages/admin/TMBProductsPage";
 import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
@@ -181,6 +182,7 @@ const AppRoutes = () => {
           <Route path="/admin/financial/transactions" element={<AuthGuard><AdminFinancialTransactionsPage /></AuthGuard>} />
           <Route path="/admin/financial/reports" element={<AuthGuard><AdminFinancialReportsPage /></AuthGuard>} />
           <Route path="/admin/financial/reconciliation" element={<AuthGuard><AdminFinancialReconciliationPage /></AuthGuard>} />
+          <Route path="/admin/tmb/products" element={<AuthGuard><TMBProductsPage /></AuthGuard>} />
           <Route path="/super-admin" element={<AuthGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/companies" element={<AuthGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/metrics" element={<AuthGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthGuard>} />

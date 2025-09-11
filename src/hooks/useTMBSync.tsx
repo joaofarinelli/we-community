@@ -32,7 +32,10 @@ export const useTMBProductSync = () => {
         toast.success(`Produtos sincronizados: ${synced_count} criados, ${updated_count} atualizados.`);
       }
       
-      // Invalidar queries relacionadas aos produtos
+      // Invalidar queries relacionadas aos produtos TMB
+      queryClient.invalidateQueries({ queryKey: ['tmbProducts'] });
+      queryClient.invalidateQueries({ queryKey: ['tmbProductCategories'] });
+      // Manter as antigas para compatibilidade
       queryClient.invalidateQueries({ queryKey: ['marketplaceItems'] });
       queryClient.invalidateQueries({ queryKey: ['storeItems'] });
     },
