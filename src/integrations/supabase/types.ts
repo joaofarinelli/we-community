@@ -2389,6 +2389,7 @@ export type Database = {
       }
       payment_provider_configs: {
         Row: {
+          boleto_expiration_days: number | null
           coins_per_brl: number
           company_id: string
           created_at: string
@@ -2400,8 +2401,10 @@ export type Database = {
           provider: string
           updated_at: string
           webhook_secret: string | null
+          webhook_url: string | null
         }
         Insert: {
+          boleto_expiration_days?: number | null
           coins_per_brl?: number
           company_id: string
           created_at?: string
@@ -2413,8 +2416,10 @@ export type Database = {
           provider?: string
           updated_at?: string
           webhook_secret?: string | null
+          webhook_url?: string | null
         }
         Update: {
+          boleto_expiration_days?: number | null
           coins_per_brl?: number
           company_id?: string
           created_at?: string
@@ -2426,8 +2431,53 @@ export type Database = {
           provider?: string
           updated_at?: string
           webhook_secret?: string | null
+          webhook_url?: string | null
         }
         Relationships: []
+      }
+      payment_webhook_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          payment_id: string | null
+          processed_at: string
+          processing_status: string
+          provider: string
+          webhook_data: Json
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payment_id?: string | null
+          processed_at?: string
+          processing_status?: string
+          provider: string
+          webhook_data?: Json
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payment_id?: string | null
+          processed_at?: string
+          processing_status?: string
+          provider?: string
+          webhook_data?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_webhook_logs_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
