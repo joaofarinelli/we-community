@@ -125,29 +125,56 @@ serve(async (req) => {
           last_synced_at: new Date().toISOString()
         };
 
-        // Tentar fazer upsert (insert ou update se já existe)
-        const { data: upsertResult, error: upsertError } = await supabase
+        // Verificar se produto já existe
+        const { data: existingProduct } = await supabase
           .from('tmb_products')
-          .upsert(productData, {
-            onConflict: 'company_id,tmb_product_id',
-            ignoreDuplicates: false
-          })
-          .select('id, name')
+          .select('id, created_at')
+          .eq('company_id', companyId)
+          .eq('tmb_product_id', product.id.toString())
           .maybeSingle();
+
+        let upsertResult;
+        let upsertError;
+
+        if (existingProduct) {
+          // Atualizar produto existente
+          const { data, error } = await supabase
+            .from('tmb_products')
+            .update({
+              name: productData.name,
+              description: productData.description,
+              price_brl: productData.price_brl,
+              price_coins: productData.price_coins,
+              category: productData.category,
+              image_url: productData.image_url,
+              stock_quantity: productData.stock_quantity,
+              is_active: productData.is_active,
+              tmb_data: productData.tmb_data,
+              last_synced_at: productData.last_synced_at
+            })
+            .eq('id', existingProduct.id)
+            .select('id, name')
+            .maybeSingle();
+          
+          upsertResult = data;
+          upsertError = error;
+        } else {
+          // Inserir novo produto
+          const { data, error } = await supabase
+            .from('tmb_products')
+            .insert(productData)
+            .select('id, name')
+            .maybeSingle();
+          
+          upsertResult = data;
+          upsertError = error;
+        }
 
         if (upsertError) {
           console.error(`TMB Sync Products: Erro ao sincronizar produto ${product.name}:`, upsertError);
           errors.push(`Erro ao sincronizar ${product.name}: ${upsertError.message}`);
         } else {
-          // Verificar se foi inserção (novo) ou atualização
-          const { data: existingCheck } = await supabase
-            .from('tmb_products')
-            .select('created_at, updated_at')
-            .eq('company_id', companyId)
-            .eq('tmb_product_id', product.id.toString())
-            .single();
-
-          if (existingCheck && existingCheck.created_at !== existingCheck.updated_at) {
+          if (existingProduct) {
             updated_count++;
             console.log(`TMB Sync Products: Produto atualizado: ${product.name}`);
           } else {
