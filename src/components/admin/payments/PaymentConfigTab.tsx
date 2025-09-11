@@ -17,7 +17,6 @@ export const PaymentConfigTab = () => {
 
   const [environment, setEnvironment] = useState(config?.environment || 'sandbox');
   const [apiKey, setApiKey] = useState(config?.credentials?.api_key || '');
-  const [apiSecret, setApiSecret] = useState(config?.credentials?.api_secret || '');
   const [webhookSecret, setWebhookSecret] = useState(config?.webhook_secret || '');
   const [coinsPerBrl, setCoinsPerBrl] = useState(config?.coins_per_brl || 1.0);
   const [isActive, setIsActive] = useState(config?.is_active || false);
@@ -32,7 +31,6 @@ export const PaymentConfigTab = () => {
         environment,
         credentials: {
           api_key: apiKey,
-          api_secret: apiSecret,
         },
         webhook_secret: webhookSecret,
         webhook_url: webhookUrl,
@@ -47,8 +45,8 @@ export const PaymentConfigTab = () => {
   };
 
   const handleTestConnection = async () => {
-    if (!apiKey.trim() || !apiSecret.trim()) {
-      toast.error('Preencha API Key e API Secret para testar');
+    if (!apiKey.trim()) {
+      toast.error('Preencha a API Key para testar');
       return;
     }
 
@@ -61,7 +59,6 @@ export const PaymentConfigTab = () => {
           environment,
           credentials: {
             api_key: apiKey,
-            api_secret: apiSecret,
           }
         }
       });
@@ -83,7 +80,7 @@ export const PaymentConfigTab = () => {
     }
   };
 
-  const isConfigComplete = apiKey.trim() && apiSecret.trim();
+  const isConfigComplete = apiKey.trim();
 
   if (isLoading) {
     return (
@@ -99,7 +96,7 @@ export const PaymentConfigTab = () => {
         <CardHeader>
           <CardTitle>Configuração TMB Educação</CardTitle>
           <CardDescription>
-            Configure as credenciais do TMB Educação para processar pagamentos via boleto bancário.
+            Configure a API Key do TMB Educação para processar pagamentos via boleto bancário.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -159,7 +156,7 @@ export const PaymentConfigTab = () => {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="api-key">API Key</Label>
+              <Label htmlFor="api-key">API Key (Bearer Token)</Label>
               <Input
                 id="api-key"
                 type="password"
@@ -167,17 +164,9 @@ export const PaymentConfigTab = () => {
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="Sua chave de API do TMB Educação"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="api-secret">API Secret</Label>
-              <Input
-                id="api-secret"
-                type="password"
-                value={apiSecret}
-                onChange={(e) => setApiSecret(e.target.value)}
-                placeholder="Seu secret da API do TMB Educação"
-              />
+              <p className="text-sm text-muted-foreground">
+                Token que será usado como Bearer Authorization no header das requisições
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -196,7 +185,7 @@ export const PaymentConfigTab = () => {
             <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Configure a API Key e API Secret para habilitar pagamentos via boleto.
+                Configure a API Key para habilitar pagamentos via boleto.
               </AlertDescription>
             </Alert>
           )}
@@ -244,9 +233,9 @@ export const PaymentConfigTab = () => {
         <CardContent>
           <div className="space-y-4 text-sm">
             <div>
-              <h4 className="font-medium mb-2">1. Obtenha suas credenciais</h4>
+              <h4 className="font-medium mb-2">1. Obtenha sua API Key</h4>
               <p className="text-muted-foreground">
-                Acesse sua conta no TMB Educação e obtenha suas credenciais de API (API Key e API Secret).
+                Acesse sua conta no TMB Educação e obtenha sua API Key (token de acesso).
               </p>
             </div>
 

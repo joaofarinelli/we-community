@@ -39,8 +39,8 @@ serve(async (req) => {
   try {
     const { environment, credentials } = await req.json();
 
-    if (!credentials?.api_key || !credentials?.api_secret) {
-      throw new Error('API Key e API Secret são obrigatórios');
+    if (!credentials?.api_key) {
+      throw new Error('API Key é obrigatória');
     }
 
     const isProduction = environment === 'production';
@@ -58,7 +58,7 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${credentials.api_key}`,
-        'X-API-Secret': credentials.api_secret, // Adjust based on TMB auth method
+        'User-Agent': 'Lovable-Platform/1.0',
       },
       signal: AbortSignal.timeout(10000), // 10 second timeout
     });
@@ -69,9 +69,9 @@ serve(async (req) => {
       
       // Map common error codes
       if (testResponse.status === 401) {
-        throw new Error('Credenciais inválidas - verifique API Key e Secret');
+        throw new Error('API Key inválida - verifique suas credenciais');
       } else if (testResponse.status === 403) {
-        throw new Error('Acesso negado - verifique permissões da API');
+        throw new Error('Acesso negado - verifique permissões da API Key');
       } else if (testResponse.status === 404) {
         throw new Error('Endpoint não encontrado - verifique o ambiente selecionado');
       } else if (testResponse.status >= 500) {

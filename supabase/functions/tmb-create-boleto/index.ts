@@ -148,7 +148,6 @@ serve(async (req) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${credentials.api_key}`,
-        'X-API-Secret': credentials.api_secret,
         'User-Agent': 'Lovable-Platform/1.0',
       },
       body: JSON.stringify(boletoPayload),
