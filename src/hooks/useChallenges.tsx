@@ -36,6 +36,7 @@ export const useChallenges = () => {
           deadline_type,
           access_tags
         `)
+        .eq('company_id', currentCompanyId)
         .eq('is_active', true)
         .or('end_date.is.null,end_date.gt.' + new Date().toISOString())
         .order('order_index', { ascending: true });
@@ -53,11 +54,12 @@ export const useChallenges = () => {
 // Separate hook for challenge progress - only load when needed
 export const useChallengeWithProgress = (challengeId?: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['challenge-with-progress', challengeId, user?.id],
+    queryKey: ['challenge-with-progress', challengeId, user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!challengeId || !user?.id) return null;
+      if (!challengeId || !user?.id || !currentCompanyId) return null;
 
       const { data, error } = await supabase
         .from('challenges')
@@ -77,6 +79,7 @@ export const useChallengeWithProgress = (challengeId?: string) => {
             expires_at
           )
         `)
+        .eq('company_id', currentCompanyId)
         .eq('challenge_progress.user_id', user.id)
         .eq('user_challenge_participations.user_id', user.id)
         .eq('id', challengeId)
@@ -85,7 +88,7 @@ export const useChallengeWithProgress = (challengeId?: string) => {
       if (error) throw error;
       return data;
     },
-    enabled: !!challengeId && !!user?.id,
+    enabled: !!challengeId && !!user?.id && !!currentCompanyId,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   });
@@ -93,12 +96,13 @@ export const useChallengeWithProgress = (challengeId?: string) => {
 
 export const useChallengeProgress = (userId?: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const targetUserId = userId || user?.id;
 
   return useQuery({
-    queryKey: ['challenge-progress', targetUserId],
+    queryKey: ['challenge-progress', targetUserId, currentCompanyId],
     queryFn: async () => {
-      if (!targetUserId) return [];
+      if (!targetUserId || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('challenge_progress')
@@ -113,23 +117,25 @@ export const useChallengeProgress = (userId?: string) => {
             reward_value
           )
         `)
+        .eq('company_id', currentCompanyId)
         .eq('user_id', targetUserId)
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!targetUserId,
+    enabled: !!targetUserId && !!currentCompanyId,
   });
 };
 
 export const useChallengeRewards = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['challenge-rewards', user?.id],
+    queryKey: ['challenge-rewards', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('challenge_rewards')
@@ -140,13 +146,14 @@ export const useChallengeRewards = () => {
             description
           )
         `)
+        .eq('company_id', currentCompanyId)
         .eq('user_id', user.id)
         .order('claimed_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentCompanyId,
     staleTime: 5 * 60 * 1000, // 5 minutes - rewards don't change frequently
     gcTime: 15 * 60 * 1000, // 15 minutes
     refetchOnWindowFocus: false,
