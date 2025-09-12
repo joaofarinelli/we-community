@@ -3032,7 +3032,7 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "space_members_user_profile_fkey"
+            foreignKeyName: "space_members_user_id_company_id_fkey"
             columns: ["user_id", "company_id"]
             isOneToOne: false
             referencedRelation: "profiles"
