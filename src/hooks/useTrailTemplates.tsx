@@ -34,7 +34,14 @@ export const useTrailTemplates = () => {
 
       const { data, error } = await supabase
         .from('trail_templates')
-        .select('*')
+        .select(`
+          id,
+          name,
+          description,
+          cover_url,
+          created_at,
+          access_criteria
+        `)
         .eq('company_id', currentCompanyId)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
@@ -51,8 +58,8 @@ export const useTrailTemplates = () => {
       })) as TrailTemplate[];
     },
     enabled: !!user && !!currentCompanyId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 120000, // 2 minutes
+    gcTime: 600000, // 10 minutes
   });
 };
 

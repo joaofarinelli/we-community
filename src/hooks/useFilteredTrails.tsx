@@ -223,5 +223,7 @@ export const useFilteredTrails = (filters: TrailFilters = {}) => {
       }));
     },
     enabled: !!user && !!currentCompanyId,
+    staleTime: 45000, // 45 seconds
+    gcTime: 300000, // 5 minutes
   });
 };

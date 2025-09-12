@@ -54,10 +54,18 @@ export const useAvailableTrails = () => {
     queryFn: async () => {
       if (!user || !currentCompanyId) return [];
 
-      // Get all trails created by admins/owners that are available for users
+      // Get all trails created by admins/owners that are available for users - select only needed fields
       const { data, error } = await supabase
         .from('trails')
-        .select('*')
+        .select(`
+          id,
+          name,
+          description,
+          status,
+          created_at,
+          user_id,
+          template_id
+        `)
         .eq('company_id', currentCompanyId)
         .neq('user_id', user.id) // Exclude user's own trails
         .order('created_at', { ascending: false });
@@ -66,8 +74,8 @@ export const useAvailableTrails = () => {
       return data || [];
     },
     enabled: !!user && !!currentCompanyId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 60000, // 1 minute
+    gcTime: 300000, // 5 minutes
   });
 };
 
@@ -80,11 +88,18 @@ export const useUserTrailParticipations = () => {
     queryFn: async () => {
       if (!user || !currentCompanyId) return [];
 
-      // Get trails where user is participating with template cover_url
+      // Get trails where user is participating with template cover_url - select only needed fields
       const { data, error } = await supabase
         .from('trails')
         .select(`
-          *,
+          id,
+          name,
+          description,
+          status,
+          progress_percentage,
+          created_at,
+          updated_at,
+          template_id,
           trail_templates (
             cover_url
           )
@@ -102,6 +117,8 @@ export const useUserTrailParticipations = () => {
       })) || [];
     },
     enabled: !!user && !!currentCompanyId,
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes
   });
 };
 
