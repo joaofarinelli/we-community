@@ -22,6 +22,7 @@ export interface FilteredTrail {
   completed_at?: string;
   created_at: string;
   user_id: string;
+  cover_url?: string;
   profiles: {
     user_id: string;
     first_name: string;
@@ -52,10 +53,15 @@ export const useFilteredTrails = (filters: TrailFilters = {}) => {
     queryFn: async () => {
       if (!user || !currentCompanyId) return [];
 
-      // Base query for trails
+      // Base query for trails with template cover_url
       const { data: trails, error } = await supabase
         .from('trails')
-        .select('*')
+        .select(`
+          *,
+          trail_templates (
+            cover_url
+          )
+        `)
         .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false });
 
@@ -209,6 +215,7 @@ export const useFilteredTrails = (filters: TrailFilters = {}) => {
         return true;
       }).map(trail => ({
         ...trail,
+        cover_url: (trail.trail_templates as any)?.cover_url,
         profiles: profilesMap.get(trail.user_id) || null,
         user_tags: userTagsMap.get(trail.user_id) || [],
         user_level: userLevelsMap.get(trail.user_id) || null,

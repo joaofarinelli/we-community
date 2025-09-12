@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Play, Eye, MapPin, Calendar, Lock } from 'lucide-react';
+import { Play, Eye, MapPin, Calendar, Lock, Image } from 'lucide-react';
 import { useTrailStartEligibility } from '@/hooks/useTrailStartEligibility';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -17,7 +17,27 @@ export const TrailCard = ({ trail, onViewDetails, onStartTrail }: TrailCardProps
   const { canStart, unmetPrerequisites, isLoading } = useTrailStartEligibility(trail.id);
 
   return (
-    <Card className="hover:shadow-md transition-shadow relative">
+    <Card className="hover:shadow-md transition-shadow relative overflow-hidden">
+      {/* Trail Thumbnail */}
+      {trail.cover_url && (
+        <div className="aspect-video w-full overflow-hidden">
+          <img 
+            src={trail.cover_url} 
+            alt={`Thumbnail da trilha ${trail.name}`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      
+      {!trail.cover_url && (
+        <div className="aspect-video w-full bg-muted flex items-center justify-center">
+          <Image className="h-12 w-12 text-muted-foreground" />
+        </div>
+      )}
+      
       {/* Lock overlay for blocked trails */}
       {!canStart && (
         <div className="absolute inset-0 bg-black/20 rounded-lg flex items-center justify-center z-10">

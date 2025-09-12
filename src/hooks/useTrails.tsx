@@ -19,6 +19,7 @@ export interface Trail {
   created_at: string;
   updated_at: string;
   created_by: string;
+  cover_url?: string;
 }
 
 export const useTrails = () => {
@@ -79,16 +80,26 @@ export const useUserTrailParticipations = () => {
     queryFn: async () => {
       if (!user || !currentCompanyId) return [];
 
-      // Get trails where user is participating (not created by them)
+      // Get trails where user is participating with template cover_url
       const { data, error } = await supabase
         .from('trails')
-        .select('*')
+        .select(`
+          *,
+          trail_templates (
+            cover_url
+          )
+        `)
         .eq('company_id', currentCompanyId)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      
+      // Transform the data to include cover_url directly
+      return data?.map(trail => ({
+        ...trail,
+        cover_url: (trail.trail_templates as any)?.cover_url
+      })) || [];
     },
     enabled: !!user && !!currentCompanyId,
   });
