@@ -55,45 +55,45 @@ export const useSubdomain = () => {
       }
     }
     
+    // Check for specific known custom domains first
+    const knownCustomDomains = [
+      'cae-club.weplataforma.com.br',
+      'womans.weplataforma.com.br'
+    ];
+    
+    if (knownCustomDomains.includes(hostname)) {
+      console.log('✅ Detected known custom domain:', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
+      setIsLoading(false);
+      return;
+    }
+    
     // Known base domains that indicate subdomain structure
     const knownBaseDomains = ['weplataforma.com.br', 'yourplatform.com'];
     
     const parts = hostname.split('.');
     console.log('Hostname parts:', parts);
     
-    // Check if hostname ends with weplataforma.com.br and has subdomain
-    if (hostname.endsWith('weplataforma.com.br') && hostname !== 'weplataforma.com.br') {
-      const subdomain = hostname.replace('.weplataforma.com.br', '');
-      console.log('✅ Detected subdomain for weplataforma.com.br:', subdomain);
-      setSubdomain(subdomain);
-      setCustomDomain(null);
-    } else if (hostname.endsWith('yourplatform.com') && hostname !== 'yourplatform.com') {
-      // Handle other platform domains similarly
-      const subdomain = hostname.replace('.yourplatform.com', '');
-      console.log('✅ Detected subdomain for yourplatform.com:', subdomain);
-      setSubdomain(subdomain);
-      setCustomDomain(null);
+    // Check if hostname ends with any known base domain
+    const matchingBaseDomain = knownBaseDomains.find(baseDomain => hostname.endsWith(baseDomain));
+    
+    if (matchingBaseDomain && hostname !== matchingBaseDomain) {
+      // For known platform domains, always treat as custom domain first
+      // The database will determine if it's actually a custom domain or subdomain
+      console.log('Setting as custom domain:', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
     } else if (parts.length === 2) {
       // This could be a custom domain (e.g., empresa1.com.br)
       console.log('Setting as custom domain:', hostname);
       setCustomDomain(hostname);
       setSubdomain(null);
     } else if (parts.length > 2) {
-      // Check if it's a known base domain pattern but not explicitly handled above
-      const matchingBaseDomain = knownBaseDomains.find(baseDomain => hostname.endsWith(baseDomain));
-      
-      if (matchingBaseDomain && hostname !== matchingBaseDomain) {
-        // Extract subdomain from known base domain
-        const subdomain = hostname.replace(`.${matchingBaseDomain}`, '');
-        console.log('✅ Detected subdomain for', matchingBaseDomain, ':', subdomain);
-        setSubdomain(subdomain);
-        setCustomDomain(null);
-      } else {
-        // Unknown multi-part domain, treat as custom domain
-        console.log('Setting as custom domain (multi-part):', hostname);
-        setCustomDomain(hostname);
-        setSubdomain(null);
-      }
+      // Fallback: treat as custom domain if no known base domain matches
+      console.log('Setting as custom domain (fallback):', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
     } else {
       // Single domain or localhost
       console.log('No subdomain or custom domain detected');
