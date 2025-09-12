@@ -91,7 +91,9 @@ export function AnnouncementModal({ announcement, open, onOpenChange }: Announce
   if (!announcement) return null;
 
   const { announcement: announcementData } = announcement;
-  const isExpired = announcementData.expires_at && new Date(announcementData.expires_at) < new Date();
+  const isValidExpiryDate = announcementData.expires_at && !isNaN(new Date(announcementData.expires_at).getTime());
+  const isExpired = isValidExpiryDate && new Date(announcementData.expires_at) < new Date();
+  const isValidCreatedDate = announcementData.created_at && !isNaN(new Date(announcementData.created_at).getTime());
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -131,11 +133,14 @@ export function AnnouncementModal({ announcement, open, onOpenChange }: Announce
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
             <span>
-              {format(new Date(announcementData.created_at), 'Pp', { locale: ptBR })}
+              {isValidCreatedDate 
+                ? format(new Date(announcementData.created_at), 'Pp', { locale: ptBR })
+                : 'Data não disponível'
+              }
             </span>
           </div>
           
-          {announcementData.expires_at && !isExpired && (
+          {isValidExpiryDate && !isExpired && (
             <DialogDescription className="text-sm">
               Expira em: {format(new Date(announcementData.expires_at), 'Pp', { locale: ptBR })}
             </DialogDescription>

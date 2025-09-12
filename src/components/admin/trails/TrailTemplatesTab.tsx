@@ -111,7 +111,10 @@ export const TrailTemplatesTab = () => {
               )}
               <div>
                 <span className="font-medium">Criado em:</span>{' '}
-                {format(new Date(template.created_at), 'dd/MM/yyyy', { locale: ptBR })}
+                {template.created_at && !isNaN(new Date(template.created_at).getTime())
+                  ? format(new Date(template.created_at), 'dd/MM/yyyy', { locale: ptBR })
+                  : 'Data não disponível'
+                }
               </div>
             </div>
 

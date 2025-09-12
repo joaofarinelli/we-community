@@ -68,11 +68,14 @@ export const ViewTrailTemplateDialog = ({ open, onOpenChange, template }: ViewTr
               <div>
                 <span className="font-medium text-sm">Criado em:</span>
                 <p className="text-foreground">
-                  {format(new Date(template.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                  {template.created_at && !isNaN(new Date(template.created_at).getTime())
+                    ? format(new Date(template.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })
+                    : 'Data não disponível'
+                  }
                 </p>
               </div>
               
-              {template.updated_at !== template.created_at && (
+              {template.updated_at !== template.created_at && template.updated_at && !isNaN(new Date(template.updated_at).getTime()) && (
                 <div>
                   <span className="font-medium text-sm">Atualizado em:</span>
                   <p className="text-foreground">
