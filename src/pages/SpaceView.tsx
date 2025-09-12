@@ -313,9 +313,13 @@ export const SpaceView = () => {
                           </div>
                         </div>)}
                     </div> : members && members.length > 0 ? <div className="p-6 space-y-3">
-                      {members.map(member => {
-                    const memberName = member.profiles ? `${member.profiles.first_name} ${member.profiles.last_name}` : 'Usuário';
-                    const memberInitials = member.profiles ? `${member.profiles.first_name[0]}${member.profiles.last_name[0]}` : 'U';
+                       {members.map(member => {
+                    const memberName = member.profiles?.first_name && member.profiles?.last_name 
+                      ? `${member.profiles.first_name} ${member.profiles.last_name}` 
+                      : 'Usuário';
+                    const memberInitials = member.profiles?.first_name && member.profiles?.last_name 
+                      ? `${member.profiles.first_name[0]}${member.profiles.last_name[0]}` 
+                      : 'U';
                     return <div key={member.id} className="flex items-center space-x-3">
                             <Avatar className="h-8 w-8">
                               <AvatarFallback className="bg-primary/10 text-primary text-sm">

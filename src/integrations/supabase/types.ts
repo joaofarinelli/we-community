@@ -4621,70 +4621,35 @@ export type Database = {
         }[]
       }
       get_company_users_with_filters: {
-        Args:
-          | {
-              p_badge_ids?: string[]
-              p_company_id: string
-              p_course_ids?: string[]
-              p_joined_end?: string
-              p_joined_start?: string
-              p_level_ids?: string[]
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tag_ids?: string[]
-            }
-          | {
-              p_badge_ids?: string[]
-              p_company_id: string
-              p_course_ids?: string[]
-              p_joined_end?: string
-              p_joined_start?: string
-              p_level_ids?: string[]
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tag_ids?: string[]
-            }
-          | {
-              p_badges?: string[]
-              p_courses?: string[]
-              p_join_date_from?: string
-              p_join_date_to?: string
-              p_levels?: string[]
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tags?: string[]
-            }
-          | {
-              p_company_id: string
-              p_course_ids?: string[]
-              p_joined_end?: string
-              p_joined_start?: string
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tag_ids?: string[]
-            }
+        Args: {
+          p_badge_ids?: string[]
+          p_company_id: string
+          p_course_ids?: string[]
+          p_joined_end?: string
+          p_joined_start?: string
+          p_level_ids?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_roles?: string[]
+          p_search?: string
+          p_tag_ids?: string[]
+        }
         Returns: {
           badge_ids: string[]
-          course_count: number
+          badge_names: string[]
+          courses_count: number
           email: string
           first_name: string
-          id: string
-          join_date: string
+          joined_at: string
           last_name: string
+          level_color: string
           level_id: string
           level_name: string
           phone: string
-          post_count: number
+          posts_count: number
           role: string
           tag_ids: string[]
+          tag_names: string[]
           user_id: string
         }[]
       }
