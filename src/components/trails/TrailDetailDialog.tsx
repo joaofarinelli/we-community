@@ -129,11 +129,14 @@ export const TrailDetailDialog = ({ open, onOpenChange, trail, onContinue }: Tra
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
-                  Iniciada em {format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })}
+                  Iniciada em {trail.started_at && !isNaN(new Date(trail.started_at).getTime()) 
+                    ? format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })
+                    : 'Data não disponível'
+                  }
                 </span>
               </div>
               
-              {trail.completed_at && (
+              {trail.completed_at && !isNaN(new Date(trail.completed_at).getTime()) && (
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
                   <span className="text-sm">

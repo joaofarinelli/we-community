@@ -415,7 +415,10 @@ export const UserTrailsTab = () => {
                   )}
                   <div>
                     <span className="font-medium">Iniciada em:</span>{' '}
-                    {format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })}
+                    {trail.started_at && !isNaN(new Date(trail.started_at).getTime()) 
+                      ? format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })
+                      : 'Data não disponível'
+                    }
                   </div>
                 </div>
 
