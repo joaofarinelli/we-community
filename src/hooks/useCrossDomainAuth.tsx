@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { getBaseDomain } from '@/lib/subdomainUtils';
 
 interface CrossDomainAuthContextType {
   availableAccounts: Array<{
@@ -83,7 +84,7 @@ export const CrossDomainAuthProvider = ({ children }: { children: React.ReactNod
 
     // Navigate to the target company domain
     const targetDomain = account.company_custom_domain || 
-      (account.company_subdomain ? `${account.company_subdomain}.${window.location.hostname.split('.').slice(-2).join('.')}` : window.location.hostname);
+      (account.company_subdomain ? `${account.company_subdomain}.${getBaseDomain()}` : window.location.hostname);
     
     // Don't redirect to lovable.dev or other development domains
     const isLovableDomain = targetDomain?.includes('lovable.dev') || targetDomain?.includes('lovable.co');

@@ -41,13 +41,29 @@ export const isReservedSubdomain = (subdomain: string): boolean => {
 
 /**
  * Get the base domain from current hostname
+ * Handles multi-level TLDs like .com.br properly
  */
 export const getBaseDomain = (): string => {
   const hostname = window.location.hostname;
+  
+  // Handle localhost development
+  if (hostname.includes('localhost')) {
+    return hostname;
+  }
+  
   const parts = hostname.split('.');
   
-  // If we have more than 2 parts, return the last two (domain.com)
-  if (parts.length > 2) {
+  // Known multi-level TLDs that require 3 parts for base domain
+  const multiLevelTlds = ['.com.br', '.org.br', '.net.br', '.edu.br', '.gov.br'];
+  
+  // Check if hostname ends with any multi-level TLD
+  const hasMultiLevelTld = multiLevelTlds.some(tld => hostname.endsWith(tld));
+  
+  if (hasMultiLevelTld && parts.length >= 3) {
+    // For multi-level TLDs, return the last 3 parts (e.g., weplataforma.com.br)
+    return parts.slice(-3).join('.');
+  } else if (parts.length >= 2) {
+    // For regular TLDs, return the last 2 parts (e.g., domain.com)
     return parts.slice(-2).join('.');
   }
   

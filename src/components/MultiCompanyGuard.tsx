@@ -6,6 +6,7 @@ import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { CompanySelectionPage } from '@/pages/CompanySelectionPage';
 import { CompanySelectionDialog } from '@/components/dashboard/CompanySelectionDialog';
 import { Loader2 } from 'lucide-react';
+import { getBaseDomain } from '@/lib/subdomainUtils';
 
 interface MultiCompanyGuardProps {
   children: React.ReactNode;
@@ -38,13 +39,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
         // For subdomains of weplataforma.com.br, just remove the subdomain
         mainDomain = 'weplataforma.com.br';
       } else {
-        // Fallback: try to extract base domain safely
-        const parts = hostname.split('.');
-        if (parts.length >= 2) {
-          mainDomain = parts.slice(-2).join('.');
-        } else {
-          mainDomain = hostname;
-        }
+        // Use the proper base domain utility
+        mainDomain = getBaseDomain();
       }
       
       console.log('Redirecting from', hostname, 'to', mainDomain);
@@ -69,12 +65,8 @@ export const MultiCompanyGuard = ({ children }: MultiCompanyGuardProps) => {
         } else if (subdomain && hostname.includes('weplataforma.com.br')) {
           mainDomain = 'weplataforma.com.br';
         } else {
-          const parts = hostname.split('.');
-          if (parts.length >= 2) {
-            mainDomain = parts.slice(-2).join('.');
-          } else {
-            mainDomain = hostname;
-          }
+          // Use the proper base domain utility
+          mainDomain = getBaseDomain();
         }
         
         console.log('Access denied, redirecting from', hostname, 'to', mainDomain);

@@ -3,6 +3,7 @@ import { useAuth } from './useAuth';
 import { useSubdomain } from './useSubdomain';
 import { useCompany } from './useCompany';
 import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
+import { getBaseDomain } from '@/lib/subdomainUtils';
 
 interface UserCompany {
   company_id: string;
@@ -179,7 +180,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
 
     // Redirect to the company's domain
     const targetDomain = company.company_custom_domain || 
-      (company.company_subdomain ? `${company.company_subdomain}.${window.location.hostname.split('.').slice(-2).join('.')}` : window.location.hostname);
+      (company.company_subdomain ? `${company.company_subdomain}.${getBaseDomain()}` : window.location.hostname);
     
     if (targetDomain !== window.location.hostname) {
       window.location.href = `${window.location.protocol}//${targetDomain}/auth`;

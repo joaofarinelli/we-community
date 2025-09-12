@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Building2 } from 'lucide-react';
+import { getBaseDomain } from '@/lib/subdomainUtils';
 
 export const CompanyNavigationSidebar = () => {
   const { userCompanies, currentCompanyId } = useCompanyContext();
@@ -27,7 +28,7 @@ export const CompanyNavigationSidebar = () => {
     } else {
       // Use regular company switching
       // switchToCompany(company.company_id);
-      window.location.href = `${window.location.protocol}//${company.company_subdomain ? `${company.company_subdomain}.${window.location.hostname.split('.').slice(-2).join('.')}` : window.location.hostname}`;
+      window.location.href = `${window.location.protocol}//${company.company_subdomain ? `${company.company_subdomain}.${getBaseDomain()}` : window.location.hostname}`;
     }
   };
   return (
