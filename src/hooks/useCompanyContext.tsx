@@ -50,6 +50,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     if (currentCompany?.id) {
       console.log('🏢 Company context changing to:', currentCompany.id, currentCompany.name);
+      console.log('🌐 Current domain info:', { subdomain, customDomain, hostname: window.location.hostname });
       setCurrentCompanyId(currentCompany.id);
       // Set global company ID for enhanced client
       setGlobalCompanyId(currentCompany.id);
@@ -66,7 +67,8 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       }
 
       try {
-        console.log('Fetching companies for user:', user.email, 'user_id:', user.id);
+        console.log('👤 Fetching companies for user:', user.email, 'user_id:', user.id);
+        console.log('🌐 Domain context:', { subdomain, customDomain, isSpecificDomain });
         
         // Check if we're on a specific domain that should determine the company
         // Use the domain from useSubdomain hook instead of raw hostname
@@ -75,7 +77,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
         // Try to find company by custom domain first if we have one
         // Ignore development-fallback as it's not a real custom domain
         if (customDomain && customDomain !== 'development-fallback') {
-          console.log('Looking for company with custom_domain:', customDomain);
+          console.log('🔍 Looking for company with custom_domain:', customDomain);
           const { data: customDomainCompany } = await supabase
             .from('companies')
             .select('*')
@@ -85,9 +87,10 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
         }
 
         if (domainCompany) {
-          console.log('Found domain company by custom domain:', domainCompany.name);
+          console.log('✅ Found domain company by custom domain:', domainCompany.name, domainCompany.id);
         } else if (subdomain) {
           // Try by subdomain
+          console.log('🔍 Looking for company with subdomain:', subdomain);
           const { data: subdomainCompany } = await supabase
             .from('companies')
             .select('*')
@@ -96,7 +99,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
           
           if (subdomainCompany) {
             domainCompany = subdomainCompany;
-            console.log('Found domain company by subdomain:', domainCompany.name);
+            console.log('✅ Found domain company by subdomain:', domainCompany.name, domainCompany.id);
           }
         }
 
@@ -137,9 +140,9 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
           filteredCompanies = uniqueCompanies.filter(company => 
             company.company_id === domainCompany.id
           );
-          console.log('Filtered companies for domain:', filteredCompanies.map(c => c.company_name));
+          console.log('🎯 Filtered companies for domain:', filteredCompanies.map(c => `${c.company_name} (${c.company_id})`));
         } else {
-          console.log('Found user companies:', uniqueCompanies.map(c => `${c.company_name} (${c.user_id})`));
+          console.log('📋 Found user companies:', uniqueCompanies.map(c => `${c.company_name} (${c.company_id})`));
         }
         
         setUserCompanies(filteredCompanies);

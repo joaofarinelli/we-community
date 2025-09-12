@@ -11,7 +11,12 @@ export const useChallenges = () => {
   return useQuery({
     queryKey: ['challenges', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !currentCompanyId) return [];
+      if (!user?.id || !currentCompanyId) {
+        console.log('📋 useChallenges: Missing required data', { userId: user?.id, currentCompanyId });
+        return [];
+      }
+
+      console.log('🎯 useChallenges: Fetching challenges for company', currentCompanyId);
 
       // Simplified query - get basic challenge data first
       const { data, error } = await supabase
@@ -41,7 +46,12 @@ export const useChallenges = () => {
         .or('end_date.is.null,end_date.gt.' + new Date().toISOString())
         .order('order_index', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ useChallenges: Error fetching challenges', error);
+        throw error;
+      }
+
+      console.log('✅ useChallenges: Successfully fetched challenges', data?.length || 0);
       return data || [];
     },
     enabled: !!user?.id && !!currentCompanyId,

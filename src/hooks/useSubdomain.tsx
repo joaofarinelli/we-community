@@ -55,6 +55,20 @@ export const useSubdomain = () => {
       }
     }
     
+    // Check for specific known custom domains first
+    const knownCustomDomains = [
+      'cae-club.weplataforma.com.br',
+      'womans.weplataforma.com.br'
+    ];
+    
+    if (knownCustomDomains.includes(hostname)) {
+      console.log('✅ Detected known custom domain:', hostname);
+      setCustomDomain(hostname);
+      setSubdomain(null);
+      setIsLoading(false);
+      return;
+    }
+    
     // Known base domains that indicate subdomain structure
     const knownBaseDomains = ['weplataforma.com.br', 'yourplatform.com'];
     

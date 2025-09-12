@@ -27,7 +27,12 @@ export const useUserTags = (userId: string) => {
   return useQuery({
     queryKey: ['user-tags', userId, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !userId || !currentCompanyId) return [];
+      if (!user?.id || !userId || !currentCompanyId) {
+        console.log('🏷️ useUserTags: Missing required data', { userId, currentCompanyId });
+        return [];
+      }
+
+      console.log('🏷️ useUserTags: Fetching tags for user', { userId, currentCompanyId });
 
       const { data, error } = await supabase
         .from('user_tags')
@@ -50,10 +55,11 @@ export const useUserTags = (userId: string) => {
         .eq('company_id', currentCompanyId);
 
       if (error) {
-        console.error('Error fetching user tags:', error);
+        console.error('❌ useUserTags: Error fetching user tags:', error);
         return [];
       }
 
+      console.log('✅ useUserTags: Successfully fetched user tags', data?.length || 0);
       return data as UserTag[];
     },
     enabled: !!user?.id && !!userId && !!currentCompanyId,
