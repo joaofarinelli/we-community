@@ -11,12 +11,16 @@ export const useChallenges = () => {
   return useQuery({
     queryKey: ['challenges', user?.id, currentCompanyId],
     queryFn: async () => {
+      console.log('[useChallenges] 🎯 Starting to fetch challenges...');
+      console.log('[useChallenges] 📊 User ID:', user?.id);
+      console.log('[useChallenges] 🏢 Company ID:', currentCompanyId);
+      
       if (!user?.id || !currentCompanyId) {
-        console.log('📋 useChallenges: Missing required data', { userId: user?.id, currentCompanyId });
+        console.log('[useChallenges] ❌ Missing required data, returning empty array');
         return [];
       }
 
-      console.log('🎯 useChallenges: Fetching challenges for company', currentCompanyId);
+      console.log('[useChallenges] 🔍 Executing Supabase query...');
 
       // Simplified query - get basic challenge data first
       const { data, error } = await supabase
@@ -47,11 +51,19 @@ export const useChallenges = () => {
         .order('order_index', { ascending: true });
 
       if (error) {
-        console.error('❌ useChallenges: Error fetching challenges', error);
+        console.error('[useChallenges] ❌ Error fetching challenges:', error);
         throw error;
       }
 
-      console.log('✅ useChallenges: Successfully fetched challenges', data?.length || 0);
+      console.log('[useChallenges] ✅ Successfully fetched challenges:', data?.length || 0);
+      console.log('[useChallenges] 📋 Challenges data:', data?.map(c => ({ 
+        id: c.id, 
+        title: c.title, 
+        is_active: c.is_active,
+        is_available_for_all_levels: c.is_available_for_all_levels,
+        access_tags: c.access_tags 
+      })) || []);
+      
       return data || [];
     },
     enabled: !!user?.id && !!currentCompanyId,

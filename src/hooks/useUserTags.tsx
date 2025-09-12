@@ -27,12 +27,16 @@ export const useUserTags = (userId: string) => {
   return useQuery({
     queryKey: ['user-tags', userId, currentCompanyId],
     queryFn: async () => {
+      console.log('[useUserTags] 🏷️ Starting to fetch user tags...');
+      console.log('[useUserTags] 👤 User ID:', userId);
+      console.log('[useUserTags] 🏢 Company ID:', currentCompanyId);
+      
       if (!user?.id || !userId || !currentCompanyId) {
-        console.log('🏷️ useUserTags: Missing required data', { userId, currentCompanyId });
+        console.log('[useUserTags] ❌ Missing required data, returning empty array');
         return [];
       }
 
-      console.log('🏷️ useUserTags: Fetching tags for user', { userId, currentCompanyId });
+      console.log('[useUserTags] 🔍 Executing Supabase query...');
 
       const { data, error } = await supabase
         .from('user_tags')
@@ -55,11 +59,13 @@ export const useUserTags = (userId: string) => {
         .eq('company_id', currentCompanyId);
 
       if (error) {
-        console.error('❌ useUserTags: Error fetching user tags:', error);
+        console.error('[useUserTags] ❌ Error fetching user tags:', error);
         return [];
       }
 
-      console.log('✅ useUserTags: Successfully fetched user tags', data?.length || 0);
+      console.log('[useUserTags] ✅ Successfully fetched user tags:', data?.length || 0);
+      console.log('[useUserTags] 🏷️ User tags data:', data?.map(t => t.tags?.name) || []);
+      
       return data as UserTag[];
     },
     enabled: !!user?.id && !!userId && !!currentCompanyId,

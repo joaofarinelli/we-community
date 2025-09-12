@@ -42,25 +42,49 @@ export const ChallengesPage = () => {
   
   // Filter challenges by access tags first using useMemo
   const accessibleChallenges = useMemo(() => {
-    if (!challenges) return [];
+    console.log('[ChallengesPage] 🔄 Starting challenge filtering...');
+    console.log('[ChallengesPage] 📊 Total challenges:', challenges?.length || 0);
+    console.log('[ChallengesPage] 🏷️ User tags:', userTags?.map(ut => ut.tags.name) || []);
+    
+    if (!challenges) {
+      console.log('[ChallengesPage] ❌ No challenges data');
+      return [];
+    }
 
-    return challenges.filter(challenge => {
-      // Se o desafio não tem tags de acesso específicas, é acessível a todos
+    const filtered = challenges.filter(challenge => {
+      console.log(`[ChallengesPage] 🎯 Processing challenge: "${challenge.title}"`);
+      console.log(`[ChallengesPage] - access_tags:`, challenge.access_tags);
+      console.log(`[ChallengesPage] - is_available_for_all_levels:`, challenge.is_available_for_all_levels);
+      
+      // CRITICAL FIX: If no access tags are specified, challenge is available to everyone
       if (!challenge.access_tags || challenge.access_tags.length === 0) {
+        console.log(`[ChallengesPage] ✅ Challenge "${challenge.title}" has NO access tags - available to all`);
         return true;
       }
 
-      // Se o usuário não tem tags, não pode acessar desafios com restrições
+      // If challenge has access tags, check if user has any of them
       if (!userTags || userTags.length === 0) {
+        console.log(`[ChallengesPage] ❌ Challenge "${challenge.title}" requires tags but user has none`);
         return false;
       }
 
-      // Verifica se o usuário tem pelo menos uma das tags necessárias
+      // Check if user has at least one required tag
       const userTagNames = userTags.map(tag => tag.tags.name);
-      return challenge.access_tags.some((requiredTag: string) => 
+      const hasRequiredTag = challenge.access_tags.some((requiredTag: string) => 
         userTagNames.includes(requiredTag)
       );
+      
+      console.log(`[ChallengesPage] ${hasRequiredTag ? '✅' : '❌'} Challenge "${challenge.title}" tag check: ${hasRequiredTag}`);
+      console.log(`[ChallengesPage] - Required tags:`, challenge.access_tags);
+      console.log(`[ChallengesPage] - User tags:`, userTagNames);
+      
+      return hasRequiredTag;
     });
+    
+    console.log('[ChallengesPage] 🏁 Filtering complete. Accessible challenges:', filtered.length);
+    console.log('[ChallengesPage] 📋 Accessible challenge titles:', filtered.map(c => c.title));
+    
+    return filtered;
   }, [challenges, userTags]);
   
   // Get challenge IDs for batch queries - always return array to maintain stable dependency
