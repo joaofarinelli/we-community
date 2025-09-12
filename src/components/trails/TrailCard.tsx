@@ -20,21 +20,25 @@ export const TrailCard = ({ trail, onViewDetails, onStartTrail }: TrailCardProps
     <Card className="hover:shadow-md transition-shadow relative overflow-hidden">
       {/* Trail Thumbnail */}
       {trail.cover_url && (
-        <div className="aspect-video w-full overflow-hidden">
-          <img 
-            src={trail.cover_url} 
-            alt={`Thumbnail da trilha ${trail.name}`}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+        <div className="p-4">
+          <div className="aspect-video w-full overflow-hidden">
+            <img 
+              src={trail.cover_url} 
+              alt={`Thumbnail da trilha ${trail.name}`}
+              className="w-full h-full object-cover rounded-lg"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
         </div>
       )}
       
       {!trail.cover_url && (
-        <div className="aspect-video w-full bg-muted flex items-center justify-center">
-          <Image className="h-12 w-12 text-muted-foreground" />
+        <div className="p-4">
+          <div className="aspect-video w-full bg-muted flex items-center justify-center rounded-lg">
+            <Image className="h-12 w-12 text-muted-foreground" />
+          </div>
         </div>
       )}
       
