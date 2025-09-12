@@ -740,6 +740,8 @@ export type Database = {
           id: string
           login_banner_url: string | null
           logo_url: string | null
+          maintenance_message: string | null
+          maintenance_mode: boolean
           marketplace_banner_url: string | null
           members_banner_url: string | null
           name: string
@@ -779,6 +781,8 @@ export type Database = {
           id?: string
           login_banner_url?: string | null
           logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
           marketplace_banner_url?: string | null
           members_banner_url?: string | null
           name: string
@@ -818,6 +822,8 @@ export type Database = {
           id?: string
           login_banner_url?: string | null
           logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
           marketplace_banner_url?: string | null
           members_banner_url?: string | null
           name?: string

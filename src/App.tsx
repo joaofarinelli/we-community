@@ -87,6 +87,8 @@ import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
 import { AnnouncementProvider } from '@/components/ui/AnnouncementProvider';
+import { MaintenanceGuard } from '@/components/MaintenanceGuard';
+import { MaintenancePage } from '@/pages/MaintenancePage';
 
 const queryClient = new QueryClient();
 
@@ -113,9 +115,10 @@ const AppRoutes = () => {
   return (
     <CompanyContextWrapper>
       <AnnouncementProvider />
-      <MultiCompanyGuard>
-        <OnboardingChecker />
-        <Routes>
+      <MaintenanceGuard>
+        <MultiCompanyGuard>
+          <OnboardingChecker />
+          <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
           <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
           <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
@@ -189,10 +192,12 @@ const AppRoutes = () => {
           <Route path="/super-admin/reports" element={<AuthGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthGuard>} />
           <Route path="/super-admin/management" element={<AuthGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthGuard>} />
           <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
+          <Route path="/maintenance" element={<MaintenancePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </MultiCompanyGuard>
+          </Routes>
+        </MultiCompanyGuard>
+      </MaintenanceGuard>
     </CompanyContextWrapper>
   );
 };
