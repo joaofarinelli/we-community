@@ -2,15 +2,17 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompany } from './useCompany';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
 export const useChallengeParticipations = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['challenge-participations', user?.id],
+    queryKey: ['challenge-participations', user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('user_challenge_participations')
@@ -28,12 +30,13 @@ export const useChallengeParticipations = () => {
           )
         `)
         .eq('user_id', user.id)
+        .eq('company_id', currentCompanyId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!user?.id,
+    enabled: !!user?.id && !!currentCompanyId,
   });
 };
 

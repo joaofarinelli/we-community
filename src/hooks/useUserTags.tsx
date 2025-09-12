@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { toast } from 'sonner';
 
 export interface UserTag {
@@ -21,20 +22,12 @@ export interface UserTag {
 
 export const useUserTags = (userId: string) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   return useQuery({
-    queryKey: ['user-tags', userId],
+    queryKey: ['user-tags', userId, currentCompanyId],
     queryFn: async () => {
-      if (!user?.id || !userId) return [];
-
-      // Buscar a empresa do usuário
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!userProfile?.company_id) return [];
+      if (!user?.id || !userId || !currentCompanyId) return [];
 
       const { data, error } = await supabase
         .from('user_tags')
@@ -54,7 +47,7 @@ export const useUserTags = (userId: string) => {
           )
         `)
         .eq('user_id', userId)
-        .eq('company_id', userProfile.company_id);
+        .eq('company_id', currentCompanyId);
 
       if (error) {
         console.error('Error fetching user tags:', error);
@@ -63,33 +56,25 @@ export const useUserTags = (userId: string) => {
 
       return data as UserTag[];
     },
-    enabled: !!user?.id && !!userId,
+    enabled: !!user?.id && !!userId && !!currentCompanyId,
   });
 };
 
 export const useAssignTag = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, tagId }: { userId: string; tagId: string }) => {
-      if (!user?.id) throw new Error('User not authenticated');
-
-      // Buscar a empresa do usuário
-      const { data: userProfile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!userProfile?.company_id) throw new Error('User company not found');
+      if (!user?.id || !currentCompanyId) throw new Error('User not authenticated or no company context');
 
       const { data, error } = await supabase
         .from('user_tags')
         .insert({
           user_id: userId,
           tag_id: tagId,
-          company_id: userProfile.company_id,
+          company_id: currentCompanyId,
           assigned_by: user.id,
         })
         .select()
@@ -99,7 +84,7 @@ export const useAssignTag = () => {
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['user-tags', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['user-tags', variables.userId, currentCompanyId] });
       queryClient.invalidateQueries({ queryKey: ['company-members'] });
       toast.success('Tag adicionada com sucesso!');
     },
@@ -112,6 +97,7 @@ export const useAssignTag = () => {
 
 export const useRemoveTag = () => {
   const queryClient = useQueryClient();
+  const { currentCompanyId } = useCompanyContext();
 
   return useMutation({
     mutationFn: async ({ userId, tagId }: { userId: string; tagId: string }) => {
@@ -124,7 +110,7 @@ export const useRemoveTag = () => {
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['user-tags', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['user-tags', variables.userId, currentCompanyId] });
       queryClient.invalidateQueries({ queryKey: ['company-members'] });
       toast.success('Tag removida com sucesso!');
     },

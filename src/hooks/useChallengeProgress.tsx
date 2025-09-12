@@ -1,20 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
 import { useMemo } from 'react';
 
 // Hook otimizado para buscar progresso de desafios específicos
 export const useChallengeProgressBatch = (challengeIds: string[]) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   // Estabilizar user ID para evitar mudanças desnecessárias
   const stableUserId = user?.id || '';
 
   return useQuery({
-    queryKey: ['challenge-progress-batch', challengeIds, stableUserId],
+    queryKey: ['challenge-progress-batch', challengeIds, stableUserId, currentCompanyId],
     queryFn: async () => {
       // Se não tem user ID ou challengeIds, retorna objeto vazio
-      if (!stableUserId || challengeIds.length === 0) return {};
+      if (!stableUserId || !currentCompanyId || challengeIds.length === 0) return {};
 
       const { data, error } = await supabase
         .from('challenge_progress')
@@ -26,6 +28,7 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
           completed_at
         `)
         .eq('user_id', stableUserId)
+        .eq('company_id', currentCompanyId)
         .in('challenge_id', challengeIds);
 
       if (error) throw error;
@@ -36,7 +39,7 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
         return acc;
       }, {} as Record<string, any>);
     },
-    enabled: !!stableUserId && challengeIds.length > 0,
+    enabled: !!stableUserId && !!currentCompanyId && challengeIds.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   });
@@ -45,15 +48,16 @@ export const useChallengeProgressBatch = (challengeIds: string[]) => {
 // Hook otimizado para buscar participações de desafios específicos
 export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
 
   // Estabilizar user ID para evitar mudanças desnecessárias
   const stableUserId = user?.id || '';
 
   return useQuery({
-    queryKey: ['challenge-participations-batch', challengeIds, stableUserId],
+    queryKey: ['challenge-participations-batch', challengeIds, stableUserId, currentCompanyId],
     queryFn: async () => {
       // Se não tem user ID ou challengeIds, retorna objeto vazio
-      if (!stableUserId || challengeIds.length === 0) return {};
+      if (!stableUserId || !currentCompanyId || challengeIds.length === 0) return {};
 
       const { data, error } = await supabase
         .from('user_challenge_participations')
@@ -64,6 +68,7 @@ export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
           expires_at
         `)
         .eq('user_id', stableUserId)
+        .eq('company_id', currentCompanyId)
         .in('challenge_id', challengeIds);
 
       if (error) throw error;
@@ -74,7 +79,7 @@ export const useChallengeParticipationsBatch = (challengeIds: string[]) => {
         return acc;
       }, {} as Record<string, any>);
     },
-    enabled: !!stableUserId && challengeIds.length > 0,
+    enabled: !!stableUserId && !!currentCompanyId && challengeIds.length > 0,
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchOnWindowFocus: false,
   });
