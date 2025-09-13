@@ -12,6 +12,8 @@ export interface TrailTemplate {
   life_area?: string;
   cover_url?: string;
   is_active: boolean;
+  is_pinned: boolean;
+  pinned_order?: number;
   access_criteria?: {
     required_level_id?: string;
     required_tags?: string[];
@@ -39,11 +41,15 @@ export const useTrailTemplates = () => {
           name,
           description,
           cover_url,
+          is_pinned,
+          pinned_order,
           created_at,
           access_criteria
         `)
         .eq('company_id', currentCompanyId)
         .eq('is_active', true)
+        .order('is_pinned', { ascending: false })
+        .order('pinned_order', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -149,6 +155,34 @@ export const useDeleteTrailTemplate = () => {
     },
     onError: (error: any) => {
       toast.error('Erro ao desativar template: ' + error.message);
+    },
+  });
+};
+
+export const usePinTrailTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ templateId, isPinned, pinnedOrder }: { templateId: string; isPinned: boolean; pinnedOrder?: number }) => {
+      const { error } = await supabase
+        .from('trail_templates')
+        .update({ 
+          is_pinned: isPinned,
+          pinned_order: isPinned ? pinnedOrder : null
+        })
+        .eq('id', templateId);
+
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['trail-templates'] });
+      toast.success(
+        variables.isPinned ? "Trilha fixada no topo!" : "Trilha removida do topo"
+      );
+    },
+    onError: (error) => {
+      console.error('Error updating template pinning:', error);
+      toast.error("Erro ao atualizar a trilha");
     },
   });
 };

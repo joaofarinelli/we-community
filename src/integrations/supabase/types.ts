@@ -3580,8 +3580,10 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean | null
+          is_pinned: boolean
           life_area: string | null
           name: string
+          pinned_order: number | null
           updated_at: string
         }
         Insert: {
@@ -3593,8 +3595,10 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_pinned?: boolean
           life_area?: string | null
           name: string
+          pinned_order?: number | null
           updated_at?: string
         }
         Update: {
@@ -3606,8 +3610,10 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean | null
+          is_pinned?: boolean
           life_area?: string | null
           name?: string
+          pinned_order?: number | null
           updated_at?: string
         }
         Relationships: []

@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Play, Eye, MapPin, Calendar, Lock, Image } from 'lucide-react';
+import { Play, Eye, MapPin, Calendar, Lock, Image, Pin } from 'lucide-react';
 import { useTrailStartEligibility } from '@/hooks/useTrailStartEligibility';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -65,6 +65,12 @@ export const TrailCard = ({ trail, onViewDetails, onStartTrail }: TrailCardProps
                   <Badge variant={trail.type === 'template' ? 'secondary' : 'default'} className="text-xs">
                     {trail.type === 'template' ? 'Template' : 'Trilha'}
                   </Badge>
+                  {trail.is_pinned && (
+                    <div className="flex items-center gap-1">
+                      <Pin className="h-3 w-3 text-primary" />
+                      <Badge variant="secondary" className="text-xs">Fixada</Badge>
+                    </div>
+                  )}
                   {!canStart && (
                     <TooltipProvider>
                       <Tooltip>

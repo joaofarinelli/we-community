@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Edit, Trash2, Copy, Eye } from 'lucide-react';
+import { Edit, Trash2, Copy, Eye, Pin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTrailTemplates, useDeleteTrailTemplate, TrailTemplate } from '@/hooks/useTrailTemplates';
+import { TrailPinButton } from '../../trails/TrailPinButton';
 import { ViewTrailTemplateDialog } from './ViewTrailTemplateDialog';
 import { EditTrailTemplateDialog } from './EditTrailTemplateDialog';
 import { CopyTrailTemplateDialog } from './CopyTrailTemplateDialog';
@@ -79,8 +80,19 @@ export const TrailTemplatesTab = () => {
         <Card key={template.id} className="hover:shadow-md transition-shadow">
           <CardHeader className="space-y-1">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">{template.name}</CardTitle>
-              <Badge variant="secondary">Template</Badge>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-lg">{template.name}</CardTitle>
+                {template.is_pinned && (
+                  <div className="flex items-center gap-1">
+                    <Pin className="h-4 w-4 text-primary" />
+                    <Badge variant="secondary" className="text-xs">Fixada</Badge>
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">Template</Badge>
+                <TrailPinButton template={template} />
+              </div>
             </div>
             {template.description && (
               <CardDescription className="line-clamp-2">
