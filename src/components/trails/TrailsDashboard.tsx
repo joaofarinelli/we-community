@@ -1,73 +1,45 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import { TrailCard } from './TrailCard';
 import { TrailProgressStats } from './TrailProgressStats';
 import { TrailBadgesDisplay } from './TrailBadgesDisplay';
 import { AvailableTrailsSection } from './AvailableTrailsSection';
-import { useUserTrailParticipations } from '@/hooks/useTrails';
-import { useUserTrailBadges } from '@/hooks/useTrailProgress';
+import { TrailsCompactSkeleton } from './TrailsCompactSkeleton';
+import { useTrailsDashboardData } from '@/hooks/useTrailsDashboardData';
 
-export const TrailsDashboard = () => {
-  const { data: trails, isLoading } = useUserTrailParticipations();
-  const { data: badges } = useUserTrailBadges();
+export const TrailsDashboard = React.memo(() => {
+  const { 
+    userTrails, 
+    badges, 
+    isLoading, 
+    isUserTrailsLoading,
+    isBadgesLoading 
+  } = useTrailsDashboardData();
 
-  const activeTrails = trails?.filter(trail => trail.status === 'active') || [];
-  const completedTrails = trails?.filter(trail => trail.status === 'completed') || [];
+  const { activeTrails, completedTrails } = useMemo(() => ({
+    activeTrails: userTrails?.filter(trail => trail.status === 'active') || [],
+    completedTrails: userTrails?.filter(trail => trail.status === 'completed') || []
+  }), [userTrails]);
 
+  // Show compact skeleton during initial load
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        {/* Stats Skeleton */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="p-6">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-12" />
-                <Skeleton className="h-3 w-32" />
-              </div>
-            </Card>
-          ))}
-        </div>
-        
-        {/* Trails Skeleton */}
-        <Card className="p-6">
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(3)].map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <Skeleton className="aspect-video w-full" />
-                  <div className="p-4 space-y-3">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-8 w-20" />
-                      <Skeleton className="h-8 w-24" />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
+    return <TrailsCompactSkeleton />;
   }
 
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <TrailProgressStats />
+        <TrailProgressStats 
+          trails={userTrails} 
+          badges={badges} 
+          isLoading={isUserTrailsLoading || isBadgesLoading} 
+        />
       </div>
 
       {/* Badges Section */}
-      <TrailBadgesDisplay badges={badges || []} />
+      <TrailBadgesDisplay badges={badges || []} isLoading={isBadgesLoading} />
 
       {/* Trails Section */}
       <Tabs defaultValue="available" className="space-y-6">
@@ -78,7 +50,7 @@ export const TrailsDashboard = () => {
         </TabsList>
 
         <TabsContent value="available" className="space-y-4">
-          <AvailableTrailsSection />
+          <AvailableTrailsSection isFromDashboard />
         </TabsContent>
 
         <TabsContent value="active" className="space-y-4">
@@ -122,4 +94,4 @@ export const TrailsDashboard = () => {
       </Tabs>
     </div>
   );
-};
+});

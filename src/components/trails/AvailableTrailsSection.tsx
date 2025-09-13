@@ -1,13 +1,13 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Play, Award, MapPin, Calendar, Users, Eye, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useAvailableTrails, useJoinTrail } from '@/hooks/useTrails';
-import { useTrailTemplates } from '@/hooks/useTrailTemplates';
+import { useJoinTrail } from '@/hooks/useTrails';
 import { TrailTemplateDetailsDialog } from './TrailTemplateDetailsDialog';
 import { TrailCard } from './TrailCard';
+import { useTrailsDashboardData } from '@/hooks/useTrailsDashboardData';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -109,14 +109,22 @@ const JoinTrailDialog = ({ open, onOpenChange, trail }: JoinTrailDialogProps) =>
   );
 };
 
-export const AvailableTrailsSection = () => {
-  const { data: availableTrails, isLoading: availableLoading } = useAvailableTrails();
-  const { data: templates, isLoading: templatesLoading } = useTrailTemplates();
+interface AvailableTrailsSectionProps {
+  isFromDashboard?: boolean;
+}
+
+export const AvailableTrailsSection = React.memo(({ isFromDashboard }: AvailableTrailsSectionProps) => {
+  const { 
+    availableTrails, 
+    templates, 
+    isAvailableTrailsLoading 
+  } = useTrailsDashboardData();
+  
   const [selectedTrail, setSelectedTrail] = useState<any>(null);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
-  const isLoading = availableLoading || templatesLoading;
+  const isLoading = isFromDashboard ? false : isAvailableTrailsLoading;
 
   const allAvailableTrails = useMemo(() => [
     ...(templates || []).map(template => ({
@@ -148,14 +156,14 @@ export const AvailableTrailsSection = () => {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 3 }).map((_, i) => (
           <Card key={i} className="animate-pulse">
             <CardHeader>
               <div className="h-4 bg-muted rounded w-3/4"></div>
               <div className="h-3 bg-muted rounded w-1/2"></div>
             </CardHeader>
             <CardContent>
-              <div className="h-20 bg-muted rounded"></div>
+              <div className="h-16 bg-muted rounded"></div>
             </CardContent>
           </Card>
         ))}
@@ -208,4 +216,4 @@ export const AvailableTrailsSection = () => {
       )}
     </>
   );
-};
+});

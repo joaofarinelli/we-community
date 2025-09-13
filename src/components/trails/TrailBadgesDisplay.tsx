@@ -3,6 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import * as LucideIcons from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TrailBadge {
   id: string;
@@ -24,13 +25,31 @@ interface TrailBadge {
 
 interface TrailBadgesDisplayProps {
   badges: TrailBadge[];
+  isLoading?: boolean;
 }
 
-export const TrailBadgesDisplay = ({ badges }: TrailBadgesDisplayProps) => {
+export const TrailBadgesDisplay = ({ badges, isLoading }: TrailBadgesDisplayProps) => {
   const getDynamicIcon = (iconName: string) => {
     const IconComponent = (LucideIcons as any)[iconName];
     return IconComponent || LucideIcons.Award;
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-5 w-24" />
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Skeleton className="h-8 w-20 rounded-full" />
+            <Skeleton className="h-8 w-24 rounded-full" />
+            <Skeleton className="h-8 w-16 rounded-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (badges.length === 0) {
     return (
