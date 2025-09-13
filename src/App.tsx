@@ -123,6 +123,14 @@ const AppRoutes = () => {
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
           <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
+          <Route path="/certificate/:certificateCode" element={<CertificateVerificationPage />} />
+          <Route path="/maintenance" element={<MaintenancePage />} />
+        </Routes>
+      </MultiCompanyGuard>
+      <MultiCompanyGuard>
+        <OnboardingChecker />
+        <Routes>
           <Route path="/dashboard" element={<AuthenticatedMaintenanceGuard><Dashboard /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/ranking" element={<AuthenticatedMaintenanceGuard><RankingPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/members" element={<AuthenticatedMaintenanceGuard><MembersPage /></AuthenticatedMaintenanceGuard>} />
@@ -169,7 +177,6 @@ const AppRoutes = () => {
           <Route path="/dashboard/trails/:trailId/stages" element={<AuthenticatedMaintenanceGuard><TrailStagesPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthenticatedMaintenanceGuard><TrailStagePlayerPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/certificates" element={<AuthenticatedMaintenanceGuard><CertificatesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/certificate/:certificateCode" element={<CertificateVerificationPage />} />
           <Route path="/dashboard/liked-lessons" element={<AuthenticatedMaintenanceGuard><LikedLessonsPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/lesson-notes" element={<AuthenticatedMaintenanceGuard><LessonNotesPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/admin/trails" element={<AuthenticatedMaintenanceGuard><AdminTrailsPage /></AuthenticatedMaintenanceGuard>} />
@@ -193,8 +200,6 @@ const AppRoutes = () => {
           <Route path="/super-admin/metrics" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
           <Route path="/super-admin/reports" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
           <Route path="/super-admin/management" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
-          <Route path="/maintenance" element={<MaintenancePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
           </Routes>
