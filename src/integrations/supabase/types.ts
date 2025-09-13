@@ -4640,33 +4640,19 @@ export type Database = {
         }[]
       }
       get_company_users_with_filters: {
-        Args:
-          | {
-              p_badge_ids?: string[]
-              p_company_id: string
-              p_course_ids?: string[]
-              p_joined_end?: string
-              p_joined_start?: string
-              p_level_ids?: string[]
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tag_ids?: string[]
-            }
-          | {
-              p_badge_ids?: string[]
-              p_company_id: string
-              p_course_ids?: string[]
-              p_joined_end?: string
-              p_joined_start?: string
-              p_level_ids?: string[]
-              p_limit?: number
-              p_offset?: number
-              p_roles?: string[]
-              p_search?: string
-              p_tag_ids?: string[]
-            }
+        Args: {
+          p_badge_ids?: string[]
+          p_company_id: string
+          p_course_ids?: string[]
+          p_joined_end?: string
+          p_joined_start?: string
+          p_level_ids?: string[]
+          p_limit?: number
+          p_offset?: number
+          p_roles?: string[]
+          p_search?: string
+          p_tag_ids?: string[]
+        }
         Returns: {
           badge_ids: string[]
           badge_names: string[]
