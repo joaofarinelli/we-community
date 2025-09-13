@@ -33,6 +33,8 @@ interface FeedPost {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
+  hide_comments?: boolean;
+  hide_likes?: boolean;
   is_hidden?: boolean;
   hidden_by?: string;
   hidden_at?: string;
@@ -278,7 +280,11 @@ export const FeedPostCard = ({ post }: FeedPostCardProps) => {
         </div>
 
         {/* Interações */}
-        <PostInteractions postId={post.id} />
+        <PostInteractions 
+          postId={post.id} 
+          hideComments={post.hide_comments}
+          hideLikes={post.hide_likes}
+        />
         
         {/* Dialogs */}
         <DeletePostDialog

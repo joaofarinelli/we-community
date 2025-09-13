@@ -7,6 +7,8 @@ interface UpdatePostData {
   title?: string;
   content?: string;
   hide_author?: boolean;
+  hide_comments?: boolean;
+  hide_likes?: boolean;
   is_pinned?: boolean;
 }
 
@@ -24,6 +26,8 @@ export const useUpdatePost = () => {
       if (data.title !== undefined) updateData.title = data.title;
       if (data.content !== undefined) updateData.content = data.content;
       if (data.hide_author !== undefined) updateData.hide_author = data.hide_author;
+      if (data.hide_comments !== undefined) updateData.hide_comments = data.hide_comments;
+      if (data.hide_likes !== undefined) updateData.hide_likes = data.hide_likes;
       if (data.is_pinned !== undefined) updateData.is_pinned = data.is_pinned;
 
       // Check content moderation if content is being updated

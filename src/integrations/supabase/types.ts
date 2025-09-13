@@ -2675,6 +2675,8 @@ export type Database = {
           hidden_by: string | null
           hidden_reason: string | null
           hide_author: boolean
+          hide_comments: boolean
+          hide_likes: boolean
           id: string
           is_announcement: boolean
           is_hidden: boolean
@@ -2697,6 +2699,8 @@ export type Database = {
           hidden_by?: string | null
           hidden_reason?: string | null
           hide_author?: boolean
+          hide_comments?: boolean
+          hide_likes?: boolean
           id?: string
           is_announcement?: boolean
           is_hidden?: boolean
@@ -2719,6 +2723,8 @@ export type Database = {
           hidden_by?: string | null
           hidden_reason?: string | null
           hide_author?: boolean
+          hide_comments?: boolean
+          hide_likes?: boolean
           id?: string
           is_announcement?: boolean
           is_hidden?: boolean

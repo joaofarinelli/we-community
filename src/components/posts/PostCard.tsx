@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Pin, MessageCircle, MoreHorizontal, Edit, Trash2, EyeOff, Eye } from 'lucide-react';
+import { Pin, MessageCircle, MoreHorizontal, Edit, Trash2, EyeOff, Eye, MessageSquare, MessageSquareOff, Heart, HeartOff } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +31,8 @@ interface Post {
   is_pinned: boolean;
   is_announcement: boolean;
   hide_author?: boolean;
+  hide_comments?: boolean;
+  hide_likes?: boolean;
   is_hidden?: boolean;
   hidden_by?: string;
   hidden_at?: string;
@@ -66,6 +68,28 @@ export const PostCard = ({ post }: PostCardProps) => {
       });
     } catch (error) {
       console.error('Error toggling author visibility:', error);
+    }
+  };
+
+  const handleToggleCommentsVisibility = async () => {
+    try {
+      await updatePost.mutateAsync({
+        postId: post.id,
+        data: { hide_comments: !post.hide_comments }
+      });
+    } catch (error) {
+      console.error('Error toggling comments visibility:', error);
+    }
+  };
+
+  const handleToggleLikesVisibility = async () => {
+    try {
+      await updatePost.mutateAsync({
+        postId: post.id,
+        data: { hide_likes: !post.hide_likes }
+      });
+    } catch (error) {
+      console.error('Error toggling likes visibility:', error);
     }
   };
   
@@ -186,6 +210,36 @@ export const PostCard = ({ post }: PostCardProps) => {
                     )}
                   </DropdownMenuItem>
                 )}
+                {isAuthor && (
+                  <>
+                    <DropdownMenuItem onClick={handleToggleCommentsVisibility}>
+                      {post.hide_comments ? (
+                        <>
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Mostrar Comentários
+                        </>
+                      ) : (
+                        <>
+                          <MessageSquareOff className="h-4 w-4 mr-2" />
+                          Ocultar Comentários
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleToggleLikesVisibility}>
+                      {post.hide_likes ? (
+                        <>
+                          <Heart className="h-4 w-4 mr-2" />
+                          Mostrar Curtidas
+                        </>
+                      ) : (
+                        <>
+                          <HeartOff className="h-4 w-4 mr-2" />
+                          Ocultar Curtidas
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuItem 
                   onClick={() => setShowDeleteDialog(true)}
                   className="text-destructive focus:text-destructive"
@@ -212,7 +266,11 @@ export const PostCard = ({ post }: PostCardProps) => {
         </div>
 
         {/* Interações */}
-        <PostInteractions postId={post.id} />
+        <PostInteractions 
+          postId={post.id} 
+          hideComments={post.hide_comments}
+          hideLikes={post.hide_likes}
+        />
         
         {/* Dialogs */}
         <DeletePostDialog

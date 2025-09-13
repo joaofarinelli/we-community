@@ -11,9 +11,11 @@ import { ptBR } from 'date-fns/locale';
 
 interface PostInteractionsProps {
   postId: string;
+  hideComments?: boolean;
+  hideLikes?: boolean;
 }
 
-export const PostInteractions = ({ postId }: PostInteractionsProps) => {
+export const PostInteractions = ({ postId, hideComments = false, hideLikes = false }: PostInteractionsProps) => {
   const {
     likes,
     comments,
@@ -105,7 +107,7 @@ export const PostInteractions = ({ postId }: PostInteractionsProps) => {
       </div>
 
       {/* Área de Comentários */}
-      {showComments && (
+      {!hideComments && showComments && (
         <div className="space-y-4 pt-3 border-t">
           {/* Formulário para novo comentário */}
           <div className="flex space-x-3">

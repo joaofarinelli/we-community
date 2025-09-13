@@ -10,6 +10,9 @@ export interface PostDetails {
   type: string;
   is_pinned: boolean;
   is_announcement: boolean;
+  hide_author?: boolean;
+  hide_comments?: boolean;
+  hide_likes?: boolean;
   created_at: string;
   updated_at: string;
   space_id: string;
@@ -34,22 +37,25 @@ export const usePostDetails = (postId: string, spaceId: string) => {
     queryFn: async (): Promise<PostDetails | null> => {
       if (!user || !postId || !spaceId || !currentCompanyId) return null;
 
-      const { data, error } = await supabase
-        .from('posts')
-        .select(`
-          id,
-          title,
-          content,
-          type,
-          is_pinned,
-          is_announcement,
-          created_at,
-          updated_at,
-          space_id,
-          author_id,
-          spaces!posts_space_id_fkey(name, type),
-          profiles!posts_author_profile_fkey(first_name, last_name, avatar_url)
-        `)
+        const { data, error } = await supabase
+          .from('posts')
+          .select(`
+            id,
+            title,
+            content,
+            type,
+            is_pinned,
+            is_announcement,
+            hide_author,
+            hide_comments,
+            hide_likes,
+            created_at,
+            updated_at,
+            space_id,
+            author_id,
+            spaces!posts_space_id_fkey(name, type),
+            profiles!posts_author_profile_fkey(first_name, last_name, avatar_url)
+          `)
         .eq('id', postId)
         .eq('space_id', spaceId)
         .eq('company_id', currentCompanyId)
