@@ -5,12 +5,16 @@ import { LastPlacedSidebar } from '@/components/gamification/LastPlacedSidebar';
 import { useCoinName } from '@/hooks/useCoinName';
 import { useCompany } from '@/hooks/useCompany';
 import { useCompanyStreakLeaderboard } from '@/hooks/useUserStreak';
+import { useLastPlacedUsers } from '@/hooks/useLastPlacedUsers';
 import { PageBanner } from '@/components/ui/page-banner';
 
 export const RankingPage = () => {
   const { data: coinName = 'WomanCoins' } = useCoinName();
   const { data: company } = useCompany();
   const { data: streakLeaderboard } = useCompanyStreakLeaderboard(10);
+  const { data: lastPlacedUsers } = useLastPlacedUsers();
+  
+  const hasHistoricalData = lastPlacedUsers && lastPlacedUsers.length > 0;
 
   return (
     <DashboardLayout>
@@ -33,13 +37,15 @@ export const RankingPage = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="lg:col-span-3">
+          <div className={hasHistoricalData ? "grid grid-cols-1 lg:grid-cols-4 gap-6" : "flex justify-center"}>
+            <div className={hasHistoricalData ? "lg:col-span-3" : "w-full max-w-4xl"}>
               <RankingTab />
             </div>
-            <div className="lg:col-span-1">
-              <LastPlacedSidebar />
-            </div>
+            {hasHistoricalData && (
+              <div className="lg:col-span-1">
+                <LastPlacedSidebar />
+              </div>
+            )}
           </div>
         </div>
       </div>
