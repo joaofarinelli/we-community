@@ -53,13 +53,13 @@ export const TransactionStatement = () => {
     return labels[actionType] || actionType;
   };
 
-  const filteredTransactions = transactions?.filter(transaction => {
+  const filteredTransactions = (transactions as any)?.filter((transaction: any) => {
     if (filter === 'earned' && transaction.coins <= 0) return false;
     if (filter === 'spent' && transaction.coins >= 0) return false;
     if (filter === 'transfers' && !transaction.action_type.includes('transfer')) return false;
     
     if (searchTerm) {
-      const label = getActionLabel(transaction.action_type).toLowerCase();
+      const label = getActionLabel((transaction as any).action_type).toLowerCase();
       if (!label.includes(searchTerm.toLowerCase())) return false;
     }
 
@@ -194,10 +194,10 @@ export const TransactionStatement = () => {
               >
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-full bg-muted">
-                    {getActionIcon(transaction.action_type, transaction.coins)}
+                    {getActionIcon((transaction as any).action_type, (transaction as any).coins)}
                   </div>
                   <div>
-                    <p className="font-medium">{getActionLabel(transaction.action_type)}</p>
+                    <p className="font-medium">{getActionLabel((transaction as any).action_type)}</p>
                     <p className="text-sm text-muted-foreground">
                       {formatDistanceToNow(new Date(transaction.created_at), {
                         addSuffix: true,
@@ -209,12 +209,12 @@ export const TransactionStatement = () => {
                 
                 <div className="text-right">
                   <div className={`flex items-center gap-1 font-bold ${
-                    transaction.coins > 0 ? 'text-green-600' : 'text-red-600'
+                    (transaction as any).coins > 0 ? 'text-green-600' : 'text-red-600'
                   }`}>
                     <Coins className="h-4 w-4" />
                     <span>
-                      {transaction.coins > 0 ? '+' : ''}
-                      {transaction.coins.toLocaleString()}
+                      {(transaction as any).coins > 0 ? '+' : ''}
+                      {(transaction as any).coins.toLocaleString()}
                     </span>
                   </div>
                 </div>

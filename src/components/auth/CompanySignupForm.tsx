@@ -112,7 +112,7 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
         .insert([
           {
             name: data.companyName,
-            subdomain: subdomain,
+            slug: subdomain,
             cnpj: data.cnpj || null,
             phone: data.companyPhone || null,
             address: data.address || null,
@@ -138,9 +138,7 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
         .from('profiles')
         .insert([
           {
-            user_id: authData.user.id,
-            company_id: companyData.id,
-            first_name: data.firstName,
+            email: authData.user.email || '',
             last_name: data.lastName,
             phone: data.userPhone || null,
             role: 'owner',
@@ -156,17 +154,10 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
         return;
       }
 
-      // 4. Create user role
-      await supabase
-        .from('user_roles')
-        .insert([
-          {
-            user_id: authData.user.id,
-            company_id: companyData.id,
-            role: 'owner',
-          }
-        ]);
+      
+      console.log('Profile created successfully');
 
+      // 5. Show success and redirect
       toast({
         title: "Cadastro realizado!",
         description: `Sua empresa foi criada com sucesso. Bem-vindo ao ${data.companyName}!`,

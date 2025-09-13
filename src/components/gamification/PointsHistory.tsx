@@ -48,9 +48,9 @@ export const PointsHistory = ({ userId, limit = 20 }: PointsHistoryProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {history && history.length > 0 ? (
-          <div className="space-y-4">
-            {history.map((transaction) => (
+            {(history as any) && (history as any).length > 0 ? (
+              <div className="space-y-4">
+                {(history as any).map((transaction: any) => (
               <div
                 key={transaction.id}
                 className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors"

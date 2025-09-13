@@ -134,11 +134,11 @@ export const TwoStepSignupForm = ({ onSwitchToLogin }: TwoStepSignupFormProps) =
       }
 
       // 2. Create company with auto-generated name and subdomain
-      const { data: companyData, error: companyError } = await supabase
+      const { data: companyData, error: companyError } = await (supabase as any)
         .from('companies')
         .insert({
           name: companyName,
-          subdomain: subdomain,
+          slug: subdomain,
           status: 'active',
           plan: 'free'
         })
