@@ -14,7 +14,169 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          coin_name: string | null
+          created_at: string | null
+          custom_domain: string | null
+          custom_domain_verified: boolean | null
+          domain: string | null
+          domain_verified: boolean | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          coin_name?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          custom_domain_verified?: boolean | null
+          domain?: string | null
+          domain_verified?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          coin_name?: string | null
+          created_at?: string | null
+          custom_domain?: string | null
+          custom_domain_verified?: boolean | null
+          domain?: string | null
+          domain_verified?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company_id: string
+          created_at: string | null
+          department: string | null
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          last_login: string | null
+          last_name: string | null
+          onboarding_completed: boolean | null
+          phone: string | null
+          position: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_id: string
+          created_at?: string | null
+          department?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_login?: string | null
+          last_name?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          position?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_id?: string
+          created_at?: string | null
+          department?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_login?: string | null
+          last_name?: string | null
+          onboarding_completed?: boolean | null
+          phone?: string | null
+          position?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_points: {
+        Row: {
+          available_coins: number | null
+          company_id: string
+          created_at: string | null
+          current_level: number | null
+          id: string
+          lifetime_coins: number | null
+          total_coins: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          available_coins?: number | null
+          company_id: string
+          created_at?: string | null
+          current_level?: number | null
+          id?: string
+          lifetime_coins?: number | null
+          total_coins?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          available_coins?: number | null
+          company_id?: string
+          created_at?: string | null
+          current_level?: number | null
+          id?: string
+          lifetime_coins?: number | null
+          total_coins?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_points_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +185,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "owner" | "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +312,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["owner", "admin", "moderator", "user"],
+    },
   },
 } as const
