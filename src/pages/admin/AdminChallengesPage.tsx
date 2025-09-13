@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { CreateChallengeDialog } from '@/components/admin/CreateChallengeDialog';
 import { EditChallengeDialog } from '@/components/admin/EditChallengeDialog';
 import { useManageChallenges, useDeleteChallenge, useChallengeAnalytics } from '@/hooks/useManageChallenges';
+import { ChallengePinButton } from '@/components/challenges/ChallengePinButton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +19,8 @@ import {
   BookOpen,
   Download,
   Package,
-  TrendingUp
+  TrendingUp,
+  Pin
 } from 'lucide-react';
 
 export const AdminChallengesPage = () => {
@@ -189,6 +191,12 @@ export const AdminChallengesPage = () => {
                           <Badge variant="outline">
                             {formatChallengeType(challenge.challenge_type)}
                           </Badge>
+                          {challenge.is_pinned && (
+                            <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                              <Pin className="h-3 w-3" />
+                              Fixado
+                            </Badge>
+                          )}
                           {!challenge.is_available_for_all_levels && (
                             <Badge variant="secondary" className="text-xs">
                               Nível específico
@@ -198,6 +206,10 @@ export const AdminChallengesPage = () => {
                       </div>
                     </div>
                     <div className="flex space-x-1">
+                      <ChallengePinButton 
+                        challengeId={challenge.id}
+                        isPinned={challenge.is_pinned || false}
+                      />
                       <Button
                         variant="outline"
                         size="sm"

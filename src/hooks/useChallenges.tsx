@@ -43,11 +43,15 @@ export const useChallenges = () => {
           challenge_duration_days,
           challenge_duration_hours,
           deadline_type,
-          access_tags
+          access_tags,
+          is_pinned,
+          pinned_order
         `)
         .eq('company_id', currentCompanyId)
         .eq('is_active', true)
         .or('end_date.is.null,end_date.gt.' + new Date().toISOString())
+        .order('is_pinned', { ascending: false })
+        .order('pinned_order', { ascending: true })
         .order('order_index', { ascending: true });
 
       if (error) {

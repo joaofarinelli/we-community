@@ -22,6 +22,8 @@ export const useManageChallenges = () => {
           challenge_progress(count),
           challenge_rewards(count)
         `)
+        .order('is_pinned', { ascending: false })
+        .order('pinned_order', { ascending: true })
         .order('order_index', { ascending: true });
 
       if (error) throw error;

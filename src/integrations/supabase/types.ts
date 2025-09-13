@@ -639,8 +639,10 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           is_available_for_all_levels: boolean
+          is_pinned: boolean
           max_participants: number | null
           order_index: number
+          pinned_order: number | null
           required_level_id: string | null
           requirements: Json
           requires_submission_review: boolean
@@ -665,8 +667,10 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_available_for_all_levels?: boolean
+          is_pinned?: boolean
           max_participants?: number | null
           order_index?: number
+          pinned_order?: number | null
           required_level_id?: string | null
           requirements?: Json
           requires_submission_review?: boolean
@@ -691,8 +695,10 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           is_available_for_all_levels?: boolean
+          is_pinned?: boolean
           max_participants?: number | null
           order_index?: number
+          pinned_order?: number | null
           required_level_id?: string | null
           requirements?: Json
           requires_submission_review?: boolean
@@ -3679,6 +3685,13 @@ export type Database = {
             columns: ["completion_badge_id"]
             isOneToOne: false
             referencedRelation: "trail_badges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trails_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
