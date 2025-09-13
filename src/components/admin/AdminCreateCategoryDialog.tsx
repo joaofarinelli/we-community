@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { toast } from 'sonner';
 
 interface AdminCreateCategoryDialogProps {
@@ -16,14 +18,20 @@ export const AdminCreateCategoryDialog = ({ isOpen, onOpenChange }: AdminCreateC
   const [name, setName] = useState('');
   const queryClient = useQueryClient();
 
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
   const { mutate: createCategory, isPending } = useMutation({
     mutationFn: async (name: string) => {
+      if (!user) throw new Error('Usuário não autenticado');
+      if (!currentCompanyId) throw new Error('Empresa não encontrada');
+
       const { data, error } = await supabase
         .from('space_categories')
         .insert({ 
           name,
-          company_id: '00000000-0000-0000-0000-000000000000', // Will be handled by RLS
-          created_by: '00000000-0000-0000-0000-000000000000', // Will be handled by RLS
+          created_by: user.id,
+          company_id: currentCompanyId,
         })
         .select()
         .single();
