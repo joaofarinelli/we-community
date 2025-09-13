@@ -8,7 +8,7 @@ export const useDynamicTitle = () => {
     if (company?.name) {
       document.title = company.name;
     } else {
-      document.title = 'spark-guild-hub';
+      document.title = 'We Plataforma';
     }
   }, [company?.name]);
 };
