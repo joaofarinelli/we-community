@@ -1,15 +1,11 @@
-import React from 'react';
 import { TrendingUp, Target, Award, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useTrails } from '@/hooks/useTrails';
+import { useUserTrailBadges } from '@/hooks/useTrailProgress';
 
-interface TrailProgressStatsProps {
-  trails?: any[];
-  badges?: any[];
-  isLoading?: boolean;
-}
-
-export const TrailProgressStats = React.memo(({ trails, badges, isLoading }: TrailProgressStatsProps) => {
+export const TrailProgressStats = () => {
+  const { data: trails } = useTrails();
+  const { data: badges } = useUserTrailBadges();
 
   const activeTrails = trails?.filter(trail => trail.status === 'active').length || 0;
   const completedTrails = trails?.filter(trail => trail.status === 'completed').length || 0;
@@ -46,25 +42,6 @@ export const TrailProgressStats = React.memo(({ trails, badges, isLoading }: Tra
     },
   ];
 
-  if (isLoading) {
-    return (
-      <>
-        {[...Array(4)].map((_, i) => (
-          <Card key={i} className="p-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-3 w-20" />
-                <Skeleton className="h-3 w-3 rounded-full" />
-              </div>
-              <Skeleton className="h-6 w-8" />
-              <Skeleton className="h-2 w-16" />
-            </div>
-          </Card>
-        ))}
-      </>
-    );
-  }
-
   return (
     <>
       {stats.map((stat) => {
@@ -84,4 +61,4 @@ export const TrailProgressStats = React.memo(({ trails, badges, isLoading }: Tra
       })}
     </>
   );
-});
+};
