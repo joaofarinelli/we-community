@@ -1,6 +1,7 @@
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { RankingTab } from '@/components/gamification/RankingTab';
 import { StreakDialog } from '@/components/gamification/StreakDialog';
+import { LastPlacedSidebar } from '@/components/gamification/LastPlacedSidebar';
 import { useCoinName } from '@/hooks/useCoinName';
 import { useCompany } from '@/hooks/useCompany';
 import { useCompanyStreakLeaderboard } from '@/hooks/useUserStreak';
@@ -16,7 +17,7 @@ export const RankingPage = () => {
       {/* Banner - sem padding para ocupar largura total */}
       <PageBanner bannerType="ranking" />
       
-      <div className="max-w-6xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto p-8">
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">
@@ -32,7 +33,14 @@ export const RankingPage = () => {
             </div>
           </div>
 
-          <RankingTab />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-3">
+              <RankingTab />
+            </div>
+            <div className="lg:col-span-1">
+              <LastPlacedSidebar />
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>
