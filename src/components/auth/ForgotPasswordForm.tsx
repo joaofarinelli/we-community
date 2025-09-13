@@ -28,15 +28,45 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
     setIsLoading(true);
     try {
       const redirectUrl = `${window.location.origin}/reset-password`;
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+      const email = data.email.trim().toLowerCase();
+
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
       });
 
       if (error) {
+        const msg = error.message?.toLowerCase() || '';
+
+        // Usuário com login via OAuth (Google/Apple etc.) não pode redefinir senha por email
+        if (msg.includes('oauth') || msg.includes('external provider') || msg.includes('identity') && msg.includes('password')) {
+          toast({
+            variant: 'destructive',
+            title: 'Conta vinculada a login social',
+            description: 'Este email está vinculado a um login social (ex: Google). Acesse usando o mesmo provedor.',
+          });
+          return;
+        }
+
+        // Evita enumeração de emails: trate "user not found" como sucesso silencioso
+        if (msg.includes('not found') || msg.includes('no user') || msg.includes('user does not exist')) {
+          setEmailSent(true);
+          toast({ title: 'Email enviado!', description: 'Se o email existir, você receberá o link para redefinir a senha.' });
+          return;
+        }
+
+        // URL de redirecionamento inválida (não configurada no dashboard)
+        if (msg.includes('redirect') && msg.includes('allowed')) {
+          toast({
+            variant: 'destructive',
+            title: 'URL de redirecionamento não permitida',
+            description: 'Adicione a URL de reset nas Redirect URLs do Supabase (Auth > URL Configuration).',
+          });
+          return;
+        }
+
         toast({
-          variant: "destructive",
-          title: "Erro ao enviar email",
+          variant: 'destructive',
+          title: 'Erro ao enviar email',
           description: error.message,
         });
         return;
@@ -44,15 +74,15 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
 
       setEmailSent(true);
       toast({
-        title: "Email enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        title: 'Email enviado!',
+        description: 'Verifique sua caixa de entrada para redefinir sua senha.',
       });
     } catch (error) {
       console.error('Forgot password error:', error);
       toast({
-        variant: "destructive",
-        title: "Erro inesperado",
-        description: "Tente novamente em alguns instantes.",
+        variant: 'destructive',
+        title: 'Erro inesperado',
+        description: 'Tente novamente em alguns instantes.',
       });
     } finally {
       setIsLoading(false);
