@@ -26,7 +26,7 @@ export const AdminCreateCategoryDialog = ({ isOpen, onOpenChange }: AdminCreateC
       if (!user) throw new Error('Usuário não autenticado');
       if (!currentCompanyId) throw new Error('Empresa não encontrada');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('space_categories')
         .insert({ 
           name,

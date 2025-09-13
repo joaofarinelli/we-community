@@ -25,7 +25,7 @@ export const AdminEditCategoryDialog = ({ category, isOpen, onOpenChange }: Admi
 
   const { mutate: updateCategory, isPending } = useMutation({
     mutationFn: async (data: { id: string; name: string }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('space_categories')
         .update({ name: data.name })
         .eq('id', data.id);

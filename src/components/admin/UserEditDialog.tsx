@@ -121,7 +121,7 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
     try {
       if (hasAccess) {
         // Remover acesso
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('user_course_access')
           .delete()
           .eq('user_id', member.user_id)
@@ -130,7 +130,7 @@ export const UserEditDialog = ({ open, onOpenChange, member }: UserEditDialogPro
         if (error) throw error;
       } else {
         // Adicionar acesso
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('user_course_access')
           .insert({
             user_id: member.user_id,

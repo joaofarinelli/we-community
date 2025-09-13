@@ -20,7 +20,7 @@ export const ChallengeSubmissionsReview = () => {
   const { data: submissions, isLoading } = useAdminSubmissions();
   const reviewSubmission = useReviewSubmission();
 
-  const filteredSubmissions = submissions?.filter(submission => 
+  const filteredSubmissions = (submissions as any)?.filter((submission: any) => 
     statusFilter === 'all' || submission.admin_review_status === statusFilter
   ) || [];
 
@@ -126,7 +126,7 @@ export const ChallengeSubmissionsReview = () => {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {filteredSubmissions.map((submission) => (
+          {filteredSubmissions.map((submission: any) => (
             <Card key={submission.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

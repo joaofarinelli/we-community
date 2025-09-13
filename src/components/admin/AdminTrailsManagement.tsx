@@ -20,8 +20,8 @@ export const AdminTrailsManagement = () => {
   const { data: badges } = useTrailBadges();
 
   const stats = useMemo(() => {
-    const activeTrails = trails?.filter(trail => trail.status === 'active').length || 0;
-    const completedTrails = trails?.filter(trail => trail.status === 'completed').length || 0;
+    const activeTrails = (trails as any)?.filter((trail: any) => trail.status === 'active').length || 0;
+    const completedTrails = (trails as any)?.filter((trail: any) => trail.status === 'completed').length || 0;
     
     return [
       {
