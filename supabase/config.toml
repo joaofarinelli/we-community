@@ -5,9 +5,3 @@ verify_jwt = false
 
 [functions.tmb-sync-products]
 verify_jwt = false
-
-[functions.password-reset]
-verify_jwt = false
-
-[functions.reset-password-confirm]
-verify_jwt = false
