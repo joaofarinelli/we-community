@@ -51,12 +51,21 @@ export default function ResetPasswordPage() {
         } else if (session) {
           setIsValidToken(true);
         } else {
-          // Tentar extrair tokens da URL para validar
-          const accessToken = searchParams.get('access_token');
-          const refreshToken = searchParams.get('refresh_token');
-          const type = searchParams.get('type');
+          // Tentar extrair tokens da URL (query params ou fragments)
+          let accessToken = searchParams.get('access_token');
+          let refreshToken = searchParams.get('refresh_token');
+          let type = searchParams.get('type');
           
-          if (accessToken && refreshToken && type === 'recovery') {
+          // Se não estiver nos query params, verificar nos fragments da URL (após #)
+          if (!accessToken || !refreshToken) {
+            const fragment = window.location.hash.substring(1);
+            const fragmentParams = new URLSearchParams(fragment);
+            accessToken = fragmentParams.get('access_token');
+            refreshToken = fragmentParams.get('refresh_token');
+            type = fragmentParams.get('type') || 'recovery';
+          }
+          
+          if (accessToken && refreshToken) {
             // Configurar a sessão com os tokens
             const { error: sessionError } = await supabase.auth.setSession({
               access_token: accessToken,
@@ -68,6 +77,9 @@ export default function ResetPasswordPage() {
               setIsValidToken(false);
             } else {
               setIsValidToken(true);
+              
+              // Limpar a URL após configurar a sessão
+              window.history.replaceState({}, document.title, window.location.pathname);
             }
           } else {
             setIsValidToken(false);

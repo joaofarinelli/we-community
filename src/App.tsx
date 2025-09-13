@@ -117,93 +117,125 @@ const AppRoutes = () => {
   return (
     <CompanyContextWrapper>
       <AnnouncementProvider />
-      <MultiCompanyGuard>
-        <OnboardingChecker />
-        <Routes>
-          <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
-          <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
-          <Route path="/certificate/:certificateCode" element={<CertificateVerificationPage />} />
-          <Route path="/maintenance" element={<MaintenancePage />} />
-        </Routes>
-      </MultiCompanyGuard>
-      <MultiCompanyGuard>
-        <OnboardingChecker />
-        <Routes>
-          <Route path="/dashboard" element={<AuthenticatedMaintenanceGuard><Dashboard /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/ranking" element={<AuthenticatedMaintenanceGuard><RankingPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/members" element={<AuthenticatedMaintenanceGuard><MembersPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/space/:spaceId" element={<AuthenticatedMaintenanceGuard><SpaceView /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/space/:spaceId/post/:postId" element={<AuthenticatedMaintenanceGuard><PostDetailPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/users" element={<AuthenticatedMaintenanceGuard><AdminUsersPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/users/:userId" element={<AuthenticatedMaintenanceGuard><AdminUserViewPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/settings" element={<AuthenticatedMaintenanceGuard><AdminSettingsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/levels" element={<AuthenticatedMaintenanceGuard><AdminLevelsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/access-groups" element={<AuthenticatedMaintenanceGuard><AdminAccessGroupsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/spaces" element={<AuthenticatedMaintenanceGuard><AdminSpacesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/segments" element={<AuthenticatedMaintenanceGuard><AdminSegmentsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/tags" element={<AuthenticatedMaintenanceGuard><AdminTagsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/profile-fields" element={<AuthenticatedMaintenanceGuard><AdminProfileFieldsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/onboarding" element={<AuthenticatedMaintenanceGuard><AdminOnboardingPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/users/:userId/edit" element={<AuthenticatedMaintenanceGuard><AdminUserEditPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/courses" element={<AuthenticatedMaintenanceGuard><CoursesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/courses" element={<AuthenticatedMaintenanceGuard><CoursesPage /></AuthenticatedMaintenanceGuard>} />
-          
-          <Route path="/courses/:courseId/modules/:moduleId" element={<AuthenticatedMaintenanceGuard><ModuleDetailPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/courses/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthenticatedMaintenanceGuard><LessonPlayerPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/courses" element={<AuthenticatedMaintenanceGuard><AdminCoursesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/courses/:courseId/modules" element={<AuthenticatedMaintenanceGuard><AdminCourseModulesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/courses/:courseId/modules/:moduleId/lessons" element={<AuthenticatedMaintenanceGuard><AdminModuleLessonsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/quiz-reviews" element={<AuthenticatedMaintenanceGuard><AdminEssayReviewsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/marketplace" element={<AuthenticatedMaintenanceGuard><MarketplacePage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/store" element={<AuthenticatedMaintenanceGuard><StorePage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/marketplace/purchases" element={<AuthenticatedMaintenanceGuard><MarketplacePurchasesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/my-items" element={<AuthenticatedMaintenanceGuard><MyItemsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/marketplace" element={<AuthenticatedMaintenanceGuard><AdminMarketplacePage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/marketplace/moderation" element={<AuthenticatedMaintenanceGuard><AdminMarketplaceModerationPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/marketplace/terms" element={<AuthenticatedMaintenanceGuard><AdminMarketplaceTermsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/store" element={<AuthenticatedMaintenanceGuard><AdminStorePage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/store/categories" element={<AuthenticatedMaintenanceGuard><AdminStoreCategoriesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/challenges" element={<AuthenticatedMaintenanceGuard><AdminChallengesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/challenges/submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/challenge-submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/challenges" element={<AuthenticatedMaintenanceGuard><ChallengesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/bank" element={<AuthenticatedMaintenanceGuard><BankPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/calendar" element={<AuthenticatedMaintenanceGuard><CalendarPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/spaces" element={<AuthenticatedMaintenanceGuard><SpacesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/events/:eventId" element={<AuthenticatedMaintenanceGuard><EventDetailPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/trails" element={<AuthenticatedMaintenanceGuard><TrailsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/trails/:trailId/stages" element={<AuthenticatedMaintenanceGuard><TrailStagesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/trails/:trailId/stage/:stageId" element={<AuthenticatedMaintenanceGuard><TrailStagePlayerPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/certificates" element={<AuthenticatedMaintenanceGuard><CertificatesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/liked-lessons" element={<AuthenticatedMaintenanceGuard><LikedLessonsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/dashboard/lesson-notes" element={<AuthenticatedMaintenanceGuard><LessonNotesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/trails" element={<AuthenticatedMaintenanceGuard><AdminTrailsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/trail-badges" element={<AuthenticatedMaintenanceGuard><AdminTrailBadgesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/content/posts" element={<AuthenticatedMaintenanceGuard><AdminContentPostsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/content/categories" element={<AuthenticatedMaintenanceGuard><AdminContentCategoriesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/content/spaces" element={<AuthenticatedMaintenanceGuard><AdminContentSpacesPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/content/moderation" element={<AuthenticatedMaintenanceGuard><AdminContentModerationPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/bulk-actions" element={<AuthenticatedMaintenanceGuard><AdminBulkActionsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/bulk-actions/create" element={<AuthenticatedMaintenanceGuard><BulkActionCreateEditPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/bulk-actions/:id/edit" element={<AuthenticatedMaintenanceGuard><BulkActionCreateEditPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/bulk-actions/:id/executions" element={<AuthenticatedMaintenanceGuard><BulkActionExecutionsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/analytics" element={<AuthenticatedMaintenanceGuard><AdminAnalyticsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/financial/config" element={<AuthenticatedMaintenanceGuard><AdminFinancialConfigPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/financial/transactions" element={<AuthenticatedMaintenanceGuard><AdminFinancialTransactionsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/financial/reports" element={<AuthenticatedMaintenanceGuard><AdminFinancialReportsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/financial/reconciliation" element={<AuthenticatedMaintenanceGuard><AdminFinancialReconciliationPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/admin/tmb/products" element={<AuthenticatedMaintenanceGuard><TMBProductsPage /></AuthenticatedMaintenanceGuard>} />
-          <Route path="/super-admin" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          <Route path="/super-admin/companies" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          <Route path="/super-admin/metrics" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          <Route path="/super-admin/reports" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          <Route path="/super-admin/management" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-          </Routes>
-        </MultiCompanyGuard>
+      <Routes>
+        {/* Public routes - no authentication or company context required */}
+        <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
+        <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/invite/accept/:token" element={<InviteAcceptPage />} />
+        <Route path="/certificate/:certificateCode" element={<CertificateVerificationPage />} />
+        <Route path="/maintenance" element={<MaintenancePage />} />
+        
+        {/* Protected routes - require authentication and company context */}
+        <Route path="/dashboard/*" element={
+          <MultiCompanyGuard>
+            <OnboardingChecker />
+            <Routes>
+              <Route path="/" element={<AuthenticatedMaintenanceGuard><Dashboard /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/ranking" element={<AuthenticatedMaintenanceGuard><RankingPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/members" element={<AuthenticatedMaintenanceGuard><MembersPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/space/:spaceId" element={<AuthenticatedMaintenanceGuard><SpaceView /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/space/:spaceId/post/:postId" element={<AuthenticatedMaintenanceGuard><PostDetailPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/courses" element={<AuthenticatedMaintenanceGuard><CoursesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/marketplace" element={<AuthenticatedMaintenanceGuard><MarketplacePage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/store" element={<AuthenticatedMaintenanceGuard><StorePage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/marketplace/purchases" element={<AuthenticatedMaintenanceGuard><MarketplacePurchasesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/challenges" element={<AuthenticatedMaintenanceGuard><ChallengesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bank" element={<AuthenticatedMaintenanceGuard><BankPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/calendar" element={<AuthenticatedMaintenanceGuard><CalendarPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/spaces" element={<AuthenticatedMaintenanceGuard><SpacesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/events/:eventId" element={<AuthenticatedMaintenanceGuard><EventDetailPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/trails" element={<AuthenticatedMaintenanceGuard><TrailsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/trails/:trailId/stages" element={<AuthenticatedMaintenanceGuard><TrailStagesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/trails/:trailId/stage/:stageId" element={<AuthenticatedMaintenanceGuard><TrailStagePlayerPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/certificates" element={<AuthenticatedMaintenanceGuard><CertificatesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/liked-lessons" element={<AuthenticatedMaintenanceGuard><LikedLessonsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/lesson-notes" element={<AuthenticatedMaintenanceGuard><LessonNotesPage /></AuthenticatedMaintenanceGuard>} />
+            </Routes>
+          </MultiCompanyGuard>
+        } />
+        
+        <Route path="/courses/*" element={
+          <MultiCompanyGuard>
+            <OnboardingChecker />
+            <Routes>
+              <Route path="/" element={<AuthenticatedMaintenanceGuard><CoursesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/:courseId/modules/:moduleId" element={<AuthenticatedMaintenanceGuard><ModuleDetailPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/:courseId/modules/:moduleId/lessons/:lessonId" element={<AuthenticatedMaintenanceGuard><LessonPlayerPage /></AuthenticatedMaintenanceGuard>} />
+            </Routes>
+          </MultiCompanyGuard>
+        } />
+        
+        <Route path="/my-items" element={
+          <MultiCompanyGuard>
+            <OnboardingChecker />
+            <AuthenticatedMaintenanceGuard><MyItemsPage /></AuthenticatedMaintenanceGuard>
+          </MultiCompanyGuard>
+        } />
+        
+        <Route path="/admin/*" element={
+          <MultiCompanyGuard>
+            <OnboardingChecker />
+            <Routes>
+              <Route path="/users" element={<AuthenticatedMaintenanceGuard><AdminUsersPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/users/:userId" element={<AuthenticatedMaintenanceGuard><AdminUserViewPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/settings" element={<AuthenticatedMaintenanceGuard><AdminSettingsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/levels" element={<AuthenticatedMaintenanceGuard><AdminLevelsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/access-groups" element={<AuthenticatedMaintenanceGuard><AdminAccessGroupsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/spaces" element={<AuthenticatedMaintenanceGuard><AdminSpacesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/segments" element={<AuthenticatedMaintenanceGuard><AdminSegmentsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/tags" element={<AuthenticatedMaintenanceGuard><AdminTagsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/profile-fields" element={<AuthenticatedMaintenanceGuard><AdminProfileFieldsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/onboarding" element={<AuthenticatedMaintenanceGuard><AdminOnboardingPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/users/:userId/edit" element={<AuthenticatedMaintenanceGuard><AdminUserEditPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/courses" element={<AuthenticatedMaintenanceGuard><AdminCoursesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/courses/:courseId/modules" element={<AuthenticatedMaintenanceGuard><AdminCourseModulesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/courses/:courseId/modules/:moduleId/lessons" element={<AuthenticatedMaintenanceGuard><AdminModuleLessonsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/quiz-reviews" element={<AuthenticatedMaintenanceGuard><AdminEssayReviewsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/marketplace" element={<AuthenticatedMaintenanceGuard><AdminMarketplacePage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/marketplace/moderation" element={<AuthenticatedMaintenanceGuard><AdminMarketplaceModerationPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/marketplace/terms" element={<AuthenticatedMaintenanceGuard><AdminMarketplaceTermsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/store" element={<AuthenticatedMaintenanceGuard><AdminStorePage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/store/categories" element={<AuthenticatedMaintenanceGuard><AdminStoreCategoriesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/challenges" element={<AuthenticatedMaintenanceGuard><AdminChallengesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/challenges/submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/challenge-submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/trails" element={<AuthenticatedMaintenanceGuard><AdminTrailsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/trail-badges" element={<AuthenticatedMaintenanceGuard><AdminTrailBadgesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/content/posts" element={<AuthenticatedMaintenanceGuard><AdminContentPostsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/content/categories" element={<AuthenticatedMaintenanceGuard><AdminContentCategoriesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/content/spaces" element={<AuthenticatedMaintenanceGuard><AdminContentSpacesPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/content/moderation" element={<AuthenticatedMaintenanceGuard><AdminContentModerationPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bulk-actions" element={<AuthenticatedMaintenanceGuard><AdminBulkActionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bulk-actions/create" element={<AuthenticatedMaintenanceGuard><BulkActionCreateEditPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bulk-actions/:id/edit" element={<AuthenticatedMaintenanceGuard><BulkActionCreateEditPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bulk-actions/:id/executions" element={<AuthenticatedMaintenanceGuard><BulkActionExecutionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/analytics" element={<AuthenticatedMaintenanceGuard><AdminAnalyticsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/financial/config" element={<AuthenticatedMaintenanceGuard><AdminFinancialConfigPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/financial/transactions" element={<AuthenticatedMaintenanceGuard><AdminFinancialTransactionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/financial/reports" element={<AuthenticatedMaintenanceGuard><AdminFinancialReportsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/financial/reconciliation" element={<AuthenticatedMaintenanceGuard><AdminFinancialReconciliationPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/tmb/products" element={<AuthenticatedMaintenanceGuard><TMBProductsPage /></AuthenticatedMaintenanceGuard>} />
+            </Routes>
+          </MultiCompanyGuard>
+        } />
+        
+        <Route path="/super-admin/*" element={
+          <MultiCompanyGuard>
+            <OnboardingChecker />
+            <Routes>
+              <Route path="/" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminDashboard /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+              <Route path="/companies" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminCompanies /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+              <Route path="/metrics" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+              <Route path="/reports" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+              <Route path="/management" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+            </Routes>
+          </MultiCompanyGuard>
+        } />
+        
+        {/* Catch-all route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </CompanyContextWrapper>
   );
 };
