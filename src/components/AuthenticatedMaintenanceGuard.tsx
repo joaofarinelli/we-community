@@ -69,36 +69,56 @@ export const AuthenticatedMaintenanceGuard = ({ children }: AuthenticatedMainten
 
   // Check user active status
   useEffect(() => {
+    let cancelled = false;
     const checkUserStatus = async () => {
+      // If not authenticated, nothing to check
       if (!user) {
-        setIsActive(null);
-        setCheckingStatus(false);
+        if (!cancelled) {
+          setIsActive(null);
+          setCheckingStatus(false);
+        }
+        return;
+      }
+
+      // Wait until company is resolved to avoid RLS mismatches
+      const companyId = (resolvedCompany as any)?.id;
+      if (!companyId) {
+        // keep checkingStatus as true until we can check with proper context
         return;
       }
 
       try {
+        setCheckingStatus(true);
         const { data, error } = await supabase
           .from('profiles')
           .select('is_active')
           .eq('user_id', user.id)
+          .eq('company_id', companyId)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching user status:', error);
-          setIsActive(false);
-        } else {
-          setIsActive(data?.is_active ?? false);
+        if (!cancelled) {
+          if (error) {
+            console.error('AuthenticatedMaintenanceGuard: error fetching user active status', { error, userId: user.id, companyId });
+            setIsActive(false);
+          } else {
+            setIsActive(data?.is_active ?? false);
+          }
         }
       } catch (error) {
-        console.error('Error checking user status:', error);
-        setIsActive(false);
+        if (!cancelled) {
+          console.error('AuthenticatedMaintenanceGuard: unexpected error checking user status', error);
+          setIsActive(false);
+        }
       } finally {
-        setCheckingStatus(false);
+        if (!cancelled) setCheckingStatus(false);
       }
     };
 
     checkUserStatus();
-  }, [user]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, (resolvedCompany as any)?.id]);
 
   // Fetch user role ONLY if maintenance is enabled and user is authenticated
   const [userRole, setUserRole] = useState<string | null>(null);
