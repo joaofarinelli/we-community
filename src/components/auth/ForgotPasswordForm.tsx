@@ -27,32 +27,31 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/auth`;
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: redirectUrl,
+      const { data: response, error } = await supabase.functions.invoke('password-reset', {
+        body: {
+          email: data.email,
+        },
       });
 
       if (error) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao enviar email",
-          description: error.message,
-        });
-        return;
+        throw error;
+      }
+
+      if (response?.error) {
+        throw new Error(response.error);
       }
 
       setEmailSent(true);
       toast({
         title: "Email enviado!",
-        description: "Verifique sua caixa de entrada para redefinir sua senha.",
+        description: response?.message || "Verifique sua caixa de entrada para redefinir sua senha.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Forgot password error:', error);
       toast({
         variant: "destructive",
-        title: "Erro inesperado",
-        description: "Tente novamente em alguns instantes.",
+        title: "Erro ao enviar email",
+        description: error.message || "Ocorreu um erro ao tentar enviar o email de recuperação.",
       });
     } finally {
       setIsLoading(false);

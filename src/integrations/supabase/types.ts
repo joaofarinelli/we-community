@@ -2399,6 +2399,33 @@ export type Database = {
           },
         ]
       }
+      password_reset_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       payment_provider_configs: {
         Row: {
           boleto_expiration_days: number | null
@@ -4432,6 +4459,10 @@ export type Database = {
       check_module_completion: {
         Args: { p_module_id: string; p_user_id: string }
         Returns: boolean
+      }
+      cleanup_expired_reset_tokens: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       create_announcement_and_assign: {
         Args:

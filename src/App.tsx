@@ -90,6 +90,7 @@ import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
 import { AnnouncementProvider } from '@/components/ui/AnnouncementProvider';
 import { MaintenanceGuard } from '@/components/MaintenanceGuard';
 import { MaintenancePage } from '@/pages/MaintenancePage';
+import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,7 @@ const AppRoutes = () => {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
           <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<AuthenticatedMaintenanceGuard><Dashboard /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/ranking" element={<AuthenticatedMaintenanceGuard><RankingPage /></AuthenticatedMaintenanceGuard>} />
           <Route path="/dashboard/members" element={<AuthenticatedMaintenanceGuard><MembersPage /></AuthenticatedMaintenanceGuard>} />
