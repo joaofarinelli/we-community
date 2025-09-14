@@ -224,23 +224,30 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Curso Pré-requisito</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || undefined}>
-                      <FormControl>
-                        <SelectTrigger className="h-11">
-                          <SelectValue placeholder="Selecione um curso pré-requisito (opcional)" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="">Nenhum pré-requisito</SelectItem>
-                        {courses
-                          .filter(c => c.id !== course?.id) // Não mostrar o próprio curso
-                          .map(c => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.title}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                <Select 
+                  onValueChange={(value) => field.onChange(value === "clear" ? null : value)} 
+                  value={field.value || undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Selecione um curso pré-requisito (opcional)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {field.value && (
+                      <SelectItem value="clear" className="text-muted-foreground">
+                        Remover pré-requisito
+                      </SelectItem>
+                    )}
+                    {courses
+                      .filter(c => c.id !== course?.id) // Não mostrar o próprio curso
+                      .map(c => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.title}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
                     <div className="text-xs text-muted-foreground">
                       Usuários precisarão completar o curso selecionado antes de acessar este curso
                     </div>
