@@ -25,9 +25,7 @@ export const CustomDomainSection = () => {
 
   // Get current domain being used
   const currentDomain = window.location.hostname;
-  const [domainInput, setDomainInput] = useState(
-    customDomain && customDomainStatus === 'verified' ? customDomain : currentDomain
-  );
+  const [domainInput, setDomainInput] = useState(currentDomain);
   const isUsingCustomDomain = customDomain && (currentDomain === customDomain);
   const isUsingSubdomain = currentDomain.includes('weplataforma.com.br');
 
