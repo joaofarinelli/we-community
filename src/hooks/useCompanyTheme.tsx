@@ -120,6 +120,8 @@ export const useCompanyTheme = () => {
 
   // Convert hex color to HSL
   const hexToHsl = (hex: string) => {
+    if (!hex || hex.length !== 7 || !hex.startsWith('#')) return null;
+    
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
