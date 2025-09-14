@@ -33,8 +33,8 @@ export const useCheckProductAccess = (productId: string) => {
       if (tagsError) throw tagsError;
 
       // Check if user has any of the required tags
-      const userTagNames = userTags?.map(ut => ut.tags?.name).filter(Boolean) || [];
-      const hasAccess = product.access_tags.some(requiredTag => 
+      const userTagNames = (userTags as any)?.map((ut: any) => ut.tags?.name).filter(Boolean) || [];
+      const hasAccess = product.access_tags.some((requiredTag: any) => 
         userTagNames.includes(requiredTag)
       );
 

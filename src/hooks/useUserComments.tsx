@@ -52,7 +52,13 @@ export const useUserComments = (userId: string, limit = 10) => {
         return [];
       }
 
-      return data || [];
+      return (data || []).map((comment: any) => ({
+        ...comment,
+        posts: {
+          ...(comment.posts as any)?.[0],
+          spaces: (comment.posts as any)?.[0]?.spaces?.[0]
+        }
+      })) as UserComment[];
     },
     enabled: !!user && !!userId && !!currentCompanyId,
   });

@@ -399,7 +399,7 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                       <Card>
                         <CardContent className="p-4 text-center">
                           <div className="text-2xl font-bold text-primary">
-                            {userLevel.user_levels?.level_name || 'N/A'}
+                            {((userLevel as any)?.user_levels as any)?.[0]?.levels?.level_name || 'N/A'}
                           </div>
                           <div className="text-sm text-muted-foreground">Nível Atual</div>
                         </CardContent>

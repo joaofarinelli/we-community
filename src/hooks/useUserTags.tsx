@@ -64,9 +64,25 @@ export const useUserTags = (userId: string) => {
       }
 
       console.log('[useUserTags] ✅ Successfully fetched user tags:', data?.length || 0);
-      console.log('[useUserTags] 🏷️ User tags data:', data?.map(t => t.tags?.name) || []);
+      console.log('[useUserTags] 🏷️ User tags data:', (data as any)?.map((t: any) => t.tags?.name) || []);
       
-      return data as UserTag[];
+      const userTagsWithDetails = (data as any)?.map((userTag: any) => ({
+        id: userTag.id,
+        user_id: userTag.user_id,
+        tag_id: userTag.tag_id,
+        company_id: userTag.company_id,
+        assigned_by: userTag.assigned_by,
+        assigned_at: userTag.assigned_at,
+        tags: {
+          id: userTag.tags.id,
+          name: userTag.tags.name,
+          color: userTag.tags.color,
+          icon_type: userTag.tags.icon_type,
+          icon_value: userTag.tags.icon_value,
+        }
+      })) || [];
+
+      return userTagsWithDetails as UserTag[];
     },
     enabled: !!user?.id && !!userId && !!currentCompanyId,
   });

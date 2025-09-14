@@ -121,8 +121,8 @@ export const useCheckTrailTemplateAccess = (templateId: string) => {
 
       // Verificar tags exigidas
       if (accessCriteria.required_tags && accessCriteria.required_tags.length > 0) {
-        const userTagNames = userTags.data?.map(tag => tag.tags.name) || [];
-        const hasRequiredTags = accessCriteria.required_tags.every(tag => 
+        const userTagNames = (userTags.data as any)?.map((tag: any) => tag.tags?.name) || [];
+        const hasRequiredTags = accessCriteria.required_tags.every((tag: any) => 
           userTagNames.includes(tag)
         );
         hasAccess = hasAccess && hasRequiredTags;

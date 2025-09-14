@@ -66,7 +66,11 @@ export const usePostDetails = (postId: string, spaceId: string) => {
         return null;
       }
 
-      return data;
+      return {
+        ...data,
+        spaces: (data.spaces as any)?.[0] || { name: '', type: '' },
+        profiles: (data.profiles as any)?.[0] || { first_name: '', last_name: '', avatar_url: null }
+      } as PostDetails;
     },
     enabled: !!user && !!postId && !!spaceId && !!currentCompanyId,
   });

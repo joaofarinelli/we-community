@@ -50,7 +50,10 @@ export const useUserPosts = (userId: string, limit = 10) => {
         return [];
       }
 
-      return data || [];
+      return (data || []).map((post: any) => ({
+        ...post,
+        spaces: (post.spaces as any)?.[0] || { name: '', type: '' }
+      })) as UserPost[];
     },
     enabled: !!user && !!userId && !!currentCompanyId,
   });

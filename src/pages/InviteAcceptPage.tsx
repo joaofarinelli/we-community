@@ -98,7 +98,7 @@ export const InviteAcceptPage = () => {
         setInviteData({
           email: data.email,
           role: data.role,
-          company_name: data.companies?.name,
+          company_name: (data.companies as any)?.name,
           course_access: courseAccessArray,
         });
       } catch (error: any) {

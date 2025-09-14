@@ -91,11 +91,11 @@ export const LessonNotesPage = () => {
             title: lesson.title,
             module_id: lesson.module_id,
             module: {
-              title: lesson.course_modules.title,
-              course_id: lesson.course_modules.course_id,
+              title: (lesson.course_modules as any)?.title,
+              course_id: (lesson.course_modules as any)?.course_id,
               course: {
-                title: lesson.course_modules.courses.title,
-                thumbnail_url: lesson.course_modules.courses.thumbnail_url
+                title: (lesson.course_modules as any)?.courses?.[0]?.title || '',
+                thumbnail_url: (lesson.course_modules as any)?.courses?.[0]?.thumbnail_url
               }
             }
           } : null

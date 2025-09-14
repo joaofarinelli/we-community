@@ -52,7 +52,7 @@ export const useGlobalSearch = (query: string) => {
             type: 'post' as const,
             title: post.title || 'Post sem título',
             content: post.content ? stripHtml(post.content).substring(0, 100) + '...' : '',
-            author: post.profiles ? `${post.profiles.first_name} ${post.profiles.last_name}` : 'Usuário',
+            author: (post.profiles as any) ? `${(post.profiles as any).first_name} ${(post.profiles as any).last_name}` : 'Usuário',
             created_at: post.created_at,
             url: `/dashboard/space/${post.space_id}/post/${post.id}`
           })));
@@ -75,9 +75,9 @@ export const useGlobalSearch = (query: string) => {
           results.push(...comments.map(comment => ({
             id: comment.id,
             type: 'comment' as const,
-            title: `Comentário em: ${comment.posts?.title || 'Post'}`,
+            title: `Comentário em: ${(comment.posts as any)?.title || 'Post'}`,
             content: comment.comment_text ? stripHtml(comment.comment_text).substring(0, 100) + '...' : '',
-            author: comment.profiles ? `${comment.profiles.first_name} ${comment.profiles.last_name}` : 'Usuário',
+            author: (comment.profiles as any) ? `${(comment.profiles as any).first_name} ${(comment.profiles as any).last_name}` : 'Usuário',
             created_at: comment.created_at
           })));
         }
@@ -132,17 +132,17 @@ export const useGlobalSearch = (query: string) => {
           .limit(10);
 
         if (modules) {
-          const filteredModules = modules.filter(module => 
-            module.courses?.company_id === currentCompanyId
+          const filteredModules = modules.filter((module: any) => 
+            (module.courses as any)?.company_id === currentCompanyId
           );
           
-          results.push(...filteredModules.map(module => ({
+          results.push(...filteredModules.map((module: any) => ({
             id: module.id,
             type: 'module' as const,
             title: module.title,
-            content: `Módulo do curso: ${module.courses?.title}`,
+            content: `Módulo do curso: ${(module.courses as any)?.title}`,
             created_at: module.created_at,
-            url: `/dashboard/courses/${module.courses}/modules/${module.id}`
+            url: `/dashboard/courses/${(module.courses as any)}/modules/${module.id}`
           })));
         }
 
@@ -160,15 +160,15 @@ export const useGlobalSearch = (query: string) => {
           .limit(10);
 
         if (lessons) {
-          const filteredLessons = lessons.filter(lesson => 
-            lesson.course_modules?.courses?.company_id === currentCompanyId
+          const filteredLessons = lessons.filter((lesson: any) => 
+            (lesson.course_modules?.courses as any)?.company_id === currentCompanyId
           );
           
-          results.push(...filteredLessons.map(lesson => ({
+          results.push(...filteredLessons.map((lesson: any) => ({
             id: lesson.id,
             type: 'lesson' as const,
             title: lesson.title,
-            content: `Aula do módulo: ${lesson.course_modules?.title}`,
+            content: `Aula do módulo: ${(lesson.course_modules as any)?.title}`,
             created_at: lesson.created_at,
             url: `/dashboard/courses/lesson/${lesson.id}`
           })));
