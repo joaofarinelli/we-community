@@ -737,6 +737,7 @@ export type Database = {
         Row: {
           address: string | null
           bank_banner_url: string | null
+          bug_reports_email: string | null
           button_text_color: string | null
           challenges_banner_url: string | null
           city: string | null
@@ -778,6 +779,7 @@ export type Database = {
         Insert: {
           address?: string | null
           bank_banner_url?: string | null
+          bug_reports_email?: string | null
           button_text_color?: string | null
           challenges_banner_url?: string | null
           city?: string | null
@@ -819,6 +821,7 @@ export type Database = {
         Update: {
           address?: string | null
           bank_banner_url?: string | null
+          bug_reports_email?: string | null
           button_text_color?: string | null
           challenges_banner_url?: string | null
           city?: string | null
