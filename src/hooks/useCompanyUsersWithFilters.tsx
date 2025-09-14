@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
@@ -94,6 +94,9 @@ export const useCompanyUsersWithFilters = (
       return transformedData as FilteredUser[];
     },
     enabled: !!user?.id && !!currentCompanyId,
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -155,6 +158,9 @@ export const useAllFilteredUsers = (filters: UserFilters = {}) => {
       return transformedData as FilteredUser[];
     },
     enabled: !!user?.id && !!currentCompanyId,
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -193,5 +199,8 @@ export const useCompanyUsersCount = (filters: UserFilters = {}) => {
       return data || 0;
     },
     enabled: !!user?.id && !!currentCompanyId,
+    placeholderData: keepPreviousData,
+    staleTime: 5000,
+    refetchOnWindowFocus: false,
   });
 };

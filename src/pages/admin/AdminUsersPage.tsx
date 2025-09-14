@@ -35,12 +35,24 @@ export const AdminUsersPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   
+  // Debounce search to avoid refetch on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState<string | undefined>(filters.search);
+  useEffect(() => {
+    const handle = setTimeout(() => setDebouncedSearch(filters.search), 400);
+    return () => clearTimeout(handle);
+  }, [filters.search]);
+  
+  // Create stable filters that only change when non-search filters or the debounced search change
+  const { search: _search, ...restFilters } = filters;
+  const stableRestFilters = useMemo(() => ({ ...restFilters }), [JSON.stringify(restFilters)]);
+  const debouncedFilters = useMemo(() => ({ ...stableRestFilters, search: debouncedSearch }), [stableRestFilters, debouncedSearch]);
+  
   const { data: members, isLoading } = useCompanyUsersWithFilters(
-    filters, 
-    pageSize, 
+    debouncedFilters,
+    pageSize,
     (currentPage - 1) * pageSize
   );
-  const { data: totalCount = 0, isLoading: isCountLoading } = useCompanyUsersCount(filters);
+  const { data: totalCount = 0, isLoading: isCountLoading } = useCompanyUsersCount(debouncedFilters);
   const { data: tags = [] } = useTags();
   const { data: courses = [] } = useCourses();
   const { data: levels = [] } = useCompanyLevels();
