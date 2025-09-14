@@ -224,7 +224,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-medium">Curso Pré-requisito</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <Select onValueChange={field.onChange} value={field.value || undefined}>
                       <FormControl>
                         <SelectTrigger className="h-11">
                           <SelectValue placeholder="Selecione um curso pré-requisito (opcional)" />
