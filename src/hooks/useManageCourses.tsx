@@ -193,6 +193,7 @@ export const useUpdateModule = () => {
       description?: string;
       thumbnail_url?: string;
       order_index?: number;
+      linear_lesson_progression?: boolean;
     }) => {
       const { data, error } = await supabase
         .from('course_modules')

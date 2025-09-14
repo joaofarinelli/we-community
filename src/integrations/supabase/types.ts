@@ -995,6 +995,7 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          linear_lesson_progression: boolean
           order_index: number
           thumbnail_url: string | null
           title: string
@@ -1005,6 +1006,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          linear_lesson_progression?: boolean
           order_index?: number
           thumbnail_url?: string | null
           title: string
@@ -1015,6 +1017,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          linear_lesson_progression?: boolean
           order_index?: number
           thumbnail_url?: string | null
           title?: string
@@ -4428,6 +4431,10 @@ export type Database = {
       }
       check_course_completion: {
         Args: { p_course_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      check_lesson_completion: {
+        Args: { p_lesson_id: string; p_user_id: string }
         Returns: boolean
       }
       check_module_completion: {

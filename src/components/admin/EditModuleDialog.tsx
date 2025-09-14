@@ -12,6 +12,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,6 +21,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { useUpdateModule } from '@/hooks/useManageCourses';
 
@@ -27,6 +29,7 @@ const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   thumbnail_url: z.string().optional(),
+  linear_lesson_progression: z.boolean().optional(),
 });
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
@@ -47,6 +50,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
       title: '',
       description: '',
       thumbnail_url: '',
+      linear_lesson_progression: false,
     }
   });
 
@@ -56,6 +60,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         title: module.title || '',
         description: module.description || '',
         thumbnail_url: module.thumbnail_url || '',
+        linear_lesson_progression: module.linear_lesson_progression || false,
       });
     }
   }, [module, form]);
@@ -71,6 +76,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         title: data.title,
         description: data.description || undefined,
         thumbnail_url: data.thumbnail_url || undefined,
+        linear_lesson_progression: data.linear_lesson_progression || false,
       });
       onOpenChange(false);
     } catch (error) {
@@ -143,6 +149,30 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="linear_lesson_progression"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Progressão Linear das Aulas
+                    </FormLabel>
+                    <FormDescription>
+                      Quando ativado, os usuários precisam completar uma aula antes de acessar a próxima
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={isSubmitting}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

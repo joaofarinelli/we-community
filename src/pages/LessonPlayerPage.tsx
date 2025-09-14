@@ -25,6 +25,7 @@ import { LessonQuizDialog } from '@/components/courses/LessonQuizDialog';
 import { useLessonQuiz, useQuizAttempts } from '@/hooks/useLessonQuiz';
 import { AccessGuard } from '@/components/courses/AccessGuard';
 import { useModuleAccess } from '@/hooks/useCourseAccess';
+import { useLessonAccess } from '@/hooks/useLessonAccess';
 
 export const LessonPlayerPage = () => {
   const { courseId, moduleId, lessonId } = useParams<{ 
@@ -47,12 +48,14 @@ export const LessonPlayerPage = () => {
   const { data: lessonQuiz, isLoading: quizLoading } = useLessonQuiz(lessonId);
   const { data: quizAttempts } = useQuizAttempts(lessonQuiz?.id);
   const { data: moduleAccess } = useModuleAccess(courseId!);
+  const { data: lessonAccess, isLoading: lessonAccessLoading } = useLessonAccess(moduleId!, courseId!);
   
   const course = courses?.find(c => c.id === courseId);
   const module = modules?.find(m => m.id === moduleId);
   const lesson = lessons?.find(l => l.id === lessonId);
   
   const isCompleted = userProgress?.some(p => p.lesson_id === lessonId);
+  const hasLessonAccess = lessonAccess?.[lessonId!] ?? true;
   
   // Calculate if user has passed the quiz
   const hasPassedAttempt = lessonQuiz && quizAttempts?.some(
@@ -73,6 +76,14 @@ export const LessonPlayerPage = () => {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Check lesson access and redirect if blocked
+  useEffect(() => {
+    if (!lessonAccessLoading && !hasLessonAccess && courseId && moduleId) {
+      toast.error('Você precisa completar a aula anterior para acessar esta aula');
+      navigate(`/courses/${courseId}/modules/${moduleId}`);
+    }
+  }, [lessonAccessLoading, hasLessonAccess, courseId, moduleId, navigate]);
 
   const handleCompleteLesson = async () => {
     if (!lesson || !courseId || !moduleId || isCompleted) return;
@@ -159,18 +170,29 @@ export const LessonPlayerPage = () => {
     }
   };
 
-  if (!course || !module || !lesson) {
+  if (!course || !module || !lesson || lessonAccessLoading) {
     return (
       <AccessGuard courseId={courseId!} moduleId={moduleId!}>
         <DashboardLayout>
           <div className="flex flex-col items-center justify-center py-12">
-            <h2 className="text-xl font-semibold mb-2">Aula não encontrada</h2>
-            <p className="text-muted-foreground mb-4">
-              A aula que você está procurando não existe ou foi removida.
-            </p>
-            <Button onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}`)}>
-              Voltar ao Módulo
-            </Button>
+            {lessonAccessLoading ? (
+              <>
+                <h2 className="text-xl font-semibold mb-2">Verificando acesso...</h2>
+                <p className="text-muted-foreground mb-4">
+                  Aguarde enquanto verificamos seu acesso a esta aula.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold mb-2">Aula não encontrada</h2>
+                <p className="text-muted-foreground mb-4">
+                  A aula que você está procurando não existe ou foi removida.
+                </p>
+                <Button onClick={() => navigate(`/courses/${courseId}/modules/${moduleId}`)}>
+                  Voltar ao Módulo
+                </Button>
+              </>
+            )}
           </div>
         </DashboardLayout>
       </AccessGuard>
