@@ -93,6 +93,7 @@ export const useUpdateCourse = () => {
       order_index?: number;
       certificate_enabled?: boolean;
       linear_module_progression?: boolean;
+      prerequisite_course_id?: string | null;
       mentor_name?: string | null;
       mentor_role?: string | null;
       mentor_signature_url?: string | null;

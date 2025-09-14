@@ -21,9 +21,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { BookOpen, Loader2, Settings, Stamp } from 'lucide-react';
 import { useUpdateCourse } from '@/hooks/useManageCourses';
+import { useCourses } from '@/hooks/useCourses';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
@@ -32,6 +34,7 @@ const courseSchema = z.object({
   is_active: z.boolean(),
   certificate_enabled: z.boolean().optional(),
   linear_module_progression: z.boolean().optional(),
+  prerequisite_course_id: z.string().optional(),
   mentor_name: z.string().optional(),
   mentor_role: z.string().optional(),
   mentor_signature_url: z.string().optional(),
@@ -50,6 +53,7 @@ interface EditCourseDialogProps {
 export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const updateCourse = useUpdateCourse();
+  const { data: courses = [] } = useCourses();
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -60,6 +64,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
       is_active: true,
       certificate_enabled: false,
       linear_module_progression: false,
+      prerequisite_course_id: '',
       mentor_name: '',
       mentor_role: '',
       mentor_signature_url: '',
@@ -77,6 +82,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         is_active: course.is_active ?? true,
         certificate_enabled: course.certificate_enabled ?? false,
         linear_module_progression: (course as any)?.linear_module_progression ?? false,
+        prerequisite_course_id: (course as any)?.prerequisite_course_id || '',
         mentor_name: course.mentor_name || '',
         mentor_role: course.mentor_role || '',
         mentor_signature_url: course.mentor_signature_url || '',
@@ -99,6 +105,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         is_active: data.is_active,
         certificate_enabled: data.certificate_enabled ?? false,
         linear_module_progression: data.linear_module_progression ?? false,
+        prerequisite_course_id: data.prerequisite_course_id || null,
         mentor_name: data.mentor_name || null,
         mentor_role: data.mentor_role || null,
         mentor_signature_url: data.mentor_signature_url || null,
@@ -205,11 +212,42 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
               />
             </div>
 
-            {/* Progressão de Módulos */}
+            {/* Pré-requisitos e Progressão */}
             <div className="space-y-4">
               <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Progressão de Módulos
+                Pré-requisitos e Progressão
               </div>
+
+              <FormField
+                control={form.control}
+                name="prerequisite_course_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium">Curso Pré-requisito</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger className="h-11">
+                          <SelectValue placeholder="Selecione um curso pré-requisito (opcional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Nenhum pré-requisito</SelectItem>
+                        {courses
+                          .filter(c => c.id !== course?.id) // Não mostrar o próprio curso
+                          .map(c => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.title}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="text-xs text-muted-foreground">
+                      Usuários precisarão completar o curso selecionado antes de acessar este curso
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}
@@ -217,7 +255,7 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 space-y-0">
                     <div className="space-y-0.5">
-                      <FormLabel className="text-base font-medium">Progressão Linear</FormLabel>
+                      <FormLabel className="text-base font-medium">Progressão Linear de Módulos</FormLabel>
                       <div className="text-sm text-muted-foreground">
                         Quando ativada, usuários precisam completar módulos em ordem sequencial
                       </div>

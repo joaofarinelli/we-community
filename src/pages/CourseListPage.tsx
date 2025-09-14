@@ -4,6 +4,7 @@ import { PageBanner } from '@/components/ui/page-banner';
 import { useCourses } from '@/hooks/useCourses';
 import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
 import { useCourseAccess } from '@/hooks/useCourseAccess';
+import { useCoursePrerequisiteInfo } from '@/hooks/useCoursePrerequisiteInfo';
 import { useCourseModules } from '@/hooks/useCourseModules';
 import { useCourseLessons } from '@/hooks/useCourseLessons';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -34,6 +35,7 @@ const CourseCardWithData = ({ course }: { course: any }) => {
 
 const CourseCardWithAccess = ({ course }: { course: any }) => {
   const { data: courseAccess } = useCourseAccess();
+  const { data: prerequisiteInfo } = useCoursePrerequisiteInfo(course.id);
   const { data: modules } = useCourseModules(course.id);
   const { data: userProgress } = useUserCourseProgress(course.id);
   
@@ -43,6 +45,16 @@ const CourseCardWithAccess = ({ course }: { course: any }) => {
   const totalLessons = modules?.reduce((acc) => acc + 1, 0) || 0; // Simplified
   const progress = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
   
+  // Determine lock reason based on prerequisite info
+  let lockReason = "";
+  if (isLocked && prerequisiteInfo?.hasPrerequisite) {
+    if (!prerequisiteInfo.isCompleted) {
+      lockReason = `Complete "${prerequisiteInfo.prerequisiteCourse?.title}" primeiro`;
+    }
+  } else if (isLocked) {
+    lockReason = "Curso não disponível";
+  }
+  
   return (
     <CourseCard
       course={course}
@@ -50,7 +62,7 @@ const CourseCardWithAccess = ({ course }: { course: any }) => {
       lessonCount={totalLessons}
       progress={progress}
       isLocked={isLocked}
-      lockReason={isLocked ? "Complete o curso anterior" : ""}
+      lockReason={lockReason}
     />
   );
 };

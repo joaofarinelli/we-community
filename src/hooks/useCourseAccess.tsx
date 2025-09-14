@@ -2,51 +2,36 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
-import { useCompany } from './useCompany';
 import { useCourses } from './useCourses';
 import { useUserCourseProgress } from './useUserCourseProgress';
 
 export const useCourseAccess = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
-  const { data: company } = useCompany();
   const { data: courses = [] } = useCourses();
-  const { data: allUserProgress = [] } = useUserCourseProgress();
 
   return useQuery({
-    queryKey: ['course-access', user?.id, currentCompanyId, (company as any)?.course_progression, courses.length],
+    queryKey: ['course-access', user?.id, currentCompanyId, courses.length],
     queryFn: async () => {
       if (!user?.id || !currentCompanyId || !courses.length) {
         return {};
       }
 
-      const courseProgression = (company as any)?.course_progression || 'free';
+      console.log('🔒 Checking course access with prerequisite system');
       
-      if (courseProgression === 'free') {
-        // If progression is free, all courses are accessible
-        const accessMap: Record<string, boolean> = {};
-        courses.forEach(course => {
-          accessMap[course.id] = true;
-        });
-        return accessMap;
-      }
-
-      // For linear progression, check completion status
       const accessMap: Record<string, boolean> = {};
-      const sortedCourses = [...courses].sort((a, b) => a.order_index - b.order_index);
 
-      for (let i = 0; i < sortedCourses.length; i++) {
-        const course = sortedCourses[i];
+      for (const course of courses) {
+        console.log(`🎯 Checking access for course: ${course.title}`);
         
-        if (i === 0) {
-          // First course is always accessible
-          accessMap[course.id] = true;
-        } else {
-          // Check if previous course is completed
-          const previousCourse = sortedCourses[i - 1];
-          const isPreviousCompleted = await checkCourseCompletion(previousCourse.id, user.id);
-          accessMap[course.id] = isPreviousCompleted;
-        }
+        // Use the new RPC function that handles prerequisites
+        const { data: hasAccess } = await supabase.rpc('user_has_course_access', {
+          p_user_id: user.id,
+          p_course_id: course.id
+        });
+        
+        accessMap[course.id] = hasAccess || false;
+        console.log(`${hasAccess ? '✅' : '🔒'} Course "${course.title}": ${hasAccess ? 'accessible' : 'locked'}`);
       }
 
       return accessMap;

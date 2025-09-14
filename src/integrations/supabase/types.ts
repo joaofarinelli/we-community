@@ -1050,6 +1050,7 @@ export type Database = {
           mentor_role: string | null
           mentor_signature_url: string | null
           order_index: number
+          prerequisite_course_id: string | null
           thumbnail_url: string | null
           title: string
           updated_at: string
@@ -1070,6 +1071,7 @@ export type Database = {
           mentor_role?: string | null
           mentor_signature_url?: string | null
           order_index?: number
+          prerequisite_course_id?: string | null
           thumbnail_url?: string | null
           title: string
           updated_at?: string
@@ -1090,6 +1092,7 @@ export type Database = {
           mentor_role?: string | null
           mentor_signature_url?: string | null
           order_index?: number
+          prerequisite_course_id?: string | null
           thumbnail_url?: string | null
           title?: string
           updated_at?: string
@@ -1100,6 +1103,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "courses_prerequisite_course_id_fkey"
+            columns: ["prerequisite_course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
             referencedColumns: ["id"]
           },
         ]
