@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { Plus, MoreHorizontal, Edit, Trash2, Users, Shield } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, MoreHorizontal, Edit, Trash2, Users, Shield, Search, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import {
@@ -18,13 +21,22 @@ import {
 import { CreateSpaceDialog } from '@/components/admin/CreateSpaceDialog';
 import { EditSpaceDialog } from '@/components/admin/EditSpaceDialog';
 import { DeleteSpaceDialog } from '@/components/admin/DeleteSpaceDialog';
+import { spaceTypes } from '@/lib/spaceUtils';
 
 export const AdminContentSpacesPage = () => {
   const { currentCompanyId } = useCompanyContext();
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSpace, setEditingSpace] = useState<any>(null);
   const [deletingSpace, setDeletingSpace] = useState<any>(null);
+  
+  // Filter states
+  const [nameFilter, setNameFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [visibilityFilter, setVisibilityFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+
+  // Fetch space categories
+  const { data: categories } = useSpaceCategories();
 
   const { data: spaces, isLoading } = useQuery({
     queryKey: ['admin-spaces', currentCompanyId],
@@ -33,7 +45,17 @@ export const AdminContentSpacesPage = () => {
       
       const { data, error } = await supabase
         .from('spaces')
-        .select('id, name, type, visibility, category_id, created_by, created_at, order_index')
+        .select(`
+          id, 
+          name, 
+          type, 
+          visibility, 
+          category_id, 
+          created_by, 
+          created_at, 
+          order_index,
+          space_categories(name)
+        `)
         .eq('company_id', currentCompanyId)
         .order('order_index', { ascending: true });
       
@@ -75,20 +97,32 @@ export const AdminContentSpacesPage = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  const filters = [
-    { id: 'name', label: 'Nome' },
-    { id: 'type', label: 'Tipo' },
-    { id: 'access', label: 'Acesso' },
-    { id: 'group_access', label: 'Acesso a grupo de espaços' },
-  ];
+  // Filter spaces based on current filters
+  const filteredSpaces = useMemo(() => {
+    if (!spaces) return [];
+    
+    return spaces.filter(space => {
+      const matchesName = nameFilter === '' || 
+        space.name.toLowerCase().includes(nameFilter.toLowerCase());
+      
+      const matchesType = typeFilter === '' || space.type === typeFilter;
+      
+      const matchesVisibility = visibilityFilter === '' || space.visibility === visibilityFilter;
+      
+      const matchesCategory = categoryFilter === '' || space.category_id === categoryFilter;
+      
+      return matchesName && matchesType && matchesVisibility && matchesCategory;
+    });
+  }, [spaces, nameFilter, typeFilter, visibilityFilter, categoryFilter]);
 
-  const toggleFilter = (filterId: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filterId) 
-        ? prev.filter(id => id !== filterId)
-        : [...prev, filterId]
-    );
+  const clearAllFilters = () => {
+    setNameFilter('');
+    setTypeFilter('');
+    setVisibilityFilter('');
+    setCategoryFilter('');
   };
+
+  const hasActiveFilters = nameFilter || typeFilter || visibilityFilter || categoryFilter;
 
   const getVisibilityBadge = (visibility: string) => {
     switch (visibility) {
@@ -104,16 +138,8 @@ export const AdminContentSpacesPage = () => {
   };
 
   const getTypeDisplay = (type: string) => {
-    switch (type) {
-      case 'general':
-        return 'Publicações';
-      case 'events':
-        return 'Eventos';
-      case 'announcements':
-        return 'Anúncios';
-      default:
-        return type;
-    }
+    const spaceType = spaceTypes.find(st => st.type === type);
+    return spaceType?.name || type;
   };
 
   return (
@@ -127,27 +153,105 @@ export const AdminContentSpacesPage = () => {
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {filters.map((filter) => (
-            <Button
-              key={filter.id}
-              variant={selectedFilters.includes(filter.id) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleFilter(filter.id)}
-              className="text-sm"
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              {filter.label}
-            </Button>
-          ))}
+        <div className="space-y-4">
+          <div className="bg-muted/25 p-4 rounded-lg">
+            <h3 className="font-medium mb-3 flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              Filtros
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Nome do espaço</label>
+                <Input
+                  placeholder="Filtrar por nome..."
+                  value={nameFilter}
+                  onChange={(e) => setNameFilter(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tipo do espaço</label>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os tipos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os tipos</SelectItem>
+                    {spaceTypes.map((type) => (
+                      <SelectItem key={type.type} value={type.type}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Tipo de acesso</label>
+                <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os acessos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todos os acessos</SelectItem>
+                    <SelectItem value="public">Público</SelectItem>
+                    <SelectItem value="private">Privado</SelectItem>
+                    <SelectItem value="secret">Secreto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Categoria</label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as categorias" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Todas as categorias</SelectItem>
+                    {categories?.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
+            {hasActiveFilters && (
+              <div className="mt-3 flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="h-8"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Limpar filtros
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {filteredSpaces?.length || 0} de {spaces?.length || 0} espaços
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="text-sm text-muted-foreground">
-          {spaces?.length || 0} espaço{(spaces?.length || 0) !== 1 ? 's' : ''}
+          {hasActiveFilters ? (
+            <span>
+              Mostrando {filteredSpaces?.length || 0} de {spaces?.length || 0} espaços
+            </span>
+          ) : (
+            <span>
+              {spaces?.length || 0} espaço{(spaces?.length || 0) !== 1 ? 's' : ''} total
+            </span>
+          )}
         </div>
 
         {isLoading ? (
-          <TableSkeleton rows={8} columns={6} />
+          <TableSkeleton rows={8} columns={7} />
         ) : spaces?.length === 0 ? (
           <div className="border rounded-lg p-16 text-center">
             <h2 className="text-xl font-semibold mb-2">Crie seu primeiro espaço</h2>
@@ -158,12 +262,32 @@ export const AdminContentSpacesPage = () => {
               Criar espaço
             </Button>
           </div>
+        ) : filteredSpaces?.length === 0 ? (
+          <div className="border rounded-lg p-16 text-center">
+            <h2 className="text-xl font-semibold mb-2">Nenhum espaço encontrado</h2>
+            <p className="text-muted-foreground mb-6">
+              {hasActiveFilters 
+                ? "Nenhum espaço corresponde aos filtros aplicados." 
+                : "Não há espaços criados ainda."
+              }
+            </p>
+            {hasActiveFilters ? (
+              <Button variant="outline" onClick={clearAllFilters}>
+                Limpar filtros
+              </Button>
+            ) : (
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                Criar espaço
+              </Button>
+            )}
+          </div>
         ) : (
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full">
               <thead className="bg-muted/50 border-b">
                 <tr>
                   <th className="text-left p-4 font-medium">NOME</th>
+                  <th className="text-left p-4 font-medium">CATEGORIA</th>
                   <th className="text-left p-4 font-medium">TIPO</th>
                   <th className="text-left p-4 font-medium">MEMBROS</th>
                   <th className="text-left p-4 font-medium">MODERADORES</th>
@@ -175,7 +299,7 @@ export const AdminContentSpacesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {(spaces || []).map((space) => {
+                {filteredSpaces.map((space) => {
                   const memberData = membersCount?.[space.id] || { total: 0, moderators: 0 };
                   const totalMembers = memberData.total;
                   const moderators = memberData.moderators;
@@ -187,6 +311,11 @@ export const AdminContentSpacesPage = () => {
                           <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                           <span className="font-medium">{space.name}</span>
                         </div>
+                      </td>
+                      <td className="p-4">
+                        <span className="text-sm text-muted-foreground">
+                          {(space as any).space_categories?.name || 'Sem categoria'}
+                        </span>
                       </td>
                       <td className="p-4">{getTypeDisplay(space.type)}</td>
                       <td className="p-4">
@@ -257,7 +386,8 @@ export const AdminContentSpacesPage = () => {
                 </Button>
               </div>
               <div className="text-sm text-muted-foreground">
-                Mostrando 1-{spaces?.length || 0} de {spaces?.length || 0}
+                Mostrando 1-{filteredSpaces?.length || 0} de {filteredSpaces?.length || 0}
+                {hasActiveFilters && ` (${spaces?.length || 0} total)`}
               </div>
             </div>
           </div>
