@@ -4376,6 +4376,19 @@ export type Database = {
         Args: { space_id: string }
         Returns: boolean
       }
+      get_user_accessible_companies: {
+        Args: { p_user_email: string } | { p_user_id: string }
+        Returns: {
+          company_custom_domain: string
+          company_id: string
+          company_logo_url: string
+          company_name: string
+          company_subdomain: string
+          profile_created_at: string
+          user_id: string
+          user_role: string
+        }[]
+      }
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
