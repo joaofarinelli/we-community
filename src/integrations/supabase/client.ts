@@ -5,10 +5,22 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://zqswqyxrgmgbcgdipoid.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpxc3dxeXhyZ21nYmNnZGlwb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MDMxMTQsImV4cCI6MjA3MzM3OTExNH0.qxH9o_AsA7TULMUfsz70zVxQJQf7T-hR9gpUhKD8pQo";
 
+// Provide a no-op global company context setter to satisfy imports
+let __currentCompanyId: string | null = null;
+export const setGlobalCompanyId = (companyId: string | null) => {
+  __currentCompanyId = companyId;
+  try {
+    if (companyId) sessionStorage.setItem('current_company_id', companyId);
+    else sessionStorage.removeItem('current_company_id');
+  } catch {
+    // ignore storage errors (SSR/tests)
+  }
+};
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
     persistSession: true,

@@ -19,7 +19,7 @@ export const CompanySignupForm = ({ onSwitchToLogin }: CompanySignupFormProps) =
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<CompanySignupFormData>({
-    resolver: zodResolver(companySignupSchema),
+    resolver: zodResolver(companySignupSchema) as any,
     defaultValues: {
       companyName: '',
       cnpj: '',
