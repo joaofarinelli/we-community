@@ -18,6 +18,7 @@ import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection'
 import { CourseProgressionSection } from '@/components/admin/CourseProgressionSection';
 import { LessonPlayerBannerSection } from '@/components/admin/LessonPlayerBannerSection';
 import { MaintenanceModeSection } from '@/components/admin/MaintenanceModeSection';
+import { BugReportsEmailSection } from '@/components/admin/BugReportsEmailSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
@@ -175,6 +176,7 @@ export const AdminSettingsPage = () => {
             <div className="grid gap-6">
               <CustomDomainSection />
               <MaintenanceModeSection />
+              <BugReportsEmailSection />
             </div>
           </TabsContent>
         </Tabs>

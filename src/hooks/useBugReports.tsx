@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useCompanyContext } from "./useCompanyContext";
 import { useToast } from "@/hooks/use-toast";
+import { useCompany } from "./useCompany";
 
 export interface BugReport {
   id: string;
@@ -32,6 +33,7 @@ export interface CreateBugReportData {
 export const useBugReports = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const { data: company } = useCompany();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -80,12 +82,39 @@ export const useBugReports = () => {
       if (error) throw error;
       return result;
     },
-    onSuccess: () => {
+    onSuccess: async (bugReport) => {
       queryClient.invalidateQueries({ queryKey: ["bug-reports"] });
+      
       toast({
         title: "Relatório enviado!",
         description: "Seu relatório foi enviado com sucesso. Obrigado pelo feedback!",
       });
+
+      // Send email notification if configured
+      try {
+        if (company?.bug_reports_email && user) {
+          const { data: userProfile } = await supabase
+            .from("profiles")
+            .select("first_name, last_name, email")
+            .eq("user_id", user.id)
+            .eq("company_id", currentCompanyId)
+            .single();
+
+          await supabase.functions.invoke('send-bug-report-email', {
+            body: {
+              bugReport,
+              userInfo: userProfile || { email: user.email || 'N/A' },
+              companyInfo: {
+                name: company.name,
+                bug_reports_email: company.bug_reports_email,
+              },
+            },
+          });
+        }
+      } catch (emailError) {
+        console.error('Failed to send bug report email:', emailError);
+        // Don't throw error here - bug report was created successfully
+      }
     },
     onError: (error) => {
       console.error("Error creating bug report:", error);
