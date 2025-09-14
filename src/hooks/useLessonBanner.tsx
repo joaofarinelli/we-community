@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 interface LessonBannerConfig {
   banner_url?: string;
@@ -37,6 +38,27 @@ export const useLessonBanner = (lessonId: string | undefined) => {
     },
     enabled: !!lessonId,
   });
+
+  // Real-time listener for lesson changes
+  useEffect(() => {
+    if (!lessonId) return;
+
+    const channel = supabase
+      .channel(`lesson-banner-${lessonId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'course_lessons', filter: `id=eq.${lessonId}` },
+        () => {
+          console.log('🔔 Realtime: lesson banner updated, invalidating cache');
+          queryClient.invalidateQueries({ queryKey: ['lesson-banner', lessonId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [lessonId, queryClient]);
 
   const updateBannerConfig = useMutation({
     mutationFn: async (config: LessonBannerConfig) => {

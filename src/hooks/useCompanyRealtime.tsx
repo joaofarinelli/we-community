@@ -23,6 +23,10 @@ export const useCompanyRealtime = () => {
           console.log('🔔 Realtime: company updated, invalidating cache');
           // Invalidate all variations of the 'company' queries
           queryClient.invalidateQueries({ queryKey: ['company'] });
+          // Invalidate all banner queries that depend on company data
+          queryClient.invalidateQueries({ queryKey: ['course-banner'] });
+          queryClient.invalidateQueries({ queryKey: ['page-banner'] });
+          queryClient.invalidateQueries({ queryKey: ['lesson-player-banner'] });
         }
       )
       .subscribe();

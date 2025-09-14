@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export const useSpaceBanner = (spaceId: string) => {
   const { user } = useAuth();
@@ -23,6 +24,28 @@ export const useSpaceBanner = (spaceId: string) => {
     },
     enabled: !!spaceId,
   });
+
+  // Real-time listener for space changes
+  useEffect(() => {
+    if (!spaceId) return;
+
+    const channel = supabase
+      .channel(`space-banner-${spaceId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'spaces', filter: `id=eq.${spaceId}` },
+        () => {
+          console.log('🔔 Realtime: space banner updated, invalidating cache');
+          queryClient.invalidateQueries({ queryKey: ['space-banner', spaceId] });
+          queryClient.invalidateQueries({ queryKey: ['space', spaceId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [spaceId, queryClient]);
 
   const uploadBanner = useMutation({
     mutationFn: async (file: File) => {
