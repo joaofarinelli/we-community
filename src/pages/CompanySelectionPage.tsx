@@ -62,8 +62,12 @@ export const CompanySelectionPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/20 via-background to-secondary/20 flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <div className="text-center mb-8">
-          <div className="h-16 w-16 rounded-2xl bg-gradient-primary flex items-center justify-center mx-auto mb-4 shadow-elegant">
-            <Building2 className="h-8 w-8 text-white" />
+          <div className="h-16 w-16 rounded-2xl overflow-hidden mx-auto mb-4 shadow-elegant">
+            <img 
+              src="https://zqswqyxrgmgbcgdipoid.supabase.co/storage/v1/object/public/company-logos/logo%20weplataforma.png" 
+              alt="Logo" 
+              className="h-full w-full object-contain"
+            />
           </div>
           <h1 className="text-3xl font-bold font-heading mb-2">Selecione uma Empresa</h1>
           <p className="text-muted-foreground">
