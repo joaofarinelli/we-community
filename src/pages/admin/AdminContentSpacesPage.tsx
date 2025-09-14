@@ -168,12 +168,12 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tipo do espaço</label>
-                <Select value={typeFilter || ""} onValueChange={setTypeFilter}>
+                <Select value={typeFilter || undefined} onValueChange={(v) => setTypeFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todos os tipos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os tipos</SelectItem>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
                     {spaceTypes.map((type) => (
                       <SelectItem key={type.type} value={type.type}>
                         {type.name}
@@ -185,12 +185,12 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tipo de acesso</label>
-                <Select value={visibilityFilter || ""} onValueChange={setVisibilityFilter}>
+                <Select value={visibilityFilter || undefined} onValueChange={(v) => setVisibilityFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todos os acessos" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os acessos</SelectItem>
+                    <SelectItem value="all">Todos os acessos</SelectItem>
                     <SelectItem value="public">Público</SelectItem>
                     <SelectItem value="private">Privado</SelectItem>
                     <SelectItem value="secret">Secreto</SelectItem>
@@ -200,12 +200,12 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Categoria</label>
-                <Select value={categoryFilter || ""} onValueChange={setCategoryFilter}>
+                <Select value={categoryFilter || undefined} onValueChange={(v) => setCategoryFilter(v === 'all' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todas as categorias" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todas as categorias</SelectItem>
+                    <SelectItem value="all">Todas as categorias</SelectItem>
                     {(categories || []).map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
