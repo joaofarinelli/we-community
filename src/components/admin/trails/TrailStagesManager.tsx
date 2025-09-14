@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Trash2, Plus, GripVertical, FileText } from 'lucide-react';
 import { useTrailStages, useCreateTrailStage, useUpdateTrailStage, useDeleteTrailStage, ResponseType } from '@/hooks/useTrailStages';
 import { DocumentUploader } from '@/components/ui/document-uploader';
+import { convertYouTubeUrl } from '@/lib/youtube';
 
 
 interface TrailStagesManagerProps {
@@ -63,8 +64,12 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Convert YouTube URL to embed format if needed
+    const videoUrl = formData.video_url ? convertYouTubeUrl(formData.video_url) : '';
+    
     const stageData = {
       ...formData,
+      video_url: videoUrl,
       trail_id: trailId,
       template_id: templateId,
       order_index: stages?.length || 0,
@@ -190,7 +195,7 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
                   id="video_url"
                   value={formData.video_url}
                   onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                  placeholder="https://www.youtube.com/embed/..."
+                  placeholder="https://www.youtube.com/watch?v=... ou https://youtube.com/embed/..."
                 />
               </div>
 

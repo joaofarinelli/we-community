@@ -25,6 +25,7 @@ import { LessonMaterialUploader } from '@/components/ui/lesson-material-uploader
 import { ImageUpload } from '@/components/ui/image-upload';
 import { useCreateLesson } from '@/hooks/useManageCourses';
 import { useCreateLessonMaterial } from '@/hooks/useLessonMaterials';
+import { convertYouTubeUrl } from '@/lib/youtube';
 
 const lessonSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -71,12 +72,15 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
   const onSubmit = async (data: LessonFormData) => {
     setIsSubmitting(true);
     try {
+      // Convert YouTube URL to embed format if needed
+      const videoUrl = data.video_url ? convertYouTubeUrl(data.video_url) : undefined;
+      
       const lesson = await createLesson.mutateAsync({
         module_id: moduleId,
         title: data.title,
         description: data.description || undefined,
         content: data.content || undefined,
-        video_url: data.video_url || undefined,
+        video_url: videoUrl,
         duration: data.duration || undefined,
         difficulty_level: data.difficulty_level,
         thumbnail_url: data.thumbnail_url || undefined,
@@ -175,7 +179,7 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
                   <FormLabel>URL do Vídeo (opcional)</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="https://youtube.com/embed/... ou https://vimeo.com/..." 
+                      placeholder="https://www.youtube.com/watch?v=... ou https://youtube.com/embed/..." 
                       type="url"
                       {...field} 
                     />

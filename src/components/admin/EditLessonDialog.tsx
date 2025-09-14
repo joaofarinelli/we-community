@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { LessonMaterialUploader } from '@/components/ui/lesson-material-uploader';
 import { useUpdateLesson } from '@/hooks/useManageCourses';
 import { useLessonMaterials, useCreateLessonMaterial, useDeleteLessonMaterial } from '@/hooks/useLessonMaterials';
+import { convertYouTubeUrl } from '@/lib/youtube';
 
 const lessonSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -90,13 +91,16 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
     
     setIsSubmitting(true);
     try {
+      // Convert YouTube URL to embed format if needed
+      const videoUrl = data.video_url ? convertYouTubeUrl(data.video_url) : undefined;
+      
       await updateLesson.mutateAsync({
         id: lesson.id,
         module_id: lesson.module_id,
         title: data.title,
         description: data.description || undefined,
         content: data.content || undefined,
-        video_url: data.video_url || undefined,
+        video_url: videoUrl,
         duration: data.duration || undefined,
         difficulty_level: data.difficulty_level,
       });
@@ -216,7 +220,7 @@ export const EditLessonDialog = ({ lesson, open, onOpenChange }: EditLessonDialo
                   <FormLabel>URL do Vídeo (opcional)</FormLabel>
                   <FormControl>
                     <Input 
-                      placeholder="https://youtube.com/embed/... ou https://vimeo.com/..." 
+                      placeholder="https://www.youtube.com/watch?v=... ou https://youtube.com/embed/..." 
                       type="url"
                       {...field} 
                     />
