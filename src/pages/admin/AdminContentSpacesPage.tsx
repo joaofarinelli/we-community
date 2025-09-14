@@ -45,17 +45,7 @@ export const AdminContentSpacesPage = () => {
       
       const { data, error } = await supabase
         .from('spaces')
-        .select(`
-          id, 
-          name, 
-          type, 
-          visibility, 
-          category_id, 
-          created_by, 
-          created_at, 
-          order_index,
-          space_categories(name)
-        `)
+        .select('id, name, type, visibility, category_id, created_by, created_at, order_index')
         .eq('company_id', currentCompanyId)
         .order('order_index', { ascending: true });
       
@@ -97,7 +87,14 @@ export const AdminContentSpacesPage = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  // Filter spaces based on current filters
+  // Create a map of categories for easy lookup
+  const categoryMap = useMemo(() => {
+    if (!categories) return {};
+    return categories.reduce((acc, category) => {
+      acc[category.id] = category.name;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [categories]);
   const filteredSpaces = useMemo(() => {
     if (!spaces) return [];
     
@@ -171,7 +168,7 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tipo do espaço</label>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <Select value={typeFilter || ""} onValueChange={setTypeFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todos os tipos" />
                   </SelectTrigger>
@@ -188,7 +185,7 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tipo de acesso</label>
-                <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
+                <Select value={visibilityFilter || ""} onValueChange={setVisibilityFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todos os acessos" />
                   </SelectTrigger>
@@ -203,13 +200,13 @@ export const AdminContentSpacesPage = () => {
               
               <div className="space-y-2">
                 <label className="text-sm font-medium">Categoria</label>
-                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <Select value={categoryFilter || ""} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Todas as categorias" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Todas as categorias</SelectItem>
-                    {categories?.map((category) => (
+                    {(categories || []).map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
                       </SelectItem>
@@ -314,7 +311,7 @@ export const AdminContentSpacesPage = () => {
                       </td>
                       <td className="p-4">
                         <span className="text-sm text-muted-foreground">
-                          {(space as any).space_categories?.name || 'Sem categoria'}
+                          {categoryMap[space.category_id] || 'Sem categoria'}
                         </span>
                       </td>
                       <td className="p-4">{getTypeDisplay(space.type)}</td>
