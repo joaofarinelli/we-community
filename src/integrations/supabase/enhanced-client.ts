@@ -42,6 +42,7 @@ if (storedCompanyId) {
 // Functions that don't require company context (used to discover companies)
 const FUNCTIONS_WITHOUT_COMPANY_CONTEXT = [
   'get_user_accessible_companies',
+  'find_company_by_domain',
   'set_current_company_context'
 ];
 

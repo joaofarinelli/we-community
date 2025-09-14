@@ -4376,6 +4376,23 @@ export type Database = {
         Args: { space_id: string }
         Returns: boolean
       }
+      find_company_by_domain: {
+        Args: { p_domain: string }
+        Returns: {
+          button_text_color: string
+          coin_name: string
+          custom_domain: string
+          custom_domain_status: string
+          enabled_features: Json
+          id: string
+          logo_url: string
+          name: string
+          primary_color: string
+          status: string
+          subdomain: string
+          text_color: string
+        }[]
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string } | { p_user_id: string }
         Returns: {

@@ -8,77 +8,45 @@ export const useCompanyByDomain = () => {
   return useQuery({
     queryKey: ['company-by-domain', subdomain, customDomain],
     queryFn: async () => {
-      console.log('Looking for company with subdomain:', subdomain, 'customDomain:', customDomain);
+      const hostname = window.location.hostname;
+      console.log('Looking for company with hostname:', hostname, 'subdomain:', subdomain, 'customDomain:', customDomain);
       
-      // If we have a custom domain and it's not the development fallback, look for that first
-      if (customDomain && customDomain !== 'development-fallback') {
-        console.log('🔍 Searching by custom domain:', customDomain);
+      // Use the new domain lookup function
+      const domainToSearch = customDomain || subdomain || hostname;
+      
+      if (domainToSearch && domainToSearch !== 'development-fallback') {
+        console.log('🔍 Using find_company_by_domain for:', domainToSearch);
         
         try {
-          // First try verified custom domains with explicit query
-          console.log('🔍 Trying verified custom domain query...');
           const { data, error } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('custom_domain', customDomain)
-            .eq('custom_domain_status', 'verified')
-            .eq('status', 'active')
-            .maybeSingle();
+            .rpc('find_company_by_domain', { p_domain: domainToSearch });
           
-          if (data && !error) {
-            console.log('✅ Found company by verified custom domain:', data.name, 'ID:', data.id);
-            return data;
+          if (data && data.length > 0) {
+            console.log('✅ Found company by domain:', data[0].name, 'ID:', data[0].id);
+            return data[0];
           }
           
-          console.log('⚠️ No verified custom domain found, error:', error?.message);
-          
-          // If no verified domain found, try unverified but active
-          console.log('🔍 Trying unverified custom domain query...');
-          const { data: unverifiedData, error: unverifiedError } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('custom_domain', customDomain)
-            .eq('status', 'active')
-            .maybeSingle();
-          
-          if (unverifiedData && !unverifiedError) {
-            console.log('✅ Found company by custom domain (unverified):', unverifiedData.name, 'ID:', unverifiedData.id);
-            return unverifiedData;
+          if (error) {
+            console.log('⚠️ Domain lookup error:', error.message);
+          } else {
+            console.log('⚠️ No company found for domain:', domainToSearch);
           }
-          
-          console.log('❌ No company found by custom domain, error:', unverifiedError?.message);
         } catch (err) {
-          console.error('❌ Error searching by custom domain:', err);
+          console.error('❌ Error in domain lookup:', err);
         }
       }
       
-      // If we have a subdomain, look for that
-      if (subdomain) {
-        console.log('Searching by subdomain:', subdomain);
-        const { data, error } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('subdomain', subdomain)
-          .single();
-        
-        if (!error && data) {
-          console.log('Found company by subdomain:', data.name);
-          return data;
-        }
-        console.log('No company found by subdomain, error:', error?.message);
-      }
-      
-      // Development fallback: get the first active company (ONLY for development)
+      // Fallback for development
       if (customDomain === 'development-fallback') {
-        console.log('Using development fallback - searching for first company');
+        console.log('Using development fallback - searching for first active company');
         const { data, error } = await supabase
           .from('companies')
           .select('*')
           .eq('status', 'active')
           .limit(1)
-          .single();
+          .maybeSingle();
         
-        if (!error && data) {
+        if (data && !error) {
           console.log('Found company via development fallback:', data.name);
           return data;
         }

@@ -55,29 +55,24 @@ export const useDomainAuth = (): DomainAuthData => {
 
         // Check if we're on a specific domain (not the main SaaS domain)
         if (subdomain || customDomain) {
-          // Try to find company by custom domain first
-          if (customDomain) {
-            console.log('Looking for company with custom_domain:', customDomain);
-            const { data: customDomainCompany, error } = await supabase
-              .from('companies')
-              .select('*')
-              .eq('custom_domain', customDomain)
-              .single();
+          const domainToSearch = customDomain || subdomain || hostname;
+          
+          console.log('Looking for company with domain:', domainToSearch);
+          
+          try {
+            const { data, error } = await supabase
+              .rpc('find_company_by_domain', { p_domain: domainToSearch });
             
-            if (error) {
-              console.log('Custom domain query error:', error);
+            if (data && data.length > 0) {
+              domainCompany = data[0];
+              console.log('Found company via domain lookup:', domainCompany.name);
+            } else if (error) {
+              console.log('Domain lookup error:', error.message);
+            } else {
+              console.log('No company found for domain:', domainToSearch);
             }
-            domainCompany = customDomainCompany;
-          }
-
-          // Try by subdomain if custom domain didn't match
-          if (!domainCompany && subdomain) {
-            const { data: subdomainCompany } = await supabase
-              .from('companies')
-              .select('*')
-              .eq('subdomain', subdomain)
-              .single();
-            domainCompany = subdomainCompany;
+          } catch (err) {
+            console.error('Error in domain lookup:', err);
           }
         }
 
