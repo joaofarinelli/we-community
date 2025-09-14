@@ -230,7 +230,7 @@ export const EditTrailDialog = ({ open, onOpenChange, trail }: EditTrailDialogPr
                           <SelectItem value="none">Nenhum selo</SelectItem>
                           {badges?.map((badge) => (
                             <SelectItem key={badge.id} value={badge.id}>
-                              {(badge as any).name} {(badge as any).coins_reward > 0 && `(${(badge as any).coins_reward} moedas)`}
+                              {badge.name} {badge.coins_reward > 0 && `(${badge.coins_reward} moedas)`}
                             </SelectItem>
                           ))}
                         </SelectContent>

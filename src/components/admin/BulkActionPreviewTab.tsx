@@ -238,10 +238,10 @@ export function BulkActionPreviewTab({
             </Button>
           </div>
 
-          {(previewMutation as any).data && (
+          {previewMutation.data && (
             <div className="bg-muted/50 rounded-lg p-3 mb-4">
               <p className="text-sm">
-                <strong>Tempo estimado:</strong> {Math.ceil(((previewMutation as any).data as any)?.estimated_processing_time || 0)} segundos
+                <strong>Tempo estimado:</strong> {Math.ceil((previewMutation.data as any).estimated_processing_time)} segundos
               </p>
             </div>
           )}

@@ -145,7 +145,7 @@ export function BulkActionAudienceTab({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os níveis</SelectItem>
-              {(levels as any).map((level: any) => (
+              {levels.map(level => (
                 <SelectItem key={level.id} value={level.id}>
                   {level.level_name}
                 </SelectItem>

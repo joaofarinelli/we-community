@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { useSubdomain } from './useSubdomain';
 import { useCompany } from './useCompany';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
 
 interface UserCompany {
   company_id: string;

@@ -96,20 +96,20 @@ export const CustomProfileFieldsManagement = () => {
                     <GripVertical className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{(field as any).field_label}</h3>
+                        <h3 className="font-medium">{field.field_label}</h3>
                         <Badge variant="secondary">
-                          {getFieldTypeLabel((field as any).field_type)}
+                          {getFieldTypeLabel(field.field_type)}
                         </Badge>
-                        {(field as any).is_required && (
+                        {field.is_required && (
                           <Badge variant="destructive">Obrigatório</Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Nome interno: {(field as any).field_name}
+                        Nome interno: {field.field_name}
                       </p>
-                      {(field as any).field_type === 'select' && (field as any).field_options && (
+                      {field.field_type === 'select' && field.field_options && (
                         <p className="text-sm text-muted-foreground">
-                          Opções: {(((field as any).field_options as any)?.options || []).join(', ')}
+                          Opções: {((field.field_options as any)?.options || []).join(', ')}
                         </p>
                       )}
                     </div>
@@ -118,14 +118,14 @@ export const CustomProfileFieldsManagement = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEdit(field as any)}
+                      onClick={() => handleEdit(field as CustomProfileField)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleDelete(field as any)}
+                      onClick={() => handleDelete(field as CustomProfileField)}
                       disabled={deleteField.isPending}
                     >
                       <Trash2 className="h-4 w-4" />

@@ -206,7 +206,7 @@ export function BulkActionConfigTab({
             <SelectValue placeholder="Selecione um curso" />
           </SelectTrigger>
           <SelectContent>
-            {(courses as any).map((course: any) => (
+            {courses.map((course) => (
               <SelectItem key={course.id} value={course.id}>
                 {course.title}
               </SelectItem>
@@ -229,7 +229,7 @@ export function BulkActionConfigTab({
             <SelectValue placeholder="Selecione um espaço" />
           </SelectTrigger>
           <SelectContent>
-            {(spaces as any).map((space: any) => (
+            {spaces.map((space) => (
               <SelectItem key={space.id} value={space.id}>
                 {space.name}
               </SelectItem>

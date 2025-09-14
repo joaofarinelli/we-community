@@ -46,8 +46,8 @@ export const TrailBadgesTab = () => {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {(badges as any).map((badge: any) => {
-        const Icon = getDynamicIcon((badge as any).icon_name);
+      {badges.map((badge) => {
+        const Icon = getDynamicIcon(badge.icon_name);
         
         return (
           <Card key={badge.id} className="hover:shadow-md transition-shadow">
@@ -55,28 +55,28 @@ export const TrailBadgesTab = () => {
               <div className="flex items-center gap-3">
                 <div
                   className="flex items-center justify-center w-12 h-12 rounded-full"
-                  style={{ backgroundColor: (badge as any).color + '20' }}
+                  style={{ backgroundColor: badge.color + '20' }}
                 >
                   <Icon 
                     className="h-6 w-6" 
-                    style={{ color: (badge as any).color }}
+                    style={{ color: badge.color }}
                   />
                 </div>
                 <div className="flex-1">
-                  <CardTitle className="text-lg">{(badge as any).name}</CardTitle>
+                  <CardTitle className="text-lg">{badge.name}</CardTitle>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
-                      {(badge as any).badge_type}
+                      {badge.badge_type}
                     </Badge>
                     <Badge variant="secondary" className="text-xs">
-                      +{(badge as any).coins_reward} coins
+                      +{badge.coins_reward} coins
                     </Badge>
                   </div>
                 </div>
               </div>
-              {(badge as any).description && (
+              {badge.description && (
                 <CardDescription>
-                  {(badge as any).description}
+                  {badge.description}
                 </CardDescription>
               )}
             </CardHeader>

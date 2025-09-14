@@ -239,7 +239,7 @@ export const UserTrailsTab = () => {
                       <Label htmlFor={`level-${level.id}`} className="text-sm flex items-center gap-2">
                         <div 
                           className="w-3 h-3 rounded" 
-                          style={{ backgroundColor: (level as any).level_color }}
+                          style={{ backgroundColor: level.level_color }}
                         />
                         {level.level_name}
                       </Label>
@@ -346,9 +346,9 @@ export const UserTrailsTab = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span>Progresso</span>
-                    <span className="font-medium">{(trail as any).progress_percentage}%</span>
+                    <span className="font-medium">{trail.progress_percentage}%</span>
                   </div>
-                  <Progress value={(trail as any).progress_percentage} className="h-2" />
+                  <Progress value={trail.progress_percentage} className="h-2" />
                 </div>
 
                 {/* User Info */}
@@ -408,15 +408,15 @@ export const UserTrailsTab = () => {
 
                 {/* Details */}
                 <div className="space-y-2 text-sm text-muted-foreground">
-                  {(trail as any).life_area && (
+                  {trail.life_area && (
                     <div>
-                      <span className="font-medium">Área:</span> {(trail as any).life_area}
+                      <span className="font-medium">Área:</span> {trail.life_area}
                     </div>
                   )}
                   <div>
                     <span className="font-medium">Iniciada em:</span>{' '}
-                    {(trail as any).started_at && !isNaN(new Date((trail as any).started_at).getTime()) 
-                      ? format(new Date((trail as any).started_at), 'dd/MM/yyyy', { locale: ptBR })
+                    {trail.started_at && !isNaN(new Date(trail.started_at).getTime()) 
+                      ? format(new Date(trail.started_at), 'dd/MM/yyyy', { locale: ptBR })
                       : 'Data não disponível'
                     }
                   </div>

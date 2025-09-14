@@ -51,9 +51,9 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
       });
 
       // Use the new RPC function that handles all validations and context
-        const { data: newSpace, error } = await (supabase as any).rpc('create_space_with_context', {
-          p_company_id: currentCompanyId,
-          p_category_id: data.category_id as any,
+      const { data: newSpace, error } = await supabase.rpc('create_space_with_context', {
+        p_company_id: currentCompanyId,
+        p_category_id: data.category_id,
         p_name: data.name,
         p_description: data.description || null,
         p_visibility: data.visibility,

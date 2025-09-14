@@ -25,18 +25,18 @@ export const CourseRewardsSummary = ({
   const progressPercentage = totalLessons > 0 ? (completedLessons / totalLessons) * 100 : 0;
 
   // Calculate rewards from this course
-  const courseRewards = (pointsHistory as any)?.filter(
-    (transaction: any) => 
+  const courseRewards = pointsHistory?.filter(
+    transaction => 
       transaction.action_type.includes('lesson_complete') ||
       transaction.action_type.includes('module_complete') ||
       transaction.action_type.includes('course_complete')
   ) || [];
 
-  const totalCoinsFromCourse = courseRewards.reduce((sum: number, reward: any) => sum + reward.coins, 0);
+  const totalCoinsFromCourse = courseRewards.reduce((sum, reward) => sum + reward.coins, 0);
 
-  const lessonRewards = courseRewards.filter((r: any) => r.action_type === 'lesson_complete').length;
-  const moduleRewards = courseRewards.filter((r: any) => r.action_type === 'module_complete').length;
-  const courseRewards_complete = courseRewards.filter((r: any) => r.action_type === 'course_complete').length;
+  const lessonRewards = courseRewards.filter(r => r.action_type === 'lesson_complete').length;
+  const moduleRewards = courseRewards.filter(r => r.action_type === 'module_complete').length;
+  const courseRewards_complete = courseRewards.filter(r => r.action_type === 'course_complete').length;
 
   const estimatedTotalReward = (totalLessons * 15) + (totalModules * 50) + 200; // Base rewards
 

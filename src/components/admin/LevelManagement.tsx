@@ -102,7 +102,7 @@ export const LevelManagement = () => {
                   return null;
                 }
                 
-                const IconComponent = (level as any).level_icon ? (Icons as any)[(level as any).level_icon] as React.ComponentType<LucideProps> : null;
+                const IconComponent = level.level_icon ? (Icons as any)[level.level_icon] as React.ComponentType<LucideProps> : null;
                 
                 return (
                   <div
@@ -117,9 +117,9 @@ export const LevelManagement = () => {
                          <Badge 
                           variant="outline"
                           style={{ 
-                            backgroundColor: (level as any).level_color ? `${(level as any).level_color}15` : undefined,
-                            borderColor: (level as any).level_color || undefined,
-                            color: (level as any).level_color || undefined
+                            backgroundColor: level.level_color ? `${level.level_color}15` : undefined,
+                            borderColor: level.level_color || undefined,
+                            color: level.level_color || undefined
                           }}
                         >
                           {IconComponent && <IconComponent className="h-4 w-4 mr-1" />}
@@ -127,7 +127,7 @@ export const LevelManagement = () => {
                         </Badge>
                       </div>
                        <div className="text-sm text-muted-foreground">
-                        {(level as any).min_coins_required || level.points_required || 0} - {(level as any).max_coins_required || '∞'} WomanCoins
+                        {level.min_coins_required || 0} - {level.max_coins_required || '∞'} WomanCoins
                       </div>
                     </div>
                     

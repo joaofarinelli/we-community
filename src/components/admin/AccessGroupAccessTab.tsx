@@ -30,13 +30,13 @@ export const AccessGroupAccessTab = ({ accessGroup }: AccessGroupAccessTabProps)
 
   useEffect(() => {
     // Combine spaces and courses into available items
-    const spaceItems: AccessItem[] = ((spaces as any) || []).map((space: any) => ({
+    const spaceItems: AccessItem[] = (spaces || []).map(space => ({
       id: space.id,
       name: space.name,
       type: 'space' as const
     }));
 
-    const courseItems: AccessItem[] = ((courses as any) || []).map((course: any) => ({
+    const courseItems: AccessItem[] = (courses || []).map(course => ({
       id: course.id,
       name: course.title,
       type: 'course' as const

@@ -31,6 +31,7 @@ import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { useTrailBadges } from '@/hooks/useTrailBadges';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
+import { setGlobalCompanyId } from '@/integrations/supabase/client';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
@@ -88,6 +89,11 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
   const onSubmit = async (data: CourseFormData) => {
     setIsSubmitting(true);
     console.log('🔧 CreateCourse: user.id:', user?.id, 'currentCompanyId:', currentCompanyId);
+    
+    // Reinforce context before the operation
+    if (currentCompanyId) {
+      setGlobalCompanyId(currentCompanyId);
+    }
     
     try {
       await createCourse.mutateAsync({
@@ -324,7 +330,7 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
                           >
                             <div
                               className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: (level as any).level_color || '#3B82F6' }}
+                              style={{ backgroundColor: level.level_color }}
                             />
                             {level.level_name}
                           </label>

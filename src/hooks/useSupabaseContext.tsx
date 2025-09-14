@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
 
@@ -16,6 +16,9 @@ export const useSupabaseContext = () => {
       if (user && currentCompanyId) {
         console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
         console.log('🔧 useSupabaseContext: User email:', user.email);
+        
+        // Set global company ID for header injection
+        setGlobalCompanyId(currentCompanyId);
         
         try {
           // Always set the current company ID in the Supabase session context
@@ -42,12 +45,17 @@ export const useSupabaseContext = () => {
         if (user) {
           console.log('⏸️ useSupabaseContext: User email:', user.email);
         }
+        // Clear global company ID if no context
+        setGlobalCompanyId(null);
       }
     };
 
     // Only set context when both user and company are available
     if (user && currentCompanyId) {
       setSupabaseContext();
+    } else {
+      // Clear context if user or company is not available
+      setGlobalCompanyId(null);
     }
   }, [user, currentCompanyId]);
 

@@ -362,20 +362,20 @@ export const TrailStagesManager = ({ trailId, templateId, isReadOnly = false }: 
                     {index + 1}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-medium">{(stage as any).name}</h4>
-                    {(stage as any).description && (
+                    <h4 className="font-medium">{stage.name}</h4>
+                    {stage.description && (
                       <p className="text-sm text-muted-foreground mt-1">
-                        {(stage as any).description}
+                        {stage.description}
                       </p>
                     )}
-                    {(stage as any).guidance_text && (
+                    {stage.guidance_text && (
                       <p className="text-sm text-blue-600 mt-2 p-2 bg-blue-50 rounded">
-                        💡 {(stage as any).guidance_text}
+                        💡 {stage.guidance_text}
                       </p>
                     )}
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={(stage as any).is_required ? "default" : "secondary"}>
-                        {(stage as any).is_required ? 'Obrigatória' : 'Opcional'}
+                      <Badge variant={stage.is_required ? "default" : "secondary"}>
+                        {stage.is_required ? 'Obrigatória' : 'Opcional'}
                       </Badge>
                     </div>
                   </div>

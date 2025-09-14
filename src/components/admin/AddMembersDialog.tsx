@@ -20,8 +20,8 @@ export const AddMembersDialog = ({ open, onOpenChange, accessGroupId }: AddMembe
   const { members, addMembers } = useAccessGroupMembers(accessGroupId);
 
   // Filter out users who are already members
-  const availableUsers = users?.filter((user: any) => 
-    !members.some((member: any) => member.user_id === user.user_id)
+  const availableUsers = users?.filter(user => 
+    !members.some(member => member.user_id === user.user_id)
   ) || [];
 
   const handleUserToggle = (userId: string) => {

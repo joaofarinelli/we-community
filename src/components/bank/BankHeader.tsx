@@ -50,9 +50,9 @@ export const BankHeader = () => {
                   <Coins className="h-8 w-8 text-primary" />
                   <span className="text-4xl font-bold">{balance.toLocaleString()}</span>
                 </div>
-                  {(userLevel?.user_levels as any) && (
+                {userLevel?.user_levels && (
                   <Badge variant="secondary" className="mt-3">
-                    {(userLevel.user_levels as any).level_name}
+                    {userLevel.user_levels.level_name}
                   </Badge>
                 )}
               </div>
