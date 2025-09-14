@@ -108,7 +108,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
         // This context just fetches companies for the current authenticated user
 
         // First try the regular approach for the current user
-        const { data: regularCompanies, error: regularError } = await supabase.rpc('get_user_companies', {
+        const { data: regularCompanies, error: regularError } = await supabase.rpc('get_user_accessible_companies', {
           p_user_id: user.id
         });
 
@@ -205,7 +205,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     if (error) throw error;
 
     // Refresh user companies list
-    const { data } = await supabase.rpc('get_user_companies', {
+    const { data } = await supabase.rpc('get_user_accessible_companies', {
       p_user_id: user.id
     });
     setUserCompanies(data || []);

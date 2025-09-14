@@ -77,7 +77,7 @@ export const useCompany = () => {
       if (!user) return null;
 
       // Get all user companies and find the best match for current domain
-      const { data: userCompanies } = await supabase.rpc('get_user_companies', {
+      const { data: userCompanies } = await supabase.rpc('get_user_accessible_companies', {
         p_user_id: user.id
       });
 
@@ -93,17 +93,21 @@ export const useCompany = () => {
           const preferredCompany = emailCompanies.find(c => c.company_id === preferredCompanyId);
           
           if (preferredCompany) {
-            const { data: companyDetails } = await supabase.rpc('get_company_details_for_user', {
-              p_company_id: preferredCompany.company_id
-            });
-            return companyDetails?.[0] || null;
+            const { data: companyDetails } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('id', preferredCompany.company_id)
+              .maybeSingle();
+            return companyDetails || null;
           }
 
           // Use first available company
-          const { data: companyDetails } = await supabase.rpc('get_company_details_for_user', {
-            p_company_id: emailCompanies[0].company_id
-          });
-          return companyDetails?.[0] || null;
+          const { data: companyDetails } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', emailCompanies[0].company_id)
+            .maybeSingle();
+          return companyDetails || null;
         }
         return null;
       }
@@ -113,29 +117,35 @@ export const useCompany = () => {
       if (preferredCompanyId) {
         const hasAccess = userCompanies.some(uc => uc.company_id === preferredCompanyId);
         if (hasAccess) {
-          const { data: companyDetails } = await supabase.rpc('get_company_details_for_user', {
-            p_company_id: preferredCompanyId
-          });
-          return companyDetails?.[0] || null;
+          const { data: companyDetails } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', preferredCompanyId)
+            .maybeSingle();
+          return companyDetails || null;
         }
       }
 
       // If user has only one company, return it
       if (userCompanies.length === 1) {
-        const { data: companyDetails } = await supabase.rpc('get_company_details_for_user', {
-          p_company_id: userCompanies[0].company_id
-        });
-        return companyDetails?.[0] || null;
+        const { data: companyDetails } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('id', userCompanies[0].company_id)
+          .maybeSingle();
+        return companyDetails || null;
       }
 
       // If user has multiple companies, try to find the most appropriate one
       // Priority: 1. Recent access preference 2. First created profile
       const selectedCompany = userCompanies[0]; // For now, use the first one (ordered by created_at DESC)
       
-      const { data: companyDetails } = await supabase.rpc('get_company_details_for_user', {
-        p_company_id: selectedCompany.company_id
-      });
-      return companyDetails?.[0] || null;
+      const { data: companyDetails } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('id', selectedCompany.company_id)
+        .maybeSingle();
+      return companyDetails || null;
     },
     enabled: !!subdomain || !!customDomain || !!user,
   });
