@@ -26,7 +26,6 @@ interface BugReportEmailRequest {
   };
   companyInfo: {
     name: string;
-    bug_reports_email?: string;
   };
 }
 
@@ -45,17 +44,44 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { bugReport, userInfo, companyInfo }: BugReportEmailRequest = await req.json();
 
-    // Check if company has bug reports email configured
-    if (!companyInfo.bug_reports_email) {
-      console.log("No bug reports email configured for company, skipping email");
+    // Get bug reports configuration from super admin settings
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const { data: configData, error: configError } = await supabaseAdmin
+      .from('super_admin_configs')
+      .select('config_value')
+      .eq('config_key', 'bug_reports')
+      .single();
+
+    if (configError) {
+      console.log("Error fetching bug reports config:", configError);
       return new Response(
-        JSON.stringify({ success: true, message: "No email configured" }),
+        JSON.stringify({ success: true, message: "No config found, bug report saved but no email sent" }),
         {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
     }
+
+    const bugReportsConfig = configData?.config_value;
+    
+    // Check if bug reports are enabled and email is configured
+    if (!bugReportsConfig?.enabled || !bugReportsConfig?.email) {
+      console.log("Bug reports disabled or no email configured, skipping email");
+      return new Response(
+        JSON.stringify({ success: true, message: "Bug reports disabled or no email configured" }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const recipientEmail = bugReportsConfig.email;
 
     const priorityLabels = {
       low: 'Baixa',
@@ -125,7 +151,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "Bug Reports <onboarding@resend.dev>",
-      to: [companyInfo.bug_reports_email],
+      to: [recipientEmail],
       subject: `🐛 [${companyInfo.name}] ${bugReport.title}`,
       html: emailHtml,
     });

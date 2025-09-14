@@ -10,7 +10,8 @@ import {
   FileText, 
   Users, 
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Bug
 } from "lucide-react";
 
 interface SuperAdminLayoutProps {
@@ -47,6 +48,12 @@ const menuItems = [
     label: "Super Admins",
     icon: Users,
     path: "/super-admin/management"
+  },
+  {
+    key: "bug-reports-config",
+    label: "Config. Bug Reports",
+    icon: Bug,
+    path: "/super-admin/bug-reports-config"
   }
 ];
 

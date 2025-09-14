@@ -63,6 +63,7 @@ import { SuperAdminCompanies } from "./pages/super-admin/SuperAdminCompanies";
 import { SuperAdminMetrics } from "./pages/super-admin/SuperAdminMetrics";
 import { SuperAdminReports } from "./pages/super-admin/SuperAdminReports";
 import SuperAdminManagement from "./pages/super-admin/SuperAdminManagement";
+import { SuperAdminBugReportsConfig } from "./pages/super-admin/SuperAdminBugReportsConfig";
 import { TrailsPage } from "./pages/TrailsPage";
 import { AdminTrailsPage } from "./pages/admin/AdminTrailsPage";
 import AdminTrailBadgesPage from "./pages/admin/AdminTrailBadgesPage";
@@ -229,6 +230,7 @@ const AppRoutes = () => {
               <Route path="/metrics" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminMetrics /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
               <Route path="/reports" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminReports /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
               <Route path="/management" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminManagement /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
+              <Route path="/bug-reports-config" element={<AuthenticatedMaintenanceGuard><SuperAdminGuard><SuperAdminBugReportsConfig /></SuperAdminGuard></AuthenticatedMaintenanceGuard>} />
             </Routes>
           </MultiCompanyGuard>
         } />

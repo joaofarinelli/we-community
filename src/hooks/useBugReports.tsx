@@ -90,9 +90,9 @@ export const useBugReports = () => {
         description: "Seu relatório foi enviado com sucesso. Obrigado pelo feedback!",
       });
 
-      // Send email notification if configured
+      // Send email notification using edge function (now managed by super admin config)
       try {
-        if (company?.bug_reports_email && user) {
+        if (user) {
           const { data: userProfile } = await supabase
             .from("profiles")
             .select("first_name, last_name, email")
@@ -105,8 +105,7 @@ export const useBugReports = () => {
               bugReport,
               userInfo: userProfile || { email: user.email || 'N/A' },
               companyInfo: {
-                name: company.name,
-                bug_reports_email: company.bug_reports_email,
+                name: company?.name || 'Empresa'
               },
             },
           });

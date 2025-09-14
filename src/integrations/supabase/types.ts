@@ -3142,6 +3142,36 @@ export type Database = {
           },
         ]
       }
+      super_admin_configs: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       super_admins: {
         Row: {
           created_at: string
@@ -4459,6 +4489,21 @@ export type Database = {
           text_color: string
         }[]
       }
+      get_all_companies_for_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          custom_domain: string
+          id: string
+          name: string
+          plan: string
+          status: string
+          subdomain: string
+          total_posts: number
+          total_spaces: number
+          total_users: number
+        }[]
+      }
       get_company_users_count_with_filters: {
         Args: {
           p_badge_ids: string[]
@@ -4506,6 +4551,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_global_metrics_for_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string } | { p_user_id: string }
         Returns: {
@@ -4523,6 +4572,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_overview: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: Json
+      }
       is_company_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -4531,9 +4584,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       process_streak_rewards: {
         Args: { p_company_id: string; p_streak_days: number; p_user_id: string }
         Returns: undefined
+      }
+      provision_onboarding_assignment: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: Json
       }
       set_current_company_context: {
         Args: { p_company_id: string }
