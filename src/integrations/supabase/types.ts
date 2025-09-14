@@ -4426,6 +4426,14 @@ export type Database = {
         Args: { space_id: string; user_id: string }
         Returns: boolean
       }
+      check_course_completion: {
+        Args: { p_course_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      check_module_completion: {
+        Args: { p_module_id: string; p_user_id: string }
+        Returns: boolean
+      }
       create_course_secure: {
         Args: {
           p_access_criteria: Json
@@ -4571,6 +4579,20 @@ export type Database = {
       get_user_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_user_course_progress_summary: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: {
+          certificate_code: string
+          certificate_issued: boolean
+          certificate_issued_at: string
+          completed_lessons: number
+          course_id: string
+          course_title: string
+          is_completed: boolean
+          progress_percent: number
+          total_lessons: number
+        }[]
       }
       get_user_overview: {
         Args: { p_company_id: string; p_user_id: string }
