@@ -4418,6 +4418,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      set_current_company_context: {
+        Args: { p_company_id: string }
+        Returns: undefined
+      }
       user_has_access_to_course: {
         Args: { course_id: string }
         Returns: boolean
