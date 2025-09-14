@@ -4576,6 +4576,17 @@ export type Database = {
         Args: { p_company_id: string; p_user_id: string }
         Returns: Json
       }
+      grant_course_access: {
+        Args: {
+          p_badge_ids: string[]
+          p_company_id: string
+          p_course_id: string
+          p_level_ids: string[]
+          p_logic: string
+          p_tag_ids: string[]
+        }
+        Returns: number
+      }
       is_company_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
