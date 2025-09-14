@@ -8,7 +8,11 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUserOverview } from '@/hooks/useUserOverview';
 import { useUserCourseProgressSummary } from '@/hooks/useUserCourseProgressSummary';
+import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 import { TagIcon } from '@/components/admin/TagIcon';
+import { UserChallengesPerformance } from '@/components/admin/UserChallengesPerformance';
+import { UserTrailsPerformance } from '@/components/admin/UserTrailsPerformance';
+import { UserTrailBadgesDisplay } from '@/components/admin/UserTrailBadgesDisplay';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
@@ -30,6 +34,10 @@ export const AdminUserViewPage = () => {
   
   const { data: userOverview, isLoading: overviewLoading } = useUserOverview(userId!);
   const { data: courseProgress, isLoading: progressLoading } = useUserCourseProgressSummary(userId!);
+  
+  // Check enabled features
+  const challengesEnabled = useIsFeatureEnabled('challenges');
+  const trailsEnabled = useIsFeatureEnabled('trails');
 
   if (!userId) {
     return (
@@ -329,6 +337,21 @@ export const AdminUserViewPage = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Challenges Performance Section */}
+        {challengesEnabled && (
+          <UserChallengesPerformance userId={userId!} />
+        )}
+
+        {/* Trails Performance Section */}
+        {trailsEnabled && (
+          <UserTrailsPerformance userId={userId!} />
+        )}
+
+        {/* Trail Badges Section */}
+        {trailsEnabled && (
+          <UserTrailBadgesDisplay userId={userId!} />
+        )}
       </div>
     </AdminLayout>
   );
