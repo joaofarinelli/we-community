@@ -173,9 +173,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="min-h-screen bg-background flex">
-        {/* Main Menu Sidebar */}
-        <div className="w-16 bg-card border-r border-border flex flex-col">
+      <div className="h-screen bg-background flex overflow-hidden">
+        {/* Main Menu Sidebar - Hidden on mobile */}
+        <div className="hidden md:flex w-16 bg-card border-r border-border flex-col">
           {/* Header */}
           <div className="p-2 border-b border-border">
             <Tooltip>
@@ -224,9 +224,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           </div>
         </div>
 
-        {/* Submenu Sidebar */}
+        {/* Submenu Sidebar - Hidden on mobile, collapsible on tablet */}
         {activeMenuData && (
-          <div className="w-64 bg-card border-r border-border flex flex-col">
+          <div className="hidden lg:flex w-64 bg-card border-r border-border flex-col">
             <div className="p-4 border-b border-border">
               <h2 className="text-lg font-semibold text-foreground">
                 {activeMenuData.label}
@@ -256,9 +256,11 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
-          <main className="flex-1 p-6">
-            {children}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-4 md:p-6 h-full">
+              {children}
+            </div>
           </main>
         </div>
       </div>
