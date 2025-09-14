@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,18 +22,6 @@ import {
 interface AdminUsersFiltersProps {
   filters: UserFilters;
   onFiltersChange: (filters: UserFilters) => void;
-  selectedRoles: string[];
-  selectedTags: string[];
-  selectedCourses: string[];
-  selectedLevels: string[];
-  selectedBadges: string[];
-  dateRange: DateRange | undefined;
-  onSelectedRolesChange: (roles: string[]) => void;
-  onSelectedTagsChange: (tags: string[]) => void;
-  onSelectedCoursesChange: (courses: string[]) => void;
-  onSelectedLevelsChange: (levels: string[]) => void;
-  onSelectedBadgesChange: (badges: string[]) => void;
-  onDateRangeChange: (range: DateRange | undefined) => void;
   tags: Array<{ id: string; name: string }>;
   courses: Array<{ id: string; title: string }>;
   levels: Array<{ id: string; level_name: string }>;
@@ -44,18 +32,6 @@ interface AdminUsersFiltersProps {
 export const AdminUsersFilters = ({
   filters,
   onFiltersChange,
-  selectedRoles,
-  selectedTags,
-  selectedCourses,
-  selectedLevels,
-  selectedBadges,
-  dateRange,
-  onSelectedRolesChange,
-  onSelectedTagsChange,
-  onSelectedCoursesChange,
-  onSelectedLevelsChange,
-  onSelectedBadgesChange,
-  onDateRangeChange,
   tags,
   courses,
   levels,
@@ -63,6 +39,27 @@ export const AdminUsersFilters = ({
   onClearFilters
 }: AdminUsersFiltersProps) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState(filters.search || '');
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFiltersChange({ ...filters, search: searchInput || undefined });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Sync search input with filters when cleared
+  useEffect(() => {
+    if (!filters.search) {
+      setSearchInput('');
+    }
+  }, [filters.search]);
+
+  const handleFilterChange = useCallback((key: keyof UserFilters, value: any) => {
+    onFiltersChange({ ...filters, [key]: value });
+  }, [filters, onFiltersChange]);
 
   return (
     <Card>
@@ -83,8 +80,8 @@ export const AdminUsersFilters = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Nome ou email..."
-              value={filters.search || ''}
-              onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="pl-9"
             />
           </div>
@@ -108,13 +105,13 @@ export const AdminUsersFilters = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Função</label>
                 <Select
-                  value={selectedRoles.length === 0 ? "all" : selectedRoles.join(',')}
+                  value={!filters.roles || filters.roles.length === 0 ? "all" : filters.roles.join(',')}
                   onValueChange={(value) => {
                     if (value === "all") {
-                      onSelectedRolesChange([]);
+                      handleFilterChange('roles', undefined);
                     } else {
                       const roles = value ? value.split(',') : [];
-                      onSelectedRolesChange(roles);
+                      handleFilterChange('roles', roles.length > 0 ? roles : undefined);
                     }
                   }}
                 >
@@ -134,13 +131,13 @@ export const AdminUsersFilters = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tags</label>
                 <Select
-                  value={selectedTags.length === 0 ? "all" : selectedTags.join(',')}
+                  value={!filters.tagIds || filters.tagIds.length === 0 ? "all" : filters.tagIds.join(',')}
                   onValueChange={(value) => {
                     if (value === "all") {
-                      onSelectedTagsChange([]);
+                      handleFilterChange('tagIds', undefined);
                     } else {
                       const tagIds = value ? value.split(',') : [];
-                      onSelectedTagsChange(tagIds);
+                      handleFilterChange('tagIds', tagIds.length > 0 ? tagIds : undefined);
                     }
                   }}
                 >
@@ -168,14 +165,14 @@ export const AdminUsersFilters = ({
                       className="w-full justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
+                      {filters.joinedStart ? (
+                        filters.joinedEnd ? (
                           <>
-                            {format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
-                            {format(dateRange.to, "dd/MM/yyyy", { locale: ptBR })}
+                            {format(new Date(filters.joinedStart), "dd/MM/yyyy", { locale: ptBR })} -{" "}
+                            {format(new Date(filters.joinedEnd), "dd/MM/yyyy", { locale: ptBR })}
                           </>
                         ) : (
-                          format(dateRange.from, "dd/MM/yyyy", { locale: ptBR })
+                          format(new Date(filters.joinedStart), "dd/MM/yyyy", { locale: ptBR })
                         )
                       ) : (
                         <span>Selecionar período</span>
@@ -186,9 +183,20 @@ export const AdminUsersFilters = ({
                     <Calendar
                       initialFocus
                       mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={onDateRangeChange}
+                      defaultMonth={filters.joinedStart ? new Date(filters.joinedStart) : undefined}
+                      selected={{
+                        from: filters.joinedStart ? new Date(filters.joinedStart) : undefined,
+                        to: filters.joinedEnd ? new Date(filters.joinedEnd) : undefined
+                      }}
+                      onSelect={(range: DateRange | undefined) => {
+                        if (range?.from) {
+                          handleFilterChange('joinedStart', format(range.from, 'yyyy-MM-dd'));
+                          handleFilterChange('joinedEnd', range.to ? format(range.to, 'yyyy-MM-dd') : undefined);
+                        } else {
+                          handleFilterChange('joinedStart', undefined);
+                          handleFilterChange('joinedEnd', undefined);
+                        }
+                      }}
                       numberOfMonths={2}
                     />
                   </PopoverContent>
@@ -199,13 +207,13 @@ export const AdminUsersFilters = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Acesso a cursos</label>
                 <Select
-                  value={selectedCourses.length === 0 ? "all" : selectedCourses.join(',')}
+                  value={!filters.courseIds || filters.courseIds.length === 0 ? "all" : filters.courseIds.join(',')}
                   onValueChange={(value) => {
                     if (value === "all") {
-                      onSelectedCoursesChange([]);
+                      handleFilterChange('courseIds', undefined);
                     } else {
                       const courseIds = value ? value.split(',') : [];
-                      onSelectedCoursesChange(courseIds);
+                      handleFilterChange('courseIds', courseIds.length > 0 ? courseIds : undefined);
                     }
                   }}
                 >
@@ -227,13 +235,13 @@ export const AdminUsersFilters = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Nível</label>
                 <Select
-                  value={selectedLevels.length === 0 ? "all" : selectedLevels.join(',')}
+                  value={!filters.levelIds || filters.levelIds.length === 0 ? "all" : filters.levelIds.join(',')}
                   onValueChange={(value) => {
                     if (value === "all") {
-                      onSelectedLevelsChange([]);
+                      handleFilterChange('levelIds', undefined);
                     } else {
                       const levelIds = value ? value.split(',') : [];
-                      onSelectedLevelsChange(levelIds);
+                      handleFilterChange('levelIds', levelIds.length > 0 ? levelIds : undefined);
                     }
                   }}
                 >
@@ -255,13 +263,13 @@ export const AdminUsersFilters = ({
               <div className="space-y-2">
                 <label className="text-sm font-medium">Selos</label>
                 <Select
-                  value={selectedBadges.length === 0 ? "all" : selectedBadges.join(',')}
+                  value={!filters.badgeIds || filters.badgeIds.length === 0 ? "all" : filters.badgeIds.join(',')}
                   onValueChange={(value) => {
                     if (value === "all") {
-                      onSelectedBadgesChange([]);
+                      handleFilterChange('badgeIds', undefined);
                     } else {
                       const badgeIds = value ? value.split(',') : [];
-                      onSelectedBadgesChange(badgeIds);
+                      handleFilterChange('badgeIds', badgeIds.length > 0 ? badgeIds : undefined);
                     }
                   }}
                 >

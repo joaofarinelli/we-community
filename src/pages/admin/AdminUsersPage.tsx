@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { InviteUserDialog } from '@/components/admin/InviteUserDialog';
 import { UserImportExportDialog } from '@/components/admin/UserImportExportDialog';
@@ -30,12 +30,6 @@ import {
 export const AdminUsersPage = () => {
   const [editingMember, setEditingMember] = useState<FilteredUser | null>(null);
   const [filters, setFilters] = useState<UserFilters>({});
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
-  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
-  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,55 +47,37 @@ export const AdminUsersPage = () => {
   const { data: badges = [] } = useTrailBadges();
   const { toggleUserStatus } = useManageUserStatus();
 
-  // Update filters when individual filter states change
-  useMemo(() => {
-    const newFilters: UserFilters = {};
-    
-    if (filters.search) newFilters.search = filters.search;
-    if (selectedRoles.length > 0) newFilters.roles = selectedRoles;
-    if (selectedTags.length > 0) newFilters.tagIds = selectedTags;
-    if (selectedCourses.length > 0) newFilters.courseIds = selectedCourses;
-    if (selectedLevels.length > 0) newFilters.levelIds = selectedLevels;
-    if (selectedBadges.length > 0) newFilters.badgeIds = selectedBadges;
-    if (dateRange?.from) newFilters.joinedStart = format(dateRange.from, 'yyyy-MM-dd');
-    if (dateRange?.to) newFilters.joinedEnd = format(dateRange.to, 'yyyy-MM-dd');
-    
-    setFilters(newFilters);
-  }, [filters.search, selectedRoles, selectedTags, selectedCourses, selectedLevels, selectedBadges, dateRange]);
+  // Reset to first page when filters change (except search)
+  useEffect(() => {
+    const hasNonSearchFilters = filters.roles || filters.tagIds || filters.courseIds || 
+                                filters.levelIds || filters.badgeIds || filters.joinedStart || filters.joinedEnd;
+    if (hasNonSearchFilters) {
+      setCurrentPage(1);
+    }
+  }, [filters.roles, filters.tagIds, filters.courseIds, filters.levelIds, filters.badgeIds, filters.joinedStart, filters.joinedEnd]);
 
-  const handleEditMember = (member: FilteredUser) => {
+  const handleEditMember = useCallback((member: FilteredUser) => {
     setEditingMember(member);
-  };
+  }, []);
 
-  const handleToggleUserStatus = (member: FilteredUser) => {
+  const handleToggleUserStatus = useCallback((member: FilteredUser) => {
     // Note: FilteredUser doesn't have is_active, so we'll assume active for now
     // This would need to be adjusted based on your actual data structure
     toggleUserStatus.mutate({ 
       userId: member.user_id, 
       isActive: false // You might need to fetch this separately or include in the RPC
     });
-  };
+  }, [toggleUserStatus]);
 
-  const handleDeleteMember = (memberId: string) => {
+  const handleDeleteMember = useCallback((memberId: string) => {
     // TODO: Implementar exclusão de membro
     console.log('Delete member:', memberId);
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFilters({});
-    setSelectedRoles([]);
-    setSelectedTags([]);
-    setSelectedCourses([]);
-    setSelectedLevels([]);
-    setSelectedBadges([]);
-    setDateRange(undefined);
-    setCurrentPage(1); // Reset to first page when filters change
-  };
-
-  // Reset to first page when filters change
-  useMemo(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, []);
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalCount / pageSize);
@@ -201,18 +177,6 @@ export const AdminUsersPage = () => {
                   <AdminUsersFilters
                     filters={filters}
                     onFiltersChange={setFilters}
-                    selectedRoles={selectedRoles}
-                    selectedTags={selectedTags}
-                    selectedCourses={selectedCourses}
-                    selectedLevels={selectedLevels}
-                    selectedBadges={selectedBadges}
-                    dateRange={dateRange}
-                    onSelectedRolesChange={setSelectedRoles}
-                    onSelectedTagsChange={setSelectedTags}
-                    onSelectedCoursesChange={setSelectedCourses}
-                    onSelectedLevelsChange={setSelectedLevels}
-                    onSelectedBadgesChange={setSelectedBadges}
-                    onDateRangeChange={setDateRange}
                     tags={tags}
                     courses={courses}
                     levels={levels}
