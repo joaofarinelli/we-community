@@ -4456,6 +4456,20 @@ export type Database = {
           text_color: string
         }[]
       }
+      get_company_users_count_with_filters: {
+        Args: {
+          p_badge_ids: string[]
+          p_company_id: string
+          p_course_ids: string[]
+          p_joined_end: string
+          p_joined_start: string
+          p_level_ids: string[]
+          p_roles: string[]
+          p_search: string
+          p_tag_ids: string[]
+        }
+        Returns: number
+      }
       get_company_users_with_filters: {
         Args: {
           p_badge_ids: string[]

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserEditDialog } from '@/components/admin/UserEditDialog';
-import { useCompanyUsersWithFilters, UserFilters, FilteredUser } from '@/hooks/useCompanyUsersWithFilters';
+import { useCompanyUsersWithFilters, useCompanyUsersCount, UserFilters, FilteredUser } from '@/hooks/useCompanyUsersWithFilters';
 import { useTags } from '@/hooks/useTags';
 import { useCourses } from '@/hooks/useCourses';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
@@ -19,6 +19,8 @@ import { BulkActionsButton } from '@/components/admin/BulkActionsButton';
 import { format } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { 
   Users, 
   Mail, 
@@ -35,7 +37,16 @@ export const AdminUsersPage = () => {
   const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   
-  const { data: members, isLoading } = useCompanyUsersWithFilters(filters);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  
+  const { data: members, isLoading } = useCompanyUsersWithFilters(
+    filters, 
+    pageSize, 
+    (currentPage - 1) * pageSize
+  );
+  const { data: totalCount = 0, isLoading: isCountLoading } = useCompanyUsersCount(filters);
   const { data: tags = [] } = useTags();
   const { data: courses = [] } = useCourses();
   const { data: levels = [] } = useCompanyLevels();
@@ -84,6 +95,26 @@ export const AdminUsersPage = () => {
     setSelectedLevels([]);
     setSelectedBadges([]);
     setDateRange(undefined);
+    setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  // Reset to first page when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  // Calculate pagination info
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalCount);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (newPageSize: string) => {
+    setPageSize(Number(newPageSize));
+    setCurrentPage(1);
   };
 
   if (isLoading) {
@@ -130,7 +161,7 @@ export const AdminUsersPage = () => {
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground">Gerenciar Audiência</h1>
               <p className="text-muted-foreground text-sm lg:text-base">
-                Gerencie todos os usuários da sua comunidade ({members?.length || 0} usuários)
+                Gerencie todos os usuários da sua comunidade ({isCountLoading ? '...' : totalCount} usuários)
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -213,12 +244,100 @@ export const AdminUsersPage = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                    <AdminUsersTable
-                      members={members}
-                      onEditMember={handleEditMember}
-                      onToggleUserStatus={handleToggleUserStatus}
-                      onDeleteMember={handleDeleteMember}
-                    />
+                    <div className="space-y-4">
+                      <AdminUsersTable
+                        members={members}
+                        onEditMember={handleEditMember}
+                        onToggleUserStatus={handleToggleUserStatus}
+                        onDeleteMember={handleDeleteMember}
+                      />
+                      
+                      {/* Pagination Controls */}
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                            {/* Results Info */}
+                            <div className="text-sm text-muted-foreground">
+                              Mostrando {startItem}-{endItem} de {totalCount} usuários
+                            </div>
+
+                            {/* Page Size Selector */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">Itens por página:</span>
+                              <Select value={pageSize.toString()} onValueChange={handlePageSizeChange}>
+                                <SelectTrigger className="w-20">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="10">10</SelectItem>
+                                  <SelectItem value="20">20</SelectItem>
+                                  <SelectItem value="50">50</SelectItem>
+                                  <SelectItem value="100">100</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                              <Pagination>
+                                <PaginationContent>
+                                  <PaginationItem>
+                                    <PaginationPrevious 
+                                      href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage > 1) handlePageChange(currentPage - 1);
+                                      }}
+                                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                  </PaginationItem>
+                                  
+                                  {/* Page Numbers */}
+                                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                    let pageNumber;
+                                    if (totalPages <= 5) {
+                                      pageNumber = i + 1;
+                                    } else if (currentPage <= 3) {
+                                      pageNumber = i + 1;
+                                    } else if (currentPage >= totalPages - 2) {
+                                      pageNumber = totalPages - 4 + i;
+                                    } else {
+                                      pageNumber = currentPage - 2 + i;
+                                    }
+                                    
+                                    return (
+                                      <PaginationItem key={pageNumber}>
+                                        <PaginationLink
+                                          href="#"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            handlePageChange(pageNumber);
+                                          }}
+                                          isActive={currentPage === pageNumber}
+                                        >
+                                          {pageNumber}
+                                        </PaginationLink>
+                                      </PaginationItem>
+                                    );
+                                  })}
+                                  
+                                  <PaginationItem>
+                                    <PaginationNext 
+                                      href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                                      }}
+                                      className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                  </PaginationItem>
+                                </PaginationContent>
+                              </Pagination>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
                   )}
                 </div>
               </TabsContent>

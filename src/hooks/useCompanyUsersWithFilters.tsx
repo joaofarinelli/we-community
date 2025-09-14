@@ -157,3 +157,41 @@ export const useAllFilteredUsers = (filters: UserFilters = {}) => {
     enabled: !!user?.id && !!currentCompanyId,
   });
 };
+
+// Hook to get count of filtered users for pagination
+export const useCompanyUsersCount = (filters: UserFilters = {}) => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useQuery({
+    queryKey: ['company-users-count', currentCompanyId, filters],
+    queryFn: async () => {
+      if (!user?.id || !currentCompanyId) return 0;
+
+      // Normalize filters - convert empty arrays to null
+      const normalizedFilters = {
+        p_company_id: currentCompanyId,
+        p_search: filters.search || null,
+        p_roles: (filters.roles && filters.roles.length > 0) ? filters.roles : null,
+        p_tag_ids: (filters.tagIds && filters.tagIds.length > 0) ? filters.tagIds : null,
+        p_joined_start: filters.joinedStart || null,
+        p_joined_end: filters.joinedEnd || null,
+        p_course_ids: (filters.courseIds && filters.courseIds.length > 0) ? filters.courseIds : null,
+        p_level_ids: (filters.levelIds && filters.levelIds.length > 0) ? filters.levelIds : null,
+        p_badge_ids: (filters.badgeIds && filters.badgeIds.length > 0) ? filters.badgeIds : null
+      };
+
+      console.log('Fetching users count with filters:', filters);
+
+      const { data, error } = await supabase.rpc('get_company_users_count_with_filters', normalizedFilters);
+
+      if (error) {
+        console.error('Error fetching users count:', error);
+        throw error;
+      }
+
+      return data || 0;
+    },
+    enabled: !!user?.id && !!currentCompanyId,
+  });
+};
