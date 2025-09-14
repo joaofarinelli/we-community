@@ -4368,13 +4368,76 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_user_coins: {
+        Args: {
+          p_action_type: string
+          p_company_id: string
+          p_reference_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       add_user_to_public_spaces: {
         Args: { p_company_id: string; p_user_id: string }
         Returns: undefined
       }
+      calculate_coins_for_action: {
+        Args: { action_type: string }
+        Returns: number
+      }
+      calculate_user_level: {
+        Args: { p_coins: number; p_company_id: string; p_user_id: string }
+        Returns: string
+      }
       can_user_see_space: {
-        Args: { space_id: string }
+        Args: { space_id: string; user_id: string }
         Returns: boolean
+      }
+      create_course_secure: {
+        Args: {
+          p_access_criteria: Json
+          p_certificate_background_url: string
+          p_certificate_enabled: boolean
+          p_certificate_footer_text: string
+          p_company_id: string
+          p_description: string
+          p_linear_module_progression: boolean
+          p_mentor_name: string
+          p_mentor_role: string
+          p_mentor_signature_url: string
+          p_order_index: number
+          p_thumbnail_url: number
+          p_title: string
+        }
+        Returns: Json
+      }
+      create_space_with_context: {
+        Args: {
+          p_category_id: string
+          p_company_id: string
+          p_description: string
+          p_name: string
+          p_type: string
+          p_visibility: string
+        }
+        Returns: {
+          banner_url: string | null
+          category_id: string
+          company_id: string
+          created_at: string
+          created_by: string
+          custom_icon_type: string | null
+          custom_icon_value: string | null
+          description: string | null
+          id: string
+          is_private: boolean
+          layout_type: string | null
+          name: string
+          order_index: number
+          type: string
+          updated_at: string
+          visibility: string | null
+        }
       }
       find_company_by_domain: {
         Args: { p_domain: string }
@@ -4391,6 +4454,39 @@ export type Database = {
           status: string
           subdomain: string
           text_color: string
+        }[]
+      }
+      get_company_users_with_filters: {
+        Args: {
+          p_badge_ids: string[]
+          p_company_id: string
+          p_course_ids: string[]
+          p_joined_end: string
+          p_joined_start: string
+          p_level_ids: string[]
+          p_limit: number
+          p_offset: number
+          p_roles: string[]
+          p_search: string
+          p_tag_ids: string[]
+        }
+        Returns: {
+          badge_ids: string[]
+          badge_names: string[]
+          courses_count: number
+          email: string
+          first_name: string
+          joined_at: string
+          last_name: string
+          level_color: string
+          level_id: string
+          level_name: string
+          phone: string
+          posts_count: number
+          role: string
+          tag_ids: string[]
+          tag_names: string[]
+          user_id: string
         }[]
       }
       get_user_accessible_companies: {
@@ -4418,12 +4514,34 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      process_streak_rewards: {
+        Args: { p_company_id: string; p_streak_days: number; p_user_id: string }
+        Returns: undefined
+      }
       set_current_company_context: {
         Args: { p_company_id: string }
         Returns: undefined
       }
+      update_challenge_progress: {
+        Args: {
+          p_challenge_type: Database["public"]["Enums"]["challenge_type"]
+          p_company_id: string
+          p_increment: number
+          p_reference_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      update_user_streak: {
+        Args: { p_company_id: string; p_user_id: string }
+        Returns: undefined
+      }
       user_has_access_to_course: {
         Args: { course_id: string }
+        Returns: boolean
+      }
+      user_has_course_access: {
+        Args: { p_course_id: string; p_user_id: string }
         Returns: boolean
       }
     }
