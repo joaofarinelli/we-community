@@ -44,10 +44,10 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   const mainItems = [
     { title: "Feed", url: "/dashboard", icon: Rss },
     { title: "Espaços", url: "/dashboard/spaces", icon: Grid3X3 },
+    ...(isCoursesEnabled ? [{ title: "Cursos", url: "/courses", icon: BookOpen }] : []),
     ...(isTrailsEnabled ? [{ title: "Trilhas", url: "/dashboard/trails", icon: Map }] : []),
     ...(isMembersEnabled ? [{ title: "Membros", url: "/dashboard/members", icon: Users }] : []),
     ...(isRankingEnabled ? [{ title: "Ranking", url: "/dashboard/ranking", icon: Trophy }] : []),
-    ...(isCoursesEnabled ? [{ title: "Cursos", url: "/courses", icon: BookOpen }] : []),
     ...(isMarketplaceEnabled ? [{ title: "Marketplace", url: "/dashboard/marketplace", icon: ShoppingBag }] : []),
     ...(isStoreEnabled ? [{ title: "Loja", url: "/dashboard/store", icon: Store }] : []),
     ...(isBankEnabled ? [{ title: "Banco", url: "/dashboard/bank", icon: Wallet }] : []),
