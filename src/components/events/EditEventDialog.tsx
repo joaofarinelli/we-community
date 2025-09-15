@@ -55,6 +55,10 @@ interface Event {
   location_address?: string;
   online_link?: string;
   status: 'draft' | 'active';
+  // Payment fields from DB (snake_case)
+  is_paid?: boolean;
+  price_coins?: number;
+  payment_required?: boolean;
 }
 
 interface EditEventDialogProps {
@@ -112,6 +116,9 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
         locationAddress: event.location_address || "",
         onlineLink: event.online_link || "",
         imageUrl: event.image_url || "",
+        isPaid: event.is_paid ?? false,
+        priceCoins: event.price_coins ?? 0,
+        paymentRequired: event.payment_required ?? false,
       });
     }
   }, [event, form]);
