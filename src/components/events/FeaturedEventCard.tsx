@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2, Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -9,9 +9,12 @@ import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useAuth } from '@/hooks/useAuth';
 import { useCanEditEvent } from '@/hooks/useCanEditEvent';
 import { useDeleteEvent } from '@/hooks/useDeleteEvent';
+import { useEventPayment } from '@/hooks/useEventPayment';
+import { useCoinName } from '@/hooks/useCoinName';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EditEventDialog } from './EditEventDialog';
+import { PurchaseEventDialog } from './PurchaseEventDialog';
 
 interface FeaturedEventCardProps {
   event: {
@@ -27,6 +30,10 @@ interface FeaturedEventCardProps {
     space_id: string;
     created_by: string;
     event_participants?: any[];
+    // Payment fields
+    is_paid?: boolean;
+    price_coins?: number;
+    payment_required?: boolean;
   };
   onEventClick?: (eventId: string) => void;
 }
@@ -35,23 +42,41 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by, status: event.status });
   const deleteEvent = useDeleteEvent();
+  const { userCoins } = useEventPayment();
+  const { data: coinName } = useCoinName();
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
   const hasMaxParticipants = event.max_participants && participantCount >= event.max_participants;
+  const isPaidEvent = event.is_paid && (event.price_coins || 0) > 0;
+  const hasInsufficientBalance = isPaidEvent && userCoins < (event.price_coins || 0);
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
 
   const handleParticipationToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // If it's a paid event and user is not a participant, open purchase dialog
+    if (isPaidEvent && !isParticipant) {
+      setPurchaseDialogOpen(true);
+      return;
+    }
+    
+    // Handle free events or leaving paid events
     if (isParticipant) {
       leaveEvent.mutate();
     } else {
       joinEvent.mutate();
     }
+  };
+
+  const handlePurchaseSuccess = () => {
+    // The participants will automatically refresh when the payment succeeds
+    // through the existing query invalidation in useEventPayment
   };
 
   const handleDeleteEvent = (e: React.MouseEvent) => {
@@ -68,9 +93,17 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
-          <Badge variant="secondary" className="bg-primary/10 text-primary">
-            Próximo Evento
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
+              Próximo Evento
+            </Badge>
+            {isPaidEvent && (
+              <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
+                <Coins className="h-3 w-3 mr-1" />
+                {event.price_coins} {coinName}
+              </Badge>
+            )}
+          </div>
           {canEdit && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -168,7 +201,8 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
               <Button
                 variant={isParticipant ? "outline" : "default"}
                 onClick={handleParticipationToggle}
-                disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants)}
+                disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants) || (!isParticipant && isPaidEvent && hasInsufficientBalance)}
+                className={isPaidEvent && !isParticipant ? "bg-accent hover:bg-accent/90" : ""}
               >
                 {isJoining || isLeaving
                   ? "..."
@@ -176,6 +210,10 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
                   ? "Confirmado"
                   : hasMaxParticipants
                   ? "Lotado"
+                  : isPaidEvent
+                  ? hasInsufficientBalance
+                    ? "Saldo insuficiente"
+                    : "Comprar presença"
                   : "Confirmar presença"
                 }
               </Button>
@@ -191,6 +229,13 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
         } as any}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
+      />
+
+      <PurchaseEventDialog
+        open={purchaseDialogOpen}
+        onOpenChange={setPurchaseDialogOpen}
+        event={event}
+        onSuccess={handlePurchaseSuccess}
       />
     </Card>
   );

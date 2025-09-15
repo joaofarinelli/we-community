@@ -17,6 +17,10 @@ interface Event {
   status?: 'draft' | 'active';
   space_id: string;
   created_by: string;
+  // Payment fields
+  is_paid?: boolean;
+  price_coins?: number;
+  payment_required?: boolean;
 }
 
 interface EventsListProps {
