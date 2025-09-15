@@ -3,6 +3,19 @@ import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
 
+// Public routes that don't require company context
+const PUBLIC_AUTH_ROUTES = [
+  '/auth',
+  '/reset-password',
+  '/invite/accept',
+  '/certificate',
+  '/maintenance'
+];
+
+const isPublicAuthRoute = (pathname: string): boolean => {
+  return PUBLIC_AUTH_ROUTES.some(route => pathname.startsWith(route));
+};
+
 /**
  * Hook that sets the company context in Supabase session
  * This ensures RLS policies can access the current company ID
@@ -12,6 +25,11 @@ export const useSupabaseContext = () => {
   const { currentCompanyId } = useCompanyContext();
 
   useEffect(() => {
+    // Skip context setup for public authentication routes
+    if (isPublicAuthRoute(window.location.pathname)) {
+      console.log('⏸️ useSupabaseContext: Skipping context setup for public auth route:', window.location.pathname);
+      return;
+    }
     const setSupabaseContext = async () => {
       if (user && currentCompanyId) {
         console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);

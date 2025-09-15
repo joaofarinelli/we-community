@@ -3,6 +3,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
+// Public routes that don't require company context
+const PUBLIC_AUTH_ROUTES = [
+  '/auth',
+  '/reset-password',
+  '/invite/accept',
+  '/certificate',
+  '/maintenance'
+];
+
+const isPublicAuthRoute = (pathname: string): boolean => {
+  return PUBLIC_AUTH_ROUTES.some(route => pathname.startsWith(route));
+};
+
 interface CompanyContextWrapperProps {
   children: ReactNode;
 }
@@ -16,11 +29,20 @@ export const CompanyContextWrapper = ({ children }: CompanyContextWrapperProps) 
   const { currentCompanyId, isLoading: companyLoading, userCompanies } = useCompanyContext();
   const [isContextReady, setIsContextReady] = useState(false);
   
-  // Use the Supabase context hook to set up company context
+  // Check if current route is a public authentication route
+  const isPublicRoute = isPublicAuthRoute(window.location.pathname);
+  
+  // Use the Supabase context hook to set up company context (only for non-public routes)
   useSupabaseContext();
 
   useEffect(() => {
-    // Context is ready when:
+    // For public authentication routes, context is always ready immediately
+    if (isPublicRoute) {
+      setIsContextReady(true);
+      return;
+    }
+    
+    // For protected routes, context is ready when:
     // 1. Auth is not loading
     // 2. Company context is not loading
     // 3. Either user is not logged in OR we have a current company ID
@@ -38,7 +60,7 @@ export const CompanyContextWrapper = ({ children }: CompanyContextWrapperProps) 
     } else {
       setIsContextReady(false);
     }
-  }, [authLoading, companyLoading, user, currentCompanyId]);
+  }, [authLoading, companyLoading, user, currentCompanyId, isPublicRoute]);
 
   // Show loading state while context is being established
   if (!isContextReady) {
