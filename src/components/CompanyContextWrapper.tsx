@@ -12,8 +12,25 @@ const PUBLIC_AUTH_ROUTES = [
   '/maintenance'
 ];
 
+// Helper to normalize pathname by removing double slashes
+const normalizePathname = (pathname: string): string => {
+  return pathname.replace(/\/+/g, '/');
+};
+
+// Helper to detect if URL has Supabase auth hash (tokens, errors, etc.)
+const isSupabaseAuthHash = (hash: string): boolean => {
+  return hash.includes('access_token=') || 
+         hash.includes('refresh_token=') || 
+         hash.includes('error=') ||
+         hash.includes('error_code=') ||
+         hash.includes('type=recovery');
+};
+
 const isPublicAuthRoute = (pathname: string): boolean => {
-  return PUBLIC_AUTH_ROUTES.some(route => pathname.startsWith(route));
+  const normalizedPath = normalizePathname(pathname);
+  const hasAuthHash = isSupabaseAuthHash(window.location.hash);
+  
+  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route)) || hasAuthHash;
 };
 
 interface CompanyContextWrapperProps {
@@ -31,6 +48,17 @@ export const CompanyContextWrapper = ({ children }: CompanyContextWrapperProps) 
   
   // Check if current route is a public authentication route
   const isPublicRoute = isPublicAuthRoute(window.location.pathname);
+  
+  // Fix double slash URLs for better UX
+  useEffect(() => {
+    const currentPath = window.location.pathname;
+    const normalizedPath = normalizePathname(currentPath);
+    
+    if (currentPath !== normalizedPath && isPublicRoute) {
+      const newUrl = `${window.location.origin}${normalizedPath}${window.location.search}${window.location.hash}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [isPublicRoute]);
   
   // Use the Supabase context hook to set up company context (only for non-public routes)
   useSupabaseContext();

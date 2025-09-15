@@ -12,8 +12,25 @@ const PUBLIC_AUTH_ROUTES = [
   '/maintenance'
 ];
 
+// Helper to normalize pathname by removing double slashes
+const normalizePathname = (pathname: string): string => {
+  return pathname.replace(/\/+/g, '/');
+};
+
+// Helper to detect if URL has Supabase auth hash (tokens, errors, etc.)
+const isSupabaseAuthHash = (hash: string): boolean => {
+  return hash.includes('access_token=') || 
+         hash.includes('refresh_token=') || 
+         hash.includes('error=') ||
+         hash.includes('error_code=') ||
+         hash.includes('type=recovery');
+};
+
 const isPublicAuthRoute = (pathname: string): boolean => {
-  return PUBLIC_AUTH_ROUTES.some(route => pathname.startsWith(route));
+  const normalizedPath = normalizePathname(pathname);
+  const hasAuthHash = isSupabaseAuthHash(window.location.hash);
+  
+  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route)) || hasAuthHash;
 };
 
 /**
@@ -28,6 +45,8 @@ export const useSupabaseContext = () => {
     // Skip context setup for public authentication routes
     if (isPublicAuthRoute(window.location.pathname)) {
       console.log('⏸️ useSupabaseContext: Skipping context setup for public auth route:', window.location.pathname);
+      // Clear global company ID for public routes
+      setGlobalCompanyId(null);
       return;
     }
     const setSupabaseContext = async () => {

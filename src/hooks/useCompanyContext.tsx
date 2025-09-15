@@ -62,8 +62,21 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     const fetchUserCompanies = async () => {
       // Skip fetching on auth-related pages to prevent errors
       const pathname = window.location.pathname;
-      if (pathname === '/auth' || pathname === '/reset-password' || pathname.startsWith('/auth/') || pathname.startsWith('/reset-password/')) {
-        console.log('[useCompanyContext] Skipping company fetch on auth page:', pathname);
+      const normalizedPath = pathname.replace(/\/+/g, '/'); // Remove double slashes
+      const hasAuthHash = window.location.hash.includes('access_token=') || 
+                         window.location.hash.includes('refresh_token=') || 
+                         window.location.hash.includes('error=') ||
+                         window.location.hash.includes('error_code=') ||
+                         window.location.hash.includes('type=recovery');
+      
+      const isAuthPage = normalizedPath === '/auth' || 
+                        normalizedPath === '/reset-password' || 
+                        normalizedPath.startsWith('/auth/') || 
+                        normalizedPath.startsWith('/reset-password/') ||
+                        hasAuthHash;
+      
+      if (isAuthPage) {
+        console.log('[useCompanyContext] Skipping company fetch on auth page:', { pathname, normalizedPath, hasAuthHash });
         setUserCompanies([]);
         setIsLoading(false);
         return;
