@@ -1,7 +1,6 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEventParticipants } from "@/hooks/useEventParticipants";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 
 interface EventParticipationDropdownProps {
   eventId: string;
@@ -14,24 +13,22 @@ export const EventParticipationDropdown = ({ eventId }: EventParticipationDropdo
   const userParticipation = participants?.find(p => p.user_id === user?.id);
   const currentStatus = userParticipation ? 'confirmed' : 'not_confirmed';
 
-  const handleStatusChange = async (value: string) => {
-    try {
-      if (value === 'confirmed' && !userParticipation) {
-        await joinEvent.mutateAsync();
-        toast.success('Confirmação registrada!');
-      } else if (value === 'not_confirmed' && userParticipation) {
-        await leaveEvent.mutateAsync();
-        toast.success('Confirmação removida!');
-      }
-    } catch (error) {
-      toast.error('Erro ao alterar confirmação');
+  const handleStatusChange = (value: string) => {
+    if (value === 'confirmed' && !userParticipation) {
+      joinEvent.mutate();
+    } else if (value === 'not_confirmed' && userParticipation) {
+      leaveEvent.mutate();
     }
   };
 
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium">Status de Participação</label>
-      <Select value={currentStatus} onValueChange={handleStatusChange}>
+      <Select 
+        value={currentStatus} 
+        onValueChange={handleStatusChange}
+        disabled={joinEvent.isPending || leaveEvent.isPending}
+      >
         <SelectTrigger>
           <SelectValue />
         </SelectTrigger>
