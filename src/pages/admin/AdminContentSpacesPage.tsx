@@ -18,14 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { CreateSpaceDialog } from '@/components/admin/CreateSpaceDialog';
+import { SpaceTypeSelectionDialog } from '@/components/dashboard/SpaceTypeSelectionDialog';
+import { SpaceConfigurationDialog } from '@/components/dashboard/SpaceConfigurationDialog';
+import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { EditSpaceDialog } from '@/components/admin/EditSpaceDialog';
 import { DeleteSpaceDialog } from '@/components/admin/DeleteSpaceDialog';
 import { spaceTypes } from '@/lib/spaceUtils';
 
 export const AdminContentSpacesPage = () => {
   const { currentCompanyId } = useCompanyContext();
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSpace, setEditingSpace] = useState<any>(null);
   const [deletingSpace, setDeletingSpace] = useState<any>(null);
   
@@ -37,6 +38,19 @@ export const AdminContentSpacesPage = () => {
 
   // Fetch space categories
   const { data: categories } = useSpaceCategories();
+  
+  // Use the advanced space creation hook
+  const {
+    isTypeSelectionOpen,
+    isConfigurationOpen,
+    selectedType,
+    selectedCategoryId,
+    isCreating,
+    openTypeSelection,
+    selectTypeAndProceed,
+    closeAllDialogs,
+    createSpace,
+  } = useCreateSpace();
 
   const { data: spaces, isLoading } = useQuery({
     queryKey: ['admin-spaces', currentCompanyId],
@@ -144,7 +158,7 @@ export const AdminContentSpacesPage = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Espaços</h1>
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto">
+          <Button onClick={() => openTypeSelection(categories?.[0]?.id || '')} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Novo espaço
           </Button>
@@ -255,7 +269,7 @@ export const AdminContentSpacesPage = () => {
             <p className="text-muted-foreground mb-6">
               Organize sua comunidade criando espaços.
             </p>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Button onClick={() => openTypeSelection(categories?.[0]?.id || '')}>
               Criar espaço
             </Button>
           </div>
@@ -273,7 +287,7 @@ export const AdminContentSpacesPage = () => {
                 Limpar filtros
               </Button>
             ) : (
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Button onClick={() => openTypeSelection(categories?.[0]?.id || '')}>
                 Criar espaço
               </Button>
             )}
@@ -430,9 +444,19 @@ export const AdminContentSpacesPage = () => {
         )}
       </div>
       
-      <CreateSpaceDialog 
-        isOpen={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
+      <SpaceTypeSelectionDialog
+        open={isTypeSelectionOpen}
+        onClose={closeAllDialogs}
+        onSelectType={selectTypeAndProceed}
+      />
+
+      <SpaceConfigurationDialog
+        open={isConfigurationOpen}
+        onClose={closeAllDialogs}
+        onCreateSpace={createSpace}
+        selectedType={selectedType}
+        selectedCategoryId={selectedCategoryId}
+        isCreating={isCreating}
       />
       
       {editingSpace && (

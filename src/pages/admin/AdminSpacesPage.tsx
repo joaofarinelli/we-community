@@ -8,7 +8,9 @@ import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { useSpaces } from '@/hooks/useSpaces';
 import { AdminCreateCategoryDialog } from '@/components/admin/AdminCreateCategoryDialog';
 import { AdminEditCategoryDialog } from '@/components/admin/AdminEditCategoryDialog';
-import { CreateSpaceDialog } from '@/components/admin/CreateSpaceDialog';
+import { SpaceTypeSelectionDialog } from '@/components/dashboard/SpaceTypeSelectionDialog';
+import { SpaceConfigurationDialog } from '@/components/dashboard/SpaceConfigurationDialog';
+import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { EditSpaceDialog } from '@/components/admin/EditSpaceDialog';
 import { DeleteSpaceDialog } from '@/components/admin/DeleteSpaceDialog';
 import { DeleteCategoryDialog } from '@/components/admin/DeleteCategoryDialog';
@@ -16,7 +18,6 @@ import { Plus, Pencil, Trash2, Users, MessageSquare, Eye } from 'lucide-react';
 
 export const AdminSpacesPage = () => {
   const [showCreateCategoryDialog, setShowCreateCategoryDialog] = useState(false);
-  const [showCreateSpaceDialog, setShowCreateSpaceDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedSpace, setSelectedSpace] = useState<any>(null);
   const [showDeleteCategoryDialog, setShowDeleteCategoryDialog] = useState(false);
@@ -24,6 +25,19 @@ export const AdminSpacesPage = () => {
   
   const { data: categories = [], isLoading: categoriesLoading } = useSpaceCategories();
   const { data: spaces = [], isLoading: spacesLoading } = useSpaces();
+  
+  // Use the advanced space creation hook
+  const {
+    isTypeSelectionOpen,
+    isConfigurationOpen,
+    selectedType,
+    selectedCategoryId,
+    isCreating,
+    openTypeSelection,
+    selectTypeAndProceed,
+    closeAllDialogs,
+    createSpace,
+  } = useCreateSpace();
 
   const handleEditCategory = (category: any) => {
     setSelectedCategory(category);
@@ -177,7 +191,7 @@ export const AdminSpacesPage = () => {
 
           <TabsContent value="spaces" className="space-y-6">
             <div className="flex justify-end">
-              <Button onClick={() => setShowCreateSpaceDialog(true)}>
+              <Button onClick={() => openTypeSelection(categories[0]?.id || '')}>
                 <Plus className="h-4 w-4 mr-2" />
                 Novo Espaço
               </Button>
@@ -192,7 +206,7 @@ export const AdminSpacesPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center pb-12">
-                  <Button onClick={() => setShowCreateSpaceDialog(true)}>
+                  <Button onClick={() => openTypeSelection(categories[0]?.id || '')}>
                     <Plus className="h-4 w-4 mr-2" />
                     Criar primeiro espaço
                   </Button>
@@ -332,9 +346,19 @@ export const AdminSpacesPage = () => {
         />
       )}
 
-      <CreateSpaceDialog
-        isOpen={showCreateSpaceDialog}
-        onOpenChange={setShowCreateSpaceDialog}
+      <SpaceTypeSelectionDialog
+        open={isTypeSelectionOpen}
+        onClose={closeAllDialogs}
+        onSelectType={selectTypeAndProceed}
+      />
+
+      <SpaceConfigurationDialog
+        open={isConfigurationOpen}
+        onClose={closeAllDialogs}
+        onCreateSpace={createSpace}
+        selectedType={selectedType}
+        selectedCategoryId={selectedCategoryId}
+        isCreating={isCreating}
       />
 
       {selectedSpace && (
