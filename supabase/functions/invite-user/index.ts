@@ -6,6 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-company-id",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 interface InviteRequest {
@@ -18,9 +19,9 @@ interface InviteRequest {
 }
 
 // Helper to decode JWT payload (base64url)
-const decodeJwtPayload = (token: string) => {
+const decodeJwtPayload = (jwtToken: string) => {
   try {
-    const payload = token.split('.')[1];
+    const payload = jwtToken.split('.')[1];
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const json = atob(base64);
     return JSON.parse(json);
@@ -129,14 +130,17 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Generate invite token
-    const { data: tokenData, error: tokenError } = await supabaseClient
+    console.log("Generating invite token...");
+    const { data: inviteTokenData, error: tokenError } = await supabaseClient
       .rpc("generate_invite_token");
 
     if (tokenError) {
+      console.error("Token generation error:", tokenError);
       throw new Error("Failed to generate token");
     }
 
-    const inviteToken = tokenData;
+    const inviteToken = inviteTokenData || crypto.randomUUID().replace(/-/g, '');
+    console.log("Invite token generated successfully");
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
 
