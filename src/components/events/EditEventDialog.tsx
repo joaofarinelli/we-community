@@ -316,6 +316,16 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                     )}
                   />
                 )}
+
+                <div className="flex justify-end pt-4">
+                  <Button
+                    type="submit"
+                    disabled={updateEvent.isPending || (event.status === 'active' && !isAdmin)}
+                    className="w-full sm:w-auto"
+                  >
+                    {updateEvent.isPending ? 'Salvando...' : 'Salvar Pagamento'}
+                  </Button>
+                </div>
               </TabsContent>
 
               <TabsContent value="people" className="space-y-6 mt-6">
