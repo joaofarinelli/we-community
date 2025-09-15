@@ -33,7 +33,7 @@ export const useEventPayment = () => {
         .insert({
           user_id: user.id,
           company_id: currentCompanyId,
-          action_type: 'event_payment',
+          action_type: 'purchase_item',
           points: -data.priceCoins,
           coins: -data.priceCoins,
           reference_id: data.eventId,
@@ -74,7 +74,7 @@ export const useEventPayment = () => {
         .insert({
           user_id: user.id,
           company_id: currentCompanyId,
-          action_type: 'event_refund',
+          action_type: 'refund_item',
           points: data.priceCoins,
           coins: data.priceCoins,
           reference_id: data.eventId,

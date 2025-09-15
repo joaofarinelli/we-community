@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Coins, Calendar, MapPin, Users, AlertCircle } from 'lucide-react';
 import { useEventPayment } from '@/hooks/useEventPayment';
+import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useCoinName } from '@/hooks/useCoinName';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -32,6 +33,7 @@ export const PurchaseEventDialog = ({
 }: PurchaseEventDialogProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { processPayment, userCoins } = useEventPayment();
+  const { joinEvent } = useEventParticipants(event.id);
   const { data: coinName } = useCoinName();
   
   const priceCoins = event.price_coins || 0;
@@ -50,7 +52,9 @@ export const PurchaseEventDialog = ({
         priceCoins,
         eventTitle: event.title,
       });
-      
+
+      // Add user as participant after successful payment
+      await joinEvent.mutateAsync();
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
