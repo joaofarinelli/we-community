@@ -489,10 +489,42 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                  </div>
                </TabsContent>
              </Tabs>
-           </fieldset>
-         </form>
-       </Form>
-     </SheetContent>
-   </Sheet>
+            </fieldset>
+
+            <div className="flex flex-col sm:flex-row justify-between gap-4 pt-6 border-t">
+              <div className="flex gap-2">
+                {event.status === 'draft' && (
+                  <Button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={updateEvent.isPending}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {updateEvent.isPending ? 'Publicando...' : 'Publicar Evento'}
+                  </Button>
+                )}
+                {event.status === 'active' && isAdmin && (
+                  <Button
+                    type="button"
+                    onClick={handlePublish}
+                    disabled={updateEvent.isPending}
+                    variant="outline"
+                  >
+                    {updateEvent.isPending ? 'Despublicando...' : 'Despublicar Evento'}
+                  </Button>
+                )}
+              </div>
+              <Button
+                type="submit"
+                disabled={updateEvent.isPending || (event.status === 'active' && !isAdmin)}
+                onClick={form.handleSubmit(onSubmit)}
+              >
+                {updateEvent.isPending ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </SheetContent>
+    </Sheet>
  );
 };
