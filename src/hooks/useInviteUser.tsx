@@ -38,10 +38,13 @@ export const useInviteUser = () => {
         throw new Error('Você não tem permissão para enviar convites');
       }
 
+      const { data: { session: freshSession } } = await supabase.auth.getSession();
+      const tokenToUse = freshSession?.access_token || session.access_token;
+
       const { data: result, error } = await supabase.functions.invoke('invite-user', {
         body: data,
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${tokenToUse}`,
           'x-company-id': currentCompanyId || ''
         }
       });

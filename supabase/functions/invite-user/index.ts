@@ -17,6 +17,18 @@ interface InviteRequest {
   courseAccess: string[];
 }
 
+// Helper to decode JWT payload (base64url)
+const decodeJwtPayload = (token: string) => {
+  try {
+    const payload = token.split('.')[1];
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = atob(base64);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -36,15 +48,24 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-    // Get the authenticated user
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+    // Resolve authenticated user from Authorization header without calling /user
+    const authHeader = req.headers.get('Authorization') || '';
+    const token = authHeader.replace('Bearer ', '').trim();
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
+    const jwt = decodeJwtPayload(token);
+    const userId = jwt?.sub as string | undefined;
+    const userEmail = (jwt?.email as string | undefined) || null;
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     // Get user's company and verify admin status
     // For multi-company users, we need to get the company_id from the request context
     const userAgent = req.headers.get('user-agent') || '';
@@ -59,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
       const { data: profiles, error: profilesError } = await supabaseClient
         .from("profiles")
         .select("company_id, role")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("is_active", true);
       
       if (profilesError || !profiles || profiles.length === 0) {
@@ -75,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
       .select("company_id, role")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("company_id", companyId)
       .eq("is_active", true)
       .single();
@@ -134,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from("user_invites")
       .insert({
         company_id: profile.company_id,
-        invited_by: user.id,
+        invited_by: userId,
         email,
         role,
         course_access: courseAccess,
@@ -217,8 +238,8 @@ const handler = async (req: Request): Promise<Response> => {
           name: company?.name || null
         },
         invited_by: {
-          id: user.id,
-          email: user.email || null
+          id: userId,
+          email: userEmail
         },
         timestamp: new Date().toISOString()
       };
