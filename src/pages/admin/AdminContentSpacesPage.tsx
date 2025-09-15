@@ -142,9 +142,9 @@ export const AdminContentSpacesPage = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Espaços</h1>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Espaços</h1>
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             Novo espaço
           </Button>
@@ -280,111 +280,150 @@ export const AdminContentSpacesPage = () => {
           </div>
         ) : (
           <div className="border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-muted/50 border-b">
-                <tr>
-                  <th className="text-left p-4 font-medium">NOME</th>
-                  <th className="text-left p-4 font-medium">CATEGORIA</th>
-                  <th className="text-left p-4 font-medium">TIPO</th>
-                  <th className="text-left p-4 font-medium">MEMBROS</th>
-                  <th className="text-left p-4 font-medium">MODERADORES</th>
-                  <th className="text-left p-4 font-medium">ACESSO</th>
-                  <th className="text-left p-4 font-medium">QUEM PODE PUBLICAR</th>
-                  <th className="text-left p-4 font-medium">MEMBROS PODEM CONVIDAR</th>
-                  <th className="text-left p-4 font-medium">OCULTAR CONTAGEM DE MEMBROS</th>
-                  <th className="text-left p-4 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSpaces.map((space) => {
-                  const memberData = membersCount?.[space.id] || { total: 0, moderators: 0 };
-                  const totalMembers = memberData.total;
-                  const moderators = memberData.moderators;
-                  
-                  return (
-                    <tr key={space.id} className="border-b hover:bg-muted/25">
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                          <span className="font-medium">{space.name}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm text-muted-foreground">
-                          {categoryMap[space.category_id] || 'Sem categoria'}
-                        </span>
-                      </td>
-                      <td className="p-4">{getTypeDisplay(space.type)}</td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3" />
-                          {totalMembers}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-1">
-                          <Shield className="h-3 w-3" />
-                          {moderators}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        {getVisibilityBadge(space.visibility)}
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm">
-                          Membros
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm">
-                          Não
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className="text-sm">
-                          Não
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setEditingSpace(space)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-destructive"
-                              onClick={() => setDeletingSpace(space)}
+            {/* Mobile/Tablet responsive wrapper with horizontal scroll */}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[800px]">
+                <thead className="bg-muted/50 border-b">
+                  <tr>
+                    {/* Always visible - Essential columns */}
+                    <th className="text-left p-3 sm:p-4 font-medium sticky left-0 bg-muted/50 z-10">NOME</th>
+                    <th className="text-left p-3 sm:p-4 font-medium">CATEGORIA</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden sm:table-cell">TIPO</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden md:table-cell">MEMBROS</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden lg:table-cell">MODERADORES</th>
+                    <th className="text-left p-3 sm:p-4 font-medium">ACESSO</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">QUEM PODE PUBLICAR</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">MEMBROS PODEM CONVIDAR</th>
+                    <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">OCULTAR CONTAGEM</th>
+                    <th className="text-left p-3 sm:p-4 font-medium w-12"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSpaces.map((space) => {
+                    const memberData = membersCount?.[space.id] || { total: 0, moderators: 0 };
+                    const totalMembers = memberData.total;
+                    const moderators = memberData.moderators;
+                    
+                    return (
+                      <tr key={space.id} className="border-b hover:bg-muted/25">
+                        {/* Sticky name column */}
+                        <td className="p-3 sm:p-4 sticky left-0 bg-background hover:bg-muted/25 z-10">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
+                            <span className="font-medium text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">
+                              {space.name}
+                            </span>
+                          </div>
+                        </td>
+                        
+                        {/* Category - always visible */}
+                        <td className="p-3 sm:p-4">
+                          <span className="text-xs sm:text-sm text-muted-foreground truncate max-w-[100px] block">
+                            {categoryMap[space.category_id] || 'Sem categoria'}
+                          </span>
+                        </td>
+                        
+                        {/* Type - hidden on mobile */}
+                        <td className="p-3 sm:p-4 hidden sm:table-cell">
+                          <span className="text-sm">{getTypeDisplay(space.type)}</span>
+                        </td>
+                        
+                        {/* Members - hidden on mobile/small tablets */}
+                        <td className="p-3 sm:p-4 hidden md:table-cell">
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3 flex-shrink-0" />
+                            <span className="text-sm">{totalMembers}</span>
+                          </div>
+                        </td>
+                        
+                        {/* Moderators - hidden on smaller screens */}
+                        <td className="p-3 sm:p-4 hidden lg:table-cell">
+                          <div className="flex items-center gap-1">
+                            <Shield className="h-3 w-3 flex-shrink-0" />
+                            <span className="text-sm">{moderators}</span>
+                          </div>
+                        </td>
+                        
+                        {/* Access - always visible */}
+                        <td className="p-3 sm:p-4">
+                          {getVisibilityBadge(space.visibility)}
+                        </td>
+                        
+                        {/* Who can publish - hidden on smaller screens */}
+                        <td className="p-3 sm:p-4 hidden xl:table-cell">
+                          <span className="text-sm">Membros</span>
+                        </td>
+                        
+                        {/* Members can invite - hidden on smaller screens */}
+                        <td className="p-3 sm:p-4 hidden xl:table-cell">
+                          <span className="text-sm">Não</span>
+                        </td>
+                        
+                        {/* Hide member count - hidden on smaller screens */}
+                        <td className="p-3 sm:p-4 hidden xl:table-cell">
+                          <span className="text-sm">Não</span>
+                        </td>
+                        
+                        {/* Actions - always visible with proper touch targets */}
+                        <td className="p-3 sm:p-4">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Abrir menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent 
+                              align="end" 
+                              className="w-48 z-50 bg-background border shadow-lg"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                              <DropdownMenuItem 
+                                onClick={() => setEditingSpace(space)}
+                                className="cursor-pointer"
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive cursor-pointer"
+                                onClick={() => setDeletingSpace(space)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             
-            <div className="flex items-center justify-between p-4 border-t bg-muted/25">
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" disabled>
+            {/* Responsive pagination */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-4 border-t bg-muted/25">
+              <div className="flex items-center gap-2 order-2 sm:order-1">
+                <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm">
                   Anterior
                 </Button>
-                <Button variant="outline" size="sm" disabled>
+                <Button variant="outline" size="sm" disabled className="text-xs sm:text-sm">
                   Próximo
                 </Button>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Mostrando 1-{filteredSpaces?.length || 0} de {filteredSpaces?.length || 0}
-                {hasActiveFilters && ` (${spaces?.length || 0} total)`}
+              <div className="text-xs sm:text-sm text-muted-foreground text-center sm:text-right order-1 sm:order-2">
+                <span className="block sm:inline">
+                  Mostrando 1-{filteredSpaces?.length || 0} de {filteredSpaces?.length || 0}
+                </span>
+                {hasActiveFilters && (
+                  <span className="block sm:inline sm:ml-1">
+                    ({spaces?.length || 0} total)
+                  </span>
+                )}
               </div>
             </div>
           </div>
