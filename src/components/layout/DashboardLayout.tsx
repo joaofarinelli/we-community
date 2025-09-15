@@ -24,6 +24,7 @@ import { StreakDialog } from '@/components/gamification/StreakDialog';
 import { useRealtimePosts } from '@/hooks/useRealtimePosts';
 import { AutoStreakCheckIn } from '@/components/gamification/AutoStreakCheckIn';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
+import { WhatsAppFloatingButton } from '@/components/whatsapp/WhatsAppFloatingButton';
 
 
 interface DashboardLayoutProps {
@@ -207,6 +208,9 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           {/* Padding bottom for mobile navigation */}
           <div className="xl:hidden h-16 lg:h-0" />
         </SidebarInset>
+        
+        {/* WhatsApp Floating Button */}
+        <WhatsAppFloatingButton />
       </div>
     </SidebarProvider>
   );

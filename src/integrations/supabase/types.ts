@@ -775,6 +775,9 @@ export type Database = {
           theme_mode: string | null
           trails_banner_url: string | null
           updated_at: string
+          whatsapp_enabled: boolean | null
+          whatsapp_message: string | null
+          whatsapp_phone: string | null
         }
         Insert: {
           address?: string | null
@@ -817,6 +820,9 @@ export type Database = {
           theme_mode?: string | null
           trails_banner_url?: string | null
           updated_at?: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_message?: string | null
+          whatsapp_phone?: string | null
         }
         Update: {
           address?: string | null
@@ -859,6 +865,9 @@ export type Database = {
           theme_mode?: string | null
           trails_banner_url?: string | null
           updated_at?: string
+          whatsapp_enabled?: boolean | null
+          whatsapp_message?: string | null
+          whatsapp_phone?: string | null
         }
         Relationships: []
       }
