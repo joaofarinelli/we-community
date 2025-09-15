@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCompany } from '@/hooks/useCompany';
+import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 import { ThemeConfiguration } from '@/components/admin/ThemeConfiguration';
 import { PageBannerSection } from '@/components/admin/PageBannerSection';
 import { CompanyLogoSection } from '@/components/admin/CompanyLogoSection';
@@ -22,6 +23,17 @@ import { WhatsAppSection } from '@/components/admin/WhatsAppSection';
 
 export const AdminSettingsPage = () => {
   const { data: company } = useCompany();
+  
+  // Feature checks
+  const isCoinRelatedEnabled = useIsFeatureEnabled('ranking') || 
+                              useIsFeatureEnabled('bank') || 
+                              useIsFeatureEnabled('store') || 
+                              useIsFeatureEnabled('marketplace');
+  
+  const isGamificationEnabled = useIsFeatureEnabled('ranking') || 
+                               useIsFeatureEnabled('bank') || 
+                               useIsFeatureEnabled('store') || 
+                               useIsFeatureEnabled('streak');
 
   return (
     <AdminLayout>
@@ -72,25 +84,27 @@ export const AdminSettingsPage = () => {
                 </CardContent>
               </Card>
 
-              <CoinNameSection />
+              {isCoinRelatedEnabled && <CoinNameSection />}
 
               <CourseProgressionSection />
 
               <WhatsAppSection />
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Configurações de Gamificação</CardTitle>
-                  <CardDescription>
-                    Configure os níveis e pontuação da sua comunidade
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="outline" className="w-full">
-                    Gerenciar Níveis de Gamificação
-                  </Button>
-                </CardContent>
-              </Card>
+              {isGamificationEnabled && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Configurações de Gamificação</CardTitle>
+                    <CardDescription>
+                      Configure os níveis e pontuação da sua comunidade
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full">
+                      Gerenciar Níveis de Gamificação
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -118,52 +132,68 @@ export const AdminSettingsPage = () => {
               <FeedBannerSection />
               <LoginBannerSection />
               
-              <Card>
-                <CardHeader>
-                  <CardTitle>Banner da Página de Cursos</CardTitle>
-                  <CardDescription>
-                    Configure o banner que aparecerá na página de cursos
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CourseBannerSection isAdminMode={true} />
-                </CardContent>
-              </Card>
-              <PageBannerSection 
-                bannerType="trails" 
-                title="Banner da Página de Trilhas" 
-                description="Configure o banner que aparecerá na página de trilhas" 
-              />
-              <PageBannerSection 
-                bannerType="members" 
-                title="Banner da Página de Membros" 
-                description="Configure o banner que aparecerá na página de membros" 
-              />
-              <PageBannerSection 
-                bannerType="ranking" 
-                title="Banner da Página de Ranking" 
-                description="Configure o banner que aparecerá na página de ranking" 
-              />
-              <PageBannerSection 
-                bannerType="marketplace" 
-                title="Banner da Página de Marketplace" 
-                description="Configure o banner que aparecerá na página de marketplace" 
-              />
-              <PageBannerSection 
-                bannerType="store" 
-                title="Banner da Página de Loja" 
-                description="Configure o banner que aparecerá na página de loja" 
-              />
-              <PageBannerSection 
-                bannerType="bank" 
-                title="Banner da Página de Banco" 
-                description="Configure o banner que aparecerá na página de banco" 
-              />
-              <PageBannerSection 
-                bannerType="challenges" 
-                title="Banner da Página de Desafios" 
-                description="Configure o banner que aparecerá na página de desafios" 
-              />
+              {useIsFeatureEnabled('courses') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Banner da Página de Cursos</CardTitle>
+                    <CardDescription>
+                      Configure o banner que aparecerá na página de cursos
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <CourseBannerSection isAdminMode={true} />
+                  </CardContent>
+                </Card>
+              )}
+              {useIsFeatureEnabled('trails') && (
+                <PageBannerSection 
+                  bannerType="trails" 
+                  title="Banner da Página de Trilhas" 
+                  description="Configure o banner que aparecerá na página de trilhas" 
+                />
+              )}
+              {useIsFeatureEnabled('members') && (
+                <PageBannerSection 
+                  bannerType="members" 
+                  title="Banner da Página de Membros" 
+                  description="Configure o banner que aparecerá na página de membros" 
+                />
+              )}
+              {useIsFeatureEnabled('ranking') && (
+                <PageBannerSection 
+                  bannerType="ranking" 
+                  title="Banner da Página de Ranking" 
+                  description="Configure o banner que aparecerá na página de ranking" 
+                />
+              )}
+              {useIsFeatureEnabled('marketplace') && (
+                <PageBannerSection 
+                  bannerType="marketplace" 
+                  title="Banner da Página de Marketplace" 
+                  description="Configure o banner que aparecerá na página de marketplace" 
+                />
+              )}
+              {useIsFeatureEnabled('store') && (
+                <PageBannerSection 
+                  bannerType="store" 
+                  title="Banner da Página de Loja" 
+                  description="Configure o banner que aparecerá na página de loja" 
+                />
+              )}
+              {useIsFeatureEnabled('bank') && (
+                <PageBannerSection 
+                  bannerType="bank" 
+                  title="Banner da Página de Banco" 
+                  description="Configure o banner que aparecerá na página de banco" 
+                />
+              )}
+              {useIsFeatureEnabled('challenges') && (
+                <PageBannerSection 
+                  bannerType="challenges" 
+                  title="Banner da Página de Desafios" 
+                  description="Configure o banner que aparecerá na página de desafios" 
+                />
+              )}
               <PageBannerSection 
                 bannerType="spaces" 
                 title="Banner da Página de Espaços" 
