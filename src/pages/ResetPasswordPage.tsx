@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
-import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle, AlertTriangle, Mail } from 'lucide-react';
 
 const resetPasswordSchema = z.object({
   password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
@@ -19,7 +19,12 @@ const resetPasswordSchema = z.object({
   path: ['confirmPassword'],
 });
 
+const resendEmailSchema = z.object({
+  email: z.string().email('Digite um email válido'),
+});
+
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+type ResendEmailFormData = z.infer<typeof resendEmailSchema>;
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -30,6 +35,14 @@ export default function ResetPasswordPage() {
   const [isValidToken, setIsValidToken] = useState(false);
   const [isCheckingToken, setIsCheckingToken] = useState(true);
   const [resetSuccess, setResetSuccess] = useState(false);
+  const [errorInfo, setErrorInfo] = useState<{
+    error?: string;
+    error_code?: string;
+    error_description?: string;
+  } | null>(null);
+  const [showResendForm, setShowResendForm] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   const {
     register,
@@ -37,6 +50,14 @@ export default function ResetPasswordPage() {
     formState: { errors },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
+  });
+
+  const {
+    register: registerResend,
+    handleSubmit: handleSubmitResend,
+    formState: { errors: resendErrors },
+  } = useForm<ResendEmailFormData>({
+    resolver: zodResolver(resendEmailSchema),
   });
 
   useEffect(() => {
@@ -63,6 +84,19 @@ export default function ResetPasswordPage() {
             accessToken = fragmentParams.get('access_token');
             refreshToken = fragmentParams.get('refresh_token');
             type = fragmentParams.get('type') || 'recovery';
+            
+            // Verificar se há erros nos fragmentos
+            const errorParam = fragmentParams.get('error');
+            const errorCode = fragmentParams.get('error_code');
+            const errorDescription = fragmentParams.get('error_description');
+            
+            if (errorParam) {
+              setErrorInfo({
+                error: errorParam,
+                error_code: errorCode || undefined,
+                error_description: errorDescription || undefined,
+              });
+            }
           }
           
           if (accessToken && refreshToken) {
@@ -134,6 +168,71 @@ export default function ResetPasswordPage() {
     navigate('/auth');
   };
 
+  const onResendSubmit = async (data: ResendEmailFormData) => {
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setResendSuccess(true);
+      toast({
+        title: 'Email enviado!',
+        description: 'Um novo link de redefinição foi enviado para seu email.',
+        variant: 'default',
+      });
+    } catch (error: any) {
+      console.error('Resend email error:', error);
+      toast({
+        title: 'Erro ao enviar email',
+        description: error.message || 'Ocorreu um erro ao enviar o email. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const getErrorMessage = () => {
+    if (!errorInfo) return 'O link de redefinição de senha é inválido ou expirou.';
+    
+    if (errorInfo.error_code === 'otp_expired') {
+      return 'O link de redefinição de senha expirou. Solicite um novo link.';
+    }
+    
+    if (errorInfo.error === 'access_denied') {
+      return 'Acesso negado. O link pode ter expirado ou ser inválido.';
+    }
+    
+    if (errorInfo.error_description) {
+      const description = decodeURIComponent(errorInfo.error_description);
+      if (description.includes('expired')) {
+        return 'O link de redefinição de senha expirou. Solicite um novo link.';
+      }
+      if (description.includes('invalid')) {
+        return 'O link de redefinição de senha é inválido. Solicite um novo link.';
+      }
+      return description;
+    }
+    
+    return 'O link de redefinição de senha é inválido ou expirou.';
+  };
+
+  const shouldShowResendOption = () => {
+    return errorInfo && (
+      errorInfo.error_code === 'otp_expired' ||
+      errorInfo.error === 'access_denied' ||
+      (errorInfo.error_description && (
+        errorInfo.error_description.includes('expired') ||
+        errorInfo.error_description.includes('invalid')
+      ))
+    );
+  };
+
   if (isCheckingToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -150,17 +249,113 @@ export default function ResetPasswordPage() {
   }
 
   if (!isValidToken) {
+    if (resendSuccess) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+                <Mail className="h-6 w-6 text-green-600 dark:text-green-500" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-green-600 dark:text-green-500">Email Enviado!</CardTitle>
+              <CardDescription>
+                Um novo link de redefinição foi enviado para seu email. Verifique sua caixa de entrada.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button onClick={handleBackToLogin} className="w-full">
+                Voltar ao Login
+              </Button>
+              <Button
+                onClick={() => setResendSuccess(false)}
+                variant="outline"
+                className="w-full"
+              >
+                Enviar Novamente
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (showResendForm) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
+                <Mail className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+              </div>
+              <CardTitle className="text-2xl font-bold">Solicitar Novo Link</CardTitle>
+              <CardDescription>
+                Digite seu email para receber um novo link de redefinição de senha.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmitResend(onResendSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="resend-email">Email</Label>
+                  <Input
+                    id="resend-email"
+                    type="email"
+                    placeholder="Digite seu email"
+                    {...registerResend('email')}
+                    disabled={resendLoading}
+                  />
+                  {resendErrors.email && (
+                    <p className="text-sm text-destructive">{resendErrors.email.message}</p>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <Button type="submit" className="w-full" disabled={resendLoading}>
+                    {resendLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Enviar Novo Link
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowResendForm(false)}
+                    className="w-full"
+                    disabled={resendLoading}
+                  >
+                    Voltar
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-destructive">Link Inválido</CardTitle>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-500" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-destructive">
+              {errorInfo?.error_code === 'otp_expired' ? 'Link Expirado' : 'Link Inválido'}
+            </CardTitle>
             <CardDescription>
-              O link de redefinição de senha é inválido ou expirou.
+              {getErrorMessage()}
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Button onClick={handleBackToLogin} className="w-full">
+          <CardContent className="space-y-3">
+            {shouldShowResendOption() && (
+              <Button onClick={() => setShowResendForm(true)} className="w-full">
+                Solicitar Novo Link
+              </Button>
+            )}
+            <Button 
+              onClick={handleBackToLogin} 
+              variant={shouldShowResendOption() ? "outline" : "default"}
+              className="w-full"
+            >
               Voltar ao Login
             </Button>
           </CardContent>
@@ -174,10 +369,10 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
+              <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-500" />
             </div>
-            <CardTitle className="text-2xl font-bold text-green-600">Senha Redefinida!</CardTitle>
+            <CardTitle className="text-2xl font-bold text-green-600 dark:text-green-500">Senha Redefinida!</CardTitle>
             <CardDescription>
               Sua senha foi redefinida com sucesso. Você será redirecionado para o login em instantes.
             </CardDescription>
