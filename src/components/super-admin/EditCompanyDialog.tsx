@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { supabase } from "@/integrations/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,7 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Save, Settings } from "lucide-react";
+import { toast } from "sonner";
 import { useSuperAdminCompanyActions, UpdateCompanyData } from "@/hooks/useSuperAdminCompanyActions";
+import { usePaymentProviderConfig, useCreateOrUpdatePaymentConfig } from "@/hooks/usePaymentProvider";
 
 const editCompanySchema = z.object({
   name: z.string().min(1, "Nome da empresa é obrigatório"),
@@ -58,6 +63,15 @@ interface EditCompanyDialogProps {
 
 export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDialogProps) => {
   const { updateCompany } = useSuperAdminCompanyActions();
+  const { data: paymentConfig } = usePaymentProviderConfig();
+  const updatePaymentConfig = useCreateOrUpdatePaymentConfig();
+
+  // Payment configuration states
+  const [environment, setEnvironment] = useState('sandbox');
+  const [apiKey, setApiKey] = useState('');
+  const [coinsPerBrl, setCoinsPerBrl] = useState(1.0);
+  const [isPaymentActive, setIsPaymentActive] = useState(false);
+  const [boletoExpirationDays, setBoletoExpirationDays] = useState(7);
 
   const form = useForm<z.infer<typeof editCompanySchema>>({
     resolver: zodResolver(editCompanySchema),
@@ -75,6 +89,17 @@ export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDi
       cnpj: "",
     },
   });
+
+  // Sync payment config states
+  useEffect(() => {
+    if (paymentConfig) {
+      setEnvironment(paymentConfig.environment || 'sandbox');
+      setApiKey(paymentConfig.credentials?.api_key || '');
+      setCoinsPerBrl(paymentConfig.coins_per_brl || 1.0);
+      setIsPaymentActive(paymentConfig.is_active || false);
+      setBoletoExpirationDays(paymentConfig.boleto_expiration_days || 7);
+    }
+  }, [paymentConfig]);
 
   // Update form when company changes and set up realtime updates
   useEffect(() => {
@@ -145,6 +170,23 @@ export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDi
         onOpenChange(false);
       },
     });
+  };
+
+  const handleSavePaymentConfig = async () => {
+    try {
+      await updatePaymentConfig.mutateAsync({
+        environment,
+        credentials: {
+          api_key: apiKey,
+        },
+        coins_per_brl: Number(coinsPerBrl),
+        boleto_expiration_days: Number(boletoExpirationDays),
+        is_active: isPaymentActive,
+      });
+      toast.success('Configurações de pagamento salvas com sucesso!');
+    } catch (error) {
+      toast.error('Erro ao salvar configurações de pagamento');
+    }
   };
 
   return (
@@ -291,6 +333,93 @@ export const EditCompanyDialog = ({ open, onOpenChange, company }: EditCompanyDi
                   placeholder="00000-000"
                 />
               </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Configurações de Pagamento */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              <h3 className="text-sm font-medium text-muted-foreground">CONFIGURAÇÕES DE PAGAMENTO</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="payment-environment">Ambiente</Label>
+                <Select value={environment} onValueChange={setEnvironment}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o ambiente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sandbox">Sandbox (Testes)</SelectItem>
+                    <SelectItem value="production">Produção</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="coins-per-brl">Moedas por R$ 1,00</Label>
+                <Input
+                  id="coins-per-brl"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={coinsPerBrl}
+                  onChange={(e) => setCoinsPerBrl(Number(e.target.value))}
+                  placeholder="1.00"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="api-key">API Key TMB</Label>
+                <Input
+                  id="api-key"
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Chave de API do TMB Educação"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="boleto-expiration">Dias para vencimento</Label>
+                <Input
+                  id="boleto-expiration"
+                  type="number"
+                  min="1"
+                  max="30"
+                  value={boletoExpirationDays}
+                  onChange={(e) => setBoletoExpirationDays(Number(e.target.value))}
+                  placeholder="7"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="payment-active"
+                  checked={isPaymentActive}
+                  onCheckedChange={setIsPaymentActive}
+                  disabled={!apiKey.trim()}
+                />
+                <Label htmlFor="payment-active">Habilitar pagamentos via boleto</Label>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSavePaymentConfig}
+                disabled={!apiKey.trim() || updatePaymentConfig.isPending}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {updatePaymentConfig.isPending ? 'Salvando...' : 'Salvar Pagamentos'}
+              </Button>
             </div>
           </div>
 
