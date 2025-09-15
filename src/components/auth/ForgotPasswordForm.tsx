@@ -27,7 +27,9 @@ export const ForgotPasswordForm = ({ onBackToLogin }: ForgotPasswordFormProps) =
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/reset-password`;
+      // Construct URL properly to avoid double slashes
+      const origin = window.location.origin.replace(/\/$/, ''); // Remove trailing slash
+      const redirectUrl = `${origin}/reset-password`;
       const email = data.email.trim().toLowerCase();
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
