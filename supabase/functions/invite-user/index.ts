@@ -50,14 +50,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Resolve authenticated user from Authorization header without calling /user
     const authHeader = req.headers.get('Authorization') || '';
-    const token = authHeader.replace('Bearer ', '').trim();
-    if (!token) {
+    const authToken = authHeader.replace('Bearer ', '').trim();
+    if (!authToken) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-    const jwt = decodeJwtPayload(token);
+    const jwt = decodeJwtPayload(authToken);
     const userId = jwt?.sub as string | undefined;
     const userEmail = (jwt?.email as string | undefined) || null;
     if (!userId) {
@@ -136,7 +136,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Failed to generate token");
     }
 
-    const token = tokenData;
+    const inviteToken = tokenData;
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
 
@@ -159,7 +159,7 @@ const handler = async (req: Request): Promise<Response> => {
         email,
         role,
         course_access: courseAccess,
-        token,
+        token: inviteToken,
         expires_at: expiresAt.toISOString(),
       })
       .select()
@@ -186,7 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     // Build the invite URL based on the current request origin
     const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://app.lovable.dev';
-    const inviteUrl = `${origin}/invite/accept/${token}`;
+    const inviteUrl = `${origin}/invite/accept/${inviteToken}`;
 
     console.log("Sending email to:", email);
     console.log("Invite URL:", inviteUrl);
@@ -228,7 +228,7 @@ const handler = async (req: Request): Promise<Response> => {
           password,
           role,
           course_access: courseAccess,
-          token,
+          token: inviteToken,
           expires_at: expiresAt.toISOString(),
           invite_url: inviteUrl,
           created_at: invite.created_at
