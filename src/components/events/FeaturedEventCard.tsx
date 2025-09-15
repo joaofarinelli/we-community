@@ -1,4 +1,5 @@
-import { Calendar, MapPin, Users, Clock, MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,8 +7,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useAuth } from '@/hooks/useAuth';
+import { useCanEditEvent } from '@/hooks/useCanEditEvent';
+import { useDeleteEvent } from '@/hooks/useDeleteEvent';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { EditEventDialog } from './EditEventDialog';
 
 interface FeaturedEventCardProps {
   event: {
@@ -19,6 +23,9 @@ interface FeaturedEventCardProps {
     location?: string;
     max_participants?: number;
     image_url?: string;
+    status?: 'draft' | 'active';
+    space_id: string;
+    created_by: string;
     event_participants?: any[];
   };
   onEventClick?: (eventId: string) => void;
@@ -27,6 +34,9 @@ interface FeaturedEventCardProps {
 export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProps) => {
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by, status: event.status });
+  const deleteEvent = useDeleteEvent();
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
@@ -44,6 +54,13 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
     }
   };
 
+  const handleDeleteEvent = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('Tem certeza que deseja excluir este evento?')) {
+      deleteEvent.mutate(event.id);
+    }
+  };
+
   return (
     <Card 
       className="cursor-pointer hover:shadow-md transition-shadow border-2 border-primary/20"
@@ -54,18 +71,32 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
           <Badge variant="secondary" className="bg-primary/10 text-primary">
             Próximo Evento
           </Badge>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Editar evento</DropdownMenuItem>
-              <DropdownMenuItem>Compartilhar</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Excluir</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {canEdit && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  setEditDialogOpen(true);
+                }}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar evento
+                </DropdownMenuItem>
+                <DropdownMenuItem>Compartilhar</DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-destructive"
+                  onClick={handleDeleteEvent}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="flex gap-6">
@@ -152,6 +183,15 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
           </div>
         </div>
       </CardContent>
+
+      <EditEventDialog 
+        event={{
+          ...event,
+          status: event.status || 'active'
+        } as any}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+      />
     </Card>
   );
 };

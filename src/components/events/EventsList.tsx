@@ -14,7 +14,9 @@ interface Event {
   max_participants?: number;
   image_url?: string;
   event_participants?: any;
-  status?: string;
+  status?: 'draft' | 'active';
+  space_id: string;
+  created_by: string;
 }
 
 interface EventsListProps {
