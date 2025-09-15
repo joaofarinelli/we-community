@@ -66,7 +66,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
   const createEvent = useCreateEvent();
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(eventSchema) as any,
     defaultValues: {
       title: "",
       presenter: "",
@@ -343,7 +343,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                   <h3 className="text-lg font-medium text-foreground">Onde será o evento?</h3>
                   
                   <EventLocationSelector 
-                    control={form.control}
+                    control={form.control as any}
                     locationType={form.watch('locationType')}
                   />
                 </div>

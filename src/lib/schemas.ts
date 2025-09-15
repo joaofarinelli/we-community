@@ -99,9 +99,9 @@ export const eventSchema = z.object({
   locationAddress: z.string().optional(),
   onlineLink: z.string().url().optional().or(z.literal('')),
   imageUrl: z.string().optional(),
-  isPaid: z.boolean().optional().default(false),
+  isPaid: z.boolean().default(false),
   priceCoins: z.number().int().min(0, "Preço deve ser um número positivo").optional(),
-  paymentRequired: z.boolean().optional().default(false),
+  paymentRequired: z.boolean().default(false),
 }).refine((data) => {
   const startDateTime = new Date(`${data.startDate.toDateString()} ${data.startTime}`);
   const endDateTime = new Date(`${data.endDate.toDateString()} ${data.endTime}`);

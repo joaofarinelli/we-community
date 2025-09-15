@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
 import { CalendarIcon, ChevronDown, Globe, Users, Info, MoreHorizontal, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Sheet,
   SheetContent,
@@ -41,7 +42,6 @@ import { cn } from '@/lib/utils';
 import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { Switch } from '@/components/ui/switch';
 
 interface Event {
   id: string;
@@ -69,7 +69,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
   const isAdmin = useIsAdmin();
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(eventSchema) as any,
     defaultValues: {
       title: "",
       description: "",
@@ -189,8 +189,8 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-6">
             {/* Disable form fields for active events if user is not admin */}
             <fieldset disabled={event.status === 'active' && !isAdmin}>
-            </Tabs>
-              <TabsList className="grid w-full grid-cols-5">
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Visão Geral
@@ -247,7 +247,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                 />
 
                 <EventLocationSelector 
-                  control={form.control}
+                  control={form.control as any}
                   locationType={form.watch('locationType')}
                 />
               </TabsContent>
@@ -469,38 +469,13 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                       </FormItem>
                     )}
                   />
-                </div>
-            <div className="flex justify-between items-center pt-6 border-t">
-              <Button
-                type="button"
-                variant={event.status === 'draft' ? 'default' : 'outline'}
-                onClick={handlePublish}
-                disabled={updateEvent.isPending}
-              >
-                {event.status === 'draft' ? 'Publicar' : 'Despublicar'}
-              </Button>
-              
-              <div className="flex space-x-2">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => onOpenChange(false)}
-                  disabled={updateEvent.isPending}
-                >
-                  Cancelar
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={updateEvent.isPending || (event.status === 'active' && !isAdmin)}
-                >
-                  {updateEvent.isPending ? "Salvando..." : "Salvar"}
-                </Button>
-              </div>
-            </div>
-            </fieldset>
-          </form>
-        </Form>
-      </SheetContent>
-    </Sheet>
-  );
+                 </div>
+               </TabsContent>
+             </Tabs>
+           </fieldset>
+         </form>
+       </Form>
+     </SheetContent>
+   </Sheet>
+ );
 };
