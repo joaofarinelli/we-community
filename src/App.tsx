@@ -75,6 +75,7 @@ import { AdminContentSpacesPage } from "./pages/admin/AdminContentSpacesPage";
 import { AdminContentModerationPage } from "./pages/admin/AdminContentModerationPage";
 import { AdminAnalyticsPage } from "./pages/admin/AdminAnalyticsPage";
 import { AdminOnboardingPage } from "./pages/admin/AdminOnboardingPage";
+import { AdminActivityLogsPage } from "./pages/admin/AdminActivityLogsPage";
 import AdminBulkActionsPage from "./pages/admin/AdminBulkActionsPage";
 import { BulkActionCreateEditPage } from "./pages/admin/BulkActionCreateEditPage";
 import { BulkActionExecutionsPage } from "./pages/admin/BulkActionExecutionsPage";
@@ -201,6 +202,7 @@ const AppRoutes = () => {
               <Route path="/challenges" element={<AuthenticatedMaintenanceGuard><AdminChallengesPage /></AuthenticatedMaintenanceGuard>} />
               <Route path="/challenges/submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
               <Route path="/challenge-submissions" element={<AuthenticatedMaintenanceGuard><AdminChallengeSubmissionsPage /></AuthenticatedMaintenanceGuard>} />
+              <Route path="/activity-logs" element={<AuthenticatedMaintenanceGuard><AdminActivityLogsPage /></AuthenticatedMaintenanceGuard>} />
               <Route path="/trails" element={<AuthenticatedMaintenanceGuard><AdminTrailsPage /></AuthenticatedMaintenanceGuard>} />
               <Route path="/trail-badges" element={<AuthenticatedMaintenanceGuard><AdminTrailBadgesPage /></AuthenticatedMaintenanceGuard>} />
               <Route path="/content/posts" element={<AuthenticatedMaintenanceGuard><AdminContentPostsPage /></AuthenticatedMaintenanceGuard>} />
