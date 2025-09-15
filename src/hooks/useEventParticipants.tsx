@@ -10,10 +10,15 @@ export const useEventParticipants = (eventId: string) => {
   const queryClient = useQueryClient();
 
   const participantsQuery = useQuery({
-    queryKey: ['eventParticipants', eventId, user?.id],
+    queryKey: ['eventParticipants', eventId, user?.id, currentCompanyId],
     queryFn: async () => {
-      if (!user || !eventId) return [];
+      if (!user || !eventId || !currentCompanyId) {
+        console.log('Missing dependencies:', { user: !!user, eventId, currentCompanyId });
+        return [];
+      }
 
+      console.log('Fetching participants for event:', eventId, 'company:', currentCompanyId);
+      
       const { data, error } = await supabase
         .from('event_participants')
         .select(`
@@ -21,17 +26,26 @@ export const useEventParticipants = (eventId: string) => {
           profiles(first_name, last_name)
         `)
         .eq('event_id', eventId)
+        .eq('company_id', currentCompanyId)
         .order('joined_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching participants:', error);
+        throw error;
+      }
       return data || [];
     },
-    enabled: !!user && !!eventId,
+    enabled: !!user && !!eventId && !!currentCompanyId,
   });
 
   const joinEvent = useMutation({
     mutationFn: async () => {
-      if (!user || !currentCompanyId) throw new Error('User not authenticated');
+      if (!user || !currentCompanyId) {
+        console.error('Missing authentication data:', { user: !!user, currentCompanyId });
+        throw new Error('User not authenticated or company context missing');
+      }
+
+      console.log('Joining event:', eventId, 'user:', user.id, 'company:', currentCompanyId);
 
       // Use upsert to handle duplicate entries gracefully
       const { error } = await supabase
@@ -45,7 +59,10 @@ export const useEventParticipants = (eventId: string) => {
           onConflict: 'event_id,user_id'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error joining event:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['eventParticipants', eventId] });
@@ -61,15 +78,24 @@ export const useEventParticipants = (eventId: string) => {
 
   const leaveEvent = useMutation({
     mutationFn: async () => {
-      if (!user) throw new Error('User not authenticated');
+      if (!user || !currentCompanyId) {
+        console.error('Missing authentication data:', { user: !!user, currentCompanyId });
+        throw new Error('User not authenticated or company context missing');
+      }
+
+      console.log('Leaving event:', eventId, 'user:', user.id, 'company:', currentCompanyId);
 
       const { error } = await supabase
         .from('event_participants')
         .delete()
         .eq('event_id', eventId)
-        .eq('user_id', user.id);
+        .eq('user_id', user.id)
+        .eq('company_id', currentCompanyId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error leaving event:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['eventParticipants', eventId] });
