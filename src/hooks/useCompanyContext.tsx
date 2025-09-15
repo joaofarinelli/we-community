@@ -60,6 +60,15 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
   // Fetch user's companies when user changes
   useEffect(() => {
     const fetchUserCompanies = async () => {
+      // Skip fetching on auth-related pages to prevent errors
+      const pathname = window.location.pathname;
+      if (pathname === '/auth' || pathname === '/reset-password' || pathname.startsWith('/auth/') || pathname.startsWith('/reset-password/')) {
+        console.log('[useCompanyContext] Skipping company fetch on auth page:', pathname);
+        setUserCompanies([]);
+        setIsLoading(false);
+        return;
+      }
+
       if (!user?.id || !user?.email) {
         console.log('[useCompanyContext] No user found, clearing companies');
         setUserCompanies([]);
