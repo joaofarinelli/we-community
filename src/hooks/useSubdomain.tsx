@@ -75,7 +75,16 @@ export const useSubdomain = () => {
     const parts = hostname.split('.');
     console.log('Hostname parts:', parts);
     
-    // Check if hostname ends with any known base domain
+    // Check if hostname is exactly a known base domain (main platform domain)
+    if (knownBaseDomains.includes(hostname)) {
+      console.log('✅ Detected base domain, no subdomain/custom domain:', hostname);
+      setSubdomain(null);
+      setCustomDomain(null);
+      setIsLoading(false);
+      return;
+    }
+    
+    // Check if hostname ends with any known base domain (but is not the base domain itself)
     const matchingBaseDomain = knownBaseDomains.find(baseDomain => hostname.endsWith(baseDomain));
     
     if (matchingBaseDomain && hostname !== matchingBaseDomain) {
