@@ -19,21 +19,50 @@ export const useEventParticipants = (eventId: string) => {
 
       console.log('Fetching participants for event:', eventId, 'company:', currentCompanyId);
       
-      const { data, error } = await supabase
+      // First, get the event participants
+      const { data: participants, error: participantsError } = await supabase
         .from('event_participants')
-        .select(`
-          *,
-          profiles(first_name, last_name)
-        `)
+        .select('*')
         .eq('event_id', eventId)
         .eq('company_id', currentCompanyId)
         .order('joined_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching participants:', error);
-        throw error;
+      if (participantsError) {
+        console.error('Error fetching participants:', participantsError);
+        throw participantsError;
       }
-      return data || [];
+
+      if (!participants || participants.length === 0) {
+        return [];
+      }
+
+      // Then, get the profile information for those participants
+      const userIds = participants.map(p => p.user_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name')
+        .in('user_id', userIds)
+        .eq('company_id', currentCompanyId);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        // Return participants without profile info if profiles query fails
+        return participants;
+      }
+
+      // Combine participants with their profile information
+      const participantsWithProfiles = participants.map(participant => {
+        const profile = profiles?.find(p => p.user_id === participant.user_id);
+        return {
+          ...participant,
+          profiles: profile ? {
+            first_name: profile.first_name,
+            last_name: profile.last_name
+          } : null
+        };
+      });
+
+      return participantsWithProfiles;
     },
     enabled: !!user && !!eventId && !!currentCompanyId,
   });
