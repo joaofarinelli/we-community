@@ -17,6 +17,9 @@ interface CreateEventData {
   locationAddress?: string;
   onlineLink?: string;
   locationCoordinates?: string;
+  isPaid?: boolean;
+  priceCoins?: number;
+  paymentRequired?: boolean;
 }
 
 export const useCreateEvent = () => {
@@ -46,6 +49,9 @@ export const useCreateEvent = () => {
           location_coordinates: data.locationCoordinates,
           created_by: user.id,
           status: 'draft',
+          is_paid: data.isPaid || false,
+          price_coins: data.priceCoins || 0,
+          payment_required: data.paymentRequired || false,
         })
         .select()
         .single();

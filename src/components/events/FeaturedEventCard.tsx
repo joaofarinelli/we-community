@@ -191,6 +191,9 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
         } as any}
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
+        isPaid={event.is_paid}
+        priceCoins={event.price_coins}
+        eventTitle={event.title}
       />
     </Card>
   );

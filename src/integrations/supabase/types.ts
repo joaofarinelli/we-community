@@ -1291,12 +1291,15 @@ export type Database = {
           end_date: string
           id: string
           image_url: string | null
+          is_paid: boolean
           location: string | null
           location_address: string | null
           location_coordinates: string | null
           location_type: string | null
           max_participants: number | null
           online_link: string | null
+          payment_required: boolean
+          price_coins: number | null
           space_id: string
           start_date: string
           status: string
@@ -1311,12 +1314,15 @@ export type Database = {
           end_date: string
           id?: string
           image_url?: string | null
+          is_paid?: boolean
           location?: string | null
           location_address?: string | null
           location_coordinates?: string | null
           location_type?: string | null
           max_participants?: number | null
           online_link?: string | null
+          payment_required?: boolean
+          price_coins?: number | null
           space_id: string
           start_date: string
           status?: string
@@ -1331,12 +1337,15 @@ export type Database = {
           end_date?: string
           id?: string
           image_url?: string | null
+          is_paid?: boolean
           location?: string | null
           location_address?: string | null
           location_coordinates?: string | null
           location_type?: string | null
           max_participants?: number | null
           online_link?: string | null
+          payment_required?: boolean
+          price_coins?: number | null
           space_id?: string
           start_date?: string
           status?: string
@@ -4506,6 +4515,17 @@ export type Database = {
           visibility: string | null
         }
       }
+      debug_space_creation_context: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_user_id: string
+          company_context: string
+          is_owner: boolean
+          profile_exists: boolean
+          user_companies: string[]
+          user_companies_count: number
+        }[]
+      }
       find_company_by_domain: {
         Args: { p_domain: string }
         Returns: {
@@ -4522,6 +4542,10 @@ export type Database = {
           subdomain: string
           text_color: string
         }[]
+      }
+      generate_invite_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_all_companies_for_super_admin: {
         Args: Record<PropertyKey, never>
@@ -4589,6 +4613,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_jwt_email: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_accessible_companies: {
         Args: { p_user_email: string } | { p_user_id: string }
         Returns: {
@@ -4598,7 +4626,6 @@ export type Database = {
           company_name: string
           company_subdomain: string
           profile_created_at: string
-          user_id: string
           user_role: string
         }[]
       }
@@ -4646,6 +4673,15 @@ export type Database = {
       is_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      process_invite_acceptance: {
+        Args: {
+          p_first_name: string
+          p_last_name: string
+          p_token: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       process_streak_rewards: {
         Args: { p_company_id: string; p_streak_days: number; p_user_id: string }

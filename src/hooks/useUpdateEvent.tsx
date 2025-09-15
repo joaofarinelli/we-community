@@ -18,6 +18,9 @@ interface UpdateEventData {
   locationAddress?: string;
   onlineLink?: string;
   locationCoordinates?: string;
+  isPaid?: boolean;
+  priceCoins?: number;
+  paymentRequired?: boolean;
 }
 
 export const useUpdateEvent = () => {
@@ -43,6 +46,9 @@ export const useUpdateEvent = () => {
       if (data.locationAddress !== undefined) updateData.location_address = data.locationAddress;
       if (data.onlineLink !== undefined) updateData.online_link = data.onlineLink;
       if (data.locationCoordinates !== undefined) updateData.location_coordinates = data.locationCoordinates;
+      if (data.isPaid !== undefined) updateData.is_paid = data.isPaid;
+      if (data.priceCoins !== undefined) updateData.price_coins = data.priceCoins;
+      if (data.paymentRequired !== undefined) updateData.payment_required = data.paymentRequired;
 
       const { data: event, error } = await supabase
         .from('events')

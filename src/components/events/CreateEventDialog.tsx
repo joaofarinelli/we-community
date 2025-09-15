@@ -38,6 +38,7 @@ import { useCreateEvent } from '@/hooks/useCreateEvent';
 import { cn } from '@/lib/utils';
 import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
+import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/ui/image-upload';
 
 interface Event {
@@ -77,6 +78,9 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
       locationAddress: "",
       onlineLink: "",
       imageUrl: "",
+      isPaid: false,
+      priceCoins: 0,
+      paymentRequired: false,
     },
   });
 
@@ -97,6 +101,9 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
         locationType: values.locationType,
         locationAddress: values.locationAddress,
         onlineLink: values.onlineLink,
+        isPaid: values.isPaid,
+        priceCoins: values.priceCoins,
+        paymentRequired: values.paymentRequired,
       });
       
       setCreatedEvent(event as Event);
@@ -339,6 +346,52 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                     control={form.control}
                     locationType={form.watch('locationType')}
                   />
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-foreground">Configurações de Pagamento</h3>
+                  
+                  <FormField
+                    control={form.control}
+                    name="isPaid"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Evento Pago</FormLabel>
+                          <div className="text-sm text-muted-foreground">
+                            Este evento requer pagamento para participar?
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch('isPaid') && (
+                    <FormField
+                      control={form.control}
+                      name="priceCoins"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Preço em moedas</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="Digite o preço em moedas"
+                              {...field}
+                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
               </div>
 

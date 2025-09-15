@@ -41,7 +41,7 @@ import { cn } from '@/lib/utils';
 import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Switch } from '@/components/ui/switch';
 
 interface Event {
   id: string;
@@ -82,6 +82,9 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
       locationAddress: "",
       onlineLink: "",
       imageUrl: "",
+      isPaid: false,
+      priceCoins: 0,
+      paymentRequired: false,
     },
   });
 
@@ -128,7 +131,10 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
       imageUrl: values.imageUrl,
       locationType: values.locationType,
       locationAddress: values.locationAddress,
-      onlineLink: values.onlineLink,
+        onlineLink: values.onlineLink,
+        isPaid: values.isPaid,
+        priceCoins: values.priceCoins,
+        paymentRequired: values.paymentRequired,
     });
 
     onOpenChange(false);
@@ -183,8 +189,8 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-6">
             {/* Disable form fields for active events if user is not admin */}
             <fieldset disabled={event.status === 'active' && !isAdmin}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+            </Tabs>
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Visão Geral
@@ -196,6 +202,10 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                 <TabsTrigger value="people" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   Pessoas
+                </TabsTrigger>
+                <TabsTrigger value="payment" className="flex items-center gap-2">
+                  <MoreHorizontal className="h-4 w-4" />
+                  Pagamento
                 </TabsTrigger>
                 <TabsTrigger value="basics" className="flex items-center gap-2">
                   <Info className="h-4 w-4" />
@@ -262,6 +272,50 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                     </FormItem>
                   )}
                 />
+              </TabsContent>
+
+              <TabsContent value="payment" className="space-y-6 mt-6">
+                <FormField
+                  control={form.control}
+                  name="isPaid"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Evento Pago</FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Este evento requer pagamento para participar?
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {form.watch('isPaid') && (
+                  <FormField
+                    control={form.control}
+                    name="priceCoins"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Preço em moedas</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="Digite o preço em moedas"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </TabsContent>
 
               <TabsContent value="people" className="space-y-6 mt-6">
@@ -416,9 +470,6 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                     )}
                   />
                 </div>
-              </TabsContent>
-            </Tabs>
-
             <div className="flex justify-between items-center pt-6 border-t">
               <Button
                 type="button"
