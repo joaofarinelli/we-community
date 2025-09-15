@@ -93,6 +93,7 @@ import { AnnouncementProvider } from '@/components/ui/AnnouncementProvider';
 import { MaintenanceGuard } from '@/components/MaintenanceGuard';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
+import { UrlNormalizer } from '@/components/UrlNormalizer';
 
 const queryClient = new QueryClient();
 
@@ -119,7 +120,8 @@ const AppRoutes = () => {
   return (
     <CompanyContextWrapper>
       <AnnouncementProvider />
-      <Routes>
+      <UrlNormalizer>
+        <Routes>
         {/* Public routes - no authentication or company context required */}
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
         <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <AuthPage />} />
@@ -239,7 +241,8 @@ const AppRoutes = () => {
         
         {/* Catch-all route */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
+        </Routes>
+      </UrlNormalizer>
     </CompanyContextWrapper>
   );
 };
