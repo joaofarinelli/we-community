@@ -13,6 +13,20 @@
     <!-- Whisper Font -->
     <link href="https://fonts.googleapis.com/css2?family=Whisper&display=swap" rel="stylesheet">
 
+    <!-- URL Normalization (Pre-boot) -->
+    <script>
+      (function() {
+        const currentPath = window.location.pathname;
+        const normalizedPath = currentPath.replace(/\/+/g, '/');
+        
+        if (currentPath !== normalizedPath) {
+          console.log('[PreBoot] URL normalization:', { from: currentPath, to: normalizedPath });
+          const newUrl = window.location.origin + normalizedPath + window.location.search + window.location.hash;
+          window.history.replaceState(null, '', newUrl);
+        }
+      })();
+    </script>
+
     <meta property="og:title" content="We Plataforma" />
     <meta property="og:type" content="website" />
 

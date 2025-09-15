@@ -130,6 +130,10 @@ const AppRoutes = () => {
         <Route path="/certificate/:certificateCode" element={<CertificateVerificationPage />} />
         <Route path="/maintenance" element={<MaintenancePage />} />
         
+        {/* Fallback routes for double slashes */}
+        <Route path="//reset-password" element={<Navigate to="/reset-password" replace />} />
+        <Route path="//auth" element={<Navigate to="/auth" replace />} />
+        
         {/* Protected routes - require authentication and company context */}
         <Route path="/dashboard/*" element={
           <MultiCompanyGuard>
