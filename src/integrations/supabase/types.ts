@@ -4454,7 +4454,7 @@ export type Database = {
         Returns: string
       }
       can_user_see_space: {
-        Args: { space_id: string; user_id: string }
+        Args: { p_space_id: string; p_user_id: string }
         Returns: boolean
       }
       check_course_completion: {
