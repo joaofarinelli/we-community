@@ -74,7 +74,9 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   return (
     <Card 
       className="cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => {
+      onClick={(e) => {
+        // Check if click originated from dialog portal (outside this component's DOM)
+        if (!(e.currentTarget as HTMLElement).contains(e.target as Node)) return;
         if (editDialogOpen) return;
         window.location.href = `/dashboard/events/${event.id}`;
       }}

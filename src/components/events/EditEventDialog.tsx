@@ -173,6 +173,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
       <SheetContent 
         className="w-full sm:max-w-3xl overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        onClickCapture={(e) => e.stopPropagation()}
         onMouseDownCapture={(e) => e.stopPropagation()}
         onPointerDownCapture={(e) => e.stopPropagation()}
       >
