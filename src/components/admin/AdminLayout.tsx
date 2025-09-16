@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
+import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
@@ -85,12 +86,21 @@ const mainMenuItems = [
   },
   {
     icon: ShoppingBag,
-    label: 'Marketplace & Loja',
+    label: 'Marketplace',
     key: 'marketplace',
+    featureRequired: 'marketplace' as const,
     subItems: [
       { label: 'Gerenciar marketplace', path: '/admin/marketplace' },
       { label: 'Moderação do marketplace', path: '/admin/marketplace/moderation' },
       { label: 'Termos do marketplace', path: '/admin/marketplace/terms' },
+    ]
+  },
+  {
+    icon: Store,
+    label: 'Loja',
+    key: 'store',
+    featureRequired: 'store' as const,
+    subItems: [
       { label: 'Gerenciar loja', path: '/admin/store' },
       { label: 'Categorias da loja', path: '/admin/store/categories' },
     ]
@@ -146,10 +156,20 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   // Initialize Supabase context for multi-company users
   useSupabaseContext();
   useCompanyRealtime();
+  
+  // Filter menu items based on enabled features
+  const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
+  const isStoreEnabled = useIsFeatureEnabled('store');
+  
+  const filteredMenuItems = mainMenuItems.filter(item => {
+    if (item.featureRequired === 'marketplace') return isMarketplaceEnabled;
+    if (item.featureRequired === 'store') return isStoreEnabled;
+    return true;
+  });
   const [activeMenu, setActiveMenu] = useState<string | null>(() => {
     // Determinar menu ativo baseado na rota atual
     const currentPath = location.pathname;
-    for (const menu of mainMenuItems) {
+    for (const menu of filteredMenuItems) {
       if (menu.subItems.some(item => item.path === currentPath)) {
         return menu.key;
       }
@@ -163,14 +183,14 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
     } else {
       setActiveMenu(menuKey);
       // Navegar para o primeiro item do submenu
-      const menu = mainMenuItems.find(m => m.key === menuKey);
+      const menu = filteredMenuItems.find(m => m.key === menuKey);
       if (menu && menu.subItems.length > 0) {
         navigate(menu.subItems[0].path);
       }
     }
   };
 
-  const activeMenuData = mainMenuItems.find(m => m.key === activeMenu);
+  const activeMenuData = filteredMenuItems.find(m => m.key === activeMenu);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -200,7 +220,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
           <div className="flex-1 overflow-y-auto">
             <div className="p-2">
               <div className="space-y-1">
-                {mainMenuItems.map((item) => (
+                {filteredMenuItems.map((item) => (
                   <Tooltip key={item.key}>
                     <TooltipTrigger asChild>
                       <Button
