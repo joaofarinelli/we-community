@@ -14,7 +14,7 @@ import { CustomDomainSection } from '@/components/admin/CustomDomainSection';
 import { FeedBannerSection } from '@/components/admin/FeedBannerSection';
 import { LoginBannerSection } from '@/components/admin/LoginBannerSection';
 import { CoinNameSection } from '@/components/admin/CoinNameSection';
-
+import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection';
 import { CourseProgressionSection } from '@/components/admin/CourseProgressionSection';
 
@@ -132,6 +132,19 @@ export const AdminSettingsPage = () => {
               <FeedBannerSection />
               <LoginBannerSection />
               
+              {useIsFeatureEnabled('courses') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Banner da Página de Cursos</CardTitle>
+                    <CardDescription>
+                      Configure o banner que aparecerá na página de cursos
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <CourseBannerSection isAdminMode={true} />
+                  </CardContent>
+                </Card>
+              )}
               {useIsFeatureEnabled('trails') && (
                 <PageBannerSection 
                   bannerType="trails" 
