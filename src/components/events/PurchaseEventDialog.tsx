@@ -69,9 +69,6 @@ export const PurchaseEventDialog = ({
       <DialogContent 
         className="sm:max-w-md"
         onClick={(e) => e.stopPropagation()}
-        onClickCapture={(e) => e.stopPropagation()}
-        onMouseDownCapture={(e) => e.stopPropagation()}
-        onPointerDownCapture={(e) => e.stopPropagation()}
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
