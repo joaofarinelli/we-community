@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCompany } from '@/hooks/useCompany';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,17 @@ export const WhatsAppSection = () => {
     whatsapp_phone: company?.whatsapp_phone || '',
     whatsapp_message: company?.whatsapp_message || 'Olá! Gostaria de saber mais informações.',
   });
+
+  // Update local state when company data changes
+  useEffect(() => {
+    if (company) {
+      setConfig({
+        whatsapp_enabled: company.whatsapp_enabled || false,
+        whatsapp_phone: company.whatsapp_phone || '',
+        whatsapp_message: company.whatsapp_message || 'Olá! Gostaria de saber mais informações.',
+      });
+    }
+  }, [company]);
 
   const handleSave = async () => {
     if (!company?.id) return;
