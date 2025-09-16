@@ -89,7 +89,10 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
   return (
     <Card 
       className="cursor-pointer hover:shadow-md transition-shadow border-2 border-primary/20"
-      onClick={() => onEventClick?.(event.id)}
+      onClick={() => {
+        if (editDialogOpen || purchaseDialogOpen) return;
+        onEventClick?.(event.id);
+      }}
     >
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
