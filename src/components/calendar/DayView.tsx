@@ -1,6 +1,7 @@
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getEventsOverlappingInterval } from '@/lib/date-utils';
 
 interface DayViewProps {
   date: Date;
@@ -29,9 +30,18 @@ function minutesSinceStart(d: Date) {
 
 export const DayView = ({ date, events }: DayViewProps) => {
   const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
-  const dayEvents = events
-    .filter((e) => isSameDay(new Date(e.start_date), date))
-    .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+  
+  // Create day interval (start and end of day)
+  const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+  const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+  
+  // Filter events that overlap with this day using preprocessed dates
+  const dayEvents = getEventsOverlappingInterval(events, dayStart, dayEnd)
+    .sort((a, b) => {
+      const aStart = a._parsedStartDate || new Date(a.start_date);
+      const bStart = b._parsedStartDate || new Date(b.start_date);
+      return aStart.getTime() - bStart.getTime();
+    });
 
   const active: { end: number }[] = [];
 

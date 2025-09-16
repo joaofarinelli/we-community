@@ -39,11 +39,19 @@ export function preprocessEvents(events: any[]) {
 
 /**
  * Filtra eventos para uma data específica usando datas pre-processadas
+ * Considera eventos que começam, terminam ou passam pela data especificada
  */
 export function getEventsForDate(events: any[], date: Date) {
   return events.filter(event => {
-    const eventDate = event._parsedStartDate || parseEventDate(event.start_date);
-    return isSameDay(eventDate, date);
+    const startDate = event._parsedStartDate || parseEventDate(event.start_date);
+    const endDate = event._parsedEndDate || parseEventDate(event.end_date);
+    
+    // Evento acontece se a data está entre o início e fim (inclusive)
+    const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const startOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const endOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+    
+    return dateOnly >= startOnly && dateOnly <= endOnly;
   });
 }
 
@@ -52,7 +60,25 @@ export function getEventsForDate(events: any[], date: Date) {
  */
 export function getEventsForRange(events: any[], startDate: Date, endDate: Date) {
   return events.filter(event => {
-    const eventDate = event._parsedStartDate || parseEventDate(event.start_date);
-    return eventDate >= startDate && eventDate <= endDate;
+    const eventStartDate = event._parsedStartDate || parseEventDate(event.start_date);
+    const eventEndDate = event._parsedEndDate || parseEventDate(event.end_date);
+    
+    // Evento se sobrepõe ao range se:
+    // - Começa antes do final do range E termina depois do início do range
+    return eventStartDate <= endDate && eventEndDate >= startDate;
+  });
+}
+
+/**
+ * Filtra eventos que se sobrepõem a um intervalo específico (para visualizações de hora)
+ */
+export function getEventsOverlappingInterval(events: any[], intervalStart: Date, intervalEnd: Date) {
+  return events.filter(event => {
+    const eventStartDate = event._parsedStartDate || parseEventDate(event.start_date);
+    const eventEndDate = event._parsedEndDate || parseEventDate(event.end_date);
+    
+    // Evento se sobrepõe ao intervalo se:
+    // - Começa antes do final do intervalo E termina depois do início do intervalo
+    return eventStartDate < intervalEnd && eventEndDate > intervalStart;
   });
 }

@@ -1,6 +1,7 @@
-import { eachDayOfInterval, endOfWeek, format, isSameDay, startOfWeek } from 'date-fns';
+import { eachDayOfInterval, endOfWeek, format, startOfWeek } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getEventsForDate } from '@/lib/date-utils';
 
 
 interface WeekViewProps {
@@ -53,9 +54,12 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
         {/* Days grid */}
         <div className="grid flex-1 grid-cols-7">
           {days.map((day) => {
-            const dayEvents = events
-              .filter((e) => isSameDay(new Date(e.start_date), day))
-              .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+            const dayEvents = getEventsForDate(events, day)
+              .sort((a, b) => {
+                const aStart = a._parsedStartDate || new Date(a.start_date);
+                const bStart = b._parsedStartDate || new Date(b.start_date);
+                return aStart.getTime() - bStart.getTime();
+              });
 
             // Simple overlap handling using active stack for left offset
             const active: { end: number }[] = [];
@@ -69,7 +73,7 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
 
                 {/* Day header */}
                 <button
-                  onClick={() => onSelectDate(selectedDate && isSameDay(selectedDate, day) ? null : day)}
+                  onClick={() => onSelectDate(selectedDate && selectedDate.toDateString() === day.toDateString() ? null : day)}
                   className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium bg-card/70 hover:bg-accent/50 backdrop-blur"
                 >
                   {format(day, 'EEE d', { locale: ptBR })}
