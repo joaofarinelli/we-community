@@ -5,7 +5,7 @@ import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 
 export const useUserCourseProgress = (courseId?: string) => {
   const { user } = useAuth();
-  useSupabaseContext();
+  const { isContextReady } = useSupabaseContext();
   
   return useQuery({
     queryKey: ['user-course-progress', user?.id, courseId],
@@ -34,14 +34,14 @@ export const useUserCourseProgress = (courseId?: string) => {
       if (error) throw error;
       return data;
     },
-    enabled: !!user?.id
+    enabled: !!user?.id && isContextReady
   });
 };
 
 export const useMarkLessonComplete = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  useSupabaseContext();
+  const { isContextReady } = useSupabaseContext();
 
   return useMutation({
     mutationFn: async ({ lessonId, moduleId, courseId }: { 

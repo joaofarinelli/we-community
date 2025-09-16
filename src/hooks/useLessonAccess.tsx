@@ -9,7 +9,7 @@ import { useUserCourseProgress } from '@/hooks/useUserCourseProgress';
 export const useLessonAccess = (moduleId: string, courseId: string) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
-  useSupabaseContext();
+  const { isContextReady } = useSupabaseContext();
 
   const { data: lessons, isLoading: lessonsLoading } = useCourseLessons(moduleId);
   const { data: progress, isLoading: progressLoading } = useUserCourseProgress(courseId);
@@ -68,6 +68,6 @@ export const useLessonAccess = (moduleId: string, courseId: string) => {
       return accessMap;
     },
     enabled: !!moduleId && !!courseId && !!user?.id && !!currentCompanyId && 
-             !lessonsLoading && !progressLoading && !!lessons
+             !lessonsLoading && !progressLoading && !!lessons && isContextReady
   });
 };

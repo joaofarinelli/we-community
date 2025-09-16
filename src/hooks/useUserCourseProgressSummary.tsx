@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { useSupabaseContext } from './useSupabaseContext';
 
 export interface UserCourseProgress {
   course_id: string;
@@ -18,6 +19,7 @@ export interface UserCourseProgress {
 export const useUserCourseProgressSummary = (userId: string) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const { isContextReady } = useSupabaseContext();
 
   return useQuery({
     queryKey: ['user-course-progress-summary', userId, currentCompanyId],
@@ -38,6 +40,6 @@ export const useUserCourseProgressSummary = (userId: string) => {
 
       return (data || []) as UserCourseProgress[];
     },
-    enabled: !!user?.id && !!currentCompanyId && !!userId,
+    enabled: !!user?.id && !!currentCompanyId && !!userId && isContextReady,
   });
 };

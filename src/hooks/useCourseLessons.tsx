@@ -7,7 +7,7 @@ import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 export const useCourseLessons = (moduleId: string) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
-  useSupabaseContext();
+  const { isContextReady } = useSupabaseContext();
 
   return useQuery({
     queryKey: ['course-lessons', moduleId, user?.id, currentCompanyId],
@@ -21,6 +21,6 @@ export const useCourseLessons = (moduleId: string) => {
       if (error) throw error;
       return data;
     },
-    enabled: !!moduleId && !!user?.id && !!currentCompanyId,
+    enabled: !!moduleId && !!user?.id && !!currentCompanyId && isContextReady,
   });
 };

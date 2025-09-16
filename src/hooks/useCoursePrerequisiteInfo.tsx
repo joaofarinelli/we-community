@@ -2,10 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { useSupabaseContext } from './useSupabaseContext';
 
 export const useCoursePrerequisiteInfo = (courseId: string) => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const { isContextReady } = useSupabaseContext();
 
   return useQuery({
     queryKey: ['course-prerequisite-info', courseId, user?.id, currentCompanyId],
@@ -51,6 +53,6 @@ export const useCoursePrerequisiteInfo = (courseId: string) => {
         hasPrerequisite: true
       };
     },
-    enabled: !!user?.id && !!currentCompanyId && !!courseId,
+    enabled: !!user?.id && !!currentCompanyId && !!courseId && isContextReady,
   });
 };

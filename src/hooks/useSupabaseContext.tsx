@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase, setGlobalCompanyId } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { useLocation } from 'react-router-dom';
 
 // Public routes that don't require company context
 const PUBLIC_AUTH_ROUTES = [
@@ -40,13 +41,18 @@ const isPublicAuthRoute = (pathname: string): boolean => {
 export const useSupabaseContext = () => {
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
+  const location = useLocation();
+  const [isContextReady, setIsContextReady] = useState(false);
 
   useEffect(() => {
+    setIsContextReady(false); // Reset when dependencies change
+
     // Skip context setup for public authentication routes
-    if (isPublicAuthRoute(window.location.pathname)) {
-      console.log('⏸️ useSupabaseContext: Skipping context setup for public auth route:', window.location.pathname);
+    if (isPublicAuthRoute(location.pathname)) {
+      console.log('⏸️ useSupabaseContext: Skipping context setup for public auth route:', location.pathname);
       // Clear global company ID for public routes
       setGlobalCompanyId(null);
+      setIsContextReady(true); // Public routes don't need company context
       return;
     }
     const setSupabaseContext = async () => {
@@ -64,6 +70,7 @@ export const useSupabaseContext = () => {
             p_company_id: currentCompanyId
           });
           console.log('✅ useSupabaseContext: Set Supabase context for company:', currentCompanyId);
+          setIsContextReady(true);
         } catch (error) {
           console.error('❌ useSupabaseContext: Error setting Supabase context:', error);
           // Retry once in case of temporary failure
@@ -73,8 +80,10 @@ export const useSupabaseContext = () => {
               p_company_id: currentCompanyId
             });
             console.log('✅ useSupabaseContext: Retry successful - Set Supabase context for company:', currentCompanyId);
+            setIsContextReady(true);
           } catch (retryError) {
             console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', retryError);
+            setIsContextReady(false);
           }
         }
       } else {
@@ -84,6 +93,7 @@ export const useSupabaseContext = () => {
         }
         // Clear global company ID if no context
         setGlobalCompanyId(null);
+        setIsContextReady(false);
       }
     };
 
@@ -93,8 +103,9 @@ export const useSupabaseContext = () => {
     } else {
       // Clear context if user or company is not available
       setGlobalCompanyId(null);
+      setIsContextReady(false);
     }
-  }, [user, currentCompanyId]);
+  }, [user, currentCompanyId, location.pathname]);
 
-  return null;
+  return { isContextReady };
 };
