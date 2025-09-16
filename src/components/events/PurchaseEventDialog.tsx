@@ -8,6 +8,8 @@ import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useCoinName } from '@/hooks/useCoinName';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { InsufficientBalanceDialog } from './InsufficientBalanceDialog';
+import { CoinTopupDialog } from '../payments/CoinTopupDialog';
 
 interface PurchaseEventDialogProps {
   open: boolean;
@@ -32,6 +34,8 @@ export const PurchaseEventDialog = ({
   onSuccess 
 }: PurchaseEventDialogProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [insufficientBalanceOpen, setInsufficientBalanceOpen] = useState(false);
+  const [coinTopupOpen, setCoinTopupOpen] = useState(false);
   const { processPayment, userCoins } = useEventPayment();
   const { joinEvent } = useEventParticipants(event.id);
   const { data: coinName } = useCoinName();
@@ -42,7 +46,13 @@ export const PurchaseEventDialog = ({
   const endDate = new Date(event.end_date);
 
   const handlePurchase = async () => {
-    if (hasInsufficientBalance || isProcessing) return;
+    if (isProcessing) return;
+    
+    // If insufficient balance, open the insufficient balance dialog
+    if (hasInsufficientBalance) {
+      setInsufficientBalanceOpen(true);
+      return;
+    }
     
     setIsProcessing(true);
     
@@ -163,7 +173,7 @@ export const PurchaseEventDialog = ({
           </Button>
           <Button
             onClick={handlePurchase}
-            disabled={hasInsufficientBalance || isProcessing}
+            disabled={isProcessing}
             className="min-w-[100px]"
           >
             {isProcessing ? (
@@ -171,12 +181,27 @@ export const PurchaseEventDialog = ({
                 <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 Processando...
               </div>
+            ) : hasInsufficientBalance ? (
+              'Comprar moedas'
             ) : (
               `Comprar por ${priceCoins} ${coinName}`
             )}
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <InsufficientBalanceDialog
+        open={insufficientBalanceOpen}
+        onOpenChange={setInsufficientBalanceOpen}
+        event={event}
+        userCoins={userCoins}
+        onOpenCoinTopup={() => setCoinTopupOpen(true)}
+      />
+
+      <CoinTopupDialog
+        open={coinTopupOpen}
+        onClose={() => setCoinTopupOpen(false)}
+      />
     </Dialog>
   );
 };
