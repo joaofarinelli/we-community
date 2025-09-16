@@ -14,51 +14,13 @@ export const useCompany = () => {
       if (customDomain) {
         console.log('Searching for company with custom domain:', customDomain);
         
-        // First try with verified status
-        const { data: company } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('custom_domain', customDomain)
-          .eq('custom_domain_status', 'verified')
-          .single();
+        const { data } = await supabase.rpc('find_company_by_domain', {
+          p_domain: customDomain
+        });
 
-        if (company) {
-          console.log('Found verified company:', company.name);
-          return company;
-        }
-
-        // Fallback for development/editor: try without verification requirement
-        const { data: unverifiedCompany } = await supabase
-          .from('companies')
-          .select('*')
-          .eq('custom_domain', customDomain)
-          .single();
-
-        if (unverifiedCompany) {
-          console.log('Found unverified company:', unverifiedCompany.name);
-          return unverifiedCompany;
-        }
-
-        // If no custom domain match, try as subdomain (extract prefix)
-        const knownBaseDomains = ['weplataforma.com.br', 'yourplatform.com'];
-        const matchingBaseDomain = knownBaseDomains.find(baseDomain => customDomain.endsWith(baseDomain));
-        
-        if (matchingBaseDomain && customDomain !== matchingBaseDomain) {
-          const prefix = customDomain.replace('.' + matchingBaseDomain, '').replace(matchingBaseDomain, '');
-          
-          if (prefix && !prefix.includes('.')) {
-            console.log('Trying as subdomain:', prefix);
-            const { data: subdomainCompany } = await supabase
-              .from('companies')
-              .select('*')
-              .eq('subdomain', prefix)
-              .single();
-
-            if (subdomainCompany) {
-              console.log('Found company by subdomain:', subdomainCompany.name);
-              return subdomainCompany;
-            }
-          }
+        if (data && data.length > 0) {
+          console.log('Found company via domain lookup:', data[0].name);
+          return data[0];
         }
       }
 

@@ -28,7 +28,7 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
     // If we have a subdomain or custom domain but no company found, redirect to main domain
     // Ignore development-fallback as it's not a real custom domain
     const hasRealDomain = subdomain || (customDomain && customDomain !== 'development-fallback');
-    if (!subdomainLoading && !companyLoading && hasRealDomain && !company && !targetCompany) {
+    if (!subdomainLoading && !companyLoading && !isValidating && hasRealDomain && !company && !targetCompany) {
       const hostname = window.location.hostname;
       const parts = hostname.split('.');
       
@@ -65,7 +65,7 @@ export const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
   // If we have a subdomain or custom domain but no company, show error and redirect
   // Ignore development-fallback as it's not a real custom domain
   const hasRealDomainForError = subdomain || (customDomain && customDomain !== 'development-fallback');
-  if (hasRealDomainForError && !company && !targetCompany && !companyLoading) {
+  if (hasRealDomainForError && !company && !targetCompany && !companyLoading && !isValidating) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
