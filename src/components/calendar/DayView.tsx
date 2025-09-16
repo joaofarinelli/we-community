@@ -29,6 +29,40 @@ function minutesSinceStart(d: Date) {
   return (h - START_HOUR) * 60 + m;
 }
 
+function calculateEventLayout(events: any[], eventIndex: number) {
+  const currentEvent = events[eventIndex];
+  const currentStart = minutesSinceStart(new Date(currentEvent.start_date));
+  const currentEnd = minutesSinceStart(new Date(currentEvent.end_date));
+  
+  // Find all events that overlap with the current event
+  const overlappingEvents = events.filter((event, idx) => {
+    if (idx === eventIndex) return true;
+    const start = minutesSinceStart(new Date(event.start_date));
+    const end = minutesSinceStart(new Date(event.end_date));
+    return Math.max(currentStart, start) < Math.min(currentEnd, end);
+  });
+  
+  // Sort overlapping events by start time, then by index for consistency
+  overlappingEvents.sort((a, b) => {
+    const aStart = minutesSinceStart(new Date(a.start_date));
+    const bStart = minutesSinceStart(new Date(b.start_date));
+    if (aStart !== bStart) return aStart - bStart;
+    return events.indexOf(a) - events.indexOf(b);
+  });
+  
+  const totalColumns = overlappingEvents.length;
+  const currentColumn = overlappingEvents.findIndex(e => e.id === currentEvent.id);
+  
+  const columnWidth = 100 / totalColumns;
+  const left = (currentColumn * columnWidth);
+  
+  return {
+    left: `${left}%`,
+    width: `${columnWidth}%`,
+    zIndex: currentColumn
+  };
+}
+
 export const DayView = ({ date, events }: DayViewProps) => {
   const navigate = useNavigate();
   const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
@@ -44,8 +78,6 @@ export const DayView = ({ date, events }: DayViewProps) => {
       const bStart = b._parsedStartDate || new Date(b.start_date);
       return aStart.getTime() - bStart.getTime();
     });
-
-  const active: { end: number }[] = [];
 
   return (
     <div className="w-full overflow-auto">
@@ -79,12 +111,7 @@ export const DayView = ({ date, events }: DayViewProps) => {
             topMin = Math.max(0, topMin);
             bottomMin = Math.min(TOTAL_MINUTES, Math.max(topMin + 15, bottomMin));
 
-            for (let i = active.length - 1; i >= 0; i--) {
-              if (active[i].end <= topMin) active.splice(i, 1);
-            }
-            const offset = active.length;
-            active.push({ end: bottomMin });
-
+            const layout = calculateEventLayout(dayEvents, idx);
             const top = topMin * MINUTE_HEIGHT;
             const height = (bottomMin - topMin) * MINUTE_HEIGHT;
 
@@ -92,8 +119,16 @@ export const DayView = ({ date, events }: DayViewProps) => {
               <button
                 key={e.id}
                 onClick={() => navigate(`/dashboard/events/${e.id}`)}
-                className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in cursor-pointer transition-transform hover:scale-105', eventVariants[idx % eventVariants.length])}
-                style={{ top, height, marginLeft: offset * 8 }}
+                className={cn('absolute rounded-md border p-1 text-xs shadow-sm hover-scale animate-fade-in cursor-pointer transition-transform hover:scale-105', eventVariants[idx % eventVariants.length])}
+                style={{ 
+                  top, 
+                  height, 
+                  left: layout.left,
+                  width: layout.width,
+                  zIndex: layout.zIndex,
+                  marginLeft: '4px',
+                  marginRight: '4px'
+                }}
                 title={`${e.title} • ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`}
                 aria-label={`Ver evento: ${e.title}`}
               >
