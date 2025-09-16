@@ -17,7 +17,7 @@ export const useAllUserEvents = () => {
         .from('events')
         .select(`
           *,
-          spaces!inner(
+          spaces(
             name,
             visibility
           ),
@@ -30,6 +30,12 @@ export const useAllUserEvents = () => {
         .eq('company_id', currentCompanyId)
         .eq('status', 'active')
         .order('start_date', { ascending: true });
+
+      console.log('📅 Eventos carregados:', data?.length || 0, data?.map(e => ({ 
+        title: e.title, 
+        date: e.start_date,
+        space: e.spaces?.name || 'Sem espaço' 
+      })));
 
       if (error) throw error;
       return data || [];

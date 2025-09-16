@@ -1,6 +1,8 @@
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { getEventsForDate, preprocessEvents } from '@/lib/date-utils';
+import { useMemo } from 'react';
 
 export interface CalendarEvent {
   id: string;
@@ -25,6 +27,9 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
   const gridEnd = endOfWeek(monthEnd, { locale: ptBR });
   const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
 
+  // Pre-processar eventos uma vez para otimizar performance
+  const processedEvents = useMemo(() => preprocessEvents(events), [events]);
+
   // Visual variants for events using design tokens
   const eventVariants = [
     'bg-primary/10 text-primary',
@@ -33,8 +38,7 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
     'bg-destructive/10 text-destructive',
   ];
 
-  const getEventsForDate = (date: Date) =>
-    events.filter((e) => isSameDay(new Date(e.start_date), date));
+  console.log('📅 MonthView: Total eventos processados:', processedEvents.length);
 
   return (
     <div className="w-full">
@@ -51,7 +55,12 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
           const inMonth = day >= monthStart && day <= monthEnd;
           const isSelected = selectedDate && isSameDay(day, selectedDate);
           const isToday = isSameDay(day, new Date());
-          const dayEvents = getEventsForDate(day);
+          const dayEvents = getEventsForDate(processedEvents, day);
+          
+          // Debug para cada dia com eventos
+          if (dayEvents.length > 0) {
+            console.log(`📅 ${format(day, 'dd/MM')}:`, dayEvents.length, 'eventos:', dayEvents.map(e => e.title));
+          }
 
           return (
             <button

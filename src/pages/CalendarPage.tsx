@@ -26,12 +26,17 @@ import { cn } from '@/lib/utils';
 import { MonthView } from '@/components/calendar/MonthView';
 import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
+import { getEventsForDate, getEventsForRange, preprocessEvents } from '@/lib/date-utils';
+import { useMemo } from 'react';
 
 export const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'day' | 'week' | 'month'>('month');
   const { data: events = [], isLoading } = useAllUserEvents();
+
+  // Pre-processar eventos uma vez
+  const processedEvents = useMemo(() => preprocessEvents(events), [events]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -52,30 +57,20 @@ export const CalendarPage = () => {
     document.title = `Calendário — ${period}`;
   }, [currentDate, selectedDate, viewType, weekStart, weekEnd]);
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter((event) => isSameDay(new Date(event.start_date), date));
-  };
-
-  const getEventsForRange = (start: Date, end: Date) => {
-    return events.filter((event) => {
-      const d = new Date(event.start_date);
-      return d >= start && d <= end;
-    });
-  };
+  // Substituir por funções otimizadas
+  const getEventsForDateOptimized = (date: Date) => getEventsForDate(processedEvents, date);
+  const getEventsForRangeOptimized = (start: Date, end: Date) => getEventsForRange(processedEvents, start, end);
 
   const dayTargetDate = selectedDate ?? currentDate;
 
   const selectedEvents =
     viewType === 'day'
-      ? getEventsForDate(dayTargetDate)
+      ? getEventsForDateOptimized(dayTargetDate)
       : viewType === 'week'
-      ? getEventsForRange(weekStart, weekEnd)
+      ? getEventsForRangeOptimized(weekStart, weekEnd)
       : selectedDate
-      ? getEventsForDate(selectedDate)
-      : events.filter((event) => {
-          const eventDate = new Date(event.start_date);
-          return eventDate >= monthStart && eventDate <= monthEnd;
-        });
+      ? getEventsForDateOptimized(selectedDate)
+      : getEventsForRangeOptimized(monthStart, monthEnd);
 
   const previousPeriod = () => {
     if (viewType === 'day') {
@@ -149,15 +144,15 @@ export const CalendarPage = () => {
                 </CardHeader>
                 <CardContent>
                   {viewType === 'month' && (
-                    <MonthView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={events as any[]} />
+                    <MonthView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={processedEvents as any[]} />
                   )}
 
                   {viewType === 'week' && (
-                    <WeekView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={events as any[]} />
+                    <WeekView currentDate={currentDate} selectedDate={selectedDate} onSelectDate={setSelectedDate} events={processedEvents as any[]} />
                   )}
 
                   {viewType === 'day' && (
-                    <DayView date={selectedDate ?? currentDate} events={events as any[]} />
+                    <DayView date={selectedDate ?? currentDate} events={processedEvents as any[]} />
                   )}
                 </CardContent>
               </Card>
@@ -209,7 +204,7 @@ export const CalendarPage = () => {
                       <div key={event.id} className="rounded-lg border bg-card/50 p-3 space-y-2 hover:bg-accent/40 transition-colors">
                         <h4 className="font-medium">{event.title}</h4>
                         <div className="text-sm text-muted-foreground">
-                          {format(new Date(event.start_date), 'HH:mm')} - {format(new Date(event.end_date), 'HH:mm')}
+                          {format(event._parsedStartDate || new Date(event.start_date), 'HH:mm')} - {format(event._parsedEndDate || new Date(event.end_date), 'HH:mm')}
                         </div>
                         <div className="text-sm text-muted-foreground">Espaço: {(event as any).spaces?.name || 'N/A'}</div>
                         <div className="text-sm">
