@@ -75,7 +75,7 @@ export const useEventsAnalytics = (startDate?: Date, endDate?: Date) => {
 
       const totalEvents = events?.length || 0;
       const activeEvents = events?.filter(e => e.status === 'active').length || 0;
-      const draftEvents = events?.filter(e => e.status === 'rascunho').length || 0;
+      const draftEvents = events?.filter(e => e.status === 'draft').length || 0;
       const cancelledEvents = events?.filter(e => e.status === 'cancelado').length || 0;
       const onlineEvents = events?.filter(e => e.location_type === 'online').length || 0;
       const presentialEvents = events?.filter(e => e.location_type === 'presencial').length || 0;

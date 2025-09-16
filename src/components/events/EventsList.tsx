@@ -34,10 +34,13 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
   const { filteredEvents, featuredEvent, counts } = useMemo(() => {
     const now = new Date();
     
-    const todayEvents = events.filter(event => isToday(new Date(event.start_date)));
-    const futureEvents = events.filter(event => isFuture(new Date(event.start_date)) && !isToday(new Date(event.start_date)));
-    const pastEvents = events.filter(event => isPast(new Date(event.end_date)));
+    // Filter out draft events from general tabs (only show in drafts tab)
+    const activeEvents = events.filter(event => event.status !== 'draft');
     const draftEvents = events.filter(event => event.status === 'draft');
+    
+    const todayEvents = activeEvents.filter(event => isToday(new Date(event.start_date)));
+    const futureEvents = activeEvents.filter(event => isFuture(new Date(event.start_date)) && !isToday(new Date(event.start_date)));
+    const pastEvents = activeEvents.filter(event => isPast(new Date(event.end_date)));
 
     const counts = {
       hoje: todayEvents.length,
@@ -62,7 +65,7 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
         break;
     }
 
-    // Featured event is the next upcoming event
+    // Featured event is the next upcoming event (only active events)
     const featuredEvent = futureEvents.length > 0 ? futureEvents[0] : todayEvents[0] || null;
 
     return { filteredEvents, featuredEvent, counts };

@@ -21,7 +21,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useAllUserEvents } from '@/hooks/useAllUserEvents';
+import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { MonthView } from '@/components/calendar/MonthView';
@@ -35,7 +35,7 @@ export const CalendarPage = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'day' | 'week' | 'month'>('month');
-  const { data: events = [], isLoading } = useAllUserEvents();
+  const { data: events = [], isLoading } = useCalendarEvents();
 
   // Pre-processar eventos uma vez
   const processedEvents = useMemo(() => preprocessEvents(events), [events]);
