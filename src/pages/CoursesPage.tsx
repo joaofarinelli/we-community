@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ModuleCard } from '@/components/courses/ModuleCard';
 import { PageBanner } from '@/components/ui/page-banner';
-import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
+
 import { Button } from '@/components/ui/button';
 import { useCourses } from '@/hooks/useCourses';
 import { useCourseModules } from '@/hooks/useCourseModules';
@@ -285,10 +285,6 @@ export const CoursesPage = () => {
   return (
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        {/* Course Banner - Full Width */}
-        <div className="-mx-8 -mt-8 mb-8">
-          <CourseBannerSection />
-        </div>
 
         {/* Courses Showcase */}
         <div className="px-8 py-8 space-y-12">
