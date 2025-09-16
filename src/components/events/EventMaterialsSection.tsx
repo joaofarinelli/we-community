@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Plus, FileText, Eye, EyeOff } from 'lucide-react';
 import { useEventMaterials } from '@/hooks/useEventMaterials';
+import { useEventMaterialsRealtime } from '@/hooks/useEventMaterialsRealtime';
 import { useCanEditEvent } from '@/hooks/useCanEditEvent';
 import { EventMaterialCard } from './EventMaterialCard';
 import { EventMaterialUploader } from './EventMaterialUploader';
@@ -23,6 +24,9 @@ export const EventMaterialsSection = ({ event }: EventMaterialsSectionProps) => 
   
   const { data: materials, isLoading } = useEventMaterials(event.id);
   const canEdit = useCanEditEvent(event);
+  
+  // Enable realtime updates for this event's materials
+  useEventMaterialsRealtime(event.id);
 
   if (isLoading) {
     return (
