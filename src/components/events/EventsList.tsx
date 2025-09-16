@@ -29,7 +29,7 @@ interface EventsListProps {
 }
 
 export const EventsList = ({ events, onEventClick }: EventsListProps) => {
-  const [activeFilter, setActiveFilter] = useState<'hoje' | 'futuros' | 'passados' | 'rascunhos'>('futuros');
+  const [activeFilter, setActiveFilter] = useState<'hoje' | 'futuros' | 'passados' | 'rascunhos'>('hoje');
 
   const { filteredEvents, featuredEvent, counts } = useMemo(() => {
     const now = new Date();
