@@ -12,6 +12,7 @@ import { EventBanner } from '@/components/events/EventBanner';
 import { EventLikeButton } from '@/components/events/EventLikeButton';
 import { EventParticipationDropdown } from '@/components/events/EventParticipationDropdown';
 import { EventInteractions } from '@/components/events/EventInteractions';
+import { EventMaterialsSection } from '@/components/events/EventMaterialsSection';
 import { UserAvatar } from '@/components/dashboard/UserAvatar';
 
 export default function EventDetailPage() {
@@ -167,6 +168,14 @@ END:VCALENDAR`;
                 </CardContent>
               </Card>
             )}
+
+            {/* Event Materials */}
+            <EventMaterialsSection event={{
+              id: event.id,
+              space_id: event.space_id,
+              created_by: event.created_by,
+              status: event.status
+            }} />
 
             {/* Actions and Interactions */}
             <div className="space-y-6">
