@@ -66,7 +66,12 @@ export const PurchaseEventDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent 
+        className="sm:max-w-md"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDownCapture={(e) => e.stopPropagation()}
+        onPointerDownCapture={(e) => e.stopPropagation()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Coins className="h-5 w-5 text-primary" />

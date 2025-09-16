@@ -170,7 +170,12 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
+      <SheetContent 
+        className="w-full sm:max-w-3xl overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+        onMouseDownCapture={(e) => e.stopPropagation()}
+        onPointerDownCapture={(e) => e.stopPropagation()}
+      >
         <SheetHeader className="space-y-4">
           <SheetTitle className="text-xl font-semibold flex items-center justify-between">
             Editar Evento
