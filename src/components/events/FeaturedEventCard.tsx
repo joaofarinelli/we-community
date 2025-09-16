@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2, Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ interface FeaturedEventCardProps {
 }
 
 export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProps) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -88,14 +90,24 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
 
   return (
     <Card 
-      className="cursor-pointer hover:shadow-md transition-shadow border-2 border-primary/20"
+      className="cursor-pointer hover:shadow-md transition-shadow border-2 border-primary/20 overflow-hidden"
       onClick={(e) => {
         // Check if click originated from dialog portal (outside this component's DOM)
         if (!(e.currentTarget as HTMLElement).contains(e.target as Node)) return;
         if (editDialogOpen || purchaseDialogOpen) return;
-        onEventClick?.(event.id);
+        navigate(`/events/${event.id}`);
       }}
     >
+      {event.image_url && (
+        <div className="w-full aspect-[3/1]">
+          <img 
+            src={event.image_url} 
+            alt={event.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+      
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -137,93 +149,79 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
           )}
         </div>
 
-        <div className="flex gap-6">
-          {event.image_url && (
-            <div className="flex-shrink-0">
-              <img 
-                src={event.image_url} 
-                alt={event.title}
-                className="w-24 h-24 object-cover rounded-lg"
-              />
+        <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
+        
+        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+          <div className="flex items-center gap-1">
+            <Calendar className="h-4 w-4" />
+            <span>{format(startDate, "d 'de' MMMM", { locale: ptBR })}</span>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <Clock className="h-4 w-4" />
+            <span>{format(startDate, 'HH:mm')} - {format(endDate, 'HH:mm')}</span>
+          </div>
+
+          {event.location && (
+            <div className="flex items-center gap-1">
+              <MapPin className="h-4 w-4" />
+              <span className="truncate">{event.location}</span>
             </div>
           )}
-          
-          <div className="flex-1 min-w-0">
-            <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
-            
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>{format(startDate, "d 'de' MMMM", { locale: ptBR })}</span>
-              </div>
-              
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>{format(startDate, 'HH:mm')} - {format(endDate, 'HH:mm')}</span>
-              </div>
+        </div>
 
-              {event.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  <span className="truncate">{event.location}</span>
+        {event.description && (
+          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+            {event.description}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {participantCount} participante{participantCount !== 1 ? 's' : ''}
+                {event.max_participants && ` / ${event.max_participants}`}
+              </span>
+            </div>
+            
+            <div className="flex -space-x-2">
+              {participants.slice(0, 4).map((participant, index) => (
+                <Avatar key={participant.id} className="h-8 w-8 border-2 border-background">
+                  <AvatarFallback className="text-xs">
+                    {(participant as any).profiles?.first_name?.[0] || 'U'}
+                    {(participant as any).profiles?.last_name?.[0] || ''}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {participants.length > 4 && (
+                <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
+                  <span className="text-xs text-muted-foreground">+{participants.length - 4}</span>
                 </div>
               )}
             </div>
-
-            {event.description && (
-              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                {event.description}
-              </p>
-            )}
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {participantCount} participante{participantCount !== 1 ? 's' : ''}
-                    {event.max_participants && ` / ${event.max_participants}`}
-                  </span>
-                </div>
-                
-                <div className="flex -space-x-2">
-                  {participants.slice(0, 4).map((participant, index) => (
-                    <Avatar key={participant.id} className="h-8 w-8 border-2 border-background">
-                      <AvatarFallback className="text-xs">
-                        {(participant as any).profiles?.first_name?.[0] || 'U'}
-                        {(participant as any).profiles?.last_name?.[0] || ''}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                  {participants.length > 4 && (
-                    <div className="h-8 w-8 rounded-full bg-muted border-2 border-background flex items-center justify-center">
-                      <span className="text-xs text-muted-foreground">+{participants.length - 4}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <Button
-                variant={isParticipant ? "outline" : "default"}
-                onClick={handleParticipationToggle}
-                disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants) || (!isParticipant && isPaidEvent && hasInsufficientBalance)}
-                className={isPaidEvent && !isParticipant ? "bg-accent hover:bg-accent/90" : ""}
-              >
-                {isJoining || isLeaving
-                  ? "..."
-                  : isParticipant
-                  ? "Confirmado"
-                  : hasMaxParticipants
-                  ? "Lotado"
-                  : isPaidEvent
-                  ? hasInsufficientBalance
-                    ? "Saldo insuficiente"
-                    : "Comprar presença"
-                  : "Confirmar presença"
-                }
-              </Button>
-            </div>
           </div>
+
+          <Button
+            variant={isParticipant ? "outline" : "default"}
+            onClick={handleParticipationToggle}
+            disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants) || (!isParticipant && isPaidEvent && hasInsufficientBalance)}
+            className={isPaidEvent && !isParticipant ? "bg-accent hover:bg-accent/90" : ""}
+          >
+            {isJoining || isLeaving
+              ? "..."
+              : isParticipant
+              ? "Confirmado"
+              : hasMaxParticipants
+              ? "Lotado"
+              : isPaidEvent
+              ? hasInsufficientBalance
+                ? "Saldo insuficiente"
+                : "Comprar presença"
+              : "Confirmar presença"
+            }
+          </Button>
         </div>
       </CardContent>
 
