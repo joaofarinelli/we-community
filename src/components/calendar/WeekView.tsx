@@ -105,7 +105,7 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
                   return (
                     <button
                       key={e.id}
-                      onClick={() => navigate(`/events/${e.id}`)}
+                      onClick={() => navigate(`/dashboard/events/${e.id}`)}
                       className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in cursor-pointer transition-transform hover:scale-105', eventVariants[idx % eventVariants.length])}
                       style={{ top, height, marginLeft: offset * 8 }}
                       title={`${e.title} • ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`}

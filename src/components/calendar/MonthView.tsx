@@ -85,7 +85,7 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
                     key={event.id}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/events/${event.id}`);
+                      navigate(`/dashboard/events/${event.id}`);
                     }}
                     className={cn(
                       'text-xs px-2 py-1 rounded truncate hover-scale animate-fade-in cursor-pointer w-full text-left transition-transform hover:scale-105',

@@ -205,7 +205,7 @@ export const CalendarPage = () => {
                     selectedEvents.map((event) => (
                       <button
                         key={event.id}
-                        onClick={() => navigate(`/events/${event.id}`)}
+                        onClick={() => navigate(`/dashboard/events/${event.id}`)}
                         className="w-full text-left rounded-lg border bg-card/50 p-3 space-y-2 hover:bg-accent/40 transition-colors cursor-pointer"
                       >
                         <h4 className="font-medium">{event.title}</h4>
