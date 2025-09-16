@@ -4502,6 +4502,10 @@ export type Database = {
         Args: { p_space_id: string; p_user_id: string } | { space_id: string }
         Returns: boolean
       }
+      can_user_see_space_v2: {
+        Args: { p_user_id: string; space_id: string }
+        Returns: boolean
+      }
       check_course_completion: {
         Args: { p_course_id: string; p_user_id: string }
         Returns: boolean
