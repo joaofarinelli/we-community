@@ -5,6 +5,38 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://zqswqyxrgmgbcgdipoid.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpxc3dxeXhyZ21nYmNnZGlwb2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MDMxMTQsImV4cCI6MjA3MzM3OTExNH0.qxH9o_AsA7TULMUfsz70zVxQJQf7T-hR9gpUhKD8pQo";
 
+// Enhanced fetch that injects company ID header for RLS consistency
+const createEnhancedFetch = (originalFetch: typeof fetch) => {
+  return (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    // Get company ID from sessionStorage for consistent RLS context
+    let companyId: string | null = null;
+    try {
+      companyId = sessionStorage.getItem('current_company_id');
+    } catch {
+      // ignore storage errors (SSR/tests)
+    }
+
+    // Only inject header for Supabase requests
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+    const isSupabaseRequest = url?.includes('zqswqyxrgmgbcgdipoid.supabase.co');
+    
+    if (isSupabaseRequest && companyId) {
+      console.log('🔧 Enhanced fetch: Injecting company ID header for request:', url?.split('?')[0]);
+      
+      const enhancedInit: RequestInit = {
+        ...init,
+        headers: {
+          ...init?.headers,
+          'x-company-id': companyId,
+        },
+      };
+      return originalFetch(input, enhancedInit);
+    }
+
+    return originalFetch(input, init);
+  };
+};
+
 // Provide a no-op global company context setter to satisfy imports
 let __currentCompanyId: string | null = null;
 export const setGlobalCompanyId = (companyId: string | null) => {
@@ -17,6 +49,10 @@ export const setGlobalCompanyId = (companyId: string | null) => {
   }
 };
 
+// Store original fetch and replace globally
+const originalFetch = globalThis.fetch;
+globalThis.fetch = createEnhancedFetch(originalFetch);
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -25,5 +61,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+  },
+  global: {
+    fetch: createEnhancedFetch(originalFetch),
   }
 });

@@ -12,6 +12,8 @@ export const useCourseLessons = (moduleId: string) => {
   return useQuery({
     queryKey: ['course-lessons', moduleId, user?.id, currentCompanyId],
     queryFn: async () => {
+      console.log('🔍 useCourseLessons: Query enabled - moduleId:', !!moduleId, 'user:', !!user?.id, 'company:', !!currentCompanyId, 'contextReady:', isContextReady);
+      
       const { data, error } = await supabase
         .from('course_lessons')
         .select('*')
@@ -22,5 +24,7 @@ export const useCourseLessons = (moduleId: string) => {
       return data;
     },
     enabled: !!moduleId && !!user?.id && !!currentCompanyId && isContextReady,
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes to prevent disappearing
+    refetchOnWindowFocus: false, // Don't refetch when tab becomes active
   });
 };
