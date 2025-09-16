@@ -22,13 +22,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { ImageUpload } from '@/components/ui/image-upload';
 import { useUpdateModule } from '@/hooks/useManageCourses';
 
 const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
-  thumbnail_url: z.string().optional(),
   linear_lesson_progression: z.boolean().optional(),
 });
 
@@ -49,7 +47,6 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
     defaultValues: {
       title: '',
       description: '',
-      thumbnail_url: '',
       linear_lesson_progression: false,
     }
   });
@@ -59,7 +56,6 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
       form.reset({
         title: module.title || '',
         description: module.description || '',
-        thumbnail_url: module.thumbnail_url || '',
         linear_lesson_progression: module.linear_lesson_progression || false,
       });
     }
@@ -75,7 +71,6 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         course_id: module.course_id,
         title: data.title,
         description: data.description || undefined,
-        thumbnail_url: data.thumbnail_url || undefined,
         linear_lesson_progression: data.linear_lesson_progression || false,
       });
       onOpenChange(false);
@@ -133,25 +128,6 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="thumbnail_url"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Capa do Módulo</FormLabel>
-                  <FormControl>
-                    <ImageUpload
-                      value={field.value}
-                      onChange={field.onChange}
-                      onRemove={() => field.onChange('')}
-                      bucketName="module-thumbnails"
-                      maxSizeKB={2048}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <FormField
               control={form.control}

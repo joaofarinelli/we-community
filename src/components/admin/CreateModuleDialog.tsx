@@ -20,14 +20,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { ImageUpload } from '@/components/ui/image-upload';
 import { BookOpen, Loader2, Plus } from 'lucide-react';
 import { useCreateModule } from '@/hooks/useManageCourses';
 
 const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
   description: z.string().optional(),
-  thumbnail_url: z.string().optional(),
 });
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
@@ -47,7 +45,6 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
     defaultValues: {
       title: '',
       description: '',
-      thumbnail_url: '',
     }
   });
 
@@ -58,7 +55,6 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
         course_id: courseId,
         title: data.title,
         description: data.description || undefined,
-        thumbnail_url: data.thumbnail_url || undefined,
       });
       form.reset();
       onOpenChange(false);
@@ -132,34 +128,6 @@ export const CreateModuleDialog = ({ courseId, open, onOpenChange }: CreateModul
               />
             </div>
 
-            {/* Visual Section */}
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Imagem de Capa (Opcional)
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="thumbnail_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">
-                      Capa do Módulo
-                    </FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value}
-                        onChange={field.onChange}
-                        onRemove={() => field.onChange('')}
-                        bucketName="module-thumbnails"
-                        maxSizeKB={2048}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t">

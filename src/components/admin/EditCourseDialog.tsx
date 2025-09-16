@@ -30,7 +30,6 @@ import { useCourses } from '@/hooks/useCourses';
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
   description: z.string().optional(),
-  thumbnail_url: z.string().optional(),
   is_active: z.boolean(),
   certificate_enabled: z.boolean().optional(),
   linear_module_progression: z.boolean().optional(),
@@ -60,7 +59,6 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
     defaultValues: {
       title: '',
       description: '',
-      thumbnail_url: '',
       is_active: true,
       certificate_enabled: false,
       linear_module_progression: false,
@@ -78,7 +76,6 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
       form.reset({
         title: course.title || '',
         description: course.description || '',
-        thumbnail_url: course.thumbnail_url || '',
         is_active: course.is_active ?? true,
         certificate_enabled: course.certificate_enabled ?? false,
         linear_module_progression: (course as any)?.linear_module_progression ?? false,
@@ -101,7 +98,6 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         id: course.id,
         title: data.title,
         description: data.description || undefined,
-        thumbnail_url: data.thumbnail_url || undefined,
         is_active: data.is_active,
         certificate_enabled: data.certificate_enabled ?? false,
         linear_module_progression: data.linear_module_progression ?? false,
@@ -183,34 +179,6 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
               />
             </div>
 
-            {/* Visual Section */}
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Imagem de Capa
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="thumbnail_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">
-                      Capa do Curso
-                    </FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value}
-                        onChange={field.onChange}
-                        onRemove={() => field.onChange('')}
-                        bucketName="course-thumbnails"
-                        maxSizeKB={2048}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             {/* Pré-requisitos e Progressão */}
             <div className="space-y-4">

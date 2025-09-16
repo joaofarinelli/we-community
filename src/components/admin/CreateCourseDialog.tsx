@@ -36,7 +36,6 @@ import { setGlobalCompanyId } from '@/integrations/supabase/client';
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
   description: z.string().optional(),
-  thumbnail_url: z.string().optional(),
   certificate_enabled: z.boolean().optional(),
   linear_module_progression: z.boolean().optional(),
   mentor_name: z.string().optional(),
@@ -71,7 +70,6 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
     defaultValues: {
       title: '',
       description: '',
-      thumbnail_url: '',
       certificate_enabled: false,
       linear_module_progression: false,
       mentor_name: '',
@@ -99,7 +97,6 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
       await createCourse.mutateAsync({
         title: data.title,
         description: data.description || undefined,
-        thumbnail_url: data.thumbnail_url || undefined,
         certificate_enabled: data.certificate_enabled ?? false,
         linear_module_progression: data.linear_module_progression ?? false,
         mentor_name: data.mentor_name || null,
@@ -186,34 +183,6 @@ export const CreateCourseDialog = ({ open, onOpenChange }: CreateCourseDialogPro
               />
             </div>
 
-            {/* Visual */}
-            <div className="space-y-4">
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Imagem de Capa
-              </div>
-              
-              <FormField
-                control={form.control}
-                name="thumbnail_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium">
-                      Capa do Curso
-                    </FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value}
-                        onChange={field.onChange}
-                        onRemove={() => field.onChange('')}
-                        bucketName="course-thumbnails"
-                        maxSizeKB={2048}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
 
             {/* Acesso ao Curso */}
             <div className="space-y-4">

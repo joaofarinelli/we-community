@@ -14,7 +14,6 @@ export const useCreateCourse = () => {
     mutationFn: async (course: {
       title: string;
       description?: string;
-      thumbnail_url?: string;
       order_index?: number;
       certificate_enabled?: boolean;
       linear_module_progression?: boolean;
@@ -40,7 +39,7 @@ export const useCreateCourse = () => {
         p_company_id: currentCompanyId,
         p_title: course.title,
         p_description: course.description || null,
-        p_thumbnail_url: (typeof (course as any).thumbnail_url === 'number' ? (course as any).thumbnail_url : null),
+        p_thumbnail_url: null,
         p_order_index: course.order_index || 0,
         p_certificate_enabled: course.certificate_enabled ?? false,
         p_linear_module_progression: course.linear_module_progression ?? false,
@@ -88,7 +87,6 @@ export const useUpdateCourse = () => {
       id: string;
       title?: string;
       description?: string;
-      thumbnail_url?: string;
       is_active?: boolean;
       order_index?: number;
       certificate_enabled?: boolean;
@@ -153,7 +151,6 @@ export const useCreateModule = () => {
       course_id: string;
       title: string;
       description?: string;
-      thumbnail_url?: string;
       order_index?: number;
     }) => {
       if (!currentCompanyId) throw new Error('Empresa não encontrada');
@@ -192,7 +189,6 @@ export const useUpdateModule = () => {
       course_id: string;
       title?: string;
       description?: string;
-      thumbnail_url?: string;
       order_index?: number;
       linear_lesson_progression?: boolean;
     }) => {
@@ -254,7 +250,6 @@ export const useCreateLesson = () => {
       duration?: number;
       order_index?: number;
       difficulty_level?: string;
-      thumbnail_url?: string;
     }) => {
       if (!currentCompanyId) throw new Error('Empresa não encontrada');
       
@@ -297,7 +292,6 @@ export const useUpdateLesson = () => {
       duration?: number;
       order_index?: number;
       difficulty_level?: string;
-      thumbnail_url?: string;
     }) => {
       const { data, error } = await supabase
         .from('course_lessons')

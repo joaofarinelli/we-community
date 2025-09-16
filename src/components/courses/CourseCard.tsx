@@ -9,7 +9,6 @@ interface CourseCardProps {
     id: string;
     title: string;
     description?: string;
-    thumbnail_url?: string;
   };
   moduleCount?: number;
   lessonCount?: number;
@@ -31,33 +30,16 @@ export const CourseCard = ({
   return (
     <Card className={`h-full transition-all hover:shadow-lg ${isLocked ? 'opacity-60' : ''}`}>
       <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted relative">
-        {course.thumbnail_url ? (
-          <>
-            <img 
-              src={course.thumbnail_url} 
-              alt={course.title}
-              className={`h-full w-full object-cover ${isLocked ? 'grayscale' : ''}`}
-            />
-            {isLocked && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <div className="bg-white/90 rounded-full p-3">
-                  <Lock className="h-6 w-6 text-muted-foreground" />
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            {isLocked ? (
-              <div className="flex flex-col items-center gap-2">
-                <Lock className="h-8 w-8 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Bloqueado</span>
-              </div>
-            ) : (
-              <BookOpen className="h-12 w-12 text-muted-foreground" />
-            )}
-          </div>
-        )}
+        <div className="flex h-full items-center justify-center">
+          {isLocked ? (
+            <div className="flex flex-col items-center gap-2">
+              <Lock className="h-8 w-8 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Bloqueado</span>
+            </div>
+          ) : (
+            <BookOpen className="h-12 w-12 text-muted-foreground" />
+          )}
+        </div>
       </div>
       
       <CardHeader className="pb-2">

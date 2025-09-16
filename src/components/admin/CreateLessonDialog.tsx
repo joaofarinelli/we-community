@@ -83,7 +83,6 @@ export const CreateLessonDialog = ({ moduleId, open, onOpenChange }: CreateLesso
         video_url: videoUrl,
         duration: data.duration || undefined,
         difficulty_level: data.difficulty_level,
-        thumbnail_url: data.thumbnail_url || undefined,
       });
 
       // Criar materiais da aula se houver

@@ -94,8 +94,7 @@ export const LessonNotesPage = () => {
               title: (lesson.course_modules as any)?.title,
               course_id: (lesson.course_modules as any)?.course_id,
               course: {
-                title: (lesson.course_modules as any)?.courses?.[0]?.title || '',
-                thumbnail_url: (lesson.course_modules as any)?.courses?.[0]?.thumbnail_url
+                title: (lesson.course_modules as any)?.courses?.[0]?.title || ''
               }
             }
           } : null
