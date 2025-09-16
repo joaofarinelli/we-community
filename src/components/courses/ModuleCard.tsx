@@ -70,30 +70,7 @@ export const ModuleCard = ({
               </div>
             </div>
           )}
-          {/* Overlay with module info */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-            <h3 className="font-semibold text-lg mb-1 line-clamp-2">{module.title}</h3>
-            {module.description && (
-              <p className="text-sm text-white/80 line-clamp-2">{module.description}</p>
-            )}
-            <div className="flex items-center gap-2 mt-2 text-xs text-white/60">
-              <BookOpen className="h-3 w-3" />
-              <span>{lessonCount} aulas</span>
-              {completedLessons > 0 && (
-                <>
-                  <span>•</span>
-                  <span>{completedLessons}/{lessonCount} concluídas</span>
-                </>
-              )}
-              {isLocked && (
-                <>
-                  <span>•</span>
-                  <span className="text-white/80">Bloqueado</span>
-                </>
-              )}
-            </div>
-          </div>
+          {/* Empty overlay - no text */}
         </div>
       ) : (
         <div className="h-full w-full bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 flex flex-col justify-between p-4 relative">
@@ -116,37 +93,7 @@ export const ModuleCard = ({
               </div>
             </div>
           </div>
-          <div className="text-center space-y-2">
-            <h3 className="font-semibold text-lg text-foreground line-clamp-2">{module.title}</h3>
-            {module.description && (
-              <p className="text-sm text-muted-foreground line-clamp-2">{module.description}</p>
-            )}
-            <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              <span>{lessonCount} aulas</span>
-              {completedLessons > 0 && (
-                <>
-                  <span>•</span>
-                  <span>{completedLessons}/{lessonCount} concluídas</span>
-                </>
-              )}
-              {isLocked && (
-                <>
-                  <span>•</span>
-                  <span>Bloqueado</span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Progress indicator */}
-      {lessonCount > 0 && (
-        <div className="absolute top-2 right-2">
-          <div className="bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-            {Math.round((completedLessons / lessonCount) * 100)}%
-          </div>
+          {/* Empty text area - no content */}
         </div>
       )}
     </div>
