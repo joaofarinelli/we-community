@@ -48,8 +48,7 @@ export const EventMaterialUploader = ({ eventId, onClose }: EventMaterialUploade
     setDragOver(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpload = () => {
     if (!file || !title.trim()) return;
 
     createMaterial.mutate({
@@ -77,14 +76,14 @@ export const EventMaterialUploader = ({ eventId, onClose }: EventMaterialUploade
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Adicionar Material</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button type="button" variant="ghost" size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
       
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           {/* File Upload Area */}
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
@@ -137,6 +136,7 @@ export const EventMaterialUploader = ({ eventId, onClose }: EventMaterialUploade
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               placeholder="Digite o título do material"
               required
             />
@@ -148,6 +148,7 @@ export const EventMaterialUploader = ({ eventId, onClose }: EventMaterialUploade
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
               placeholder="Descreva o conteúdo do material..."
               rows={3}
             />
@@ -172,14 +173,15 @@ export const EventMaterialUploader = ({ eventId, onClose }: EventMaterialUploade
               Cancelar
             </Button>
             <Button
-              type="submit"
+              type="button"
+              onClick={handleUpload}
               disabled={!file || !title.trim() || isFileTooLarge || createMaterial.isPending}
               className="flex-1"
             >
               {createMaterial.isPending ? 'Enviando...' : 'Adicionar'}
             </Button>
           </div>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );

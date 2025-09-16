@@ -61,6 +61,7 @@ export const EventMaterialsSection = ({ event }: EventMaterialsSectionProps) => 
           <div className="flex gap-2">
             {canEdit && hiddenMaterials.length > 0 && (
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAll(!showAll)}
@@ -81,6 +82,7 @@ export const EventMaterialsSection = ({ event }: EventMaterialsSectionProps) => 
             
             {canEdit && (
               <Button
+                type="button"
                 size="sm"
                 onClick={() => setShowUploader(true)}
               >

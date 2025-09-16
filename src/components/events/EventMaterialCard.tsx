@@ -112,6 +112,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
                 className="text-sm font-semibold"
               />
             ) : (
@@ -141,6 +142,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
             placeholder="Descrição do material..."
             rows={2}
           />
@@ -170,6 +172,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
 
         <div className="flex gap-2 pt-2">
           <Button
+            type="button"
             variant="outline"
             size="sm"
             onClick={handleDownload}
@@ -184,6 +187,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
               {isEditing ? (
                 <>
                   <Button
+                    type="button"
                     variant="default"
                     size="sm"
                     onClick={handleSave}
@@ -193,6 +197,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
                     Salvar
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -208,6 +213,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
               ) : (
                 <>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setIsEditing(true)}
@@ -215,6 +221,7 @@ export const EventMaterialCard = ({ material, event }: EventMaterialCardProps) =
                     <Edit className="h-3 w-3" />
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleDelete}
