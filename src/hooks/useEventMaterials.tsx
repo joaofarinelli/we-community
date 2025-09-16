@@ -12,14 +12,7 @@ export const useEventMaterials = (eventId: string) => {
 
       const { data, error } = await supabase
         .from('event_materials')
-        .select(`
-          *,
-          uploaded_by_profile:profiles!event_materials_uploaded_by_fkey(
-            first_name,
-            last_name,
-            email
-          )
-        `)
+        .select('*')
         .eq('event_id', eventId)
         .order('created_at', { ascending: true });
 

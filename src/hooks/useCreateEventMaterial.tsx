@@ -56,8 +56,12 @@ export const useCreateEventMaterial = () => {
       if (error) throw error;
       return material;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['eventMaterials', variables.eventId] });
+    onSuccess: (newMaterial, variables) => {
+      // Add the new material to the existing cache instead of invalidating
+      queryClient.setQueryData(['eventMaterials', variables.eventId], (oldData: any) => {
+        if (!oldData) return [newMaterial];
+        return [...oldData, newMaterial];
+      });
       toast.success('Material adicionado com sucesso!');
     },
     onError: () => {

@@ -38,7 +38,11 @@ export const useDeleteEventMaterial = () => {
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['eventMaterials', variables.eventId] });
+      // Remove the material from the existing cache instead of invalidating
+      queryClient.setQueryData(['eventMaterials', variables.eventId], (oldData: any) => {
+        if (!oldData) return [];
+        return oldData.filter((material: any) => material.id !== variables.id);
+      });
       toast.success('Material removido com sucesso!');
     },
     onError: () => {

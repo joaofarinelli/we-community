@@ -34,8 +34,14 @@ export const useUpdateEventMaterial = () => {
       if (error) throw error;
       return material;
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['eventMaterials', variables.eventId] });
+    onSuccess: (updatedMaterial, variables) => {
+      // Update the material in the existing cache instead of invalidating
+      queryClient.setQueryData(['eventMaterials', variables.eventId], (oldData: any) => {
+        if (!oldData) return [updatedMaterial];
+        return oldData.map((material: any) => 
+          material.id === variables.id ? updatedMaterial : material
+        );
+      });
       toast.success('Material atualizado com sucesso!');
     },
     onError: () => {
