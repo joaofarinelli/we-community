@@ -207,7 +207,22 @@ END:VCALENDAR`;
                 <CardTitle>Participação</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <EventParticipationDropdown eventId={event.id} />
+                <EventParticipationDropdown 
+                  eventId={event.id}
+                  isPaid={!!event.price_coins && event.price_coins > 0}
+                  priceCoins={event.price_coins || 0}
+                  eventTitle={event.title}
+                  event={{
+                    id: event.id,
+                    title: event.title,
+                    description: event.description,
+                    start_date: event.start_date,
+                    end_date: event.end_date,
+                    location: event.location,
+                    price_coins: event.price_coins,
+                    max_participants: event.max_participants
+                  }}
+                />
                 
                 {event.max_participants && (
                   <div className="text-sm text-muted-foreground">
