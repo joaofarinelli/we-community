@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2, Heart, MessageCircle } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, MoreHorizontal, Edit, Trash2, Heart, MessageCircle, Coins } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,9 +11,12 @@ import { useEventComments } from '@/hooks/useEventComments';
 import { useAuth } from '@/hooks/useAuth';
 import { useCanEditEvent } from '@/hooks/useCanEditEvent';
 import { useDeleteEvent } from '@/hooks/useDeleteEvent';
+import { useEventPayment } from '@/hooks/useEventPayment';
+import { useCoinName } from '@/hooks/useCoinName';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EditEventDialog } from './EditEventDialog';
+import { PurchaseEventDialog } from './PurchaseEventDialog';
 
 interface EventCardProps {
   event: {
@@ -22,16 +25,18 @@ interface EventCardProps {
     description?: string;
     start_date: string;
     end_date: string;
-  location?: string;
-  location_type?: string;
-  location_address?: string;
-  online_link?: string;
+    location?: string;
+    location_type?: string;
+    location_address?: string;
+    online_link?: string;
     max_participants?: number;
     image_url?: string;
     status: 'draft' | 'active';
     space_id: string;
     created_by: string;
     event_participants?: any[];
+    is_paid?: boolean;
+    price_coins?: number;
   };
   onEventClick?: (eventId: string) => void;
 }
@@ -42,13 +47,20 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const { userLike, likesCount, toggleLike } = useEventLikes(event.id);
   const { data: comments = [] } = useEventComments(event.id);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const canEdit = useCanEditEvent({ space_id: event.space_id, created_by: event.created_by, status: event.status });
   const deleteEvent = useDeleteEvent();
+  const { userCoins } = useEventPayment();
+  const { data: coinName } = useCoinName();
   
   const isParticipant = participants.some(p => p.user_id === user?.id);
   const participantCount = participants.length;
   const hasMaxParticipants = event.max_participants && participantCount >= event.max_participants;
   const totalComments = comments.reduce((acc, comment) => acc + 1 + (comment.replies?.length || 0), 0);
+  
+  // Payment logic
+  const isPaidEvent = event.is_paid && event.price_coins && event.price_coins > 0;
+  const hasInsufficientBalance = isPaidEvent && userCoins && userCoins.total_coins < (event.price_coins || 0);
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
@@ -60,7 +72,11 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
     if (isParticipant) {
       leaveEvent.mutate();
     } else {
-      joinEvent.mutate();
+      if (isPaidEvent) {
+        setPurchaseDialogOpen(true);
+      } else {
+        joinEvent.mutate();
+      }
     }
   };
 
@@ -77,7 +93,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
       onClick={(e) => {
         // Check if click originated from dialog portal (outside this component's DOM)
         if (!(e.currentTarget as HTMLElement).contains(e.target as Node)) return;
-        if (editDialogOpen) return;
+        if (editDialogOpen || purchaseDialogOpen) return;
         window.location.href = `/dashboard/events/${event.id}`;
       }}
     >
@@ -105,6 +121,12 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                 {event.status === 'draft' && (
                   <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
                     Rascunho
+                  </Badge>
+                )}
+                {isPaidEvent && (
+                  <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200 text-xs flex items-center gap-1">
+                    <Coins className="h-3 w-3" />
+                    {event.price_coins} {coinName || 'moedas'}
                   </Badge>
                 )}
                 {canEdit && (
@@ -214,7 +236,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                   size="sm"
                   variant={isParticipant ? "outline" : "default"}
                   onClick={handleParticipationToggle}
-                  disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants)}
+                  disabled={isJoining || isLeaving || (!isParticipant && hasMaxParticipants) || (!isParticipant && hasInsufficientBalance)}
                   className="text-xs"
                 >
                   {isJoining || isLeaving
@@ -223,6 +245,10 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                     ? "Confirmado"
                     : hasMaxParticipants
                     ? "Lotado"
+                    : isPaidEvent && hasInsufficientBalance
+                    ? "Saldo insuficiente"
+                    : isPaidEvent
+                    ? "Comprar presença"
                     : "Confirmar"
                   }
                 </Button>
@@ -237,6 +263,18 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
       />
+      
+      {isPaidEvent && (
+        <PurchaseEventDialog
+          open={purchaseDialogOpen}
+          onOpenChange={setPurchaseDialogOpen}
+          event={event}
+          onSuccess={() => {
+            setPurchaseDialogOpen(false);
+            joinEvent.mutate();
+          }}
+        />
+      )}
     </Card>
   );
 };
