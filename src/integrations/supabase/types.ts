@@ -4499,7 +4499,7 @@ export type Database = {
         Returns: string
       }
       can_user_see_space: {
-        Args: { p_space_id: string; p_user_id: string }
+        Args: { p_space_id: string; p_user_id: string } | { space_id: string }
         Returns: boolean
       }
       check_course_completion: {
