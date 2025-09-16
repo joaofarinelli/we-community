@@ -4535,12 +4535,14 @@ export type Database = {
           custom_domain_status: string
           enabled_features: Json
           id: string
+          login_banner_url: string
           logo_url: string
           name: string
           primary_color: string
           status: string
           subdomain: string
           text_color: string
+          theme_mode: string
         }[]
       }
       generate_invite_token: {
