@@ -96,7 +96,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
         // Check if click originated from dialog portal (outside this component's DOM)
         if (!(e.currentTarget as HTMLElement).contains(e.target as Node)) return;
         if (editDialogOpen || purchaseDialogOpen) return;
-        navigate(`/events/${event.id}`);
+        navigate(`/dashboard/events/${event.id}`);
       }}
     >
       {event.image_url && (
