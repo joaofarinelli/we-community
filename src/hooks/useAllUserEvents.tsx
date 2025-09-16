@@ -26,7 +26,7 @@ export const useAllUserEvents = () => {
         .from('events')
         .select(`
           *,
-          spaces(
+          spaces!events_space_id_fkey(
             name,
             visibility
           ),
