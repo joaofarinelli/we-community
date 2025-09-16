@@ -4693,6 +4693,15 @@ export type Database = {
         Args: { p_company_id: string; p_user_id: string }
         Returns: Json
       }
+      remove_user_coins: {
+        Args: {
+          p_action_type: string
+          p_company_id: string
+          p_reference_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       set_current_company_context: {
         Args: { p_company_id: string }
         Returns: undefined
