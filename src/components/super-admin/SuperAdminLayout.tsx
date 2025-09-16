@@ -13,6 +13,7 @@ import {
   ArrowLeft,
   Bug
 } from "lucide-react";
+import { WhatsAppFloatingButton } from "@/components/whatsapp/WhatsAppFloatingButton";
 
 interface SuperAdminLayoutProps {
   children: React.ReactNode;
@@ -115,6 +116,9 @@ export const SuperAdminLayout = ({ children }: SuperAdminLayoutProps) => {
           {children}
         </main>
       </div>
+
+      {/* WhatsApp Floating Button */}
+      <WhatsAppFloatingButton />
     </div>
   );
 };

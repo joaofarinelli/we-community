@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
+import { WhatsAppFloatingButton } from '@/components/whatsapp/WhatsAppFloatingButton';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -263,6 +264,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
             </div>
           </main>
         </div>
+
+        {/* WhatsApp Floating Button */}
+        <WhatsAppFloatingButton />
       </div>
     </TooltipProvider>
   );
