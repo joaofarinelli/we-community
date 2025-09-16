@@ -23,14 +23,14 @@ const createEnhancedFetch = (originalFetch: typeof fetch) => {
     if (isSupabaseRequest && companyId) {
       console.log('🔧 Enhanced fetch: Injecting company ID header for request:', url?.split('?')[0]);
       
-      const enhancedInit: RequestInit = {
+      // Preserve existing headers from Supabase-js properly
+      const headers = new Headers(init?.headers || {});
+      headers.set('x-company-id', companyId);
+      
+      return originalFetch(input, {
         ...init,
-        headers: {
-          ...init?.headers,
-          'x-company-id': companyId,
-        },
-      };
-      return originalFetch(input, enhancedInit);
+        headers,
+      });
     }
 
     return originalFetch(input, init);
