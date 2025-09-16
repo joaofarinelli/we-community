@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { getEventsOverlappingInterval } from '@/lib/date-utils';
+import { useNavigate } from 'react-router-dom';
 
 interface DayViewProps {
   date: Date;
@@ -29,6 +30,7 @@ function minutesSinceStart(d: Date) {
 }
 
 export const DayView = ({ date, events }: DayViewProps) => {
+  const navigate = useNavigate();
   const hours = Array.from({ length: END_HOUR - START_HOUR + 1 }, (_, i) => START_HOUR + i);
   
   // Create day interval (start and end of day)
@@ -87,19 +89,19 @@ export const DayView = ({ date, events }: DayViewProps) => {
             const height = (bottomMin - topMin) * MINUTE_HEIGHT;
 
             return (
-              <div
+              <button
                 key={e.id}
-                className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in', eventVariants[idx % eventVariants.length])}
+                onClick={() => navigate(`/events/${e.id}`)}
+                className={cn('absolute left-1 right-1 rounded-md border p-2 text-xs shadow-sm hover-scale animate-fade-in cursor-pointer transition-transform hover:scale-105', eventVariants[idx % eventVariants.length])}
                 style={{ top, height, marginLeft: offset * 8 }}
-                role="button"
                 title={`${e.title} • ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`}
-                aria-label={`Evento ${e.title}`}
+                aria-label={`Ver evento: ${e.title}`}
               >
                 <div className="line-clamp-2 font-medium">{e.title}</div>
                 <div className="mt-1 text-[11px] text-muted-foreground">
                   {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>

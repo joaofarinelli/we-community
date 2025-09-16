@@ -3,6 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { getEventsForDate, preprocessEvents } from '@/lib/date-utils';
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export interface CalendarEvent {
   id: string;
@@ -21,6 +22,7 @@ interface MonthViewProps {
 }
 
 export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: MonthViewProps) => {
+  const navigate = useNavigate();
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
   const gridStart = startOfWeek(monthStart, { locale: ptBR });
@@ -79,17 +81,21 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
               </div>
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map((event, idx) => (
-                  <div
+                  <button
                     key={event.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/events/${event.id}`);
+                    }}
                     className={cn(
-                      'text-xs px-2 py-1 rounded truncate hover-scale animate-fade-in',
+                      'text-xs px-2 py-1 rounded truncate hover-scale animate-fade-in cursor-pointer w-full text-left transition-transform hover:scale-105',
                       eventVariants[idx % eventVariants.length]
                     )}
                     title={event.title}
-                    aria-label={`Evento: ${event.title}`}
+                    aria-label={`Ver evento: ${event.title}`}
                   >
                     {event.title}
-                  </div>
+                  </button>
                 ))}
                 {dayEvents.length > 3 && (
                   <div className="text-[11px] text-muted-foreground/80">+{dayEvents.length - 3} mais</div>

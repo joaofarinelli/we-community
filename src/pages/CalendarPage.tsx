@@ -16,6 +16,7 @@ import {
 } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ import { getEventsForDate, getEventsForRange, preprocessEvents } from '@/lib/dat
 import { useMemo } from 'react';
 
 export const CalendarPage = () => {
+  const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [viewType, setViewType] = useState<'day' | 'week' | 'month'>('month');
@@ -201,7 +203,11 @@ export const CalendarPage = () => {
                     </div>
                   ) : (
                     selectedEvents.map((event) => (
-                      <div key={event.id} className="rounded-lg border bg-card/50 p-3 space-y-2 hover:bg-accent/40 transition-colors">
+                      <button
+                        key={event.id}
+                        onClick={() => navigate(`/events/${event.id}`)}
+                        className="w-full text-left rounded-lg border bg-card/50 p-3 space-y-2 hover:bg-accent/40 transition-colors cursor-pointer"
+                      >
                         <h4 className="font-medium">{event.title}</h4>
                         <div className="text-sm text-muted-foreground">
                           {format(event._parsedStartDate || new Date(event.start_date), 'HH:mm')} - {format(event._parsedEndDate || new Date(event.end_date), 'HH:mm')}
@@ -211,7 +217,7 @@ export const CalendarPage = () => {
                           {event.event_participants?.length || 0} participante
                           {(event.event_participants?.length || 0) !== 1 ? 's' : ''}
                         </div>
-                      </div>
+                      </button>
                     ))
                   )}
                 </CardContent>
