@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import { CalendarIcon, ChevronDown, Globe, Users, Info, MoreHorizontal, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { CalendarIcon, ChevronDown, Globe, Users, Info, MoreHorizontal, Image as ImageIcon, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { EventMaterialsSection } from './EventMaterialsSection';
 
 interface Event {
   id: string;
@@ -54,6 +55,8 @@ interface Event {
   location_type?: string;
   location_address?: string;
   online_link?: string;
+  space_id: string;
+  created_by: string;
   status: 'draft' | 'active';
   // Payment fields from DB (snake_case)
   is_paid?: boolean;
@@ -200,7 +203,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
             {/* Disable form fields for active events if user is not admin */}
             <fieldset disabled={event.status === 'active' && !isAdmin}>
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Visão Geral
@@ -208,6 +211,10 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                 <TabsTrigger value="banner" className="flex items-center gap-2">
                   <ImageIcon className="h-4 w-4" />
                   Banner
+                </TabsTrigger>
+                <TabsTrigger value="materials" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Materiais
                 </TabsTrigger>
                 <TabsTrigger value="people" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -282,6 +289,17 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                     </FormItem>
                   )}
                 />
+              </TabsContent>
+
+              <TabsContent value="materials" className="space-y-6 mt-6">
+                <div className="min-h-[400px]">
+                  <EventMaterialsSection event={{
+                    id: event.id,
+                    space_id: event.space_id,
+                    created_by: event.created_by,
+                    status: event.status
+                  }} />
+                </div>
               </TabsContent>
 
               <TabsContent value="payment" className="space-y-6 mt-6">

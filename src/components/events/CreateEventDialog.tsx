@@ -52,6 +52,8 @@ interface Event {
   location_type?: string;
   location_address?: string;
   online_link?: string;
+  space_id: string;
+  created_by: string;
   status: 'draft' | 'active';
 }
 
