@@ -17,7 +17,7 @@ import { CoinNameSection } from '@/components/admin/CoinNameSection';
 import { CourseBannerSection } from '@/components/courses/CourseBannerSection';
 import { CompanyFaviconSection } from '@/components/admin/CompanyFaviconSection';
 import { CourseProgressionSection } from '@/components/admin/CourseProgressionSection';
-import { LessonPlayerBannerSection } from '@/components/admin/LessonPlayerBannerSection';
+
 import { MaintenanceModeSection } from '@/components/admin/MaintenanceModeSection';
 import { WhatsAppSection } from '@/components/admin/WhatsAppSection';
 
@@ -200,7 +200,7 @@ export const AdminSettingsPage = () => {
                 description="Configure o banner que aparecerá na página de espaços" 
               />
               
-              <LessonPlayerBannerSection />
+              
             </div>
           </TabsContent>
 
