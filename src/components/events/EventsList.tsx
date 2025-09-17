@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { EventCard } from './EventCard';
 import { FeaturedEventCard } from './FeaturedEventCard';
 import { EventsFilters } from './EventsFilters';
+import { EventsSearchTab } from './EventsSearchTab';
+import { useEventsSearch } from '@/hooks/useEventsSearch';
 import { format, isToday, isFuture, isPast } from 'date-fns';
 
 interface Event {
@@ -29,7 +31,17 @@ interface EventsListProps {
 }
 
 export const EventsList = ({ events, onEventClick }: EventsListProps) => {
-  const [activeFilter, setActiveFilter] = useState<'hoje' | 'futuros' | 'passados' | 'rascunhos'>('hoje');
+  const [activeFilter, setActiveFilter] = useState<'hoje' | 'futuros' | 'passados' | 'rascunhos' | 'buscar'>('hoje');
+  
+  // Initialize search functionality
+  const {
+    searchFilters,
+    filteredEvents: searchResults,
+    updateFilters,
+    clearFilters,
+    hasActiveFilters,
+    resultsCount,
+  } = useEventsSearch(events);
 
   const { filteredEvents, featuredEvent, counts } = useMemo(() => {
     const now = new Date();
@@ -63,13 +75,16 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
       case 'rascunhos':
         filteredEvents = draftEvents;
         break;
+      case 'buscar':
+        filteredEvents = searchResults;
+        break;
     }
 
     // Featured event is the next upcoming event (only active events)
     const featuredEvent = futureEvents.length > 0 ? futureEvents[0] : todayEvents[0] || null;
 
     return { filteredEvents, featuredEvent, counts };
-  }, [events, activeFilter]);
+  }, [events, activeFilter, searchResults]);
 
   if (events.length === 0) {
     return (
@@ -89,7 +104,19 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
         activeFilter={activeFilter}
         onFilterChange={setActiveFilter}
         counts={counts}
+        searchResultsCount={resultsCount}
       />
+
+      {/* Search Tab Content */}
+      {activeFilter === 'buscar' && (
+        <EventsSearchTab
+          searchFilters={searchFilters}
+          onFiltersChange={updateFilters}
+          onClearFilters={clearFilters}
+          hasActiveFilters={hasActiveFilters}
+          resultsCount={resultsCount}
+        />
+      )}
 
       {featuredEvent && activeFilter === 'futuros' && (
         <div className="mb-6">
@@ -104,12 +131,14 @@ export const EventsList = ({ events, onEventClick }: EventsListProps) => {
             {activeFilter === 'futuros' && '⏭️'}
             {activeFilter === 'passados' && '📋'}
             {activeFilter === 'rascunhos' && '✏️'}
+            {activeFilter === 'buscar' && '🔍'}
           </div>
           <p className="text-muted-foreground">
             {activeFilter === 'hoje' && 'Nenhum evento programado para hoje'}
             {activeFilter === 'futuros' && 'Nenhum evento futuro programado'}
             {activeFilter === 'passados' && 'Nenhum evento passado encontrado'}
             {activeFilter === 'rascunhos' && 'Nenhum rascunho de evento'}
+            {activeFilter === 'buscar' && (hasActiveFilters ? 'Nenhum evento encontrado com os filtros aplicados' : 'Digite algo para buscar eventos')}
           </p>
         </div>
       ) : (

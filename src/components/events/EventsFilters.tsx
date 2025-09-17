@@ -1,22 +1,24 @@
 import { Button } from '@/components/ui/button';
 
 interface EventsFiltersProps {
-  activeFilter: 'hoje' | 'futuros' | 'passados' | 'rascunhos';
-  onFilterChange: (filter: 'hoje' | 'futuros' | 'passados' | 'rascunhos') => void;
+  activeFilter: 'hoje' | 'futuros' | 'passados' | 'rascunhos' | 'buscar';
+  onFilterChange: (filter: 'hoje' | 'futuros' | 'passados' | 'rascunhos' | 'buscar') => void;
   counts: {
     hoje: number;
     futuros: number;
     passados: number;
     rascunhos: number;
   };
+  searchResultsCount?: number;
 }
 
-export const EventsFilters = ({ activeFilter, onFilterChange, counts }: EventsFiltersProps) => {
+export const EventsFilters = ({ activeFilter, onFilterChange, counts, searchResultsCount }: EventsFiltersProps) => {
   const filters = [
     { key: 'hoje', label: 'Hoje', count: counts.hoje },
     { key: 'futuros', label: 'Futuros', count: counts.futuros },
     { key: 'passados', label: 'Passados', count: counts.passados },
     { key: 'rascunhos', label: 'Rascunhos', count: counts.rascunhos },
+    { key: 'buscar', label: 'Buscar', count: searchResultsCount },
   ] as const;
 
   return (
