@@ -24,7 +24,8 @@ import {
   Store,
   MapPin,
   Megaphone,
-  DollarSign
+  DollarSign,
+  Calendar
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
@@ -134,6 +135,14 @@ const mainMenuItems = [
       { label: 'Relatórios Financeiros', path: '/admin/financial/reports' },
       { label: 'Produtos TMB', path: '/admin/tmb/products' },
       { label: 'Reconciliação', path: '/admin/financial/reconciliation' },
+    ]
+  },
+  {
+    icon: Calendar,
+    label: 'Eventos',
+    key: 'events',
+    subItems: [
+      { label: 'Relatórios de eventos', path: '/admin/events/reports' },
     ]
   },
   {
