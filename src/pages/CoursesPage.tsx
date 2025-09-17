@@ -12,7 +12,7 @@ import { useModuleAccess } from '@/hooks/useCourseAccess';
 import { useReorderCourses } from '@/hooks/useReorderCourses';
 import { useReorderModules } from '@/hooks/useReorderModules';
 import { useIsAdmin } from '@/hooks/useUserRole';
-import { BookOpen, Clock, ArrowUpDown, GripVertical } from 'lucide-react';
+import { BookOpen, ArrowUpDown, GripVertical } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, horizontalListSortingStrategy } from '@dnd-kit/sortable';
@@ -142,7 +142,7 @@ const CourseSection = ({ course, userProgress }: { course: any; userProgress: an
       <div className="space-y-4">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-4xl font-bold tracking-tight mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold tracking-tight mb-2 bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
               {course.title}
             </h2>
             {course.description && (
@@ -163,17 +163,6 @@ const CourseSection = ({ course, userProgress }: { course: any; userProgress: an
               {isReorderingModules ? "Concluir" : "Reordenar"}
             </Button>
           )}
-        </div>
-        
-        <div className="flex items-center gap-6 text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4" />
-            <span className="font-medium">{modules?.length || 0} módulos</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            <span className="font-medium">Duração estimada: {(modules?.length || 0) * 2}h</span>
-          </div>
         </div>
       </div>
 
