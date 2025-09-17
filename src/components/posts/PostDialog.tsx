@@ -145,9 +145,9 @@ export const PostDialog = ({
     }
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] p-0 bg-background overflow-hidden flex flex-col">
-        <DialogHeader className="flex flex-row items-center justify-between p-4 border-b border-border">
-          <DialogTitle className="font-semibold text-2xl">
+      <DialogContent className="w-[95vw] max-w-2xl h-[95vh] max-h-[95vh] sm:h-[90vh] sm:max-h-[90vh] p-0 bg-background overflow-hidden flex flex-col">
+        <DialogHeader className="flex flex-row items-center justify-between p-3 sm:p-4 border-b border-border shrink-0">
+          <DialogTitle className="font-semibold text-lg sm:text-2xl">
             {mode === 'create' ? 'Criar publicação' : 'Editar publicação'}
           </DialogTitle>
           <Button 
@@ -160,21 +160,30 @@ export const PostDialog = ({
           </Button>
         </DialogHeader>
 
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full min-h-0 overflow-hidden">
           {/* Título opcional */}
-          <div className="px-4 pt-4 pb-4 border-b border-border">
-            <Input placeholder="Título (opcional)" value={title} onChange={e => setTitle(e.target.value)} className="border-none bg-transparent font-medium placeholder:text-muted-foreground p-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0" style={{
-            fontSize: '24px'
-          }} />
+          <div className="px-3 sm:px-4 pt-3 sm:pt-4 pb-3 sm:pb-4 border-b border-border shrink-0">
+            <Input 
+              placeholder="Título (opcional)" 
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+              className="border-none bg-transparent font-medium placeholder:text-muted-foreground p-0 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 text-lg sm:text-2xl" 
+            />
           </div>
 
           {/* Editor de conteúdo */}
-          <div className="flex-1 min-h-[300px] overflow-y-auto">
-            <TipTapEditor ref={editorRef} content={content} onChange={setContent} placeholder={mode === 'create' ? "O que você gostaria de compartilhar?" : "Escreva algo..."} className="min-h-[300px]" />
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <TipTapEditor 
+              ref={editorRef} 
+              content={content} 
+              onChange={setContent} 
+              placeholder={mode === 'create' ? "O que você gostaria de compartilhar?" : "Escreva algo..."} 
+              className="min-h-[200px] sm:min-h-[300px] h-full" 
+            />
           </div>
 
           {/* Barra de ferramentas com emoji picker, upload de imagem e documento */}
-          <div className="flex items-center justify-between p-2 border-t border-border bg-muted/30">
+          <div className="flex items-center justify-between p-2 border-t border-border bg-muted/30 shrink-0">
             <div className="flex items-center gap-1">
               <DocumentUploadButton onDocumentUpload={handleDocumentUpload} />
               <ImageUploadButton onImageUpload={handleImageUpload} />
@@ -183,11 +192,20 @@ export const PostDialog = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between p-4 border-t border-border bg-muted/30">
-            {mode === 'create' ? <SpaceSelector selectedSpaceId={selectedSpaceId} onSpaceChange={setSelectedSpaceId} /> : <div /> // Spacer para manter o botão à direita
-          }
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3 sm:p-4 border-t border-border bg-muted/30 shrink-0">
+            {mode === 'create' ? (
+              <div className="flex-1 sm:flex-initial">
+                <SpaceSelector selectedSpaceId={selectedSpaceId} onSpaceChange={setSelectedSpaceId} />
+              </div>
+            ) : (
+              <div className="hidden sm:block" /> // Spacer para manter o botão à direita no desktop
+            )}
             
-            <Button onClick={handleSubmit} disabled={isSubmitDisabled} className="min-w-[120px]">
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isSubmitDisabled} 
+              className="min-w-[120px] w-full sm:w-auto"
+            >
               {submitButtonText()}
             </Button>
           </div>
