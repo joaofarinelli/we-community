@@ -44,7 +44,7 @@ export const CourseCard = ({
       
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <CardTitle className="line-clamp-2">{course.title}</CardTitle>
+          <CardTitle className="line-clamp-2 text-lg">{course.title}</CardTitle>
           {progress > 0 && (
             <Badge variant="secondary">{Math.round(progress)}%</Badge>
           )}
@@ -57,17 +57,6 @@ export const CourseCard = ({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <BookOpen className="h-4 w-4" />
-            <span>{moduleCount} módulos</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{lessonCount} aulas</span>
-          </div>
-        </div>
-
         {progress > 0 && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
