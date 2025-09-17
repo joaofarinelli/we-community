@@ -103,7 +103,7 @@ export const PostContent = ({ content, className }: PostContentProps) => {
   }, [editor, content]);
 
   return (
-    <div className="w-full">
+    <div className="w-full" data-post-content>
       <EditorContent editor={editor} />
       
       <ImageViewerDialog
