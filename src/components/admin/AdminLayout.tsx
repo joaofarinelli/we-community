@@ -25,7 +25,7 @@ import {
   MapPin,
   Megaphone,
   DollarSign,
-  Calendar
+  CalendarDays
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCompanyRealtime } from '@/hooks/useCompanyRealtime';
@@ -138,7 +138,7 @@ const mainMenuItems = [
     ]
   },
   {
-    icon: Calendar,
+    icon: CalendarDays,
     label: 'Eventos',
     key: 'events',
     subItems: [
