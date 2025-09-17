@@ -96,7 +96,13 @@ export const eventSchema = z.object({
   endDate: z.date(),
   endTime: z.string(),
   locationType: z.enum(['presencial', 'online', 'indefinido']),
-  locationAddress: z.string().optional(),
+  address: z.string().optional(),
+  number: z.string().optional(),
+  complement: z.string().optional(),
+  neighborhood: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postalCode: z.string().optional(),
   onlineLink: z.string().url().optional().or(z.literal('')),
   imageUrl: z.string().optional(),
   isPaid: z.boolean().default(false),
@@ -111,12 +117,13 @@ export const eventSchema = z.object({
   path: ["endTime"],
 }).refine((data) => {
   if (data.locationType === 'presencial') {
-    return data.locationAddress && data.locationAddress.length > 0;
+    const hasRequiredFields = data.address && data.neighborhood && data.city && data.state && data.postalCode;
+    return hasRequiredFields;
   }
   return true;
 }, {
-  message: "Endereço é obrigatório para eventos presenciais",
-  path: ["locationAddress"],
+  message: "Endereço completo é obrigatório para eventos presenciais",
+  path: ["address"],
 }).refine((data) => {
   if (data.locationType === 'online') {
     return data.onlineLink && data.onlineLink.length > 0;
