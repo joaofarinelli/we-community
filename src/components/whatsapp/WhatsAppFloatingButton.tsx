@@ -6,8 +6,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 export const WhatsAppFloatingButton = () => {
   const { data: config, isLoading } = useWhatsAppConfig();
 
-  // Don't render if loading, not enabled, or no phone number
-  if (isLoading || !config?.whatsapp_enabled || !config?.whatsapp_phone) {
+  // Don't render if loading, no config, not enabled, or no phone number
+  if (isLoading || !config || !config.whatsapp_enabled || !config.whatsapp_phone) {
     return null;
   }
 
