@@ -1329,7 +1329,9 @@ export type Database = {
       }
       events: {
         Row: {
+          city: string | null
           company_id: string
+          complement: string | null
           created_at: string
           created_by: string
           description: string | null
@@ -1342,17 +1344,24 @@ export type Database = {
           location_coordinates: string | null
           location_type: string | null
           max_participants: number | null
+          neighborhood: string | null
+          number: string | null
           online_link: string | null
           payment_required: boolean
+          postal_code: string | null
           price_coins: number | null
           space_id: string
           start_date: string
+          state: string | null
           status: string
+          street: string | null
           title: string
           updated_at: string
         }
         Insert: {
+          city?: string | null
           company_id: string
+          complement?: string | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -1365,17 +1374,24 @@ export type Database = {
           location_coordinates?: string | null
           location_type?: string | null
           max_participants?: number | null
+          neighborhood?: string | null
+          number?: string | null
           online_link?: string | null
           payment_required?: boolean
+          postal_code?: string | null
           price_coins?: number | null
           space_id: string
           start_date: string
+          state?: string | null
           status?: string
+          street?: string | null
           title: string
           updated_at?: string
         }
         Update: {
+          city?: string | null
           company_id?: string
+          complement?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
@@ -1388,12 +1404,17 @@ export type Database = {
           location_coordinates?: string | null
           location_type?: string | null
           max_participants?: number | null
+          neighborhood?: string | null
+          number?: string | null
           online_link?: string | null
           payment_required?: boolean
+          postal_code?: string | null
           price_coins?: number | null
           space_id?: string
           start_date?: string
+          state?: string | null
           status?: string
+          street?: string | null
           title?: string
           updated_at?: string
         }

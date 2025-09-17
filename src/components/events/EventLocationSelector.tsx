@@ -1,14 +1,16 @@
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
-import { Control } from 'react-hook-form';
+import { AddressFields } from '@/components/ui/address-fields';
+import { Control, UseFormSetValue } from 'react-hook-form';
 
 interface EventLocationSelectorProps {
   control: Control<any>;
+  setValue: UseFormSetValue<any>;
   locationType: string;
 }
 
-export const EventLocationSelector = ({ control, locationType }: EventLocationSelectorProps) => {
+export const EventLocationSelector = ({ control, setValue, locationType }: EventLocationSelectorProps) => {
   return (
     <>
       <FormField
@@ -43,19 +45,42 @@ export const EventLocationSelector = ({ control, locationType }: EventLocationSe
       />
 
       {locationType === 'presencial' && (
-        <FormField
-          control={control}
-          name="locationAddress"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Endereço do Local</FormLabel>
-              <FormControl>
-                <Input placeholder="Digite o endereço..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <>
+          <AddressFields 
+            control={control}
+            setValue={setValue}
+            required={true}
+            showFullAddress={true}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Número</FormLabel>
+                  <FormControl>
+                    <Input placeholder="123" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="complement"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Complemento</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Apto 101, Bloco A..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </>
       )}
 
       {locationType === 'online' && (

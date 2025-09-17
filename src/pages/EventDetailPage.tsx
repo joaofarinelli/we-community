@@ -13,6 +13,7 @@ import { EventLikeButton } from '@/components/events/EventLikeButton';
 import { EventParticipationDropdown } from '@/components/events/EventParticipationDropdown';
 import { EventInteractions } from '@/components/events/EventInteractions';
 import { EventMaterialsSection } from '@/components/events/EventMaterialsSection';
+import { formatAddress } from '@/lib/formatAddress';
 import { UserAvatar } from '@/components/dashboard/UserAvatar';
 
 export default function EventDetailPage() {
@@ -74,7 +75,20 @@ END:VCALENDAR`;
   const getLocationText = () => {
     switch (event.location_type) {
       case 'online': return event.online_link ? 'Online' : 'Online';
-      case 'presencial': return event.location_address || event.location || 'Local presencial';
+      case 'presencial': 
+        // Use structured address if available, fallback to old location_address
+        if (event.street || event.neighborhood || event.city) {
+          return formatAddress({
+            street: event.street,
+            number: event.number,
+            complement: event.complement,
+            neighborhood: event.neighborhood,
+            city: event.city,
+            state: event.state,
+            postal_code: event.postal_code,
+          });
+        }
+        return event.location_address || event.location || 'Local presencial';
       default: return event.location || 'Local indefinido';
     }
   };

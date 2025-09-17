@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { formatAddress } from '@/lib/formatAddress';
 import { toast } from 'sonner';
 
 interface CreateEventData {
@@ -14,7 +15,13 @@ interface CreateEventData {
   maxParticipants?: number;
   imageUrl?: string;
   locationType?: string;
-  locationAddress?: string;
+  address?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
   onlineLink?: string;
   locationCoordinates?: string;
   isPaid?: boolean;
@@ -44,9 +51,23 @@ export const useCreateEvent = () => {
           max_participants: data.maxParticipants,
           image_url: data.imageUrl,
           location_type: data.locationType || 'indefinido',
-          location_address: data.locationAddress,
+          street: data.address,
+          number: data.number,
+          complement: data.complement,
+          neighborhood: data.neighborhood,
+          city: data.city,
+          state: data.state,
+          postal_code: data.postalCode,
           online_link: data.onlineLink,
-          location_coordinates: data.locationCoordinates,
+          location_address: formatAddress({
+            street: data.address,
+            number: data.number,
+            complement: data.complement,
+            neighborhood: data.neighborhood,
+            city: data.city,
+            state: data.state,
+            postal_code: data.postalCode,
+          }),
           created_by: user.id,
           status: 'draft',
           is_paid: data.isPaid || false,

@@ -53,7 +53,13 @@ interface Event {
   location?: string;
   image_url?: string;
   location_type?: string;
-  location_address?: string;
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  postal_code?: string;
   online_link?: string;
   space_id: string;
   created_by: string;
@@ -86,7 +92,13 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
       endDate: new Date(),
       endTime: "10:00",
       locationType: "indefinido" as const,
-      locationAddress: "",
+      address: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+      postalCode: "",
       onlineLink: "",
       imageUrl: "",
       isPaid: false,
@@ -116,7 +128,13 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
         endDate: endDate,
         endTime,
         locationType: (event.location_type as 'presencial' | 'online' | 'indefinido') || 'indefinido',
-        locationAddress: event.location_address || "",
+        address: event.street || "",
+        number: event.number || "",
+        complement: event.complement || "",
+        neighborhood: event.neighborhood || "",
+        city: event.city || "",
+        state: event.state || "",
+        postalCode: event.postal_code || "",
         onlineLink: event.online_link || "",
         imageUrl: event.image_url || "",
         isPaid: event.is_paid ?? false,
@@ -137,10 +155,16 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
       title: values.title,
       description,
       startDate: startDateTime,
-      endDate: endDateTime,
-      imageUrl: values.imageUrl,
-      locationType: values.locationType,
-      locationAddress: values.locationAddress,
+        endDate: endDateTime,
+        imageUrl: values.imageUrl,
+        locationType: values.locationType,
+        address: values.address,
+        number: values.number,
+        complement: values.complement,
+        neighborhood: values.neighborhood,
+        city: values.city,
+        state: values.state,
+        postalCode: values.postalCode,
         onlineLink: values.onlineLink,
         isPaid: values.isPaid,
         priceCoins: values.priceCoins,
@@ -265,6 +289,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
 
                 <EventLocationSelector 
                   control={form.control as any}
+                  setValue={form.setValue}
                   locationType={form.watch('locationType')}
                 />
               </TabsContent>

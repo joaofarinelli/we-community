@@ -77,7 +77,13 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
       endDate: new Date(),
       endTime: "10:00",
       locationType: "indefinido" as const,
-      locationAddress: "",
+      address: "",
+      number: "",
+      complement: "",
+      neighborhood: "",
+      city: "",
+      state: "",
+      postalCode: "",
       onlineLink: "",
       imageUrl: "",
       isPaid: false,
@@ -101,7 +107,13 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
         endDate: endDateTime,
         imageUrl: values.imageUrl,
         locationType: values.locationType,
-        locationAddress: values.locationAddress,
+        address: values.address,
+        number: values.number,
+        complement: values.complement,
+        neighborhood: values.neighborhood,
+        city: values.city,
+        state: values.state,
+        postalCode: values.postalCode,
         onlineLink: values.onlineLink,
         isPaid: values.isPaid,
         priceCoins: values.priceCoins,
@@ -346,6 +358,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                   
                   <EventLocationSelector 
                     control={form.control as any}
+                    setValue={form.setValue}
                     locationType={form.watch('locationType')}
                   />
                 </div>

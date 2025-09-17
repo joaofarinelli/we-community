@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useCompanyContext } from './useCompanyContext';
+import { formatAddress } from '@/lib/formatAddress';
 import { toast } from 'sonner';
 
 interface UpdateEventData {
@@ -15,7 +16,13 @@ interface UpdateEventData {
   imageUrl?: string;
   status?: 'draft' | 'active';
   locationType?: string;
-  locationAddress?: string;
+  address?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
   onlineLink?: string;
   locationCoordinates?: string;
   isPaid?: boolean;
@@ -43,8 +50,28 @@ export const useUpdateEvent = () => {
       if (data.imageUrl !== undefined) updateData.image_url = data.imageUrl;
       if (data.status !== undefined) updateData.status = data.status;
       if (data.locationType !== undefined) updateData.location_type = data.locationType;
-      if (data.locationAddress !== undefined) updateData.location_address = data.locationAddress;
+      if (data.address !== undefined) updateData.street = data.address;
+      if (data.number !== undefined) updateData.number = data.number;
+      if (data.complement !== undefined) updateData.complement = data.complement;
+      if (data.neighborhood !== undefined) updateData.neighborhood = data.neighborhood;
+      if (data.city !== undefined) updateData.city = data.city;
+      if (data.state !== undefined) updateData.state = data.state;
+      if (data.postalCode !== undefined) updateData.postal_code = data.postalCode;
       if (data.onlineLink !== undefined) updateData.online_link = data.onlineLink;
+      if (data.locationCoordinates !== undefined) updateData.location_coordinates = data.locationCoordinates;
+      
+      // Generate formatted address for backward compatibility
+      if (data.address || data.number || data.complement || data.neighborhood || data.city || data.state || data.postalCode) {
+        updateData.location_address = formatAddress({
+          street: data.address,
+          number: data.number,
+          complement: data.complement,
+          neighborhood: data.neighborhood,
+          city: data.city,
+          state: data.state,
+          postal_code: data.postalCode,
+        });
+      }
       if (data.locationCoordinates !== undefined) updateData.location_coordinates = data.locationCoordinates;
       if (data.isPaid !== undefined) updateData.is_paid = data.isPaid;
       if (data.priceCoins !== undefined) updateData.price_coins = data.priceCoins;
