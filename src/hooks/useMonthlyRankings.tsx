@@ -14,7 +14,7 @@ export const useMonthlyRankings = (monthYear?: string, limit: number = 10) => {
         .from('monthly_rankings')
         .select(`
           *,
-          profiles!monthly_rankings_user_id_fkey(first_name, last_name, user_id)
+          profiles!monthly_rankings_user_id_fkey(first_name, last_name, user_id, role)
         `)
         .eq('company_id', currentCompanyId);
 
@@ -27,7 +27,15 @@ export const useMonthlyRankings = (monthYear?: string, limit: number = 10) => {
         .limit(limit);
 
       if (error) throw error;
-      return data || [];
+      
+      // Filter out owners and admins
+      const filteredData = (data || []).filter(item => 
+        item.profiles && 
+        item.profiles.role !== 'owner' && 
+        item.profiles.role !== 'admin'
+      );
+      
+      return filteredData;
     },
     enabled: !!currentCompanyId,
     staleTime: 60000, // Cache for 1 minute

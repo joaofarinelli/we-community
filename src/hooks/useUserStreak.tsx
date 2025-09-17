@@ -170,11 +170,13 @@ export const useCompanyStreakLeaderboard = (limit: number = 10) => {
           profiles!inner(
             user_id,
             first_name,
-            last_name
+            last_name,
+            role
           )
         `)
         .eq('company_id', currentCompanyId)
         .eq('is_active', true)
+        .not('profiles.role', 'in', '(owner,admin)')
         .order('current_streak', { ascending: false })
         .limit(limit);
 

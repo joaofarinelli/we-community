@@ -38,26 +38,29 @@ export const useLastPlacedUsers = () => {
       if (rankingsError) throw rankingsError;
       if (!rankings || rankings.length === 0) return [];
 
-      // Then get the profiles for those users
+      // Then get the profiles for those users, excluding owners and admins
       const userIds = rankings.map(r => r.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, first_name, last_name')
+        .select('user_id, first_name, last_name, role')
         .eq('company_id', currentCompanyId)
-        .in('user_id', userIds);
+        .in('user_id', userIds)
+        .not('role', 'in', '("owner","admin")');
 
       if (profilesError) throw profilesError;
 
-      // Combine the data
-      const result: LastPlacedUser[] = rankings.map(ranking => {
-        const profile = profiles?.find(p => p.user_id === ranking.user_id);
-        return {
-          user_id: ranking.user_id,
-          final_rank: ranking.final_rank,
-          monthly_coins: ranking.monthly_coins,
-          profiles: profile || null
-        };
-      });
+      // Combine the data, only including users who are not owners or admins
+      const result: LastPlacedUser[] = rankings
+        .map(ranking => {
+          const profile = profiles?.find(p => p.user_id === ranking.user_id);
+          return {
+            user_id: ranking.user_id,
+            final_rank: ranking.final_rank,
+            monthly_coins: ranking.monthly_coins,
+            profiles: profile || null
+          };
+        })
+        .filter(item => item.profiles !== null); // Only include users that passed the role filter
 
       return result;
     },
