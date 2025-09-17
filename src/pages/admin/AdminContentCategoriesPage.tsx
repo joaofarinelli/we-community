@@ -20,12 +20,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAdminCategoriesRealtime } from '@/hooks/useRealtimeUpdates';
+import { RealtimeStatus } from '@/components/admin/RealtimeStatus';
 
 export const AdminContentCategoriesPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [deletingCategory, setDeletingCategory] = useState<any>(null);
+  
+  // Enable real-time updates
+  useAdminCategoriesRealtime();
   
   const { isOpen, setIsOpen, createCategory, isLoading: isCreating } = useCreateCategory();
   const { editCategory, isLoading: isEditing } = useEditCategory();
@@ -115,10 +120,13 @@ export const AdminContentCategoriesPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Categorias</h1>
-          <Button onClick={() => setIsOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nova categoria
-          </Button>
+          <div className="flex items-center gap-3">
+            <RealtimeStatus />
+            <Button onClick={() => setIsOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nova categoria
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">

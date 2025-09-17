@@ -32,24 +32,26 @@ export const AdminEventsReportsPage = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Relatórios de Eventos</h1>
-                <p className="text-muted-foreground">
-                  Análise completa dos eventos da sua empresa
-                </p>
-              </div>
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <TrendingUp className="h-5 w-5 text-primary" />
             </div>
+            <div>
+              <h1 className="text-2xl font-bold">Relatórios de Eventos</h1>
+              <p className="text-muted-foreground">
+                Análise completa dos eventos da sua empresa
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
             <Button onClick={handleRefresh} variant="outline" size="sm" disabled={isLoading}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Atualizar
             </Button>
           </div>
+        </div>
 
           {/* Content Grid */}
           <div className="grid gap-6 lg:grid-cols-4">

@@ -24,11 +24,16 @@ import { useCreateSpace } from '@/hooks/useCreateSpace';
 import { EditSpaceDialog } from '@/components/admin/EditSpaceDialog';
 import { DeleteSpaceDialog } from '@/components/admin/DeleteSpaceDialog';
 import { spaceTypes } from '@/lib/spaceUtils';
+import { useAdminSpacesRealtime } from '@/hooks/useRealtimeUpdates';
+import { RealtimeStatus } from '@/components/admin/RealtimeStatus';
 
 export const AdminContentSpacesPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [editingSpace, setEditingSpace] = useState<any>(null);
   const [deletingSpace, setDeletingSpace] = useState<any>(null);
+  
+  // Enable real-time updates
+  useAdminSpacesRealtime();
   
   // Filter states
   const [nameFilter, setNameFilter] = useState('');
@@ -158,10 +163,13 @@ export const AdminContentSpacesPage = () => {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Espaços</h1>
-          <Button onClick={() => openTypeSelection(categories?.[0]?.id || '')} className="w-full sm:w-auto">
-            <Plus className="h-4 w-4 mr-2" />
-            Novo espaço
-          </Button>
+          <div className="flex items-center gap-3">
+            <RealtimeStatus />
+            <Button onClick={() => openTypeSelection(categories?.[0]?.id || '')} className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo espaço
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-4">

@@ -12,12 +12,17 @@ import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { CreatePostDialog } from '@/components/posts/CreatePostDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useAdminPostsRealtime } from '@/hooks/useRealtimeUpdates';
+import { RealtimeStatus } from '@/components/admin/RealtimeStatus';
 
 export const AdminContentPostsPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [createPostOpen, setCreatePostOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Enable real-time updates
+  useAdminPostsRealtime();
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['admin-posts', currentCompanyId, searchTerm, selectedFilters],
@@ -143,10 +148,13 @@ export const AdminContentPostsPage = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Publicações</h1>
-          <Button onClick={() => setCreatePostOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nova publicação
-          </Button>
+          <div className="flex items-center gap-3">
+            <RealtimeStatus />
+            <Button onClick={() => setCreatePostOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nova publicação
+            </Button>
+          </div>
         </div>
 
         {/* Search Input */}
