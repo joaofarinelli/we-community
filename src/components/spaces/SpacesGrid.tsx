@@ -61,7 +61,7 @@ export const SpacesGrid = ({
           <CollapsibleTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full justify-between p-4 h-auto border rounded-lg hover:bg-muted/50"
+              className="w-full justify-between pb-4 h-auto rounded-lg hover:bg-muted/50"
             >
               <div className="flex items-center gap-3">
                 <Folder className="h-5 w-5" />
@@ -102,7 +102,7 @@ export const SpacesGrid = ({
       <div className="space-y-6">
         {availableSpaces.length > 0 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/20">
+            <div className="flex items-center gap-3 pb-4 rounded-lg bg-muted/20">
               <Search className="h-5 w-5" />
               <div>
                 <h2 className="text-lg font-semibold">Espaços Disponíveis</h2>
@@ -119,7 +119,7 @@ export const SpacesGrid = ({
 
         {memberSpaces.length > 0 && (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 p-4 border rounded-lg bg-primary/10">
+            <div className="flex items-center gap-3 pb-4 rounded-lg bg-primary/10">
               <Users className="h-5 w-5" />
               <div>
                 <h2 className="text-lg font-semibold">Já Participo</h2>
