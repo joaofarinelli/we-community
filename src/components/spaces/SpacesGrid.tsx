@@ -1,35 +1,29 @@
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SpaceCard } from './SpaceCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { SpaceCard } from './SpaceCard';
 import { 
   ChevronDown, 
   ChevronUp, 
-  Folder, 
-  Search, 
-  Users,
-  Eye,
-  Users2
+  Users, 
+  Search,
+  Folder
 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useNavigate } from 'react-router-dom';
 
 interface SpacesGridProps {
-  spaces: any[];
-  activeTab: 'my-spaces' | 'explore';
-  viewMode: 'grid' | 'list';
-  selectedCategoryId: string;
   spacesByCategory: Record<string, any[]>;
   categories: any[];
+  activeTab: 'my-spaces' | 'explore';
+  hasSearchTerm: boolean;
 }
 
 export const SpacesGrid = ({
-  spaces,
-  activeTab,
-  viewMode,
-  selectedCategoryId,
   spacesByCategory,
-  categories
+  categories,
+  activeTab,
+  hasSearchTerm,
 }: SpacesGridProps) => {
   const navigate = useNavigate();
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
@@ -44,178 +38,158 @@ export const SpacesGrid = ({
     setCollapsedSections(newCollapsed);
   };
 
-  // For explore tab, separate member and non-member spaces
-  const memberSpaces = activeTab === 'explore' 
-    ? spaces.filter(space => (space as any).isMember)
-    : [];
-  const nonMemberSpaces = activeTab === 'explore' 
-    ? spaces.filter(space => !(space as any).isMember && space.visibility === 'public')
-    : [];
+  const renderSpaceCard = (space: any) => {
+    return (
+      <SpaceCard
+        key={space.id}
+        space={space}
+        onClick={() => navigate(`/spaces/${space.id}`)}
+        showJoinLeave={activeTab === 'explore'}
+      />
+    );
+  };
 
-  const renderSpaceCard = (space: any) => (
-    <SpaceCard 
-      key={space.id}
-      space={space}
-      onClick={() => navigate(`/dashboard/space/${space.id}`)}
-      showJoinLeave={activeTab === 'explore'}
-      className={`${viewMode === 'grid' ? 'h-full min-h-[200px]' : 'w-full'} ${
-        activeTab === 'explore' && (space as any).isMember ? 'opacity-60' : ''
-      }`}
-    />
-  );
+  const renderCategorySection = (category: any, categorySpaces: any[]) => {
+    if (!categorySpaces || categorySpaces.length === 0) return null;
 
-  const renderSpacesList = (spacesList: any[], title: string, icon: React.ReactNode, variant: 'default' | 'secondary' = 'default') => {
-    if (spacesList.length === 0) return null;
-
-    const sectionId = title.toLowerCase().replace(/\s+/g, '-');
-    const isCollapsed = collapsedSections.has(sectionId);
+    const isCollapsed = collapsedSections.has(category.id);
+    const categoryName = category.id === 'uncategorized' ? 'Sem Categoria' : category.name;
 
     return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {icon}
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <Badge variant={variant}>{spacesList.length}</Badge>
+      <div key={category.id} className="space-y-4">
+        <Collapsible open={!isCollapsed} onOpenChange={() => toggleSection(category.id)}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-between p-4 h-auto border rounded-lg hover:bg-muted/50"
+            >
+              <div className="flex items-center gap-3">
+                <Folder className="h-5 w-5" />
+                <div className="text-left">
+                  <h2 className="text-lg font-semibold">{categoryName}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {categorySpaces.length} {categorySpaces.length === 1 ? 'espaço' : 'espaços'}
+                  </p>
+                </div>
+              </div>
+              {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4">
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {categorySpaces.map(renderSpaceCard)}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
+  const renderExploreView = () => {
+    const availableSpaces = [];
+    const memberSpaces = [];
+
+    // Separate spaces by membership status across all categories
+    Object.values(spacesByCategory).flat().forEach(space => {
+      if ((space as any).isMember) {
+        memberSpaces.push(space);
+      } else if (space.visibility === 'public') {
+        availableSpaces.push(space);
+      }
+    });
+
+    return (
+      <div className="space-y-6">
+        {availableSpaces.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/20">
+              <Search className="h-5 w-5" />
+              <div>
+                <h2 className="text-lg font-semibold">Espaços Disponíveis</h2>
+                <p className="text-sm text-muted-foreground">
+                  {availableSpaces.length} {availableSpaces.length === 1 ? 'espaço' : 'espaços'} para explorar
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {availableSpaces.map(renderSpaceCard)}
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleSection(sectionId)}
-          >
-            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
-        </div>
-        
-        {!isCollapsed && (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4" 
-            : "space-y-3"
-          }>
-            {spacesList.map(renderSpaceCard)}
+        )}
+
+        {memberSpaces.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 p-4 border rounded-lg bg-primary/10">
+              <Users className="h-5 w-5" />
+              <div>
+                <h2 className="text-lg font-semibold">Já Participo</h2>
+                <p className="text-sm text-muted-foreground">
+                  {memberSpaces.length} {memberSpaces.length === 1 ? 'espaço' : 'espaços'} onde você é membro
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {memberSpaces.map(renderSpaceCard)}
+            </div>
+          </div>
+        )}
+
+        {availableSpaces.length === 0 && memberSpaces.length === 0 && (
+          <div className="text-center py-12">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {hasSearchTerm ? 'Nenhum espaço encontrado' : 'Nenhum espaço disponível'}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              {hasSearchTerm 
+                ? 'Tente ajustar sua busca.'
+                : 'Novos espaços aparecerão aqui quando estiverem disponíveis.'
+              }
+            </p>
           </div>
         )}
       </div>
     );
   };
 
-  const renderCategorySection = (categoryId: string, categorySpaces: any[]) => {
-    if (categorySpaces.length === 0) return null;
-    
-    const category = categories?.find(c => c.id === categoryId);
-    const categoryName = category ? category.name : 'Sem Categoria';
-    const sectionId = `category-${categoryId}`;
-    const isCollapsed = collapsedSections.has(sectionId);
+  const renderMySpacesView = () => {
+    // Filter categories that have spaces
+    const categoriesWithSpaces = categories.filter(category => 
+      spacesByCategory[category.id] && spacesByCategory[category.id].length > 0
+    );
+
+    // Check if there are uncategorized spaces
+    const hasUncategorized = spacesByCategory['uncategorized'] && spacesByCategory['uncategorized'].length > 0;
+
+    if (categoriesWithSpaces.length === 0 && !hasUncategorized) {
+      return (
+        <div className="text-center py-12">
+          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-muted-foreground">
+            {hasSearchTerm ? 'Nenhum espaço encontrado' : 'Você ainda não participa de nenhum espaço'}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-2">
+            {hasSearchTerm 
+              ? 'Tente ajustar sua busca.'
+              : 'Explore a aba "Explorar" para encontrar espaços para participar.'
+            }
+          </p>
+        </div>
+      );
+    }
 
     return (
-      <div key={categoryId} className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Folder className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">{categoryName}</h2>
-            <Badge variant="secondary">{categorySpaces.length}</Badge>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleSection(sectionId)}
-          >
-            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-          </Button>
-        </div>
-        
-        {!isCollapsed && (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4" 
-            : "space-y-3"
-          }>
-            {categorySpaces.map(renderSpaceCard)}
-          </div>
+      <div className="space-y-6">
+        {categoriesWithSpaces.map(category => 
+          renderCategorySection(category, spacesByCategory[category.id])
+        )}
+        {hasUncategorized && renderCategorySection(
+          { id: 'uncategorized', name: 'Sem Categoria' },
+          spacesByCategory['uncategorized']
         )}
       </div>
     );
   };
 
-  // Empty State
-  if (spaces.length === 0) {
-    return (
-      <Card className="w-full">
-        <CardContent className="flex flex-col items-center justify-center py-12 px-6">
-          <div className="text-center space-y-4 max-w-md mx-auto">
-            <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mx-auto">
-              {activeTab === 'my-spaces' ? (
-                <Folder className="h-10 w-10 text-muted-foreground" />
-              ) : (
-                <Search className="h-10 w-10 text-muted-foreground" />
-              )}
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-medium">
-                {activeTab === 'my-spaces' 
-                  ? (selectedCategoryId === 'all' 
-                      ? 'Nenhum espaço encontrado' 
-                      : 'Nenhum espaço nesta categoria'
-                    )
-                  : 'Nenhum espaço público disponível'
-                }
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {activeTab === 'my-spaces'
-                  ? (selectedCategoryId === 'all'
-                      ? 'Você ainda não participa de nenhum espaço. Vá para "Explorar" para encontrar espaços públicos disponíveis.'
-                      : 'Não há espaços nesta categoria ainda.'
-                    )
-                  : 'Não há espaços públicos para explorar no momento. Aguarde novos espaços serem criados ou convites para espaços privados.'
-                }
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Render based on tab and category selection
-  if (activeTab === 'explore') {
-    return (
-      <div className="space-y-8">
-        {renderSpacesList(
-          nonMemberSpaces, 
-          "Espaços Disponíveis", 
-          <Search className="h-5 w-5 text-primary" />,
-          'default'
-        )}
-        {renderSpacesList(
-          memberSpaces, 
-          "Já Participo", 
-          <Users className="h-5 w-5 text-muted-foreground" />,
-          'secondary'
-        )}
-      </div>
-    );
-  }
-
-  // My Spaces - show by category if "all" is selected
-  if (selectedCategoryId === 'all') {
-    return (
-      <div className="space-y-8">
-        {categories?.map(category => 
-          renderCategorySection(category.id, spacesByCategory[category.id] || [])
-        )}
-        {spacesByCategory['uncategorized'] && 
-          renderCategorySection('uncategorized', spacesByCategory['uncategorized'])
-        }
-      </div>
-    );
-  }
-
-  // Single category view
-  return (
-    <div className={viewMode === 'grid' 
-      ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4" 
-      : "space-y-3"
-    }>
-      {spaces.map(renderSpaceCard)}
-    </div>
-  );
+  return activeTab === 'explore' ? renderExploreView() : renderMySpacesView();
 };

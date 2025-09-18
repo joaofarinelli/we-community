@@ -3,19 +3,17 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { useUserMemberSpaces } from '@/hooks/useUserMemberSpaces';
 import { useAvailableSpaces } from '@/hooks/useAvailableSpaces';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
-import { SpacesSidebar } from '@/components/spaces/SpacesSidebar';
-import { SpacesHeader } from '@/components/spaces/SpacesHeader';
 import { SpacesGrid } from '@/components/spaces/SpacesGrid';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { PageBanner } from '@/components/ui/page-banner';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const SpacesPage = () => {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'my-spaces' | 'explore'>('my-spaces');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'name' | 'members' | 'activity' | 'recent'>('name');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'public' | 'private'>('all');
   
   const { data: categories, isLoading: categoriesLoading } = useSpaceCategories();
   const { data: mySpaces, isLoading: mySpacesLoading } = useUserMemberSpaces();
@@ -26,9 +24,9 @@ export const SpacesPage = () => {
   // Get the current spaces based on active tab
   const currentSpaces = activeTab === 'my-spaces' ? mySpaces : availableSpaces;
 
-  // Group spaces by category and apply filters
-  const { spacesByCategory, filteredSpaces } = useMemo(() => {
-    if (!currentSpaces) return { spacesByCategory: {}, filteredSpaces: [] };
+  // Group spaces by category and apply search filter
+  const { spacesByCategory, filteredCategories } = useMemo(() => {
+    if (!currentSpaces || !categories) return { spacesByCategory: {}, filteredCategories: [] };
 
     // Group by category
     const grouped = currentSpaces.reduce((acc, space) => {
@@ -40,50 +38,93 @@ export const SpacesPage = () => {
       return acc;
     }, {} as Record<string, typeof currentSpaces>);
 
-    // Apply filters
-    let filtered = selectedCategoryId === 'all' 
-      ? currentSpaces 
-      : grouped[selectedCategoryId] || [];
-
-    // Apply search filter
+    // Apply search filter to spaces
     if (searchTerm) {
-      filtered = filtered.filter(space =>
-        space.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        space.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      Object.keys(grouped).forEach(categoryId => {
+        grouped[categoryId] = grouped[categoryId].filter(space =>
+          space.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          space.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
     }
 
-    // Apply visibility filter
-    if (visibilityFilter !== 'all') {
-      filtered = filtered.filter(space => space.visibility === visibilityFilter);
+    // Get categories that have spaces (after filtering)
+    const categoriesWithSpaces = categories.filter(category => 
+      grouped[category.id] && grouped[category.id].length > 0
+    );
+
+    // Add uncategorized if it has spaces
+    if (grouped['uncategorized'] && grouped['uncategorized'].length > 0) {
+      categoriesWithSpaces.push({
+        id: 'uncategorized',
+        name: 'Sem Categoria',
+        order_index: 999,
+        company_id: '',
+        created_at: '',
+        updated_at: ''
+      });
     }
 
-    // Apply sorting
-    filtered = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'members':
-          return ((b as any).memberCount || 0) - ((a as any).memberCount || 0);
-        case 'activity':
-          // Sort by activity (placeholder - would need real activity data)
-          return 0;
-        case 'recent':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        default:
-          return 0;
-      }
-    });
-
-    return { spacesByCategory: grouped, filteredSpaces: filtered };
-  }, [currentSpaces, selectedCategoryId, searchTerm, visibilityFilter, sortBy]);
+    return { 
+      spacesByCategory: grouped, 
+      filteredCategories: categoriesWithSpaces 
+    };
+  }, [currentSpaces, categories, searchTerm]);
 
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="p-6">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-6">
+          <PageBanner bannerType="spaces" />
+          <div className="space-y-4">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-96 w-full" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!currentSpaces || currentSpaces.length === 0) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <PageBanner bannerType="spaces" />
+          
+          <div>
+            <h1 className="text-2xl font-bold mb-2">
+              {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
+            </h1>
+            <p className="text-muted-foreground">
+              {activeTab === 'my-spaces' 
+                ? 'Você ainda não participa de nenhum espaço.'
+                : 'Não há espaços disponíveis para explorar no momento.'
+              }
+            </p>
+          </div>
+
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
+            <TabsList>
+              <TabsTrigger value="my-spaces">Meus Espaços</TabsTrigger>
+              <TabsTrigger value="explore">Explorar</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-muted-foreground">
+              {activeTab === 'my-spaces' ? 'Nenhum espaço encontrado' : 'Nenhum espaço disponível'}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              {activeTab === 'my-spaces' 
+                ? 'Entre em espaços através da aba "Explorar" ou aguarde convites.'
+                : 'Novos espaços aparecerão aqui quando estiverem disponíveis.'
+              }
+            </p>
           </div>
         </div>
       </DashboardLayout>
@@ -92,44 +133,50 @@ export const SpacesPage = () => {
 
   return (
     <DashboardLayout>
-      <PageBanner bannerType="spaces" />
-      
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <SpacesSidebar
-          selectedCategoryId={selectedCategoryId}
-          onCategoryChange={setSelectedCategoryId}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          spacesByCategory={spacesByCategory}
-          mySpacesCount={mySpaces?.length || 0}
-          exploreSpacesCount={availableSpaces?.filter(s => !(s as any).isMember && s.visibility === 'public').length || 0}
-        />
-
-        {/* Main Content */}
-        <div className="flex-1 p-6 space-y-6">
-          <SpacesHeader
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            visibilityFilter={visibilityFilter}
-            onVisibilityFilterChange={setVisibilityFilter}
-            totalSpaces={filteredSpaces.length}
-            activeTab={activeTab}
-          />
-
-          <SpacesGrid
-            spaces={filteredSpaces}
-            activeTab={activeTab}
-            viewMode={viewMode}
-            selectedCategoryId={selectedCategoryId}
-            spacesByCategory={spacesByCategory}
-            categories={categories || []}
-          />
+      <div className="space-y-6">
+        <PageBanner bannerType="spaces" />
+        
+        <div>
+          <h1 className="text-2xl font-bold mb-2">
+            {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
+          </h1>
+          <p className="text-muted-foreground">
+            {activeTab === 'my-spaces' 
+              ? 'Acesse e gerencie todos os seus espaços organizados por categoria.'
+              : 'Descubra e participe de novos espaços da comunidade.'
+            }
+          </p>
         </div>
+
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
+            <TabsList>
+              <TabsTrigger value="my-spaces">
+                Meus Espaços ({mySpaces?.length || 0})
+              </TabsTrigger>
+              <TabsTrigger value="explore">
+                Explorar ({availableSpaces?.filter(s => !(s as any).isMember && s.visibility === 'public').length || 0})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar espaços..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <SpacesGrid
+          spacesByCategory={spacesByCategory}
+          categories={filteredCategories}
+          activeTab={activeTab}
+          hasSearchTerm={!!searchTerm}
+        />
       </div>
     </DashboardLayout>
   );
