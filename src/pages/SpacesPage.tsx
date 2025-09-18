@@ -73,10 +73,10 @@ export const SpacesPage = () => {
 
   if (isLoading) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <PageBanner bannerType="spaces" />
-          <div className="px-6 space-y-4">
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        <PageBanner bannerType="spaces" />
+        <div className="space-y-4">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-4 w-96" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -84,19 +84,19 @@ export const SpacesPage = () => {
                 <Skeleton key={i} className="h-96 w-full" />
               ))}
             </div>
-          </div>
         </div>
-      </DashboardLayout>
+      </div>
+    </DashboardLayout>
     );
   }
 
   if (!currentSpaces || currentSpaces.length === 0) {
     return (
-      <DashboardLayout>
-        <div className="space-y-6">
-          <PageBanner bannerType="spaces" />
-          
-          <div className="px-6">
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        <PageBanner bannerType="spaces" />
+        
+        <div>
             <h1 className="text-2xl font-bold mb-2">
               {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
             </h1>
@@ -106,18 +106,18 @@ export const SpacesPage = () => {
                 : 'Não há espaços disponíveis para explorar no momento.'
               }
             </p>
-          </div>
+        </div>
 
-          <div className="px-6">
+        <div>
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
               <TabsList>
                 <TabsTrigger value="my-spaces">Meus Espaços</TabsTrigger>
                 <TabsTrigger value="explore">Explorar</TabsTrigger>
               </TabsList>
             </Tabs>
-          </div>
+        </div>
 
-          <div className="px-6 text-center py-12">
+        <div className="text-center py-12">
             <h3 className="text-lg font-medium text-muted-foreground">
               {activeTab === 'my-spaces' ? 'Nenhum espaço encontrado' : 'Nenhum espaço disponível'}
             </h3>
@@ -127,18 +127,18 @@ export const SpacesPage = () => {
                 : 'Novos espaços aparecerão aqui quando estiverem disponíveis.'
               }
             </p>
-          </div>
         </div>
-      </DashboardLayout>
+      </div>
+    </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         <PageBanner bannerType="spaces" />
         
-        <div className="px-6">
+        <div>
           <h1 className="text-2xl font-bold mb-2">
             {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
           </h1>
@@ -150,7 +150,7 @@ export const SpacesPage = () => {
           </p>
         </div>
 
-        <div className="px-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
             <TabsList>
               <TabsTrigger value="my-spaces">
@@ -173,7 +173,7 @@ export const SpacesPage = () => {
           </div>
         </div>
 
-        <div className="px-6">
+        <div>
           <SpacesGrid
             spacesByCategory={spacesByCategory}
             categories={filteredCategories}
