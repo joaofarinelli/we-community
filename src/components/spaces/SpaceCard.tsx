@@ -80,12 +80,12 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4 flex-1">
-        <div className="aspect-video bg-muted rounded-lg mb-3 overflow-hidden">
+      <CardContent className="p-3 flex-1">
+        <div className="aspect-[4/3] bg-muted rounded-lg mb-2 overflow-hidden">
           <SpaceBanner spaceId={space.id} className="w-full h-full" />
         </div>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <div className="flex-shrink-0">
@@ -93,11 +93,11 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                   space.type,
                   space.custom_icon_type,
                   space.custom_icon_value,
-                  "h-5 w-5"
+                  "h-4 w-4"
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-sm leading-tight truncate">{space.name}</h3>
+                <h3 className="font-medium text-xs leading-tight truncate">{space.name}</h3>
                 {space.space_categories && (
                   <p className="text-xs text-muted-foreground mt-0.5 truncate">
                     {space.space_categories.name}
@@ -116,14 +116,14 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
           <div className="flex flex-wrap gap-1">
             <Badge 
               variant="outline" 
-              className="text-xs flex items-center gap-1"
+              className="text-[10px] px-1.5 py-0.5 h-5 flex items-center gap-0.5"
             >
               {getVisibilityIcon()}
               <span className="capitalize">{space.visibility}</span>
             </Badge>
             
             {userRole !== 'member' && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 h-5">
                 {userRole === 'admin' ? 'Admin' : 'Moderador'}
               </Badge>
             )}
@@ -136,7 +136,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         </div>
       </CardContent>
       
-      <CardFooter className="p-4 pt-0">
+      <CardFooter className="p-3 pt-0">
         <div className="flex gap-2 w-full">
           {showJoinLeave && space.visibility === 'public' && (
             <>
