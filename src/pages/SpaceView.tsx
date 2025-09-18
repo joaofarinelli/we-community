@@ -34,19 +34,25 @@ export const SpaceView = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+  
   const {
     spaceId
   } = useParams<{
     spaceId: string;
   }>();
+  
+  // Debug logs
+  console.log('SpaceView - spaceId:', spaceId);
   const navigate = useNavigate();
   const {
     data: space,
-    isLoading: spaceLoading
+    isLoading: spaceLoading,
+    error: spaceError
   } = useSpace(spaceId!);
   const {
     data: posts,
-    isLoading: postsLoading
+    isLoading: postsLoading,
+    error: postsError
   } = useSpacePosts(spaceId!);
   const {
     data: events,
@@ -55,15 +61,30 @@ export const SpaceView = () => {
   } = useEvents(spaceId!);
   const {
     data: members,
-    isLoading: membersLoading
+    isLoading: membersLoading,
+    error: membersError
   } = useSpaceMembers(spaceId!);
   const {
     data: spaceAccess,
-    isLoading: accessLoading
+    isLoading: accessLoading,
+    error: accessError
   } = useSpaceAccess(spaceId!);
   const {
-    data: memberInfo
+    data: memberInfo,
+    error: memberError
   } = useIsSpaceMember(spaceId!);
+  
+  // Debug logs
+  console.log('SpaceView - space data:', space);
+  console.log('SpaceView - spaceAccess:', spaceAccess);
+  console.log('SpaceView - errors:', {
+    spaceError,
+    postsError,
+    eventsError,
+    membersError,
+    accessError,
+    memberError
+  });
   const {
     leaveSpace
   } = useManageSpaceMembers();
@@ -78,6 +99,24 @@ export const SpaceView = () => {
         </div>
       </DashboardLayout>;
   }
+  if (spaceError || accessError) {
+    console.error('SpaceView - Errors loading space:', { spaceError, accessError });
+    return <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Erro ao carregar espaço</h2>
+            <p className="text-muted-foreground mb-4">
+              Ocorreu um erro ao carregar o espaço. Verifique sua conexão e tente novamente.
+            </p>
+            <Button onClick={() => navigate('/dashboard')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar ao Dashboard
+            </Button>
+          </div>
+        </div>
+      </DashboardLayout>;
+  }
+
   if (!space || !spaceAccess?.canSee) {
     return <DashboardLayout>
         <div className="min-h-screen flex items-center justify-center">
