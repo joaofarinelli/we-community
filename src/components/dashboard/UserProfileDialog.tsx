@@ -14,13 +14,13 @@ import { useUserMarketplaceItems } from '@/hooks/useUserMarketplaceItems';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { useUserComments } from '@/hooks/useUserComments';
 import { useUserTrailBadges } from '@/hooks/useTrailProgress';
-import { useUserMemberSpaces } from '@/hooks/useUserMemberSpaces';
+
 import { UserPostItem } from './UserPostItem';
 import { UserCommentItem } from './UserCommentItem';
 import { MarketplaceItemCard } from '@/components/marketplace/MarketplaceItemCard';
 import { TrailBadgesDisplay } from '@/components/trails/TrailBadgesDisplay';
 import { EditProfileDialog } from './EditProfileDialog';
-import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Users, Clock, X, Phone, ShoppingBag, Award, Briefcase } from 'lucide-react';
+import { User, Mail, MapPin, Calendar, Edit3, Instagram, MessageSquare, FileText, Clock, X, Phone, ShoppingBag, Award, Briefcase } from 'lucide-react';
 interface UserProfileDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,9 +61,6 @@ export const UserProfileDialog = ({
   const {
     data: userBadges = []
   } = useUserTrailBadges();
-  const {
-    data: userSpaces = []
-  } = useUserMemberSpaces();
   const getUserInitials = () => {
     const firstName = userProfile?.first_name;
     const lastName = userProfile?.last_name;
@@ -187,7 +184,7 @@ export const UserProfileDialog = ({
           {/* Right Panel - Detailed Info */}
           <div className="lg:w-2/3 p-4 md:p-6 overflow-auto">
             <Tabs defaultValue="sobre" className="h-full">
-              <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 text-xs md:text-sm">
+              <TabsList className="grid w-full grid-cols-4 md:grid-cols-5 text-xs md:text-sm">
                 <TabsTrigger value="sobre" className="px-2">Sobre</TabsTrigger>
                 <TabsTrigger value="selos" className="px-2">
                   <span className="hidden md:inline">Selos</span>
@@ -203,10 +200,6 @@ export const UserProfileDialog = ({
                   <span className="hidden md:inline">Comentários</span>
                   <span className="md:hidden">Coment.</span>
                   <span className="ml-1">({userStats?.commentsCount || 0})</span>
-                </TabsTrigger>
-                <TabsTrigger value="espacos" className="px-2 hidden md:block">
-                  Espaços
-                  <span className="ml-1">({userSpaces.length})</span>
                 </TabsTrigger>
                 <TabsTrigger value="marketplace" className="px-2 hidden md:block">
                   <span className="hidden lg:inline">Marketplace</span>
@@ -331,51 +324,6 @@ export const UserProfileDialog = ({
                   <div className="text-center py-8 md:py-12 text-muted-foreground">
                     <MessageSquare className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
                     <p className="text-sm md:text-base">Você ainda não fez nenhum comentário</p>
-                  </div>
-                )}
-              </TabsContent>
-
-              <TabsContent value="espacos" className="mt-4 md:mt-6 overflow-auto max-h-[50vh] md:max-h-none">
-                {userSpaces.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    {userSpaces.map((space) => (
-                      <Card 
-                        key={space.id} 
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => {
-                          window.location.href = `/dashboard/space/${space.id}`;
-                        }}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm md:text-base mb-1">{space.name}</h4>
-                              {space.description && (
-                                <p className="text-xs md:text-sm text-muted-foreground mb-2 line-clamp-2">
-                                  {space.description}
-                                </p>
-                              )}
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {space.visibility === 'public' ? 'Público' : 
-                                   space.visibility === 'private' ? 'Privado' : 'Secreto'}
-                                </Badge>
-                                {space.space_members && space.space_members.length > 0 && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {space.space_members[0].role === 'admin' ? 'Admin' : 'Membro'}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 md:py-12 text-muted-foreground">
-                    <Users className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-3 md:mb-4" />
-                    <p className="text-sm md:text-base">Você ainda não participa de nenhum espaço</p>
                   </div>
                 )}
               </TabsContent>
