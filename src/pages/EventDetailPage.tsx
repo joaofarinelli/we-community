@@ -14,6 +14,7 @@ import { EventParticipationDropdown } from '@/components/events/EventParticipati
 import { EventInteractions } from '@/components/events/EventInteractions';
 import { EventMaterialsSection } from '@/components/events/EventMaterialsSection';
 import { formatAddress } from '@/lib/formatAddress';
+import { parseEventDate } from '@/lib/date-utils';
 import { UserAvatar } from '@/components/dashboard/UserAvatar';
 
 export default function EventDetailPage() {
@@ -30,12 +31,12 @@ export default function EventDetailPage() {
     return <div className="p-6">Evento não encontrado</div>;
   }
 
-  const isToday = new Date(event.start_date).toDateString() === new Date().toDateString();
-  const isPast = new Date(event.end_date) < new Date();
+  const isToday = parseEventDate(event.start_date).toDateString() === new Date().toDateString();
+  const isPast = parseEventDate(event.end_date) < new Date();
 
   const generateCalendarFile = () => {
-    const startDate = new Date(event.start_date);
-    const endDate = new Date(event.end_date);
+    const startDate = parseEventDate(event.start_date);
+    const endDate = parseEventDate(event.end_date);
     
     const formatDate = (date: Date) => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -144,7 +145,7 @@ END:VCALENDAR`;
                   <div className="flex items-center gap-2 text-sm">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {format(new Date(event.start_date), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
+                      {format(parseEventDate(event.start_date), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR })}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">

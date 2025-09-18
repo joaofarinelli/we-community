@@ -9,6 +9,7 @@ import { ptBR } from 'date-fns/locale';
 import { ExternalLink, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { EventsAnalytics } from '@/hooks/useEventsAnalytics';
+import { parseEventDate } from '@/lib/date-utils';
 
 interface EventsTableProps {
   data: EventsAnalytics;
@@ -34,8 +35,8 @@ export const EventsTable = ({ data, isLoading }: EventsTableProps) => {
     
     switch (sortField) {
       case 'start_date':
-        aValue = new Date(a.start_date).getTime();
-        bValue = new Date(b.start_date).getTime();
+        aValue = parseEventDate(a.start_date).getTime();
+        bValue = parseEventDate(b.start_date).getTime();
         break;
       case 'participants_count':
         aValue = a.participants_count;
@@ -91,8 +92,8 @@ export const EventsTable = ({ data, isLoading }: EventsTableProps) => {
       headers.join(','),
       ...data.recentEvents.map(event => [
         `"${event.title}"`,
-        format(new Date(event.start_date), 'dd/MM/yyyy HH:mm'),
-        format(new Date(event.end_date), 'dd/MM/yyyy HH:mm'),
+        format(parseEventDate(event.start_date), 'dd/MM/yyyy HH:mm'),
+        format(parseEventDate(event.end_date), 'dd/MM/yyyy HH:mm'),
         getStatusLabel(event.status),
         event.participants_count,
         event.revenue,
@@ -180,9 +181,9 @@ export const EventsTable = ({ data, isLoading }: EventsTableProps) => {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {format(new Date(event.start_date), 'dd/MM/yyyy', { locale: ptBR })}
+                        {format(parseEventDate(event.start_date), 'dd/MM/yyyy', { locale: ptBR })}
                         <div className="text-xs text-muted-foreground">
-                          {format(new Date(event.start_date), 'HH:mm')} - {format(new Date(event.end_date), 'HH:mm')}
+                          {format(parseEventDate(event.start_date), 'HH:mm')} - {format(parseEventDate(event.end_date), 'HH:mm')}
                         </div>
                       </div>
                     </TableCell>

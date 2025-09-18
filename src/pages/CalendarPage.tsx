@@ -210,7 +210,7 @@ export const CalendarPage = () => {
                       >
                         <h4 className="font-medium">{event.title}</h4>
                         <div className="text-sm text-muted-foreground">
-                          {format(event._parsedStartDate || new Date(event.start_date), 'HH:mm')} - {format(event._parsedEndDate || new Date(event.end_date), 'HH:mm')}
+                          {format(event._parsedStartDate, 'HH:mm')} - {format(event._parsedEndDate, 'HH:mm')}
                         </div>
                         <div className="text-sm text-muted-foreground">Espaço: {(event as any).spaces?.name || 'N/A'}</div>
                         <div className="text-sm">
