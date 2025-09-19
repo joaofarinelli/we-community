@@ -11,7 +11,10 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
+    // Only load componentTagger in true local development (not production or custom domains)
+    mode === 'development' && 
+    !process.env.VITE_CUSTOM_DOMAIN && 
+    process.env.NODE_ENV !== 'production' &&
     componentTagger(),
   ].filter(Boolean),
   resolve: {
