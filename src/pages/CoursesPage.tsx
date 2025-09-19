@@ -275,7 +275,7 @@ export const CoursesPage = () => {
     <DashboardLayout>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
         {/* Course Banner - Full Width */}
-        <div className="-mx-8 -mt-8 mb-8">
+        <div className="-mx-8 -mt-8 mb-0">
           <CourseBannerSection />
         </div>
 

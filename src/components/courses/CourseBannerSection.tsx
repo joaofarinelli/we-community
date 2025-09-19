@@ -59,7 +59,7 @@ export const CourseBannerSection = ({ isAdminMode = false }: CourseBannerSection
           aspectRatio={1300/300}
           maxWidth={1300}
           quality={75}
-          className="rounded-lg overflow-hidden"
+          className="overflow-hidden"
         />
         {isAdmin && isAdminMode && (
           <div className="absolute top-4 right-4 flex gap-2 z-10">
