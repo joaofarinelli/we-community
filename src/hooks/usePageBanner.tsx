@@ -100,11 +100,10 @@ export const usePageBanner = (bannerType: BannerType) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['page-banner', bannerType] });
-      queryClient.invalidateQueries({ queryKey: ['company'] });
-      // Also invalidate the specific company query with the current company ID
-      if (company?.id) {
-        queryClient.invalidateQueries({ queryKey: ['company'], predicate: (query) => query.queryKey[0] === 'company' });
-      }
+      // Invalidate all company-related queries regardless of their additional parameters
+      queryClient.invalidateQueries({ 
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === 'company'
+      });
       toast.success(`Banner de ${getBannerDisplayName(bannerType)} atualizado com sucesso!`);
     },
     onError: (error: Error) => {
@@ -131,11 +130,10 @@ export const usePageBanner = (bannerType: BannerType) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['page-banner', bannerType] });
-      queryClient.invalidateQueries({ queryKey: ['company'] });
-      // Also invalidate the specific company query with the current company ID
-      if (company?.id) {
-        queryClient.invalidateQueries({ queryKey: ['company'], predicate: (query) => query.queryKey[0] === 'company' });
-      }
+      // Invalidate all company-related queries regardless of their additional parameters
+      queryClient.invalidateQueries({ 
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === 'company'
+      });
       toast.success(`Banner de ${getBannerDisplayName(bannerType)} removido com sucesso!`);
     },
     onError: (error: Error) => {
