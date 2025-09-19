@@ -20,7 +20,15 @@ export const useCompany = () => {
 
         if (data && data.length > 0) {
           console.log('Found company via domain lookup:', data[0].name);
-          return data[0];
+          
+          // Fetch complete company data to ensure we have all banner URLs
+          const { data: fullCompanyData } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', data[0].id)
+            .single();
+          
+          return fullCompanyData || data[0];
         }
       }
 

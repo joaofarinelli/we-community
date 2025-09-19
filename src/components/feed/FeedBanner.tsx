@@ -1,19 +1,19 @@
 import React from 'react';
-import { useCompany } from '@/hooks/useCompany';
+import { usePageBanner } from '@/hooks/usePageBanner';
 import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 
 export const FeedBanner = () => {
-  const { data: company } = useCompany();
+  const { bannerUrl, isLoading } = usePageBanner('feed');
 
-  // Don't render anything if there's no banner URL
-  if (!company?.feed_banner_url) {
+  // Don't render anything if there's no banner URL or while loading
+  if (isLoading || !bannerUrl) {
     return null;
   }
 
   return (
     <div className="w-full">
       <ResponsiveBanner
-        src={company.feed_banner_url}
+        src={bannerUrl}
         aspectRatio={1300/300}
         maxWidth={1300}
       />

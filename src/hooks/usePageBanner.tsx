@@ -29,7 +29,16 @@ export const usePageBanner = (bannerType: BannerType) => {
     queryKey: ['page-banner', bannerType, company?.id],
     queryFn: async () => {
       if (!company?.id) return null;
-      return company[columnName];
+      
+      // Directly query companies table to ensure we get the latest banner URL
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select(columnName)
+        .eq('id', company.id)
+        .single();
+      
+      console.log(`🎯 Direct banner query for ${bannerType}:`, companyData?.[columnName]);
+      return companyData?.[columnName] || null;
     },
     enabled: !!company?.id,
   });
