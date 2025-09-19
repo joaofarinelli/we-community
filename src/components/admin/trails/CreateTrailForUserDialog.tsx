@@ -19,7 +19,6 @@ const createTrailSchema = z.object({
   life_area: z.string().optional(),
   user_id: z.string().optional(), // For assigning to specific user
   template_id: z.string().optional(),
-  is_template: z.boolean().optional(),
   completion_badge_id: z.string().optional(),
   auto_complete: z.boolean().optional(),
 });
@@ -57,7 +56,6 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
       description: '',
       life_area: 'none',
       user_id: 'all',
-      is_template: false,
       completion_badge_id: 'none',
       auto_complete: true,
     },
@@ -234,30 +232,6 @@ export const CreateTrailForUserDialog = ({ open, onOpenChange }: CreateTrailForU
               )}
             />
 
-            <div className="flex items-center space-x-2">
-              <FormField
-                control={form.control}
-                name="is_template"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>
-                        Usar como modelo base
-                      </FormLabel>
-                      <p className="text-xs text-muted-foreground">
-                        Esta trilha poderá ser replicada futuramente
-                      </p>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button
