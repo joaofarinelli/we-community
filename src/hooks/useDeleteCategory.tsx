@@ -1,10 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useCompanyContext } from './useCompanyContext';
+import { useInvalidateQueries } from './useInvalidateQueries';
 import { toast } from 'sonner';
 
 export const useDeleteCategory = () => {
   const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+  const invalidateQueries = useInvalidateQueries();
   const queryClient = useQueryClient();
 
   const deleteCategoryMutation = useMutation({
@@ -49,7 +53,11 @@ export const useDeleteCategory = () => {
       console.log('Categoria deletada com sucesso');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
+      // Invalidate all category-related queries with proper company context
+      invalidateQueries.invalidateSpaceCategories();
+      invalidateQueries.invalidateQuery('admin-space-categories');
+      invalidateQueries.invalidateQuery('admin-categories-creators');
+      invalidateQueries.invalidateQuery('admin-categories-spaces-count');
       toast.success('Categoria deletada com sucesso!');
     },
     onError: (error: any) => {
