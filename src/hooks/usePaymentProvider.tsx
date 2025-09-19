@@ -83,31 +83,60 @@ export const useCreateOrUpdatePaymentConfig = () => {
         throw new Error('User not authenticated or company not found');
       }
 
-      const { data, error } = await supabase
+      // Check if config already exists
+      const { data: existingConfig } = await supabase
         .from('payment_provider_configs')
-        .upsert({
-          company_id: currentCompanyId,
-          provider: 'tmb_educacao',
-          environment: configData.environment,
-          credentials: configData.credentials,
-          webhook_secret: configData.webhook_secret,
-          webhook_url: configData.webhook_url,
-          coins_per_brl: configData.coins_per_brl,
-          boleto_expiration_days: configData.boleto_expiration_days,
-          is_active: configData.is_active ?? true,
-          created_by: user.id
-        }, {
-          onConflict: 'company_id,provider'
-        })
-        .select()
-        .single();
+        .select('id')
+        .eq('company_id', currentCompanyId)
+        .eq('provider', 'tmb_educacao')
+        .maybeSingle();
 
-      if (error) throw error;
-      return data;
+      if (existingConfig) {
+        // Update existing config
+        const { data, error } = await supabase
+          .from('payment_provider_configs')
+          .update({
+            environment: configData.environment,
+            credentials: configData.credentials,
+            webhook_secret: configData.webhook_secret,
+            webhook_url: configData.webhook_url,
+            coins_per_brl: configData.coins_per_brl,
+            boleto_expiration_days: configData.boleto_expiration_days,
+            is_active: configData.is_active ?? true,
+          })
+          .eq('company_id', currentCompanyId)
+          .eq('provider', 'tmb_educacao')
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      } else {
+        // Insert new config
+        const { data, error } = await supabase
+          .from('payment_provider_configs')
+          .insert({
+            company_id: currentCompanyId,
+            provider: 'tmb_educacao',
+            environment: configData.environment,
+            credentials: configData.credentials,
+            webhook_secret: configData.webhook_secret,
+            webhook_url: configData.webhook_url,
+            coins_per_brl: configData.coins_per_brl,
+            boleto_expiration_days: configData.boleto_expiration_days,
+            is_active: configData.is_active ?? true,
+            created_by: user.id
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     },
     onSuccess: () => {
       toast.success('Configuração de pagamento salva com sucesso!');
-      queryClient.invalidateQueries({ queryKey: ['paymentProviderConfig'] });
+      queryClient.invalidateQueries({ queryKey: ['paymentProviderConfig', currentCompanyId] });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Erro ao salvar configuração de pagamento');
