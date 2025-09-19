@@ -28,9 +28,8 @@ const isSupabaseAuthHash = (hash: string): boolean => {
 
 const isPublicAuthRoute = (pathname: string): boolean => {
   const normalizedPath = normalizePathname(pathname);
-  const hasAuthHash = isSupabaseAuthHash(window.location.hash);
-  
-  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route)) || hasAuthHash;
+  // Only check pathname, ignore auth hashes to prevent context clearing
+  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route));
 };
 
 interface CompanyContextWrapperProps {

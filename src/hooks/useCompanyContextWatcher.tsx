@@ -14,8 +14,13 @@ export const useCompanyContextWatcher = () => {
   useEffect(() => {
     // Se é a primeira vez carregando ou não há empresa selecionada
     if (!currentCompanyId) {
-      console.log('🔧 CompanyContextWatcher: No company selected, clearing all cache');
-      queryClient.clear();
+      console.log('🔧 CompanyContextWatcher: No company selected - waiting for context');
+      // Don't aggressively clear cache when company is not set
+      // Only clear if we had a previous company (avoid clearing on initial load)
+      if (previousCompanyIdRef.current) {
+        console.log('🧹 CompanyContextWatcher: Previous company existed, clearing cache');
+        queryClient.clear();
+      }
       previousCompanyIdRef.current = null;
       return;
     }

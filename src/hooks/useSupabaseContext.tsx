@@ -29,9 +29,8 @@ const isSupabaseAuthHash = (hash: string): boolean => {
 
 const isPublicAuthRoute = (pathname: string): boolean => {
   const normalizedPath = normalizePathname(pathname);
-  const hasAuthHash = isSupabaseAuthHash(window.location.hash);
-  
-  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route)) || hasAuthHash;
+  // Only check pathname, ignore auth hashes to prevent context clearing
+  return PUBLIC_AUTH_ROUTES.some(route => normalizedPath.startsWith(route));
 };
 
 /**
@@ -50,8 +49,7 @@ export const useSupabaseContext = () => {
     // Skip context setup for public authentication routes
     if (isPublicAuthRoute(location.pathname)) {
       console.log('⏸️ useSupabaseContext: Skipping context setup for public auth route:', location.pathname);
-      // Clear global company ID for public routes
-      setGlobalCompanyId(null);
+      // Don't clear global company ID - just skip RPC call
       setIsContextReady(true); // Public routes don't need company context
       return;
     }
@@ -69,8 +67,10 @@ export const useSupabaseContext = () => {
         console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
         console.log('🔧 useSupabaseContext: User email:', user.email);
         
+  // Fix: Missing line break in comment
         // Set global company ID for header injection
         setGlobalCompanyId(currentCompanyId);
+        console.log('🌐 useSupabaseContext: Global company ID set for header injection:', currentCompanyId);
         
         try {
           // Always set the current company ID in the Supabase session context
@@ -114,8 +114,11 @@ export const useSupabaseContext = () => {
         if (user) {
           console.log('⏸️ useSupabaseContext: User email:', user.email);
         }
-        // Clear global company ID if no context
-        setGlobalCompanyId(null);
+        // Only clear global company ID if explicitly logging out
+        if (!user) {
+          console.log('🧹 useSupabaseContext: Clearing global company ID due to logout');
+          setGlobalCompanyId(null);
+        }
         setIsContextReady(false);
       }
     };
@@ -124,8 +127,11 @@ export const useSupabaseContext = () => {
     if (user && currentCompanyId) {
       setSupabaseContext();
     } else {
-      // Clear context if user or company is not available
-      setGlobalCompanyId(null);
+      // Only clear context on explicit logout, not when company is loading
+      if (!user) {
+        console.log('🧹 useSupabaseContext: User logged out, clearing context');
+        setGlobalCompanyId(null);
+      }
       setIsContextReady(false);
     }
   }, [user, currentCompanyId, location.pathname]);

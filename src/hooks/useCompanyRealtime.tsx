@@ -23,8 +23,16 @@ export const useCompanyRealtime = () => {
         { event: '*', schema: 'public', table: 'companies', filter: `id=eq.${company.id}` },
         (payload) => {
           console.log('🔔 Realtime: company updated, invalidating cache for company:', company.id, payload);
-          // Invalidate company-specific queries
+          // Invalidate company-specific queries - align with useCompany query key
           queryClient.invalidateQueries({ queryKey: ['company', company.id] });
+          queryClient.invalidateQueries({ 
+            predicate: (query) => {
+              const queryKey = query.queryKey;
+              return Array.isArray(queryKey) && 
+                     queryKey.includes('company') && 
+                     queryKey.includes(company.id);
+            }
+          });
           // Invalidate all banner queries that depend on company data
           queryClient.invalidateQueries({ queryKey: ['course-banner', company.id] });
           queryClient.invalidateQueries({ queryKey: ['page-banner', company.id] });

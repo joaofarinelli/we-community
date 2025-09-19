@@ -71,7 +71,10 @@ const enhancedFetch = (originalFetch: typeof fetch) => {
           ...headersObj,
           'x-company-id': companyId,
         };
-        console.log('📡 Adding x-company-id header to request:', companyId, rpcName || url);
+        // Only log for RPC calls to avoid spam
+        if (isRpcCall) {
+          console.log('📡 Adding x-company-id header to RPC:', rpcName, 'companyId:', companyId);
+        }
       } else if (!companyId && requiresCompanyContext) {
         // Only warn when an RPC explicitly requires context
         console.warn('⚠️ No company ID available for request:', rpcName);

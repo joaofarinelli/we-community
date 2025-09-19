@@ -72,8 +72,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
       const isAuthPage = normalizedPath === '/auth' || 
                         normalizedPath === '/reset-password' || 
                         normalizedPath.startsWith('/auth/') || 
-                        normalizedPath.startsWith('/reset-password/') ||
-                        hasAuthHash;
+                        normalizedPath.startsWith('/reset-password/');
       
       if (isAuthPage) {
         console.log('[useCompanyContext] Skipping company fetch on auth page:', { pathname, normalizedPath, hasAuthHash });
