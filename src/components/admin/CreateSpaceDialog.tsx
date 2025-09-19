@@ -76,9 +76,9 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
     },
     onSuccess: () => {
       // Invalidar todas as queries relacionadas
-      queryClient.invalidateQueries({ queryKey: ['spaces'] });
-      queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
-      queryClient.invalidateQueries({ queryKey: ['userSpaces'] });
+      queryClient.invalidateQueries({ queryKey: ['spaces', currentCompanyId] });
+      queryClient.invalidateQueries({ queryKey: ['spaceCategories', currentCompanyId] });
+      queryClient.invalidateQueries({ queryKey: ['userSpaces', currentCompanyId] });
       
       toast.success('Espaço criado com sucesso!');
       onOpenChange(false);

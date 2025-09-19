@@ -43,7 +43,7 @@ export const useCreateCategory = () => {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['spaceCategories', currentCompanyId] });
       toast.success('Categoria criada com sucesso!');
       setIsOpen(false);
     },

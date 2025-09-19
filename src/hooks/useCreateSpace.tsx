@@ -107,7 +107,7 @@ export const useCreateSpace = () => {
       return newSpace;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['spaces'] });
+      queryClient.invalidateQueries({ queryKey: ['spaces', company?.id] });
       toast.success('Espaço criado com sucesso!');
       closeAllDialogs();
     },

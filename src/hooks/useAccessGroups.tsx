@@ -64,7 +64,7 @@ export const useAccessGroups = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['access-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['access-groups', currentCompanyId] });
       toast({
         title: "Grupo criado com sucesso!",
         description: "O grupo de acesso foi criado.",
@@ -92,7 +92,7 @@ export const useAccessGroups = () => {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['access-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['access-groups', currentCompanyId] });
       toast({
         title: "Grupo atualizado!",
         description: "As alterações foram salvas.",
@@ -117,7 +117,7 @@ export const useAccessGroups = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['access-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['access-groups', currentCompanyId] });
       toast({
         title: "Grupo removido",
         description: "O grupo foi removido com sucesso.",

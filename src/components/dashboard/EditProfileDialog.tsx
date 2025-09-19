@@ -211,12 +211,12 @@ export const EditProfileDialog = ({ open, onOpenChange }: EditProfileDialogProps
         }
       }
 
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-      queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data'] });
+      // Invalidate queries to refresh data - company specific
+      queryClient.invalidateQueries({ queryKey: ['userProfile', user.id, userProfile.company_id] });
+      queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data', user.id, userProfile.company_id] });
       
       // Also invalidate the specific user profile query to ensure header updates
-      queryClient.invalidateQueries({ queryKey: ['userProfileForCompany'] });
+      queryClient.invalidateQueries({ queryKey: ['userProfileForCompany', user.id, userProfile.company_id] });
       
       toast({
         title: 'Perfil atualizado',

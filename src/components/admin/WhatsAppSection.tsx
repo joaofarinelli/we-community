@@ -61,9 +61,9 @@ export const WhatsAppSection = () => {
 
       if (error) throw error;
 
-      // Invalidate queries to refetch data
-      queryClient.invalidateQueries({ queryKey: ['whatsapp-config'] });
-      queryClient.invalidateQueries({ queryKey: ['company'] });
+      // Invalidate company-specific queries to refetch data
+      queryClient.invalidateQueries({ queryKey: ['whatsapp-config', company.id] });
+      queryClient.invalidateQueries({ queryKey: ['company', company.id] });
 
       toast({
         title: "Sucesso",

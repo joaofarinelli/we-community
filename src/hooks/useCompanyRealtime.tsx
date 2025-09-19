@@ -14,19 +14,22 @@ export const useCompanyRealtime = () => {
   useEffect(() => {
     if (!company?.id) return;
 
+    console.log('🔔 useCompanyRealtime: Setting up realtime for company:', company.id);
+    
     const channel = supabase
-      .channel('companies-realtime')
+      .channel(`company-realtime-${company.id}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'companies', filter: `id=eq.${company.id}` },
-        () => {
-          console.log('🔔 Realtime: company updated, invalidating cache');
-          // Invalidate all variations of the 'company' queries
-          queryClient.invalidateQueries({ queryKey: ['company'] });
+        (payload) => {
+          console.log('🔔 Realtime: company updated, invalidating cache for company:', company.id, payload);
+          // Invalidate company-specific queries
+          queryClient.invalidateQueries({ queryKey: ['company', company.id] });
           // Invalidate all banner queries that depend on company data
-          queryClient.invalidateQueries({ queryKey: ['course-banner'] });
-          queryClient.invalidateQueries({ queryKey: ['page-banner'] });
-          queryClient.invalidateQueries({ queryKey: ['lesson-player-banner'] });
+          queryClient.invalidateQueries({ queryKey: ['course-banner', company.id] });
+          queryClient.invalidateQueries({ queryKey: ['page-banner', company.id] });
+          queryClient.invalidateQueries({ queryKey: ['lesson-player-banner', company.id] });
+          queryClient.invalidateQueries({ queryKey: ['company-features', company.id] });
         }
       )
       .subscribe();

@@ -40,7 +40,7 @@ export const AdminCreateCategoryDialog = ({ isOpen, onOpenChange }: AdminCreateC
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['spaceCategories', currentCompanyId] });
       toast.success('Categoria criada com sucesso!');
       onOpenChange(false);
       setName('');

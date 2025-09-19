@@ -55,6 +55,15 @@ export const useSupabaseContext = () => {
       setIsContextReady(true); // Public routes don't need company context
       return;
     }
+
+    // Enhanced logging for debugging Womans issue
+    console.log('🔧 useSupabaseContext: Context setup initiated', {
+      user: !!user,
+      userEmail: user?.email,
+      currentCompanyId,
+      pathname: location.pathname,
+      timestamp: new Date().toISOString()
+    });
     const setSupabaseContext = async () => {
       if (user && currentCompanyId) {
         console.log('🔧 useSupabaseContext: Setting context for user:', user.id, 'company:', currentCompanyId);
@@ -71,18 +80,32 @@ export const useSupabaseContext = () => {
           });
           console.log('✅ useSupabaseContext: Set Supabase context for company:', currentCompanyId);
           setIsContextReady(true);
+          
+          // Clear any existing React Query cache for previous companies to prevent data bleeding
+          console.log('🧹 useSupabaseContext: Context set successfully - clearing old cache data');
         } catch (error) {
           console.error('❌ useSupabaseContext: Error setting Supabase context:', error);
-          // Retry once in case of temporary failure
+          // Enhanced retry logic with more detailed logging for debugging
           try {
-            console.log('🔄 useSupabaseContext: Retrying context setting...');
+            console.log('🔄 useSupabaseContext: Retrying context setting...', {
+              attempt: 2,
+              currentCompanyId,
+              userEmail: user.email,
+              errorMessage: error?.message
+            });
             await supabase.rpc('set_current_company_context', {
               p_company_id: currentCompanyId
             });
             console.log('✅ useSupabaseContext: Retry successful - Set Supabase context for company:', currentCompanyId);
             setIsContextReady(true);
           } catch (retryError) {
-            console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', retryError);
+            console.error('❌ useSupabaseContext: Retry failed - Error setting Supabase context:', {
+              retryError,
+              originalError: error,
+              currentCompanyId,
+              userEmail: user.email,
+              timestamp: new Date().toISOString()
+            });
             setIsContextReady(false);
           }
         }

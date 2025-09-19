@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { CompanyProvider } from "@/hooks/useCompanyContext";
+import { useCompanyContextWatcher } from "@/hooks/useCompanyContextWatcher";
 import { CompanyContextWrapper } from "@/components/CompanyContextWrapper";
 import { CrossDomainAuthProvider } from "@/hooks/useCrossDomainAuth";
 import { useDynamicTitle } from "@/hooks/useDynamicTitle";
@@ -91,12 +92,37 @@ import NotFound from "./pages/NotFound";
 import { FaviconApplier } from '@/components/FaviconApplier';
 import { OnboardingChecker } from '@/components/onboarding/OnboardingChecker';
 import { AnnouncementProvider } from '@/components/ui/AnnouncementProvider';
+import { QueryDebugger } from '@/components/debug/QueryDebugger';
 import { MaintenanceGuard } from '@/components/MaintenanceGuard';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import { UrlNormalizer } from '@/components/UrlNormalizer';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes 
+      gcTime: 10 * 60 * 1000, // 10 minutes (previously cacheTime)
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error: any) => {
+        // Don't retry on authentication errors
+        if (error?.code === 'PGRST301' || error?.message?.includes('JWT')) {
+          return false;
+        }
+        return failureCount < 3;
+      },
+    },
+    mutations: {
+      retry: 1, // Retry mutations once on failure
+    },
+  },
+});
+
+// Component to watch company context changes and manage cache
+const AppContextWatcher = ({ children }: { children: React.ReactNode }) => {
+  useCompanyContextWatcher();
+  return <>{children}</>;
+};
 
 const AppRoutes = () => {
   const { user, loading } = useAuth();
@@ -120,8 +146,10 @@ const AppRoutes = () => {
 
   return (
     <CompanyContextWrapper>
-      <AnnouncementProvider />
-      <UrlNormalizer>
+      <AppContextWatcher>
+        <AnnouncementProvider />
+        <QueryDebugger />
+        <UrlNormalizer>
         <Routes>
         {/* Public routes - no authentication or company context required */}
         <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : (shouldShowAuthAsHome ? <AuthPage /> : <Index />)} />
@@ -248,7 +276,8 @@ const AppRoutes = () => {
         {/* Catch-all route */}
         <Route path="*" element={<NotFound />} />
         </Routes>
-      </UrlNormalizer>
+        </UrlNormalizer>
+      </AppContextWatcher>
     </CompanyContextWrapper>
   );
 };
