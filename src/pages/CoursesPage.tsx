@@ -273,12 +273,12 @@ export const CoursesPage = () => {
 
   return (
     <DashboardLayout>
+      {/* Course Banner - Full Width */}
+      <div className="pb-8">
+        <CourseBannerSection />
+      </div>
+      
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-        {/* Course Banner - Full Width */}
-        <div className="mb-8">
-          <CourseBannerSection />
-        </div>
-
         {/* Courses Showcase */}
         <div className="px-8 py-8 space-y-12">
           {/* Reorder Controls */}
