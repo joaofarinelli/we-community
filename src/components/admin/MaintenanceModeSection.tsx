@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -17,6 +17,15 @@ export const MaintenanceModeSection = () => {
   
   const [localMaintenanceMode, setLocalMaintenanceMode] = useState(isMaintenanceMode);
   const [localMessage, setLocalMessage] = useState(maintenanceMessage || '');
+
+  // Sync local state with server state when data changes
+  useEffect(() => {
+    setLocalMaintenanceMode(isMaintenanceMode);
+  }, [isMaintenanceMode]);
+
+  useEffect(() => {
+    setLocalMessage(maintenanceMessage || '');
+  }, [maintenanceMessage]);
 
   const handleSave = () => {
     updateMaintenanceMode({
