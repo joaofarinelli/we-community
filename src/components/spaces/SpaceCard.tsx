@@ -81,16 +81,16 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
       onClick={onClick}
     >
       <CardContent className="p-0">
-        <div className="flex flex-col md:flex-row">
+        <div className="flex flex-col">
           {/* Banner Section */}
-          <div className="w-full md:w-80 flex-shrink-0">
-            <div className="aspect-[16/9] md:aspect-[3/2] bg-muted rounded-t-lg md:rounded-l-lg md:rounded-t-none overflow-hidden">
+          <div className="w-full">
+            <div className="aspect-[16/9] bg-muted rounded-t-lg overflow-hidden">
               <SpaceBanner spaceId={space.id} className="w-full h-full" />
             </div>
           </div>
           
           {/* Content Section */}
-          <div className="flex-1 p-4 flex flex-col justify-between min-h-[200px] md:min-h-[160px]">
+          <div className="p-4 flex flex-col justify-between min-h-[160px]">
             <div className="space-y-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
