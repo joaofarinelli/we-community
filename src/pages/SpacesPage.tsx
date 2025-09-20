@@ -21,14 +21,11 @@ export const SpacesPage = () => {
 
   const isLoading = categoriesLoading || mySpacesLoading || availableSpacesLoading;
 
-  // Get the current spaces based on active tab
   const currentSpaces = activeTab === 'my-spaces' ? mySpaces : availableSpaces;
 
-  // Group spaces by category and apply search filter
   const { spacesByCategory, filteredCategories } = useMemo(() => {
     if (!currentSpaces || !categories) return { spacesByCategory: {}, filteredCategories: [] };
 
-    // Group by category
     const grouped = currentSpaces.reduce((acc, space) => {
       const categoryId = space.category_id || 'uncategorized';
       if (!acc[categoryId]) {
@@ -38,7 +35,6 @@ export const SpacesPage = () => {
       return acc;
     }, {} as Record<string, typeof currentSpaces>);
 
-    // Apply search filter to spaces
     if (searchTerm) {
       Object.keys(grouped).forEach(categoryId => {
         grouped[categoryId] = grouped[categoryId].filter(space =>
@@ -48,12 +44,10 @@ export const SpacesPage = () => {
       });
     }
 
-    // Get categories that have spaces (after filtering)
     const categoriesWithSpaces = categories.filter(category => 
       grouped[category.id] && grouped[category.id].length > 0
     );
 
-    // Add uncategorized if it has spaces
     if (grouped['uncategorized'] && grouped['uncategorized'].length > 0) {
       categoriesWithSpaces.push({
         id: 'uncategorized',
@@ -73,10 +67,12 @@ export const SpacesPage = () => {
 
   if (isLoading) {
     return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <PageBanner bannerType="spaces" />
-        <div className="space-y-4">
+      <DashboardLayout>
+        <div>
+          <PageBanner bannerType="spaces" />
+        </div>
+        <div className="p-6 space-y-6">
+          <div className="space-y-4">
             <Skeleton className="h-8 w-64" />
             <Skeleton className="h-4 w-96" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -84,19 +80,20 @@ export const SpacesPage = () => {
                 <Skeleton key={i} className="h-96 w-full" />
               ))}
             </div>
+          </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
     );
   }
 
   if (!currentSpaces || currentSpaces.length === 0) {
     return (
-    <DashboardLayout>
-      <div className="p-6 space-y-6">
-        <PageBanner bannerType="spaces" />
-        
+      <DashboardLayout>
         <div>
+          <PageBanner bannerType="spaces" />
+        </div>
+        <div className="p-6 space-y-6">
+          <div>
             <h1 className="text-2xl font-bold mb-2">
               {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
             </h1>
@@ -106,18 +103,18 @@ export const SpacesPage = () => {
                 : 'Não há espaços disponíveis para explorar no momento.'
               }
             </p>
-        </div>
+          </div>
 
-        <div>
+          <div>
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
               <TabsList>
                 <TabsTrigger value="my-spaces">Meus Espaços</TabsTrigger>
                 <TabsTrigger value="explore">Explorar</TabsTrigger>
               </TabsList>
             </Tabs>
-        </div>
+          </div>
 
-        <div className="text-center py-12">
+          <div className="text-center py-12">
             <h3 className="text-lg font-medium text-muted-foreground">
               {activeTab === 'my-spaces' ? 'Nenhum espaço encontrado' : 'Nenhum espaço disponível'}
             </h3>
@@ -127,17 +124,18 @@ export const SpacesPage = () => {
                 : 'Novos espaços aparecerão aqui quando estiverem disponíveis.'
               }
             </p>
+          </div>
         </div>
-      </div>
-    </DashboardLayout>
+      </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <div className="p-6 space-y-6">
+      <div>
         <PageBanner bannerType="spaces" />
-        
+      </div>
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-2xl font-bold mb-2">
             {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
