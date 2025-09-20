@@ -84,7 +84,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         <div className="flex flex-col">
           {/* Banner Section */}
           <div className="w-full">
-            <div className="aspect-[16/9] bg-muted rounded-t-lg overflow-hidden">
+            <div className="h-[150px] bg-muted rounded-t-lg overflow-hidden">
               <SpaceBanner spaceId={space.id} className="w-full h-full" />
             </div>
           </div>
