@@ -14,6 +14,7 @@ export interface TrailTemplate {
   is_active: boolean;
   is_pinned: boolean;
   pinned_order?: number;
+  order_index: number;
   access_criteria?: {
     required_level_id?: string;
     required_tags?: string[];
@@ -43,6 +44,7 @@ export const useTrailTemplates = () => {
           cover_url,
           is_pinned,
           pinned_order,
+          order_index,
           created_at,
           access_criteria
         `)
@@ -50,6 +52,7 @@ export const useTrailTemplates = () => {
         .eq('is_active', true)
         .order('is_pinned', { ascending: false })
         .order('pinned_order', { ascending: true, nullsFirst: false })
+        .order('order_index', { ascending: true })
         .order('created_at', { ascending: false });
 
       if (error) throw error;

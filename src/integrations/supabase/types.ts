@@ -3740,6 +3740,7 @@ export type Database = {
           is_pinned: boolean
           life_area: string | null
           name: string
+          order_index: number
           pinned_order: number | null
           updated_at: string
         }
@@ -3755,6 +3756,7 @@ export type Database = {
           is_pinned?: boolean
           life_area?: string | null
           name: string
+          order_index?: number
           pinned_order?: number | null
           updated_at?: string
         }
@@ -3770,6 +3772,7 @@ export type Database = {
           is_pinned?: boolean
           life_area?: string | null
           name?: string
+          order_index?: number
           pinned_order?: number | null
           updated_at?: string
         }
@@ -4518,6 +4521,10 @@ export type Database = {
       calculate_user_level: {
         Args: { p_coins: number; p_company_id: string; p_user_id: string }
         Returns: string
+      }
+      can_start_trail: {
+        Args: { p_company_id: string; p_template_id: string; p_user_id: string }
+        Returns: boolean
       }
       can_user_see_space: {
         Args: { p_space_id: string; p_user_id: string } | { space_id: string }
