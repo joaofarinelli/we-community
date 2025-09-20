@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,21 +14,42 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompanyContext } from '@/hooks/useCompanyContext';
 import { toast } from 'sonner';
 
+const createSpaceSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  description: z.string().optional(),
+  visibility: z.enum(['public', 'private', 'secret']),
+  categoryId: z.string().min(1, 'Categoria é obrigatória'),
+});
+
+type FormData = z.infer<typeof createSpaceSchema>;
+
 interface CreateSpaceDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogProps) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [visibility, setVisibility] = useState<'public' | 'private' | 'secret'>('public');
-  const [categoryId, setCategoryId] = useState('');
-
   const { user } = useAuth();
   const { currentCompanyId } = useCompanyContext();
   const { data: categories = [] } = useSpaceCategories();
   const queryClient = useQueryClient();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(createSpaceSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      visibility: 'public',
+      categoryId: '',
+    },
+  });
   
   const { mutate: createSpace, isPending } = useMutation({
     mutationFn: async (data: {
@@ -84,10 +107,7 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
       onOpenChange(false);
       
       // Reset form
-      setName('');
-      setDescription('');
-      setVisibility('public');
-      setCategoryId('');
+      reset();
     },
     onError: (error: any) => {
       console.error('Erro ao criar espaço:', error);
@@ -105,16 +125,9 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!name.trim()) {
-      toast.error('Nome é obrigatório');
-      return;
-    }
-
+  const onSubmit = (data: FormData) => {
     // Auto-selecionar primeira categoria se nenhuma foi selecionada
-    let finalCategoryId = categoryId;
+    let finalCategoryId = data.categoryId;
     if (!finalCategoryId && categories.length > 0) {
       finalCategoryId = categories[0].id;
       toast.info(`Categoria "${categories[0].name}" selecionada automaticamente`);
@@ -125,17 +138,12 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
       return;
     }
 
-    try {
-      await createSpace({
-        name: name.trim(),
-        description: description.trim() || undefined,
-        visibility,
-        category_id: finalCategoryId,
-      });
-    } catch (error) {
-      // Erro já tratado no onError da mutação
-      console.error('Erro no handleSubmit:', error);
-    }
+    createSpace({
+      name: data.name.trim(),
+      description: data.description?.trim() || undefined,
+      visibility: data.visibility,
+      category_id: finalCategoryId,
+    });
   };
 
   return (
@@ -148,33 +156,37 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nome do Espaço *</Label>
             <Input
               id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
               placeholder="Digite o nome do espaço"
-              required
+              {...register('name')}
+              className={errors.name ? 'border-destructive' : ''}
             />
+            {errors.name && (
+              <p className="text-sm text-destructive">{errors.name.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
               placeholder="Descreva o propósito deste espaço (opcional)"
               rows={3}
+              {...register('description')}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="category">Categoria *</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger>
+            <Select 
+              value={watch('categoryId')} 
+              onValueChange={(value) => setValue('categoryId', value)}
+            >
+              <SelectTrigger className={errors.categoryId ? 'border-destructive' : ''}>
                 <SelectValue placeholder={categories.length > 0 ? "Selecione uma categoria" : "Nenhuma categoria disponível"} />
               </SelectTrigger>
               <SelectContent>
@@ -185,6 +197,9 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
                 ))}
               </SelectContent>
             </Select>
+            {errors.categoryId && (
+              <p className="text-sm text-destructive">{errors.categoryId.message}</p>
+            )}
             {categories.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 Crie uma categoria primeiro para organizar seus espaços.
@@ -194,8 +209,11 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
 
           <div className="space-y-2">
             <Label htmlFor="visibility">Visibilidade</Label>
-            <Select value={visibility} onValueChange={(value: 'public' | 'private' | 'secret') => setVisibility(value)}>
-              <SelectTrigger>
+            <Select 
+              value={watch('visibility')} 
+              onValueChange={(value: 'public' | 'private' | 'secret') => setValue('visibility', value)}
+            >
+              <SelectTrigger className={errors.visibility ? 'border-destructive' : ''}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -204,6 +222,9 @@ export const CreateSpaceDialog = ({ isOpen, onOpenChange }: CreateSpaceDialogPro
                 <SelectItem value="secret">Secreto - Oculto da lista de espaços</SelectItem>
               </SelectContent>
             </Select>
+            {errors.visibility && (
+              <p className="text-sm text-destructive">{errors.visibility.message}</p>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
