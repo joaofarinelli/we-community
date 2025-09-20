@@ -76,7 +76,7 @@ export const SpacesGrid = ({
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4">
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1">
               {categorySpaces.map(renderSpaceCard)}
             </div>
           </CollapsibleContent>
@@ -111,7 +111,7 @@ export const SpacesGrid = ({
                 </p>
               </div>
             </div>
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1">
               {availableSpaces.map(renderSpaceCard)}
             </div>
           </div>
@@ -128,7 +128,7 @@ export const SpacesGrid = ({
                 </p>
               </div>
             </div>
-            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1">
               {memberSpaces.map(renderSpaceCard)}
             </div>
           </div>

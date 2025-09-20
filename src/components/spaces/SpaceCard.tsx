@@ -75,129 +75,136 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
   return (
     <Card 
       className={cn(
-        "h-full flex flex-col cursor-pointer hover:shadow-md transition-shadow",
+        "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
       onClick={onClick}
     >
-      <CardContent className="p-3 flex-1">
-        <div className="aspect-[4/3] bg-muted rounded-lg mb-2 overflow-hidden">
-          <SpaceBanner spaceId={space.id} className="w-full h-full" />
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div className="flex-shrink-0">
-                {renderSpaceIcon(
-                  space.type,
-                  space.custom_icon_type,
-                  space.custom_icon_value,
-                  "h-4 w-4"
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-medium text-xs leading-tight truncate">{space.name}</h3>
-                {space.space_categories && (
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {space.space_categories.name}
-                  </p>
-                )}
-              </div>
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          {/* Banner Section */}
+          <div className="w-full md:w-80 flex-shrink-0">
+            <div className="aspect-[16/9] md:aspect-[3/2] bg-muted rounded-t-lg md:rounded-l-lg md:rounded-t-none overflow-hidden">
+              <SpaceBanner spaceId={space.id} className="w-full h-full" />
             </div>
           </div>
+          
+          {/* Content Section */}
+          <div className="flex-1 p-4 flex flex-col justify-between min-h-[200px] md:min-h-[160px]">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex-shrink-0">
+                    {renderSpaceIcon(
+                      space.type,
+                      space.custom_icon_type,
+                      space.custom_icon_value,
+                      "h-5 w-5"
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-lg leading-tight truncate">{space.name}</h3>
+                    {space.space_categories && (
+                      <p className="text-sm text-muted-foreground mt-1 truncate">
+                        {space.space_categories.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-          {space.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {space.description}
-            </p>
-          )}
-          
-          <div className="flex flex-wrap gap-1">
-            <Badge 
-              variant="outline" 
-              className="text-[10px] px-1.5 py-0.5 h-5 flex items-center gap-0.5"
-            >
-              {getVisibilityIcon()}
-              <span className="capitalize">{space.visibility}</span>
-            </Badge>
+              {space.description && (
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {space.description}
+                </p>
+              )}
+              
+              <div className="flex flex-wrap gap-2">
+                <Badge 
+                  variant="outline" 
+                  className="text-xs px-2 py-1 h-6 flex items-center gap-1"
+                >
+                  {getVisibilityIcon()}
+                  <span className="capitalize">{space.visibility}</span>
+                </Badge>
+                
+                {userRole !== 'member' && (
+                  <Badge variant="secondary" className="text-xs px-2 py-1 h-6">
+                    {userRole === 'admin' ? 'Admin' : 'Moderador'}
+                  </Badge>
+                )}
+              </div>
+              
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
+              </div>
+            </div>
             
-            {userRole !== 'member' && (
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 h-5">
-                {userRole === 'admin' ? 'Admin' : 'Moderador'}
-              </Badge>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Users className="h-3 w-3" />
-            <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
+            {/* Footer Actions */}
+            <div className="flex gap-2 mt-4">
+              {showJoinLeave && space.visibility === 'public' && (
+                <>
+                  {isMember ? (
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        leaveSpace.mutate(space.id);
+                      }}
+                      disabled={leaveSpace.isPending}
+                      className="flex-1"
+                    >
+                      <UserMinus className="h-3 w-3 mr-1" />
+                      Sair
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        joinSpace.mutate(space.id);
+                      }}
+                      disabled={joinSpace.isPending}
+                      className="flex-1"
+                    >
+                      <UserPlus className="h-3 w-3 mr-1" />
+                      {joinSpace.isPending ? 'Entrando...' : 'Entrar'}
+                    </Button>
+                  )}
+                </>
+              )}
+              
+              {/* Only show access button if user is a member or if it's accessible to them */}
+              {(isMember || space.visibility === 'public') && (
+                <Button 
+                  size="sm" 
+                  variant={isMember ? "default" : "outline"}
+                  className={showJoinLeave && space.visibility === 'public' ? "flex-1" : "w-full"}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClick?.();
+                  }}
+                  disabled={!isMember && space.visibility !== 'public'}
+                >
+                  {isMember ? 'Acessar' : 'Visualizar'}
+                </Button>
+              )}
+              
+              {/* Show restricted message for private/secret spaces where user is not a member */}
+              {!isMember && space.visibility !== 'public' && (
+                <div className="flex-1 text-center">
+                  <span className="text-sm text-muted-foreground">
+                    {space.visibility === 'private' ? 'Acesso restrito' : 'Espaço secreto'}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>
-      
-      <CardFooter className="p-3 pt-0">
-        <div className="flex gap-2 w-full">
-          {showJoinLeave && space.visibility === 'public' && (
-            <>
-              {isMember ? (
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    leaveSpace.mutate(space.id);
-                  }}
-                  disabled={leaveSpace.isPending}
-                  className="flex-1"
-                >
-                  <UserMinus className="h-3 w-3 mr-1" />
-                  Sair
-                </Button>
-              ) : (
-                <Button 
-                  size="sm" 
-                  variant="default"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    joinSpace.mutate(space.id);
-                  }}
-                  disabled={joinSpace.isPending}
-                  className="flex-1"
-                >
-                  <UserPlus className="h-3 w-3 mr-1" />
-                  {joinSpace.isPending ? 'Entrando...' : 'Entrar'}
-                </Button>
-              )}
-            </>
-          )}
-          
-          {/* Only show access button if user is a member or if it's accessible to them */}
-          {(isMember || space.visibility === 'public') && (
-            <Button 
-              size="sm" 
-              variant={isMember ? "default" : "outline"}
-              className={showJoinLeave && space.visibility === 'public' ? "flex-1" : "w-full"}
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick?.();
-              }}
-              disabled={!isMember && space.visibility !== 'public'}
-            >
-              {isMember ? 'Acessar' : 'Visualizar'}
-            </Button>
-          )}
-          
-          {/* Show restricted message for private/secret spaces where user is not a member */}
-          {!isMember && space.visibility !== 'public' && (
-            <div className="flex-1 text-center">
-              <span className="text-xs text-muted-foreground">
-                {space.visibility === 'private' ? 'Acesso restrito' : 'Espaço secreto'}
-              </span>
-            </div>
-          )}
-        </div>
-      </CardFooter>
     </Card>
   );
 };
