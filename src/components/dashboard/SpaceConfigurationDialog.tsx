@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -20,14 +21,16 @@ import {
 } from '@/components/ui/select';
 import { IconSelector } from '@/components/ui/icon-selector';
 import { getSpaceTypeInfo, type SpaceType } from '@/lib/spaceUtils';
-import { spaceConfigurationSchema, type SpaceConfigurationFormData } from '@/lib/schemas';
+import { spaceConfigurationSchema } from '@/lib/schemas';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { Globe, Lock, EyeOff, Bell } from 'lucide-react';
+
+type FormData = z.infer<typeof spaceConfigurationSchema>;
 
 interface SpaceConfigurationDialogProps {
   open: boolean;
   onClose: () => void;
-  onCreateSpace: (data: SpaceConfigurationFormData) => void;
+  onCreateSpace: (data: FormData) => void;
   selectedType: SpaceType | null;
   selectedCategoryId: string | null;
   isCreating: boolean;
@@ -44,7 +47,15 @@ export const SpaceConfigurationDialog = ({
   const { data: categories = [] } = useSpaceCategories();
   const spaceTypeInfo = selectedType ? getSpaceTypeInfo(selectedType) : null;
 
-  const form = useForm<SpaceConfigurationFormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+    setError,
+    clearErrors,
+  } = useForm<FormData>({
     defaultValues: {
       name: '',
       categoryId: selectedCategoryId || '',
@@ -55,13 +66,24 @@ export const SpaceConfigurationDialog = ({
     },
   });
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = form;
-
   const visibility = watch('visibility');
   const enableNotifications = watch('enableNotifications');
 
-  const onSubmit = (data: SpaceConfigurationFormData) => {
-    onCreateSpace(data);
+  const onSubmit = (data: FormData) => {
+    // Validação manual usando o schema zod
+    const result = spaceConfigurationSchema.safeParse(data);
+    
+    if (!result.success) {
+      // Aplicar erros do zod ao formulário
+      result.error.issues.forEach((error) => {
+        const path = error.path[0] as keyof FormData;
+        setError(path, { message: error.message });
+      });
+      return;
+    }
+    
+    clearErrors();
+    onCreateSpace(result.data);
   };
 
   const accessLevels = [
