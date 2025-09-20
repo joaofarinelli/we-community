@@ -11,7 +11,7 @@ import { CopyTrailTemplateDialog } from './CopyTrailTemplateDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export const TrailTemplatesTab = () => {
+export const AdminTrailsTab = () => {
   const { data: templates, isLoading } = useTrailTemplates();
   const deleteTemplate = useDeleteTrailTemplate();
   
@@ -21,7 +21,7 @@ export const TrailTemplatesTab = () => {
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja desativar este template?')) {
+    if (confirm('Tem certeza que deseja desativar esta trilha?')) {
       await deleteTemplate.mutateAsync(id);
     }
   };
@@ -64,10 +64,10 @@ export const TrailTemplatesTab = () => {
       <Card>
         <CardContent className="py-8 text-center">
           <p className="text-muted-foreground mb-4">
-            Nenhum template criado ainda.
+            Nenhuma trilha criada ainda.
           </p>
           <p className="text-sm text-muted-foreground">
-            Crie templates reutilizáveis para facilitar a criação de trilhas pelas usuárias.
+            Crie trilhas completas para que as usuárias possam participar e evoluir em suas jornadas.
           </p>
         </CardContent>
       </Card>
@@ -90,7 +90,6 @@ export const TrailTemplatesTab = () => {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="secondary">Template</Badge>
                 <TrailPinButton template={template} />
               </div>
             </div>
@@ -103,13 +102,13 @@ export const TrailTemplatesTab = () => {
 
           {template.cover_url && (
             <div className="px-6 pb-4">
-              <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
-                <img 
-                  src={template.cover_url} 
-                  alt={`Capa do template ${template.name}`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+            <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+              <img 
+                src={template.cover_url} 
+                alt={`Capa da trilha ${template.name}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
             </div>
           )}
 

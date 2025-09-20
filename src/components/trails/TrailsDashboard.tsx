@@ -72,8 +72,8 @@ export const TrailsDashboard = () => {
       {/* Trails Section */}
       <Tabs defaultValue="available" className="space-y-6">
         <TabsList>
-          <TabsTrigger value="available">Trilhas Disponíveis</TabsTrigger>
-          <TabsTrigger value="active">Minhas Trilhas Ativas ({activeTrails.length})</TabsTrigger>
+          <TabsTrigger value="available">Explorar Trilhas</TabsTrigger>
+          <TabsTrigger value="active">Trilhas Ativas ({activeTrails.length})</TabsTrigger>
           <TabsTrigger value="completed">Concluídas ({completedTrails.length})</TabsTrigger>
         </TabsList>
 

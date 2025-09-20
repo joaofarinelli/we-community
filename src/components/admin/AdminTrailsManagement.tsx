@@ -3,17 +3,15 @@ import { Plus, Users, File, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrailTemplatesTab } from './trails/TrailTemplatesTab';
-import { UserTrailsTab } from './trails/UserTrailsTab';
+import { AdminTrailsTab } from './trails/AdminTrailsTab';
+import { TrailParticipationsTab } from './trails/TrailParticipationsTab';
 import { TrailBadgesTab } from './trails/TrailBadgesTab';
-import { CreateTrailTemplateDialog } from './trails/CreateTrailTemplateDialog';
 import { AdminCreateTrailDialog } from './trails/AdminCreateTrailDialog';
 import { useAllTrails } from '@/hooks/useTrails';
 import { useTrailTemplates } from '@/hooks/useTrailTemplates';
 import { useTrailBadges } from '@/hooks/useTrailProgress';
 
 export const AdminTrailsManagement = () => {
-  const [showCreateTemplateDialog, setShowCreateTemplateDialog] = useState(false);
   const [showCreateAdminTrailDialog, setShowCreateAdminTrailDialog] = useState(false);
   const { data: trails } = useAllTrails();
   const { data: templates } = useTrailTemplates();
@@ -25,22 +23,22 @@ export const AdminTrailsManagement = () => {
     
     return [
       {
-        title: 'Trilhas Ativas',
-        value: activeTrails,
-        icon: Users,
-        description: 'Usuárias em jornadas ativas',
-      },
-      {
-        title: 'Trilhas Concluídas',
-        value: completedTrails,
-        icon: Award,
-        description: 'Jornadas finalizadas',
-      },
-      {
-        title: 'Templates',
+        title: 'Trilhas Criadas',
         value: templates?.length || 0,
         icon: File,
-        description: 'Templates disponíveis',
+        description: 'Trilhas disponíveis para participação',
+      },
+      {
+        title: 'Participações Ativas',
+        value: activeTrails,
+        icon: Users,
+        description: 'Usuárias em trilhas ativas',
+      },
+      {
+        title: 'Participações Concluídas',
+        value: completedTrails,
+        icon: Award,
+        description: 'Participações finalizadas',
       },
       {
         title: 'Selos',
@@ -73,46 +71,34 @@ export const AdminTrailsManagement = () => {
       </div>
 
       {/* Management Tabs */}
-      <Tabs defaultValue="templates" className="space-y-6">
+      <Tabs defaultValue="trails" className="space-y-6">
         <div className="flex items-center justify-between">
           <TabsList>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
-            <TabsTrigger value="trails">Trilhas das Usuárias</TabsTrigger>
+            <TabsTrigger value="trails">Trilhas</TabsTrigger>
+            <TabsTrigger value="participations">Participações</TabsTrigger>
             <TabsTrigger value="badges">Selos</TabsTrigger>
           </TabsList>
 
           <div className="flex gap-2">
             <Button onClick={() => setShowCreateAdminTrailDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Criar Trilha Completa
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={() => setShowCreateTemplateDialog(true)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Template
+              Nova Trilha
             </Button>
           </div>
         </div>
 
-        <TabsContent value="templates">
-          <TrailTemplatesTab />
+        <TabsContent value="trails">
+          <AdminTrailsTab />
         </TabsContent>
 
-        <TabsContent value="trails">
-          <UserTrailsTab />
+        <TabsContent value="participations">
+          <TrailParticipationsTab />
         </TabsContent>
 
         <TabsContent value="badges">
           <TrailBadgesTab />
         </TabsContent>
       </Tabs>
-
-      <CreateTrailTemplateDialog 
-        open={showCreateTemplateDialog} 
-        onOpenChange={setShowCreateTemplateDialog} 
-      />
       
       <AdminCreateTrailDialog 
         open={showCreateAdminTrailDialog} 

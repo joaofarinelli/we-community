@@ -8,7 +8,7 @@ export const AdminTrailsPage = () => {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Gerenciar Trilhas</h1>
           <p className="text-muted-foreground">
-            Gerencie trilhas, templates e acompanhe o progresso das usuárias
+            Gerencie trilhas criadas por administradores e acompanhe as participações das usuárias
           </p>
         </div>
 

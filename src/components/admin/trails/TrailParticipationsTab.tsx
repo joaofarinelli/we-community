@@ -18,7 +18,7 @@ import { EditTrailDialog } from './EditTrailDialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-export const UserTrailsTab = () => {
+export const TrailParticipationsTab = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -155,7 +155,7 @@ export const UserTrailsTab = () => {
       {/* Filters */}
       <div className="flex flex-wrap gap-4">
         <Input
-          placeholder="Buscar por nome da trilha ou usuária..."
+          placeholder="Buscar por nome da trilha, usuária..."
           value={searchTerm}
           onChange={handleSearchChange}
           className="flex-1 min-w-[300px]"
@@ -449,8 +449,8 @@ export const UserTrailsTab = () => {
           <CardContent className="py-8 text-center">
             <p className="text-muted-foreground">
               {hasActiveFilters
-                ? 'Nenhuma trilha encontrada com os filtros aplicados.' 
-                : 'Nenhuma trilha criada ainda.'}
+                ? 'Nenhuma participação encontrada com os filtros aplicados.' 
+                : 'Nenhuma participação em trilhas ainda.'}
             </p>
           </CardContent>
         </Card>
