@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from './useCompany';
 import { useTheme } from 'next-themes';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 interface CompanyThemeConfig {
@@ -17,6 +17,10 @@ export const useCompanyTheme = () => {
   const { data: company } = useCompany();
   const { setTheme } = useTheme();
   const queryClient = useQueryClient();
+  
+  // Local cache for stability protection
+  const appliedThemeRef = useRef<CompanyThemeConfig | null>(null);
+  const lastCompanyIdRef = useRef<string | null>(null);
 
   // Fetch company theme configuration
   const { data: themeConfig, isLoading } = useQuery({
@@ -36,9 +40,17 @@ export const useCompanyTheme = () => {
     enabled: !!company,
   });
 
-  // Apply theme configuration
+  // Apply theme configuration with stability protection
   useEffect(() => {
+    // Detect company context loss
+    if (lastCompanyIdRef.current && company?.id && lastCompanyIdRef.current !== company.id) {
+      console.log('🎨 Company context changed:', lastCompanyIdRef.current, '->', company.id);
+      appliedThemeRef.current = null; // Clear cache on company change
+    }
+
     if (themeConfig) {
+      console.log('🎨 Applying theme config for company:', company?.id, themeConfig);
+      
       // Apply theme mode
       if (themeConfig.theme_mode !== 'auto') {
         setTheme(themeConfig.theme_mode);
@@ -46,12 +58,11 @@ export const useCompanyTheme = () => {
         setTheme('system');
       }
 
-      // Apply primary color to CSS variables
+      // Apply colors
       if (themeConfig.primary_color) {
         applyPrimaryColor(themeConfig.primary_color);
       }
 
-      // Apply text colors
       if (themeConfig.text_color) {
         applyTextColor(themeConfig.text_color);
       }
@@ -59,8 +70,31 @@ export const useCompanyTheme = () => {
       if (themeConfig.button_text_color) {
         applyButtonTextColor(themeConfig.button_text_color);
       }
+
+      // Cache applied theme
+      appliedThemeRef.current = themeConfig;
+      lastCompanyIdRef.current = company?.id || null;
+    } else if (appliedThemeRef.current && !company) {
+      // Company context lost but we have cached theme - reapply to prevent theme loss
+      const cachedTheme = appliedThemeRef.current;
+      console.warn('⚠️ Company context lost, reapplying cached theme:', cachedTheme);
+      
+      if (cachedTheme.theme_mode !== 'auto') {
+        setTheme(cachedTheme.theme_mode);
+      }
+      if (cachedTheme.primary_color) {
+        applyPrimaryColor(cachedTheme.primary_color);
+      }
+      if (cachedTheme.text_color) {
+        applyTextColor(cachedTheme.text_color);
+      }
+      if (cachedTheme.button_text_color) {
+        applyButtonTextColor(cachedTheme.button_text_color);
+      }
+    } else if (!themeConfig && !appliedThemeRef.current) {
+      console.log('🎨 No theme config available and no cache');
     }
-  }, [themeConfig, setTheme]);
+  }, [themeConfig, company?.id, setTheme]);
 
   // Update company theme configuration
   const updateThemeMutation = useMutation({
@@ -75,8 +109,16 @@ export const useCompanyTheme = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['company-theme'] });
-      queryClient.invalidateQueries({ queryKey: ['company'] });
+      // Use specific query keys with company ID
+      queryClient.invalidateQueries({ queryKey: ['company-theme', company?.id] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => {
+          const queryKey = query.queryKey;
+          return Array.isArray(queryKey) && 
+                 queryKey.length > 0 &&
+                 queryKey[0] === 'company';
+        }
+      });
       toast.success('Configurações de tema atualizadas com sucesso!');
     },
     onError: (error) => {
