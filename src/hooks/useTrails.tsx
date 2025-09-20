@@ -160,6 +160,7 @@ export const useAllTrails = () => {
   });
 };
 
+// Legacy hook for admin trail creation - deprecated in favor of template-based approach
 export const useCreateTrail = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
