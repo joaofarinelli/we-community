@@ -75,7 +75,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
   return (
     <Card 
       className={cn(
-        "cursor-pointer hover:shadow-md transition-shadow mr-[250px]",
+        "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
       onClick={onClick}
