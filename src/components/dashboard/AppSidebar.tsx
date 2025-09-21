@@ -17,11 +17,9 @@ import { CompanyLogo } from "@/components/ui/company-logo";
 import { useIsFeatureEnabled } from "@/hooks/useCompanyFeatures";
 import { useIsAdmin } from "@/hooks/useUserRole";
 
-interface AppSidebarProps {
-  onClose?: () => void;
-}
+interface AppSidebarProps {}
 
-export function AppSidebar({ onClose }: AppSidebarProps) {
+export function AppSidebar({}: AppSidebarProps) {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
@@ -101,11 +99,6 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     return currentPath.startsWith(path);
   };
 
-  const handleNavClick = (url: string) => {
-    if (onClose) {
-      onClose();
-    }
-  };
 
   return (
     <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
@@ -141,7 +134,6 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                      <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      onClick={() => handleNavClick(item.url)}
                       className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-foreground hover:bg-muted/50 relative group"
                       style={({ isActive: navIsActive }) => {
                         const active = isActive(item.url);

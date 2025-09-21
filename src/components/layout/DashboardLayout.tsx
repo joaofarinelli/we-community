@@ -37,7 +37,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user } = useAuth();
   const { data: company } = useCompany();
   const { data: userProfile } = useUserProfile();
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const [chatOpen, setChatOpen] = useState(false);
   const [chatConversationId, setChatConversationId] = useState<string | null>(null);
@@ -106,21 +106,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <AutoStreakCheckIn />
         <OnboardingChecker />
         
-        {/* Desktop Sidebar */}
+        {/* Sidebar */}
         <AppSidebar />
-
-        {/* Mobile Sidebar Overlay */}
-        {isMobileSidebarOpen && (
-          <div className="lg:hidden fixed inset-0 z-50">
-            <div 
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
-              onClick={() => setIsMobileSidebarOpen(false)}
-            />
-            <div className="relative w-80 sm:w-96 h-full bg-background shadow-2xl">
-              <AppSidebar onClose={() => setIsMobileSidebarOpen(false)} />
-            </div>
-          </div>
-        )}
 
         <SidebarInset className="flex flex-col flex-1">
           {/* Header */}
@@ -128,20 +115,8 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="flex items-center justify-between px-2 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4">
               {/* Left side */}
               <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
-                {/* Desktop Sidebar Toggle */}
-                <div className="hidden lg:block">
-                  <SidebarTrigger className="p-2" />
-                </div>
-                
-                {/* Mobile Sidebar Toggle */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMobileSidebarOpen(true)}
-                  className="lg:hidden p-2"
-                >
-                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
-                </Button>
+                {/* Sidebar Toggle */}
+                <SidebarTrigger className="p-2" />
                 
                 {/* Espaço vazio onde estava a logo */}
               </div>
