@@ -182,7 +182,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                 <Button 
                   size="sm" 
                   variant={isMember ? "default" : "outline"}
-                  className={showJoinLeave && space.visibility === 'public' ? "flex-1" : "w-full"}
+                  className={showJoinLeave && space.visibility === 'public' ? "w-auto px-4" : "w-auto px-4"}
                   onClick={(e) => {
                     e.stopPropagation();
                     onClick?.();
