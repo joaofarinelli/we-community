@@ -43,7 +43,7 @@ export const SpacesGrid = ({
       <SpaceCard
         key={space.id}
         space={space}
-        onClick={() => navigate(`/dashboard/spaces/${space.id}`)}
+        onClick={() => navigate(`/dashboard/space/${space.id}`)}
         showJoinLeave={activeTab === 'explore'}
         className="w-full h-full"
       />
