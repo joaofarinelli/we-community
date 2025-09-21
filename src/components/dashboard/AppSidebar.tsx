@@ -25,7 +25,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   const { state } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
-  const { data: company } = useCompany();
+  const { data: company, isLoading: companyLoading } = useCompany();
   const collapsed = state === "collapsed";
   const isAdmin = useIsAdmin();
   
@@ -39,6 +39,26 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   const isMembersEnabled = useIsFeatureEnabled('members');
   const isCoursesEnabled = useIsFeatureEnabled('courses');
   const isCalendarEnabled = useIsFeatureEnabled('calendar');
+
+  // Debug logs for troubleshooting
+  console.log('AppSidebar Debug:', {
+    company,
+    companyLoading,
+    isAdmin,
+    pathname: currentPath,
+    collapsed,
+    features: {
+      ranking: isRankingEnabled,
+      marketplace: isMarketplaceEnabled,
+      store: isStoreEnabled,
+      bank: isBankEnabled,
+      challenges: isChallengesEnabled,
+      trails: isTrailsEnabled,
+      members: isMembersEnabled,
+      courses: isCoursesEnabled,
+      calendar: isCalendarEnabled,
+    }
+  });
   
   // Dynamic main items based on enabled features
   const mainItems = [
@@ -55,6 +75,18 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
     ...(isCalendarEnabled ? [{ title: "Calendário", url: "/dashboard/calendar", icon: Calendar }] : []),
     ...(isAdmin ? [{ title: "Administração", url: "/admin/settings", icon: Settings }] : []),
   ];
+
+  // Debug main items array
+  console.log('MainItems count:', mainItems.length, mainItems);
+
+  // Fallback items in case all features are disabled
+  const fallbackItems = [
+    { title: "Feed", url: "/dashboard", icon: Rss },
+    { title: "Espaços", url: "/dashboard/spaces", icon: Grid3X3 },
+  ];
+
+  // Use fallback if no items (shouldn't happen but safety check)
+  const finalItems = mainItems.length > 0 ? mainItems : fallbackItems;
 
   const isActive = (path: string) => {
     if (path === "/dashboard") {
@@ -103,7 +135,7 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
         <SidebarGroup className="p-2 flex-1">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {mainItems.map((item) => (
+              {finalItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                      <NavLink
