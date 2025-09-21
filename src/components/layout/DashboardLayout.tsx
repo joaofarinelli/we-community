@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target, MapPin } from 'lucide-react';
+import { Menu, Search, Bell, MessageCircle, Users, Settings, Trophy, Target, MapPin, Rss, Grid3X3, Map, BookOpen, ShoppingBag, Store, Wallet, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/dashboard/SearchBar';
 import { UserDropdown } from '@/components/dashboard/UserDropdown';
@@ -14,6 +14,7 @@ import { useCompany } from '@/hooks/useCompany';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { useIsAdmin } from '@/hooks/useUserRole';
+import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
 import { ThemeApplier } from '@/components/ThemeApplier';
 import { CompanyLogo } from '@/components/ui/company-logo';
 import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
@@ -55,11 +56,48 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   
   const isAdmin = useIsAdmin();
   
+  // Feature flags for mobile menu
+  const isTrailsEnabled = useIsFeatureEnabled('trails');
+  const isMembersEnabled = useIsFeatureEnabled('members');
+  const isCoursesEnabled = useIsFeatureEnabled('courses');
+  const isRankingEnabled = useIsFeatureEnabled('ranking');
+  const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
+  const isStoreEnabled = useIsFeatureEnabled('store');
+  const isBankEnabled = useIsFeatureEnabled('bank');
+  const isChallengesEnabled = useIsFeatureEnabled('challenges');
+  const isCalendarEnabled = useIsFeatureEnabled('calendar');
+  
   // Set Supabase context for RLS policies
   useSupabaseContext();
   
   // Initialize realtime subscriptions for posts
   useRealtimePosts();
+
+  // Generate mobile navigation items based on feature flags
+  const mobileNavItems = [
+    { name: 'Feed', path: '/dashboard', icon: Rss },
+    { name: 'Espaços', path: '/dashboard/spaces', icon: Grid3X3 },
+    ...(isTrailsEnabled ? [{ name: 'Trilhas', path: '/dashboard/trails', icon: Map }] : []),
+    ...(isMembersEnabled ? [{ name: 'Membros', path: '/dashboard/members', icon: Users }] : []),
+    ...(isCoursesEnabled ? [{ name: 'Cursos', path: '/courses', icon: BookOpen }] : []),
+    ...(isRankingEnabled ? [{ name: 'Ranking', path: '/dashboard/ranking', icon: Trophy }] : []),
+    ...(isMarketplaceEnabled ? [{ name: 'Marketplace', path: '/dashboard/marketplace', icon: ShoppingBag }] : []),
+    ...(isStoreEnabled ? [{ name: 'Loja', path: '/dashboard/store', icon: Store }] : []),
+    ...(isBankEnabled ? [{ name: 'Banco', path: '/dashboard/bank', icon: Wallet }] : []),
+    ...(isChallengesEnabled ? [{ name: 'Desafios', path: '/dashboard/challenges', icon: Target }] : []),
+    ...(isCalendarEnabled ? [{ name: 'Calendário', path: '/dashboard/calendar', icon: Calendar }] : []),
+  ].slice(0, 5); // Limit to 5 items for mobile layout
+  
+  const isActiveRoute = (path: string) => {
+    const currentPath = window.location.pathname;
+    if (path === '/dashboard') {
+      return currentPath === '/dashboard';
+    }
+    if (path === '/courses') {
+      return currentPath.startsWith('/courses');
+    }
+    return currentPath.startsWith(path);
+  };
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -166,52 +204,49 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </main>
 
           {/* Mobile Bottom Navigation */}
-          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center justify-around px-2 py-3 safe-area-bottom">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
-                onClick={() => navigate('/dashboard')}
-              >
-                <div className="text-[10px] sm:text-xs font-medium">Feed</div>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
-                onClick={() => navigate('/dashboard/spaces')}
-              >
-                <div className="text-[10px] sm:text-xs font-medium">Espaços</div>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
-                onClick={() => navigate('/dashboard/trails')}
-              >
-                <div className="text-[10px] sm:text-xs font-medium">Trilhas</div>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
-                onClick={() => navigate('/dashboard/members')}
-              >
-                <div className="text-[10px] sm:text-xs font-medium">Membros</div>
-              </Button>
-              <div className="sm:hidden">
-                <UserPointsBadge />
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t bg-card/95 backdrop-blur-sm supports-[backdrop-filter]:bg-card/80 shadow-lg">
+            <div className="flex items-center justify-between px-1 py-2 safe-area-bottom max-w-[100vw] overflow-x-auto">
+              {/* Navigation Items */}
+              <div className="flex items-center justify-around flex-1 min-w-0">
+                {mobileNavItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActiveRoute(item.path);
+                  
+                  return (
+                    <Button 
+                      key={item.name}
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-muted-foreground hover:text-foreground flex-col space-y-1 h-auto py-2 px-1 sm:px-2 min-w-0 text-xs flex-shrink-0 transition-all duration-200"
+                      style={{
+                        color: active ? (company?.primary_color || '#3b82f6') : undefined,
+                      }}
+                      onClick={() => navigate(item.path)}
+                    >
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <div className="text-[9px] sm:text-[10px] font-medium whitespace-nowrap">
+                        {item.name}
+                      </div>
+                    </Button>
+                  );
+                })}
               </div>
-              <div className="md:hidden">
-                <ChatDialog 
-                  isOpen={chatOpen}
-                  onOpenChange={setChatOpen}
-                  initialConversationId={chatConversationId}
-                />
-              </div>
-              <div className="md:hidden">
-                <UtilitiesDialog />
+              
+              {/* Utility Items */}
+              <div className="flex items-center space-x-1 ml-1 flex-shrink-0">
+                <div className="sm:hidden">
+                  <UserPointsBadge />
+                </div>
+                <div className="md:hidden">
+                  <ChatDialog 
+                    isOpen={chatOpen}
+                    onOpenChange={setChatOpen}
+                    initialConversationId={chatConversationId}
+                  />
+                </div>
+                <div className="md:hidden">
+                  <UtilitiesDialog />
+                </div>
               </div>
             </div>
           </div>

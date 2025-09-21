@@ -76,11 +76,11 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
   };
 
   return (
-    <Sidebar className={collapsed ? "w-16" : "w-64"}>
-      <SidebarContent className="bg-card border-r border-border">
+    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
+      <SidebarContent className="bg-card/95 backdrop-blur-sm border-r border-border/50">
         {/* Company Header */}
         {!collapsed && (
-          <div className="p-4 border-b border-border h-[72px] flex items-center">
+          <div className="p-4 border-b border-border/50 h-[72px] flex items-center bg-card/50">
             <CompanyLogo 
               fallbackText="Minha Empresa"
               textClassName="text-lg font-semibold text-foreground"
@@ -88,9 +88,19 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
             />
           </div>
         )}
+        
+        {/* Collapsed Header */}
+        {collapsed && (
+          <div className="p-2 border-b border-border/50 h-[72px] flex items-center justify-center bg-card/50">
+            <CompanyLogo 
+              fallbackText="MC"
+              logoClassName="h-8 w-8 object-contain rounded"
+            />
+          </div>
+        )}
 
         {/* Main Navigation */}
-        <SidebarGroup className="p-2">
+        <SidebarGroup className="p-2 flex-1">
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {mainItems.map((item) => (
@@ -100,13 +110,14 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                       to={item.url}
                       end={item.url === "/dashboard"}
                       onClick={() => handleNavClick(item.url)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-md font-medium transition-colors text-foreground"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all duration-200 text-foreground hover:bg-muted/50 relative group"
                       style={({ isActive: navIsActive }) => {
                         const active = isActive(item.url);
                         if (active) {
                           return {
-                            backgroundColor: company?.primary_color,
+                            backgroundColor: company?.primary_color || '#3b82f6',
                             color: company?.button_text_color ?? "#fff",
+                            boxShadow: `0 2px 8px ${company?.primary_color || '#3b82f6'}30`,
                           };
                         }
                         return {};
@@ -124,8 +135,13 @@ export function AppSidebar({ onClose }: AppSidebarProps) {
                         }
                       }}
                     >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className={`h-4 w-4 ${collapsed ? 'mx-auto' : ''}`} />
+                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      {collapsed && (
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded-md shadow-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                          {item.title}
+                        </div>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
