@@ -108,44 +108,55 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 {/* Espaço vazio onde estava a logo */}
               </div>
 
-              {/* Right side */}
-              <div className="flex items-center space-x-1 sm:space-x-2 flex-1 justify-end min-w-0">
-                {/* Search Bar - responsive width */}
-                <div className="max-w-[120px] sm:max-w-[160px] md:max-w-[200px] lg:max-w-[240px] mr-1 sm:mr-2">
-                  <SearchBar />
+          {/* Right side */}
+          <div className="flex items-center space-x-1 sm:space-x-2 flex-1 justify-end min-w-0">
+            {/* Search Bar - responsive width */}
+            <div className="max-w-[100px] sm:max-w-[140px] md:max-w-[180px] lg:max-w-[220px] xl:max-w-[260px] mr-1 sm:mr-2">
+              <SearchBar />
+            </div>
+            
+            {/* Desktop Elements */}
+            <div className="hidden lg:flex items-center space-x-2">
+              <UserPointsBadge />
+              <ChatDialog 
+                isOpen={chatOpen}
+                onOpenChange={setChatOpen}
+                initialConversationId={chatConversationId}
+              />
+              <UtilitiesDialog />
+              <NotificationDropdown />
+              <StreakDialog>
+                <div className="cursor-pointer">
+                  <StreakBadge variant="compact" />
                 </div>
-                <div className="hidden sm:block">
-                  <UserPointsBadge />
-                </div>
-                <div className="hidden md:block">
-                  <ChatDialog 
-                    isOpen={chatOpen}
-                    onOpenChange={setChatOpen}
-                    initialConversationId={chatConversationId}
-                  />
-                </div>
-                <div className="hidden md:block">
-                  <UtilitiesDialog />
-                </div>
-                <div className="hidden md:block">
-                  <NotificationDropdown />
-                </div>
-                <div className="hidden md:block">
-                  <StreakDialog>
-                    <div className="cursor-pointer">
-                      <StreakBadge variant="compact" />
-                    </div>
-                  </StreakDialog>
-                </div>
-                <UserDropdown
-                  name={userProfile?.first_name && userProfile?.last_name 
-                    ? `${userProfile.first_name} ${userProfile.last_name}` 
-                    : (userProfile?.first_name || user?.user_metadata?.display_name)
-                  }
-                  email={userProfile?.email || user?.email}
-                  imageUrl={userProfile?.avatar_url || user?.user_metadata?.avatar_url}
-                />
-              </div>
+              </StreakDialog>
+            </div>
+            
+            {/* Tablet Elements */}
+            <div className="hidden md:flex lg:hidden items-center space-x-1">
+              <UserPointsBadge />
+              <ChatDialog 
+                isOpen={chatOpen}
+                onOpenChange={setChatOpen}
+                initialConversationId={chatConversationId}
+              />
+              <NotificationDropdown />
+            </div>
+            
+            {/* Mobile Elements */}
+            <div className="flex md:hidden items-center space-x-1">
+              <NotificationDropdown />
+            </div>
+            
+            <UserDropdown
+              name={userProfile?.first_name && userProfile?.last_name 
+                ? `${userProfile.first_name} ${userProfile.last_name}` 
+                : (userProfile?.first_name || user?.user_metadata?.display_name)
+              }
+              email={userProfile?.email || user?.email}
+              imageUrl={userProfile?.avatar_url || user?.user_metadata?.avatar_url}
+            />
+          </div>
             </div>
           </header>
 
@@ -155,39 +166,39 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </main>
 
           {/* Mobile Bottom Navigation */}
-          <div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:bg-transparent lg:border-t-0 lg:relative lg:bottom-auto">
-            <div className="flex items-center justify-around px-4 py-2 lg:hidden">
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="flex items-center justify-around px-2 py-3 safe-area-bottom">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2"
+                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
                 onClick={() => navigate('/dashboard')}
               >
-                <div className="text-xs">Feed</div>
+                <div className="text-[10px] sm:text-xs font-medium">Feed</div>
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2"
+                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
                 onClick={() => navigate('/dashboard/spaces')}
               >
-                <div className="text-xs">Espaços</div>
+                <div className="text-[10px] sm:text-xs font-medium">Espaços</div>
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2"
+                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
                 onClick={() => navigate('/dashboard/trails')}
               >
-                <div className="text-xs">Trilhas</div>
+                <div className="text-[10px] sm:text-xs font-medium">Trilhas</div>
               </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2"
+                className="text-foreground hover:text-primary flex-col space-y-1 h-auto py-2 px-2 min-w-0 text-xs"
                 onClick={() => navigate('/dashboard/members')}
               >
-                <div className="text-xs">Membros</div>
+                <div className="text-[10px] sm:text-xs font-medium">Membros</div>
               </Button>
               <div className="sm:hidden">
                 <UserPointsBadge />
@@ -206,7 +217,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </div>
 
           {/* Padding bottom for mobile navigation */}
-          <div className="xl:hidden h-16 lg:h-0" />
+          <div className="lg:hidden h-20 safe-area-bottom" />
         </SidebarInset>
         
         {/* WhatsApp Floating Button */}

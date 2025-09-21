@@ -135,12 +135,12 @@ export const SpacesPage = () => {
       <div>
         <PageBanner bannerType="spaces" />
       </div>
-      <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold mb-2">
+      <div className="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        <div className="space-y-2">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
             {activeTab === 'my-spaces' ? 'Meus Espaços' : 'Explorar Espaços'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {activeTab === 'my-spaces' 
               ? 'Acesse e gerencie todos os seus espaços organizados por categoria.'
               : 'Descubra e participe de novos espaços da comunidade.'
@@ -148,30 +148,30 @@ export const SpacesPage = () => {
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')}>
-            <TabsList>
-              <TabsTrigger value="my-spaces">
+        <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'my-spaces' | 'explore')} className="w-full md:w-auto">
+            <TabsList className="grid w-full grid-cols-2 md:w-auto md:grid-cols-none">
+              <TabsTrigger value="my-spaces" className="text-xs sm:text-sm">
                 Meus Espaços ({mySpaces?.length || 0})
               </TabsTrigger>
-              <TabsTrigger value="explore">
+              <TabsTrigger value="explore" className="text-xs sm:text-sm">
                 Explorar ({availableSpaces?.filter(s => !(s as any).isMember && s.visibility === 'public').length || 0})
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
-          <div className="relative max-w-md">
+          <div className="relative w-full md:max-w-xs lg:max-w-md">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Buscar espaços..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 text-sm"
             />
           </div>
         </div>
 
-        <div>
+        <div className="pb-20 lg:pb-0">
           <SpacesGrid
             spacesByCategory={spacesByCategory}
             categories={filteredCategories}

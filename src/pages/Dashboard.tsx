@@ -31,18 +31,18 @@ export const Dashboard = () => {
       {/* Feed Banner */}
       <FeedBanner />
       
-      <div className="p-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="xl:col-span-2 space-y-4 sm:space-y-6">
 
               {/* Welcome Title */}
-              <div>
-                <h1 className="text-3xl font-bold mb-2">
+              <div className="space-y-2">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
                   Boas-vindas à plataforma, {userName}!
                 </h1>
-                <p className="text-muted-foreground">
+                <p className="text-sm sm:text-base text-muted-foreground">
                   Veja as últimas atualizações de todos os seus espaços
                 </p>
               </div>
@@ -56,23 +56,23 @@ export const Dashboard = () => {
               </div>
 
               {/* Posts Feed */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6 pb-20 lg:pb-0">
                 {postsLoading ? (
                   <div className="space-y-4">
                     {[...Array(3)].map((_, i) => (
                       <Card key={i}>
-                        <CardContent className="p-6">
+                        <CardContent className="p-4 sm:p-6">
                           <div className="space-y-3">
                             <div className="flex items-center space-x-3">
-                              <Skeleton className="h-10 w-10 rounded-full" />
+                              <Skeleton className="h-8 w-8 sm:h-10 sm:w-10 rounded-full" />
                               <div className="space-y-2">
-                                <Skeleton className="h-4 w-32" />
-                                <Skeleton className="h-3 w-24" />
+                                <Skeleton className="h-3 sm:h-4 w-24 sm:w-32" />
+                                <Skeleton className="h-2 sm:h-3 w-16 sm:w-24" />
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Skeleton className="h-4 w-full" />
-                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-3 sm:h-4 w-full" />
+                              <Skeleton className="h-3 sm:h-4 w-3/4" />
                             </div>
                           </div>
                         </CardContent>
@@ -89,10 +89,10 @@ export const Dashboard = () => {
                   )
                 ) : (
                   <Card>
-                    <CardContent className="p-12 text-center">
+                    <CardContent className="p-8 sm:p-12 text-center">
                       <div className="space-y-3">
-                        <h3 className="text-lg font-medium">Nenhum post ainda</h3>
-                        <p className="text-muted-foreground max-w-md mx-auto">
+                        <h3 className="text-base sm:text-lg font-medium">Nenhum post ainda</h3>
+                        <p className="text-sm sm:text-base text-muted-foreground max-w-md mx-auto">
                           Ainda não há posts em seus espaços. Que tal criar o primeiro post para começar as conversas?
                         </p>
                       </div>
@@ -102,8 +102,8 @@ export const Dashboard = () => {
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+            {/* Sidebar - Hidden on mobile/tablet, visible on desktop */}
+            <div className="hidden xl:block space-y-6">
               <NewMembersCard />
               <PopularPostsCard />
             </div>

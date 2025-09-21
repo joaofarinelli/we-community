@@ -75,23 +75,23 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
   return (
     <Card 
       className={cn(
-        "cursor-pointer hover:shadow-md transition-shadow",
+        "cursor-pointer hover:shadow-md transition-shadow h-full flex flex-col",
         className
       )}
       onClick={onClick}
     >
-      <CardContent className="p-0">
-        <div className="flex flex-col">
-          {/* Banner Section */}
-          <div className="w-full">
-            <div className="h-[150px] bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
+      <CardContent className="p-0 h-full flex flex-col">
+        <div className="flex flex-col h-full">
+          {/* Banner Section - Responsive Heights */}
+          <div className="w-full flex-shrink-0">
+            <div className="h-24 sm:h-32 md:h-40 lg:h-48 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
               <SpaceBanner spaceId={space.id} className="w-full h-full" />
             </div>
           </div>
           
-          {/* Content Section */}
-          <div className="p-4 flex flex-col justify-between min-h-[160px]">
-            <div className="space-y-3">
+          {/* Content Section - Flexible Height */}
+          <div className="p-3 sm:p-4 md:p-6 flex flex-col justify-between flex-1">
+            <div className="space-y-2 sm:space-y-3 flex-1">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <div className="flex-shrink-0">
@@ -99,13 +99,15 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                       space.type,
                       space.custom_icon_type,
                       space.custom_icon_value,
-                      "h-5 w-5"
+                      "h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6"
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-lg leading-tight truncate">{space.name}</h3>
+                    <h3 className="font-semibold text-sm sm:text-base md:text-lg leading-tight line-clamp-2">
+                      {space.name}
+                    </h3>
                     {space.space_categories && (
-                      <p className="text-sm text-muted-foreground mt-1 truncate">
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 line-clamp-1">
                         {space.space_categories.name}
                       </p>
                     )}
@@ -114,35 +116,37 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
               </div>
 
               {space.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                   {space.description}
                 </p>
               )}
               
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1 sm:gap-2">
                 <Badge 
                   variant="outline" 
-                  className="text-xs px-2 py-1 h-6 flex items-center gap-1"
+                  className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 h-5 sm:h-6 flex items-center gap-1"
                 >
                   {getVisibilityIcon()}
-                  <span className="capitalize">{space.visibility}</span>
+                  <span className="capitalize hidden sm:inline">{space.visibility}</span>
                 </Badge>
                 
                 {userRole !== 'member' && (
-                  <Badge variant="secondary" className="text-xs px-2 py-1 h-6">
-                    {userRole === 'admin' ? 'Admin' : 'Moderador'}
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 h-5 sm:h-6">
+                    {userRole === 'admin' ? 'Admin' : 'Mod'}
                   </Badge>
                 )}
               </div>
               
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>{memberCount} {memberCount === 1 ? 'membro' : 'membros'}</span>
+              <div className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="truncate">
+                  {memberCount} {memberCount === 1 ? 'membro' : 'membros'}
+                </span>
               </div>
             </div>
             
-            {/* Footer Actions */}
-            <div className="flex gap-2 mt-4">
+            {/* Footer Actions - Responsive Layout */}
+            <div className="flex gap-1.5 sm:gap-2 mt-3 sm:mt-4">
               {showJoinLeave && space.visibility === 'public' && (
                 <>
                   {isMember ? (
@@ -154,10 +158,11 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                         leaveSpace.mutate(space.id);
                       }}
                       disabled={leaveSpace.isPending}
-                      className="flex-1"
+                      className="flex-1 h-7 sm:h-8 md:h-9 text-xs sm:text-sm px-2 sm:px-3"
                     >
-                      <UserMinus className="h-3 w-3 mr-1" />
-                      Sair
+                      <UserMinus className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
+                      <span className="hidden sm:inline">Sair</span>
+                      <span className="sm:hidden">−</span>
                     </Button>
                   ) : (
                     <Button 
@@ -168,36 +173,42 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
                         joinSpace.mutate(space.id);
                       }}
                       disabled={joinSpace.isPending}
-                      className="flex-1"
+                      className="flex-1 h-7 sm:h-8 md:h-9 text-xs sm:text-sm px-2 sm:px-3"
                     >
-                      <UserPlus className="h-3 w-3 mr-1" />
-                      {joinSpace.isPending ? 'Entrando...' : 'Entrar'}
+                      <UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
+                      <span className="hidden sm:inline">
+                        {joinSpace.isPending ? 'Entrando...' : 'Entrar'}
+                      </span>
+                      <span className="sm:hidden">+</span>
                     </Button>
                   )}
                 </>
               )}
               
-              {/* Only show access button if user is a member or if it's accessible to them */}
+              {/* Access/View Button */}
               {(isMember || space.visibility === 'public') && (
                 <Button 
                   size="sm" 
                   variant={isMember ? "default" : "outline"}
-                  className={showJoinLeave && space.visibility === 'public' ? "w-auto px-4" : "w-auto px-4"}
+                  className={`
+                    ${showJoinLeave && space.visibility === 'public' ? 'w-auto px-2 sm:px-3' : 'flex-1'} 
+                    h-7 sm:h-8 md:h-9 text-xs sm:text-sm
+                  `}
                   onClick={(e) => {
                     e.stopPropagation();
                     onClick?.();
                   }}
                   disabled={!isMember && space.visibility !== 'public'}
                 >
-                  {isMember ? 'Acessar' : 'Visualizar'}
+                  {isMember ? 'Acessar' : 'Ver'}
                 </Button>
               )}
               
-              {/* Show restricted message for private/secret spaces where user is not a member */}
+              {/* Restricted Access Message */}
               {!isMember && space.visibility !== 'public' && (
-                <div className="flex-1 text-center">
-                  <span className="text-sm text-muted-foreground">
-                    {space.visibility === 'private' ? 'Acesso restrito' : 'Espaço secreto'}
+                <div className="flex-1 text-center py-1 sm:py-2">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    {space.visibility === 'private' ? 'Restrito' : 'Secreto'}
                   </span>
                 </div>
               )}

@@ -43,8 +43,9 @@ export const SpacesGrid = ({
       <SpaceCard
         key={space.id}
         space={space}
-        onClick={() => navigate(`/dashboard/space/${space.id}`)}
+        onClick={() => navigate(`/dashboard/spaces/${space.id}`)}
         showJoinLeave={activeTab === 'explore'}
+        className="w-full h-full"
       />
     );
   };
@@ -76,7 +77,7 @@ export const SpacesGrid = ({
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-4">
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {categorySpaces.map(renderSpaceCard)}
             </div>
           </CollapsibleContent>
@@ -111,7 +112,7 @@ export const SpacesGrid = ({
                 </p>
               </div>
             </div>
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {availableSpaces.map(renderSpaceCard)}
             </div>
           </div>
@@ -128,7 +129,7 @@ export const SpacesGrid = ({
                 </p>
               </div>
             </div>
-            <div className="grid gap-4 grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
               {memberSpaces.map(renderSpaceCard)}
             </div>
           </div>

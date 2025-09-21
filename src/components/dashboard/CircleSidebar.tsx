@@ -66,10 +66,10 @@ const CircleSidebar = () => {
   };
 
   return (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-card/95 backdrop-blur-sm border border-border rounded-full p-2 shadow-lg">
-        <div className="flex items-center space-x-1">
-          {navigationItems.map((item) => {
+    <div className="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 z-50 lg:hidden">
+      <div className="bg-card/95 backdrop-blur-sm border border-border rounded-2xl sm:rounded-full p-1.5 sm:p-2 shadow-lg max-w-[90vw] overflow-x-auto">
+        <div className="flex items-center space-x-0.5 sm:space-x-1 min-w-max px-1">
+          {navigationItems.slice(0, 5).map((item) => {
             const Icon = item.icon;
             const active = isActive(item.path);
 
@@ -78,11 +78,11 @@ const CircleSidebar = () => {
                 key={item.name}
                 to={item.path}
                 end={item.path === '/dashboard'}
-                className="group relative"
+                className="group relative flex-shrink-0"
               >
                 <div 
                   className={`
-                    p-3 rounded-full transition-all duration-200 
+                    p-2 sm:p-3 rounded-xl sm:rounded-full transition-all duration-200 
                     ${active 
                       ? 'text-white shadow-lg' 
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -92,11 +92,11 @@ const CircleSidebar = () => {
                     backgroundColor: active ? company?.primary_color || '#3b82f6' : undefined,
                   }}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
                 
-                {/* Tooltip */}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-popover text-popover-foreground rounded border shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                {/* Tooltip - only show on larger screens */}
+                <div className="hidden sm:block absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-popover text-popover-foreground rounded border shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                   {item.name}
                 </div>
               </NavLink>
