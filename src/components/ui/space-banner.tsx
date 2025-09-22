@@ -17,8 +17,8 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
     <div className={`mb-6 ${className}`}>
       <ResponsiveBanner
         src={bannerUrl}
-        aspectRatio={1300/300}
-        maxWidth={1300}
+        aspectRatio={16/6}
+        maxWidth={1200}
       />
     </div>
   );
