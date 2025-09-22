@@ -4362,6 +4362,36 @@ export type Database = {
           },
         ]
       }
+      user_streak_milestones: {
+        Row: {
+          awarded_at: string | null
+          coins_awarded: number
+          company_id: string
+          created_at: string | null
+          id: string
+          milestone_days: number
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string | null
+          coins_awarded: number
+          company_id: string
+          created_at?: string | null
+          id?: string
+          milestone_days: number
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string | null
+          coins_awarded?: number
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          milestone_days?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_streaks: {
         Row: {
           company_id: string
@@ -4763,7 +4793,11 @@ export type Database = {
         Returns: Json
       }
       process_streak_rewards: {
-        Args: { p_company_id: string; p_streak_days: number; p_user_id: string }
+        Args: {
+          p_company_id: string
+          p_current_streak: number
+          p_user_id: string
+        }
         Returns: undefined
       }
       provision_onboarding_assignment: {
