@@ -21,11 +21,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUpload } from '@/components/ui/image-upload';
-import { BookOpen, Loader2, Settings, Stamp } from 'lucide-react';
-import { useUpdateCourse } from '@/hooks/useManageCourses';
+import { BookOpen, Loader2, Settings, Stamp, Users, Shield, Award } from 'lucide-react';
+import { useUpdateCourse, useReapplyCourseAccess } from '@/hooks/useManageCourses';
 import { useCourses } from '@/hooks/useCourses';
+import { useTags } from '@/hooks/useTags';
+import { useCompanyLevels } from '@/hooks/useCompanyLevels';
+import { useTrailBadges } from '@/hooks/useTrailBadges';
+import { toast } from 'sonner';
 
 const courseSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
@@ -39,6 +45,10 @@ const courseSchema = z.object({
   mentor_signature_url: z.string().optional(),
   certificate_background_url: z.string().optional(),
   certificate_footer_text: z.string().optional(),
+  access_tag_ids: z.array(z.string()).optional(),
+  access_level_ids: z.array(z.string()).optional(),
+  access_badge_ids: z.array(z.string()).optional(),
+  access_logic: z.enum(['any', 'all']).optional(),
 });
 
 type CourseFormData = z.infer<typeof courseSchema>;
@@ -52,7 +62,11 @@ interface EditCourseDialogProps {
 export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const updateCourse = useUpdateCourse();
+  const reapplyCourseAccess = useReapplyCourseAccess();
   const { data: courses = [] } = useCourses();
+  const { data: tags = [] } = useTags();
+  const { data: levels = [] } = useCompanyLevels();
+  const { data: badges = [] } = useTrailBadges();
 
   const form = useForm<CourseFormData>({
     resolver: zodResolver(courseSchema),
@@ -68,11 +82,18 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
       mentor_signature_url: '',
       certificate_background_url: '',
       certificate_footer_text: '',
+      access_tag_ids: [],
+      access_level_ids: [],
+      access_badge_ids: [],
+      access_logic: 'any',
     }
   });
 
   useEffect(() => {
     if (course) {
+      // Extract access criteria from course data
+      const accessCriteria = course.access_criteria || {};
+      
       form.reset({
         title: course.title || '',
         description: course.description || '',
@@ -85,6 +106,10 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         mentor_signature_url: course.mentor_signature_url || '',
         certificate_background_url: course.certificate_background_url || '',
         certificate_footer_text: course.certificate_footer_text || '',
+        access_tag_ids: accessCriteria.tag_ids || [],
+        access_level_ids: accessCriteria.level_ids || [],
+        access_badge_ids: accessCriteria.badge_ids || [],
+        access_logic: accessCriteria.logic || 'any',
       });
     }
   }, [course, form]);
@@ -94,6 +119,14 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
     
     setIsSubmitting(true);
     try {
+      // Construct access_criteria object
+      const access_criteria = {
+        tag_ids: data.access_tag_ids || [],
+        level_ids: data.access_level_ids || [],
+        badge_ids: data.access_badge_ids || [],
+        logic: data.access_logic || 'any'
+      };
+
       await updateCourse.mutateAsync({
         id: course.id,
         title: data.title,
@@ -107,10 +140,33 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
         mentor_signature_url: data.mentor_signature_url || null,
         certificate_background_url: data.certificate_background_url || null,
         certificate_footer_text: data.certificate_footer_text || null,
+        access_criteria
       } as any);
+
+      // Reapply course access based on new criteria if any criteria were set
+      const hasAccessCriteria = access_criteria.tag_ids.length > 0 || 
+                               access_criteria.level_ids.length > 0 || 
+                               access_criteria.badge_ids.length > 0;
+      
+      if (hasAccessCriteria) {
+        try {
+          const affectedUsers = await reapplyCourseAccess.mutateAsync({
+            courseId: course.id,
+            accessCriteria: access_criteria
+          });
+          toast.success(`Curso atualizado! ${affectedUsers} usuário(s) tiveram o acesso reprocessado.`);
+        } catch (error) {
+          console.error('Error reapplying course access:', error);
+          toast.success('Curso atualizado! Erro ao reprocessar acessos, mas as configurações foram salvas.');
+        }
+      } else {
+        toast.success('Curso atualizado com sucesso!');
+      }
+
       onOpenChange(false);
     } catch (error) {
       console.error('Error updating course:', error);
+      toast.error('Erro ao atualizar curso. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -179,6 +235,182 @@ export const EditCourseDialog = ({ course, open, onOpenChange }: EditCourseDialo
               />
             </div>
 
+            {/* Access Control Section */}
+            <div className="space-y-4">
+              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Controle de Acesso
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Define quem terá acesso ao curso. Alterar estes critérios irá reprocessar automaticamente o acesso dos usuários.
+              </p>
+
+              {/* Logic Selector */}
+              <FormField
+                control={form.control}
+                name="access_logic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Lógica de Combinação</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-row space-x-6"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="any" id="any" />
+                          <label htmlFor="any" className="text-sm">Qualquer critério (recomendado)</label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="all" id="all" />
+                          <label htmlFor="all" className="text-sm">Todos os critérios</label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Tags */}
+              <FormField
+                control={form.control}
+                name="access_tag_ids"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Shield className="h-4 w-4" />
+                      Tags
+                    </FormLabel>
+                    <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-md p-3">
+                      {tags.map((tag) => (
+                        <div key={tag.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`tag-${tag.id}`}
+                            checked={field.value?.includes(tag.id) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, tag.id]);
+                              } else {
+                                field.onChange(current.filter((id) => id !== tag.id));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`tag-${tag.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: tag.color }}
+                            />
+                            {tag.name}
+                          </label>
+                        </div>
+                      ))}
+                      {tags.length === 0 && (
+                        <p className="text-sm text-muted-foreground col-span-2">Nenhuma tag cadastrada</p>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Levels */}
+              <FormField
+                control={form.control}
+                name="access_level_ids"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Award className="h-4 w-4" />
+                      Níveis
+                    </FormLabel>
+                    <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-md p-3">
+                      {levels.map((level) => (
+                        <div key={level.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`level-${level.id}`}
+                            checked={field.value?.includes(level.id) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, level.id]);
+                              } else {
+                                field.onChange(current.filter((id) => id !== level.id));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`level-${level.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: level.level_color }}
+                            />
+                            {level.level_name}
+                          </label>
+                        </div>
+                      ))}
+                      {levels.length === 0 && (
+                        <p className="text-sm text-muted-foreground col-span-2">Nenhum nível cadastrado</p>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Badges */}
+              <FormField
+                control={form.control}
+                name="access_badge_ids"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Stamp className="h-4 w-4" />
+                      Selos
+                    </FormLabel>
+                    <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border rounded-md p-3">
+                      {badges.filter(badge => badge.is_active).map((badge) => (
+                        <div key={badge.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`badge-${badge.id}`}
+                            checked={field.value?.includes(badge.id) || false}
+                            onCheckedChange={(checked) => {
+                              const current = field.value || [];
+                              if (checked) {
+                                field.onChange([...current, badge.id]);
+                              } else {
+                                field.onChange(current.filter((id) => id !== badge.id));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`badge-${badge.id}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                          >
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: badge.background_color }}
+                            />
+                            {badge.name}
+                          </label>
+                        </div>
+                      ))}
+                      {badges.filter(badge => badge.is_active).length === 0 && (
+                        <p className="text-sm text-muted-foreground col-span-2">Nenhum selo ativo cadastrado</p>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             {/* Pré-requisitos e Progressão */}
             <div className="space-y-4">
