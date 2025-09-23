@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserPlus } from "lucide-react";
+import { UserPlus, CheckSquare, Square } from "lucide-react";
 import { useCourses } from "@/hooks/useCourses";
 import { useInviteUser } from "@/hooks/useInviteUser";
 
@@ -62,6 +62,17 @@ export const InviteUserDialog = () => {
   });
 
   const selectedRole = form.watch("role");
+  const selectedCourses = form.watch("courseAccess");
+
+  const handleSelectAllCourses = () => {
+    if (!courses) return;
+    const allCourseIds = courses.map(course => course.id);
+    form.setValue("courseAccess", allCourseIds);
+  };
+
+  const handleDeselectAllCourses = () => {
+    form.setValue("courseAccess", []);
+  };
 
   const onSubmit = async (data: any) => {
     const courseAccess = selectedRole === "admin" ? [] : (data.courseAccess || []);
@@ -182,7 +193,34 @@ export const InviteUserDialog = () => {
                 name="courseAccess"
                 render={() => (
                   <FormItem>
-                    <FormLabel>Acesso aos Cursos</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Acesso aos Cursos</FormLabel>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {selectedCourses?.length || 0} de {courses.length} selecionados
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSelectAllCourses}
+                          disabled={selectedCourses?.length === courses.length}
+                        >
+                          <CheckSquare className="mr-1 h-3 w-3" />
+                          Todos
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleDeselectAllCourses}
+                          disabled={!selectedCourses?.length}
+                        >
+                          <Square className="mr-1 h-3 w-3" />
+                          Nenhum
+                        </Button>
+                      </div>
+                    </div>
                     <div className="space-y-2">
                       {courses.map((course) => (
                         <FormField
