@@ -1,73 +1,55 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
 import { TrailCard } from './TrailCard';
-import { TrailProgressStats } from './TrailProgressStats';
-import { TrailBadgesDisplay } from './TrailBadgesDisplay';
-import { AvailableTrailsSection } from './AvailableTrailsSection';
-import { useUserTrailParticipations } from '@/hooks/useTrails';
-import { useUserTrailBadges } from '@/hooks/useTrailProgress';
+import { OptimizedTrailProgressStats } from './OptimizedTrailProgressStats';
+import { OptimizedTrailBadgesDisplay } from './OptimizedTrailBadgesDisplay';
+import { OptimizedAvailableTrailsSection } from './OptimizedAvailableTrailsSection';
+import { useTrailsDashboardData } from '@/hooks/useTrailsDashboardData';
 
 export const TrailsDashboard = () => {
-  const { data: trails, isLoading } = useUserTrailParticipations();
-  const { data: badges } = useUserTrailBadges();
+  const { trails, badges, stats, isLoading, isTrailsLoading, isBadgesLoading } = useTrailsDashboardData();
 
-  const activeTrails = trails?.filter(trail => trail.status === 'active') || [];
-  const completedTrails = trails?.filter(trail => trail.status === 'completed') || [];
+  const activeTrails = trails.filter(trail => trail.status === 'active');
+  const completedTrails = trails.filter(trail => trail.status === 'completed');
 
-  if (isLoading) {
+  // Progressive loading - don't show full skeleton if any data is available
+  const showFullSkeleton = isLoading && trails.length === 0 && badges.length === 0;
+
+  if (showFullSkeleton) {
     return (
       <div className="space-y-6">
         {/* Stats Skeleton */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i} className="p-6">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-12" />
-                <Skeleton className="h-3 w-32" />
-              </div>
-            </Card>
-          ))}
+          <OptimizedTrailProgressStats stats={stats} isLoading={true} />
         </div>
         
+        {/* Badges Skeleton */}
+        <OptimizedTrailBadgesDisplay badges={[]} isLoading={true} />
+        
         {/* Trails Skeleton */}
-        <Card className="p-6">
-          <div className="space-y-4">
-            <Skeleton className="h-6 w-48" />
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {[...Array(3)].map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <Skeleton className="aspect-video w-full" />
-                  <div className="p-4 space-y-3">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-8 w-20" />
-                      <Skeleton className="h-8 w-24" />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </Card>
+        <Tabs defaultValue="available" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="available">Explorar Trilhas</TabsTrigger>
+            <TabsTrigger value="active">Trilhas Ativas</TabsTrigger>
+            <TabsTrigger value="completed">Concluídas</TabsTrigger>
+          </TabsList>
+          <TabsContent value="available">
+            <OptimizedAvailableTrailsSection />
+          </TabsContent>
+        </Tabs>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
+      {/* Stats Cards - progressive loading */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <TrailProgressStats />
+        <OptimizedTrailProgressStats stats={stats} isLoading={isTrailsLoading} />
       </div>
 
-      {/* Badges Section */}
-      <TrailBadgesDisplay badges={badges || []} />
+      {/* Badges Section - progressive loading */}
+      <OptimizedTrailBadgesDisplay badges={badges} isLoading={isBadgesLoading} />
 
       {/* Trails Section */}
       <Tabs defaultValue="available" className="space-y-6">
@@ -78,7 +60,7 @@ export const TrailsDashboard = () => {
         </TabsList>
 
         <TabsContent value="available" className="space-y-4">
-          <AvailableTrailsSection />
+          <OptimizedAvailableTrailsSection />
         </TabsContent>
 
         <TabsContent value="active" className="space-y-4">
