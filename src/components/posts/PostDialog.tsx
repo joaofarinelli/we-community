@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useUpdatePost } from '@/hooks/useUpdatePost';
+import { useSpace } from '@/hooks/useSpace';
 import { toast } from 'sonner';
 interface PostDialogProps {
   open: boolean;
@@ -48,6 +49,9 @@ export const PostDialog = ({
     mutate: updatePost,
     isPending: isUpdating
   } = useUpdatePost();
+  
+  // Get selected space data to check type
+  const { data: selectedSpace } = useSpace(selectedSpaceId);
 
   // Reset form when dialog opens/closes or mode changes
   useEffect(() => {
@@ -112,11 +116,19 @@ export const PostDialog = ({
       toast.error('O conteúdo é obrigatório');
       return;
     }
+    
     if (mode === 'create') {
       if (!selectedSpaceId) {
         toast.error('Selecione um espaço');
         return;
       }
+      
+      // Check if selected space is of type "eventos"
+      if (selectedSpace?.type === 'eventos') {
+        toast.error('Não é possível criar posts de texto em espaços do tipo eventos');
+        return;
+      }
+      
       createPost.mutate();
     } else {
       if (!postId) {
@@ -136,7 +148,9 @@ export const PostDialog = ({
       });
     }
   };
-  const isSubmitDisabled = !content.trim() || mode === 'create' && (!selectedSpaceId || createPost.isPending) || mode === 'edit' && isUpdating;
+  const isSubmitDisabled = !content.trim() || 
+    (mode === 'create' && (!selectedSpaceId || createPost.isPending || selectedSpace?.type === 'eventos')) || 
+    (mode === 'edit' && isUpdating);
   const submitButtonText = () => {
     if (mode === 'create') {
       return createPost.isPending ? 'Publicando...' : 'Publicar';
@@ -196,6 +210,11 @@ export const PostDialog = ({
             {mode === 'create' ? (
               <div className="flex-1 sm:flex-initial">
                 <SpaceSelector selectedSpaceId={selectedSpaceId} onSpaceChange={setSelectedSpaceId} />
+                {selectedSpace?.type === 'eventos' && (
+                  <div className="mt-2 p-2 rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm">
+                    ⚠️ Espaços do tipo eventos não permitem posts de texto
+                  </div>
+                )}
               </div>
             ) : (
               <div className="hidden sm:block" /> // Spacer para manter o botão à direita no desktop
