@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,16 +22,14 @@ import {
 } from '@/components/ui/select';
 import { IconSelector } from '@/components/ui/icon-selector';
 import { getSpaceTypeInfo, type SpaceType } from '@/lib/spaceUtils';
-import { spaceConfigurationSchema } from '@/lib/schemas';
+import { spaceConfigurationSchema, type SpaceConfigurationFormData } from '@/lib/schemas';
 import { useSpaceCategories } from '@/hooks/useSpaceCategories';
 import { Globe, Lock, EyeOff, Bell } from 'lucide-react';
-
-type FormData = z.infer<typeof spaceConfigurationSchema>;
 
 interface SpaceConfigurationDialogProps {
   open: boolean;
   onClose: () => void;
-  onCreateSpace: (data: FormData) => void;
+  onCreateSpace: (data: SpaceConfigurationFormData) => void;
   selectedType: SpaceType | null;
   selectedCategoryId: string | null;
   isCreating: boolean;
@@ -47,37 +46,52 @@ export const SpaceConfigurationDialog = ({
   const { data: categories = [] } = useSpaceCategories();
   const spaceTypeInfo = selectedType ? getSpaceTypeInfo(selectedType) : null;
 
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-    setError,
-    clearErrors,
-  } = useForm<FormData>({
+  const form = useForm<SpaceConfigurationFormData>({
     defaultValues: {
       name: '',
-      categoryId: selectedCategoryId || '',
-      visibility: 'public',
+      categoryId: '',
+      visibility: 'public' as const,
       enableNotifications: true,
-      customIconType: 'default',
+      customIconType: 'default' as const,
       customIconValue: '',
     },
   });
 
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors }, clearErrors } = form;
+
+  // Reset and sync form when dialog opens/closes or props change
+  useEffect(() => {
+    if (open) {
+      // Reset form with current props when dialog opens
+      reset({
+        name: '',
+        categoryId: selectedCategoryId || '',
+        visibility: 'public' as const,
+        enableNotifications: true,
+        customIconType: 'default' as const,
+        customIconValue: '',
+      });
+    }
+  }, [open, selectedCategoryId, reset]);
+
+  // Sync categoryId when selectedCategoryId changes
+  useEffect(() => {
+    if (selectedCategoryId && open) {
+      setValue('categoryId', selectedCategoryId);
+    }
+  }, [selectedCategoryId, setValue, open]);
+
   const visibility = watch('visibility');
   const enableNotifications = watch('enableNotifications');
 
-  const onSubmit = (data: FormData) => {
-    // Validação manual usando o schema zod
+  const onSubmit = (data: SpaceConfigurationFormData) => {
+    // Validate using zod schema before submission
     const result = spaceConfigurationSchema.safeParse(data);
     
     if (!result.success) {
-      // Aplicar erros do zod ao formulário
-      result.error.issues.forEach((error) => {
-        const path = error.path[0] as keyof FormData;
-        setError(path, { message: error.message });
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof SpaceConfigurationFormData;
+        form.setError(field, { message: issue.message });
       });
       return;
     }
@@ -107,8 +121,13 @@ export const SpaceConfigurationDialog = ({
     },
   ];
 
+  const handleClose = () => {
+    reset(); // Reset form when closing
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-3">
@@ -230,7 +249,7 @@ export const SpaceConfigurationDialog = ({
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isCreating}>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isCreating}>
               Cancelar
             </Button>
             <Button type="submit" disabled={isCreating} className="px-8">
