@@ -17,7 +17,7 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
     <div className="w-full">
       <ResponsiveBanner
         src={bannerUrl}
-        aspectRatio={16/6}
+        aspectRatio={3250/750}
         fitMode="contain"
         adaptiveHeight={true}
         className={`w-full ${className}`}
