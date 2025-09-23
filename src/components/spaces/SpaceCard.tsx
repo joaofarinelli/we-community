@@ -84,7 +84,7 @@ export const SpaceCard = ({ space, onClick, className, showJoinLeave = false }: 
         <div className="flex flex-col h-full">
           {/* Banner Section - Responsive Heights */}
           <div className="w-full flex-shrink-0">
-            <div className="h-24 sm:h-32 md:h-40 lg:h-48 bg-muted rounded-t-lg overflow-hidden flex items-center justify-center">
+            <div className="h-24 sm:h-32 md:h-40 lg:h-48 bg-muted rounded-t-lg overflow-hidden">
               <SpaceBanner spaceId={space.id} className="w-full h-full" />
             </div>
           </div>

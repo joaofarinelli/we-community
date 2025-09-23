@@ -14,12 +14,11 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
   }
 
   return (
-    <div className={`mb-6 ${className}`}>
-      <ResponsiveBanner
-        src={bannerUrl}
-        aspectRatio={16/6}
-        maxWidth={1200}
-      />
-    </div>
+    <ResponsiveBanner
+      src={bannerUrl}
+      aspectRatio={16/6}
+      fitMode="contain"
+      className={className}
+    />
   );
 };

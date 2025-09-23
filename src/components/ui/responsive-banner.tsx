@@ -7,6 +7,7 @@ export interface ResponsiveBannerProps {
   gravity?: "center" | "auto"; // default "center" (Bubble-like)
   className?: string;
   children?: React.ReactNode;
+  fitMode?: "cover" | "contain"; // default "cover"
   
   // Legacy props for backward compatibility (ignored)
   maxWidth?: number;
@@ -48,6 +49,7 @@ export const ResponsiveBanner = ({
   gravity = "center",
   className = "",
   children,
+  fitMode = "cover",
 }: ResponsiveBannerProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState(0);
@@ -175,7 +177,7 @@ export const ResponsiveBanner = ({
         width: "100%",
         height: `${finalHeight}px`,
         backgroundImage: `url("${finalImageUrl}")`,
-        backgroundSize: "cover",
+        backgroundSize: fitMode,
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         backgroundColor: "var(--muted, #f3f4f6)",
