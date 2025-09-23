@@ -101,7 +101,7 @@ export const AdminSpacesPage = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-full overflow-x-hidden">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Gerenciar Espaços e Categorias</h1>
@@ -141,7 +141,7 @@ export const AdminSpacesPage = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                 {categories.map((category) => (
                   <Card key={category.id}>
                     <CardHeader className="pb-3">
@@ -222,7 +222,7 @@ export const AdminSpacesPage = () => {
                   return (
                     <div key={category.id} className="space-y-3">
                       <h3 className="text-lg font-semibold text-foreground">{category.name}</h3>
-                      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                         {categorySpaces.map((space) => (
                           <Card key={space.id}>
                             <CardHeader className="pb-3">
@@ -277,7 +277,7 @@ export const AdminSpacesPage = () => {
                 {spaces.filter(space => !space.category_id).length > 0 && (
                   <div className="space-y-3">
                     <h3 className="text-lg font-semibold text-foreground">Sem categoria</h3>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                       {spaces.filter(space => !space.category_id).map((space) => (
                         <Card key={space.id}>
                           <CardHeader className="pb-3">
