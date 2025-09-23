@@ -8,6 +8,7 @@ export interface ResponsiveBannerProps {
   className?: string;
   children?: React.ReactNode;
   fitMode?: "cover" | "contain"; // default "cover"
+  adaptiveHeight?: boolean; // if true, height adapts to image aspect ratio
   
   // Legacy props for backward compatibility (ignored)
   maxWidth?: number;
@@ -50,6 +51,7 @@ export const ResponsiveBanner = ({
   className = "",
   children,
   fitMode = "cover",
+  adaptiveHeight = false,
 }: ResponsiveBannerProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState(0);
@@ -65,9 +67,16 @@ export const ResponsiveBanner = ({
   const finalHeight = useMemo(() => {
     if (!measuredWidth) return Math.min(220, viewportHeight * 0.25);
     const ideal = measuredWidth / aspectRatio;
+    
+    // For adaptive height mode, use the ideal height without viewport cap
+    if (adaptiveHeight) {
+      return Math.max(1, ideal);
+    }
+    
+    // For non-adaptive mode, cap at viewport percentage
     const cap = viewportHeight * 0.25;
     return Math.max(1, Math.min(ideal, cap));
-  }, [measuredWidth, aspectRatio, viewportHeight]);
+  }, [measuredWidth, aspectRatio, viewportHeight, adaptiveHeight]);
 
   const imageParams = useMemo(() => {
     const w = Math.max(1, Math.round(measuredWidth || 1300));

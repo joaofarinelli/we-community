@@ -18,6 +18,7 @@ export const SpaceBanner = ({ spaceId, className = '' }: SpaceBannerProps) => {
       src={bannerUrl}
       aspectRatio={16/6}
       fitMode="contain"
+      adaptiveHeight={true}
       className={className}
     />
   );
