@@ -239,8 +239,10 @@ export const SpaceView = () => {
           </div>
         </div>
 
-        {/* Space Banner - Full width, colado no header */}
-        <SpaceBanner spaceId={spaceId} />
+        {/* Space Banner - Full width, directly attached to header */}
+        <div className="w-full">
+          <SpaceBanner spaceId={spaceId} className="block" />
+        </div>
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
