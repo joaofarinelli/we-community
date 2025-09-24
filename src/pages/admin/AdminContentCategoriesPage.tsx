@@ -3,7 +3,11 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
-import { Plus, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Plus, MoreHorizontal, Edit, Trash2, GripVertical, ArrowUpDown } from 'lucide-react';
+import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { AdminCreateCategoryDialog } from '@/components/admin/AdminCreateCategoryDialog';
 import { useCreateCategory } from '@/hooks/useCreateCategory';
 import { EditCategoryDialog } from '@/components/dashboard/EditCategoryDialog';
@@ -22,18 +26,102 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAdminCategoriesRealtime } from '@/hooks/useRealtimeUpdates';
 import { RealtimeStatus } from '@/components/admin/RealtimeStatus';
+import { useReorderCategories } from '@/hooks/useReorderCategories';
+
+// Sortable Category Row Component
+const SortableCategoryRow = ({ category, creatorsData, spacesCount, onEdit, onDelete }: {
+  category: any;
+  creatorsData: Record<string, any>;
+  spacesCount: Record<string, number>;
+  onEdit: (category: any) => void;
+  onDelete: (category: any) => void;
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b hover:bg-muted/25 ${isDragging ? 'bg-muted/50' : ''}`}
+    >
+      <td className="p-4">
+        <div className="flex items-center gap-2">
+          <div
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted/50 rounded"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <span className="font-medium">{category.name}</span>
+        </div>
+      </td>
+      <td className="p-4">
+        {creatorsData?.[category.created_by] 
+          ? `${creatorsData[category.created_by].first_name} ${creatorsData[category.created_by].last_name}`
+          : 'Carregando...'
+        }
+      </td>
+      <td className="p-4">
+        <Badge variant="secondary">
+          {spacesCount?.[category.id] || 0} espaços
+        </Badge>
+      </td>
+      <td className="p-4 text-sm text-muted-foreground">
+        {format(new Date(category.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+      </td>
+      <td className="p-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(category)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Editar
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="text-destructive"
+              onClick={() => onDelete(category)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </td>
+    </tr>
+  );
+};
 
 export const AdminContentCategoriesPage = () => {
   const { currentCompanyId } = useCompanyContext();
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [deletingCategory, setDeletingCategory] = useState<any>(null);
+  const [isReorderingCategories, setIsReorderingCategories] = useState(false);
   
   // Enable real-time updates
   useAdminCategoriesRealtime();
   
   const { isOpen, setIsOpen, createCategory, isLoading: isCreating } = useCreateCategory();
   const { editCategory, isLoading: isEditing } = useEditCategory();
+  const reorderCategories = useReorderCategories();
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ['admin-space-categories', currentCompanyId],
@@ -115,19 +203,65 @@ export const AdminContentCategoriesPage = () => {
     );
   };
 
+  const handleToggleCategoryReordering = () => {
+    setIsReorderingCategories(!isReorderingCategories);
+  };
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id || !categories) return;
+
+    const oldIndex = categories.findIndex(cat => cat.id === active.id);
+    const newIndex = categories.findIndex(cat => cat.id === over.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    // Create new array with reordered items
+    const reorderedCategories = [...categories];
+    const [movedCategory] = reorderedCategories.splice(oldIndex, 1);
+    reorderedCategories.splice(newIndex, 0, movedCategory);
+
+    // Generate new order indices
+    const categoryUpdates = reorderedCategories.map((category, index) => ({
+      id: category.id,
+      order_index: index
+    }));
+
+    reorderCategories.mutate({ categoryUpdates });
+  };
+
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">Categorias</h1>
-          <div className="flex items-center gap-3">
-            <RealtimeStatus />
-            <Button onClick={() => setIsOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova categoria
-            </Button>
+    <TooltipProvider>
+      <AdminLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold tracking-tight">Categorias</h1>
+            <div className="flex items-center gap-3">
+              <RealtimeStatus />
+              {(categories?.length || 0) > 1 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={isReorderingCategories ? "default" : "outline"}
+                      size="sm"
+                      onClick={handleToggleCategoryReordering}
+                    >
+                      <ArrowUpDown className="h-4 w-4 mr-2" />
+                      {isReorderingCategories ? 'Concluir' : 'Reordenar'}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{isReorderingCategories ? 'Concluir reordenação' : 'Arrastar para reordenar categorias'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+              <Button onClick={() => setIsOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Nova categoria
+              </Button>
+            </div>
           </div>
-        </div>
 
         <div className="flex flex-wrap gap-2">
           {filters.map((filter) => (
@@ -158,60 +292,83 @@ export const AdminContentCategoriesPage = () => {
           </div>
         ) : (
           <div className="border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-muted/50 border-b">
-                <tr>
-                  <th className="text-left p-4 font-medium">Nome</th>
-                  <th className="text-left p-4 font-medium">Criador</th>
-                  <th className="text-left p-4 font-medium">Espaços</th>
-                  <th className="text-left p-4 font-medium">Data de criação</th>
-                  <th className="text-left p-4 font-medium">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                  {(categories || []).map((category) => (
-                    <tr key={category.id} className="border-b hover:bg-muted/25">
-                      <td className="p-4 font-medium">{category.name}</td>
-                      <td className="p-4">
-                        {creatorsData?.[category.created_by] 
-                          ? `${creatorsData[category.created_by].first_name} ${creatorsData[category.created_by].last_name}`
-                          : 'Carregando...'
-                        }
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary">
-                          {spacesCount?.[category.id] || 0} espaços
-                        </Badge>
-                      </td>
-                    <td className="p-4 text-sm text-muted-foreground">
-                      {format(new Date(category.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
-                    </td>
-                    <td className="p-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setEditingCategory(category)}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => setDeletingCategory(category)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Excluir
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleCategoryDragEnd}
+            >
+              <table className="w-full">
+                <thead className="bg-muted/50 border-b">
+                  <tr>
+                    <th className="text-left p-4 font-medium">
+                      {isReorderingCategories ? 'Arrastar' : 'Nome'}
+                    </th>
+                    <th className="text-left p-4 font-medium">Criador</th>
+                    <th className="text-left p-4 font-medium">Espaços</th>
+                    <th className="text-left p-4 font-medium">Data de criação</th>
+                    <th className="text-left p-4 font-medium">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <SortableContext 
+                    items={categories?.map(cat => cat.id) || []}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {(categories || []).map((category) => (
+                      isReorderingCategories ? (
+                        <SortableCategoryRow
+                          key={category.id}
+                          category={category}
+                          creatorsData={creatorsData || {}}
+                          spacesCount={spacesCount || {}}
+                          onEdit={setEditingCategory}
+                          onDelete={setDeletingCategory}
+                        />
+                      ) : (
+                        <tr key={category.id} className="border-b hover:bg-muted/25">
+                          <td className="p-4 font-medium">{category.name}</td>
+                          <td className="p-4">
+                            {creatorsData?.[category.created_by] 
+                              ? `${creatorsData[category.created_by].first_name} ${creatorsData[category.created_by].last_name}`
+                              : 'Carregando...'
+                            }
+                          </td>
+                          <td className="p-4">
+                            <Badge variant="secondary">
+                              {spacesCount?.[category.id] || 0} espaços
+                            </Badge>
+                          </td>
+                          <td className="p-4 text-sm text-muted-foreground">
+                            {format(new Date(category.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+                          </td>
+                          <td className="p-4">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setEditingCategory(category)}>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-destructive"
+                                  onClick={() => setDeletingCategory(category)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Excluir
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      )
+                    ))}
+                  </SortableContext>
+                </tbody>
+              </table>
+            </DndContext>
             
             <div className="flex items-center justify-between p-4 border-t bg-muted/25">
               <div className="flex items-center gap-2">
@@ -250,6 +407,7 @@ export const AdminContentCategoriesPage = () => {
           onOpenChange={() => setDeletingCategory(null)}
         />
       )}
-    </AdminLayout>
+      </AdminLayout>
+    </TooltipProvider>
   );
 };
