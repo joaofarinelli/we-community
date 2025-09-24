@@ -109,7 +109,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{tag ? 'Editar Tag' : 'Nova Tag'}</DialogTitle>
           <DialogDescription>
@@ -117,7 +117,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 px-1">
           <div className="space-y-2">
             <Label htmlFor="name">Nome da Tag *</Label>
             <Input
@@ -132,7 +132,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
 
           <div className="space-y-2">
             <Label>Cor da Tag</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-5 sm:flex sm:flex-wrap gap-2">
               {defaultColors.map((color) => (
                 <button
                   key={color}
@@ -155,7 +155,7 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
 
           <div className="space-y-2">
             <Label>Cor do Texto</Label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedTextColor('#FFFFFF')}
@@ -187,10 +187,10 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
           <div className="space-y-2">
             <Label>Ícone da Tag</Label>
             <Tabs value={iconType} onValueChange={(value) => setIconType(value as typeof iconType)}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="none">Sem Ícone</TabsTrigger>
-                <TabsTrigger value="emoji">Emoji</TabsTrigger>
-                <TabsTrigger value="image">Imagem</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+                <TabsTrigger value="none" className="px-2">Sem</TabsTrigger>
+                <TabsTrigger value="emoji" className="px-2">Emoji</TabsTrigger>
+                <TabsTrigger value="image" className="px-2">Imagem</TabsTrigger>
               </TabsList>
               
               <TabsContent value="none" className="mt-4">
@@ -220,18 +220,18 @@ export const TagDialog = ({ open, onOpenChange, onSubmit, tag, isLoading }: TagD
                   </PopoverTrigger>
                   <PopoverContent 
                     className="w-auto p-0 border-0 shadow-lg overflow-hidden" 
-                    align="start"
+                    align="center"
                     side="bottom"
                     sideOffset={5}
                   >
-                    <div className="relative max-h-[450px] overflow-auto">
+                    <div className="relative max-h-[400px] sm:max-h-[450px] overflow-auto">
                       <EmojiPicker
                         onEmojiClick={(emojiObject) => {
                           setSelectedEmoji(emojiObject.emoji);
                           setEmojiPickerOpen(false);
                         }}
-                        width={350}
-                        height={420}
+                        width={Math.min(350, window.innerWidth - 40)}
+                        height={Math.min(400, window.innerHeight - 200)}
                         searchDisabled={false}
                         skinTonesDisabled={false}
                         lazyLoadEmojis={true}
