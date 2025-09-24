@@ -39,6 +39,7 @@ export const useReorderCategories = () => {
       return results;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-space-categories'] });
       queryClient.invalidateQueries({ queryKey: ['spaceCategories'] });
     },
     onError: (error) => {

@@ -40,6 +40,7 @@ export const useReorderSpaces = () => {
       return results;
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-spaces'] });
       queryClient.invalidateQueries({ queryKey: ['spaces', variables.categoryId] });
       queryClient.invalidateQueries({ queryKey: ['spaces'] });
     },
