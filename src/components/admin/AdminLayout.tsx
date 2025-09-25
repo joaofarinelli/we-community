@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseContext } from '@/hooks/useSupabaseContext';
 import { useIsFeatureEnabled } from '@/hooks/useCompanyFeatures';
@@ -165,6 +165,12 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
   // Initialize Supabase context for multi-company users
   useSupabaseContext();
   useCompanyRealtime();
+
+  // Prevent body scroll when admin layout is active
+  useEffect(() => {
+    document.body.classList.add('no-body-scroll');
+    return () => document.body.classList.remove('no-body-scroll');
+  }, []);
   
   // Filter menu items based on enabled features
   const isMarketplaceEnabled = useIsFeatureEnabled('marketplace');
@@ -203,7 +209,7 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="h-screen bg-background flex overflow-hidden">
+      <div className="fixed inset-0 bg-background flex overflow-hidden">
         {/* Main Menu Sidebar - Hidden on mobile */}
         <div className="hidden md:flex w-16 bg-card border-r border-border flex-col">
           {/* Header */}
@@ -286,9 +292,9 @@ export const AdminLayout = ({ children }: AdminLayoutProps) => {
         )}
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <main className="flex-1 h-full">
-            <div className="h-full overflow-y-auto p-4 md:p-6">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0">
+          <main className="flex-1 min-h-0">
+            <div className="h-full overflow-y-auto overscroll-y-contain p-4 md:p-6">
               {children}
             </div>
           </main>
