@@ -3078,6 +3078,62 @@ export type Database = {
         }
         Relationships: []
       }
+      space_access_rules: {
+        Row: {
+          badge_ids: string[] | null
+          company_id: string
+          created_at: string
+          created_by: string
+          criteria_logic: string
+          id: string
+          level_ids: string[] | null
+          rule_name: string
+          rule_type: string
+          space_id: string
+          tag_ids: string[] | null
+          updated_at: string
+          user_roles: string[] | null
+        }
+        Insert: {
+          badge_ids?: string[] | null
+          company_id: string
+          created_at?: string
+          created_by: string
+          criteria_logic?: string
+          id?: string
+          level_ids?: string[] | null
+          rule_name?: string
+          rule_type: string
+          space_id: string
+          tag_ids?: string[] | null
+          updated_at?: string
+          user_roles?: string[] | null
+        }
+        Update: {
+          badge_ids?: string[] | null
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          criteria_logic?: string
+          id?: string
+          level_ids?: string[] | null
+          rule_name?: string
+          rule_type?: string
+          space_id?: string
+          tag_ids?: string[] | null
+          updated_at?: string
+          user_roles?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_access_rules_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       space_categories: {
         Row: {
           company_id: string
@@ -4574,6 +4630,10 @@ export type Database = {
       }
       check_module_completion: {
         Args: { p_module_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      check_space_access_rule: {
+        Args: { p_rule_type: string; p_space_id: string; p_user_id: string }
         Returns: boolean
       }
       create_course_secure: {

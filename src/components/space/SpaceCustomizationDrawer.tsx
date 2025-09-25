@@ -24,6 +24,7 @@ import { useSpaceBanner } from '@/hooks/useSpaceBanner';
 import { useSpaceMembers } from '@/hooks/useSpaceMembers';
 import { IconSelector } from '@/components/ui/icon-selector';
 import { SpaceType } from '@/lib/spaceUtils';
+import { SpaceAccessControlSection } from './SpaceAccessControlSection';
 
 interface SpaceCustomizationDrawerProps {
   open: boolean;
@@ -180,49 +181,55 @@ export const SpaceCustomizationDrawer = ({
               </TabsContent>
 
               {/* Aba Acesso */}
-              <TabsContent value="access" className="mt-6 space-y-4">
-                <h3 className="text-sm font-medium text-foreground">Acessos</h3>
-                <RadioGroup value={accessType} onValueChange={setAccessType}>
-                  <div className="flex items-start space-x-3">
-                    <RadioGroupItem value="open" id="open" className="mt-1" />
-                    <div className="space-y-1">
-                      <Label htmlFor="open" className="font-normal">Aberto</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Qualquer pessoa da comunidade pode ver e participar
-                      </p>
+              <TabsContent value="access" className="mt-6 space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium text-foreground">Visibilidade do Espaço</h3>
+                  <RadioGroup value={accessType} onValueChange={setAccessType}>
+                    <div className="flex items-start space-x-3">
+                      <RadioGroupItem value="open" id="open" className="mt-1" />
+                      <div className="space-y-1">
+                        <Label htmlFor="open" className="font-normal">Aberto</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Qualquer pessoa da comunidade pode ver e participar
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3">
-                    <RadioGroupItem value="closed" id="closed" className="mt-1" />
-                    <div className="space-y-1">
-                      <Label htmlFor="closed" className="font-normal">Fechado</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Apenas membros autorizados podem ver e participar
-                      </p>
+                    
+                    <div className="flex items-start space-x-3">
+                      <RadioGroupItem value="closed" id="closed" className="mt-1" />
+                      <div className="space-y-1">
+                        <Label htmlFor="closed" className="font-normal">Fechado</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Apenas membros autorizados podem ver e participar
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3">
-                    <RadioGroupItem value="private" id="private" className="mt-1" />
-                    <div className="space-y-1">
-                      <Label htmlFor="private" className="font-normal">Privado</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Apenas membros convidados podem ver e participar
-                      </p>
+                    
+                    <div className="flex items-start space-x-3">
+                      <RadioGroupItem value="private" id="private" className="mt-1" />
+                      <div className="space-y-1">
+                        <Label htmlFor="private" className="font-normal">Privado</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Apenas membros convidados podem ver e participar
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start space-x-3">
-                    <RadioGroupItem value="secret" id="secret" className="mt-1" />
-                    <div className="space-y-1">
-                      <Label htmlFor="secret" className="font-normal">Secreto</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Apenas membros convidados podem ver e participar
-                      </p>
+                    
+                    <div className="flex items-start space-x-3">
+                      <RadioGroupItem value="secret" id="secret" className="mt-1" />
+                      <div className="space-y-1">
+                        <Label htmlFor="secret" className="font-normal">Secreto</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Apenas membros convidados podem ver e participar
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </RadioGroup>
+                  </RadioGroup>
+                </div>
+
+                <Separator />
+
+                <SpaceAccessControlSection spaceId={space.id} />
               </TabsContent>
 
               {/* Aba Layout */}
