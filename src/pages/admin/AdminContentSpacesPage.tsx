@@ -31,6 +31,7 @@ import { spaceTypes } from '@/lib/spaceUtils';
 import { useAdminSpacesRealtime } from '@/hooks/useRealtimeUpdates';
 import { RealtimeStatus } from '@/components/admin/RealtimeStatus';
 import { useReorderSpaces } from '@/hooks/useReorderSpaces';
+import { SpaceMobileCard } from '@/components/admin/SpaceMobileCard';
 
 // Sortable Space Row Component
 const SortableSpaceRow = ({ space, categoryMap, membersCount, getVisibilityBadge, getTypeDisplay, onEdit, onDelete }: {
@@ -67,7 +68,7 @@ const SortableSpaceRow = ({ space, categoryMap, membersCount, getVisibilityBadge
       style={style}
       className={`border-b hover:bg-muted/25 ${isDragging ? 'bg-muted/50' : ''}`}
     >
-      <td className="p-3 sm:p-4 sticky left-0 bg-background hover:bg-muted/25 z-10">
+      <td className="p-3 sm:p-4">
         <div className="flex items-center gap-2">
           <div
             className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted/50 rounded"
@@ -77,23 +78,23 @@ const SortableSpaceRow = ({ space, categoryMap, membersCount, getVisibilityBadge
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-          <span className="font-medium text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">
+          <span className="font-medium truncate">
             {space.name}
           </span>
         </div>
       </td>
       
       <td className="p-3 sm:p-4">
-        <span className="text-xs sm:text-sm text-muted-foreground truncate max-w-[100px] block">
+        <span className="text-sm text-muted-foreground truncate">
           {categoryMap[space.category_id] || 'Sem categoria'}
         </span>
       </td>
       
-      <td className="p-3 sm:p-4 hidden sm:table-cell">
+      <td className="p-3 sm:p-4 hidden lg:table-cell">
         <span className="text-sm">{getTypeDisplay(space.type)}</span>
       </td>
       
-      <td className="p-3 sm:p-4 hidden md:table-cell">
+      <td className="p-3 sm:p-4 hidden lg:table-cell">
         <div className="flex items-center gap-1">
           <Users className="h-3 w-3 flex-shrink-0" />
           <span className="text-sm">{totalMembers}</span>
@@ -111,34 +112,19 @@ const SortableSpaceRow = ({ space, categoryMap, membersCount, getVisibilityBadge
         {getVisibilityBadge(space.visibility)}
       </td>
       
-      <td className="p-3 sm:p-4 hidden xl:table-cell">
-        <span className="text-sm">Membros</span>
-      </td>
-      
-      <td className="p-3 sm:p-4 hidden xl:table-cell">
-        <span className="text-sm">Não</span>
-      </td>
-      
-      <td className="p-3 sm:p-4 hidden xl:table-cell">
-        <span className="text-sm">Não</span>
-      </td>
-      
       <td className="p-3 sm:p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+              className="h-8 w-8 p-0"
             >
               <MoreHorizontal className="h-4 w-4" />
               <span className="sr-only">Abrir menu</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            align="end" 
-            className="w-48 z-50 bg-background border shadow-lg"
-          >
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem 
               onClick={() => onEdit(space)}
               className="cursor-pointer"
@@ -500,9 +486,10 @@ export const AdminContentSpacesPage = () => {
                 const isReorderingThisCategory = isReorderingSpaces && reorderingCategoryId === categoryId;
                 
                 return (
-                  <div key={categoryId} className="border rounded-lg overflow-hidden">
-                    <div className="bg-muted/25 px-4 py-3 border-b flex items-center justify-between">
-                      <h3 className="font-semibold text-lg">{categoryName}</h3>
+                  <div key={categoryId} className="space-y-4">
+                    {/* Category Header */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">{categoryName}</h3>
                       {categorySpaces.length > 1 && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -521,26 +508,45 @@ export const AdminContentSpacesPage = () => {
                         </Tooltip>
                       )}
                     </div>
-                    
+
                     <DndContext
                       collisionDetection={closestCenter}
                       onDragEnd={handleSpaceDragEnd}
                     >
-                      <div className="overflow-x-auto">
-                        <table className="w-full min-w-[800px]">
+                      {/* Mobile View - Cards */}
+                      <div className="md:hidden space-y-3">
+                        <SortableContext 
+                          items={categorySpaces.map(space => space.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          {categorySpaces.map((space) => (
+                            <div key={space.id}>
+                              <SpaceMobileCard
+                                space={space}
+                                categoryName={categoryName}
+                                membersCount={membersCount?.[space.id] || { total: 0, moderators: 0 }}
+                                onEdit={setEditingSpace}
+                                onDelete={setDeletingSpace}
+                                isDraggable={isReorderingThisCategory}
+                              />
+                            </div>
+                          ))}
+                        </SortableContext>
+                      </div>
+
+                      {/* Desktop/Tablet View - Table */}
+                      <div className="hidden md:block border rounded-lg overflow-hidden">
+                        <table className="w-full">
                           <thead className="bg-muted/50 border-b">
                             <tr>
-                              <th className="text-left p-3 sm:p-4 font-medium sticky left-0 bg-muted/50 z-10">
+                              <th className="text-left p-3 sm:p-4 font-medium">
                                 {isReorderingThisCategory ? 'ARRASTAR' : 'NOME'}
                               </th>
                               <th className="text-left p-3 sm:p-4 font-medium">CATEGORIA</th>
-                              <th className="text-left p-3 sm:p-4 font-medium hidden sm:table-cell">TIPO</th>
-                              <th className="text-left p-3 sm:p-4 font-medium hidden md:table-cell">MEMBROS</th>
+                              <th className="text-left p-3 sm:p-4 font-medium hidden lg:table-cell">TIPO</th>
+                              <th className="text-left p-3 sm:p-4 font-medium hidden lg:table-cell">MEMBROS</th>
                               <th className="text-left p-3 sm:p-4 font-medium hidden lg:table-cell">MODERADORES</th>
                               <th className="text-left p-3 sm:p-4 font-medium">ACESSO</th>
-                              <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">QUEM PODE PUBLICAR</th>
-                              <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">MEMBROS PODEM CONVIDAR</th>
-                              <th className="text-left p-3 sm:p-4 font-medium hidden xl:table-cell">OCULTAR CONTAGEM</th>
                               <th className="text-left p-3 sm:p-4 font-medium w-12"></th>
                             </tr>
                           </thead>
@@ -563,26 +569,26 @@ export const AdminContentSpacesPage = () => {
                                   />
                                 ) : (
                                   <tr key={space.id} className="border-b hover:bg-muted/25">
-                                    <td className="p-3 sm:p-4 sticky left-0 bg-background hover:bg-muted/25 z-10">
+                                    <td className="p-3 sm:p-4">
                                       <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></div>
-                                        <span className="font-medium text-sm sm:text-base truncate max-w-[120px] sm:max-w-none">
+                                        <span className="font-medium truncate">
                                           {space.name}
                                         </span>
                                       </div>
                                     </td>
                                     
                                     <td className="p-3 sm:p-4">
-                                      <span className="text-xs sm:text-sm text-muted-foreground truncate max-w-[100px] block">
+                                      <span className="text-sm text-muted-foreground truncate">
                                         {categoryMap[space.category_id] || 'Sem categoria'}
                                       </span>
                                     </td>
                                     
-                                    <td className="p-3 sm:p-4 hidden sm:table-cell">
+                                    <td className="p-3 sm:p-4 hidden lg:table-cell">
                                       <span className="text-sm">{getTypeDisplay(space.type)}</span>
                                     </td>
                                     
-                                    <td className="p-3 sm:p-4 hidden md:table-cell">
+                                    <td className="p-3 sm:p-4 hidden lg:table-cell">
                                       <div className="flex items-center gap-1">
                                         <Users className="h-3 w-3 flex-shrink-0" />
                                         <span className="text-sm">{(membersCount?.[space.id] || { total: 0 }).total}</span>
@@ -600,34 +606,19 @@ export const AdminContentSpacesPage = () => {
                                       {getVisibilityBadge(space.visibility)}
                                     </td>
                                     
-                                    <td className="p-3 sm:p-4 hidden xl:table-cell">
-                                      <span className="text-sm">Membros</span>
-                                    </td>
-                                    
-                                    <td className="p-3 sm:p-4 hidden xl:table-cell">
-                                      <span className="text-sm">Não</span>
-                                    </td>
-                                    
-                                    <td className="p-3 sm:p-4 hidden xl:table-cell">
-                                      <span className="text-sm">Não</span>
-                                    </td>
-                                    
                                     <td className="p-3 sm:p-4">
                                       <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                           <Button 
                                             variant="ghost" 
                                             size="sm" 
-                                            className="h-8 w-8 p-0 sm:h-9 sm:w-9"
+                                            className="h-8 w-8 p-0"
                                           >
                                             <MoreHorizontal className="h-4 w-4" />
                                             <span className="sr-only">Abrir menu</span>
                                           </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent 
-                                          align="end" 
-                                          className="w-48 z-50 bg-background border shadow-lg"
-                                        >
+                                        <DropdownMenuContent align="end" className="w-48">
                                           <DropdownMenuItem 
                                             onClick={() => setEditingSpace(space)}
                                             className="cursor-pointer"
