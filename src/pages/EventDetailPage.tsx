@@ -235,7 +235,9 @@ END:VCALENDAR`;
                     end_date: event.end_date,
                     location: event.location,
                     price_coins: event.price_coins,
-                    max_participants: event.max_participants
+                    max_participants: event.max_participants,
+                    space_id: event.space_id,
+                    created_by: event.created_by
                   }}
                 />
                 
