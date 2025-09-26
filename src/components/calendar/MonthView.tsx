@@ -67,7 +67,7 @@ export const MonthView = ({ currentDate, selectedDate, onSelectDate, events }: M
           return (
             <button
               key={day.toISOString()}
-              onClick={() => onSelectDate(isSelected ? null : day)}
+              onClick={() => onSelectDate(day)}
               className={cn(
                 'min-h-[120px] p-2 text-left rounded-lg border bg-card/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring',
                 'hover:bg-accent/40',

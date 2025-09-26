@@ -106,7 +106,7 @@ export const WeekView = ({ currentDate, selectedDate, onSelectDate, events }: We
 
                 {/* Day header */}
                 <button
-                  onClick={() => onSelectDate(selectedDate && selectedDate.toDateString() === day.toDateString() ? null : day)}
+                  onClick={() => onSelectDate(day)}
                   className="absolute left-2 top-2 z-10 rounded px-2 py-1 text-xs font-medium bg-card/70 hover:bg-accent/50 backdrop-blur"
                 >
                   {format(day, 'EEE d', { locale: ptBR })}
