@@ -44,6 +44,7 @@ import { EventLocationSelector } from './EventLocationSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { EventMaterialsSection } from './EventMaterialsSection';
 import { EventParticipantsManager } from './EventParticipantsManager';
+import { EventPaymentManager } from './EventPaymentManager';
 
 interface Event {
   id: string;
@@ -226,7 +227,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
             {/* Disable form fields for active events if user is not admin */}
             <fieldset disabled={event.status === 'active' && !isAdmin}>
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="overview" className="flex items-center gap-2">
                   <Globe className="h-4 w-4" />
                   Visão Geral
@@ -243,9 +244,13 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                   <Users className="h-4 w-4" />
                   Pessoas
                 </TabsTrigger>
-                <TabsTrigger value="payment" className="flex items-center gap-2">
+                <TabsTrigger value="payments" className="flex items-center gap-2">
                   <MoreHorizontal className="h-4 w-4" />
-                  Pagamento
+                  Pagamentos
+                </TabsTrigger>
+                <TabsTrigger value="pricing" className="flex items-center gap-2">
+                  <MoreHorizontal className="h-4 w-4" />
+                  Preços
                 </TabsTrigger>
                 <TabsTrigger value="basics" className="flex items-center gap-2">
                   <Info className="h-4 w-4" />
@@ -326,7 +331,17 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                 </div>
               </TabsContent>
 
-              <TabsContent value="payment" className="space-y-6 mt-6">
+              <TabsContent value="payments" className="space-y-6 mt-6">
+                <div className="min-h-[400px]">
+                  <EventPaymentManager 
+                    eventId={event.id}
+                    eventTitle={event.title}
+                    priceCoins={event.price_coins}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="pricing" className="space-y-6 mt-6">
                 <FormField
                   control={form.control}
                   name="isPaid"
@@ -375,7 +390,7 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
                     disabled={updateEvent.isPending || (event.status === 'active' && !isAdmin)}
                     className="w-full sm:w-auto"
                   >
-                    {updateEvent.isPending ? 'Salvando...' : 'Salvar Pagamento'}
+                    {updateEvent.isPending ? 'Salvando...' : 'Salvar Preços'}
                   </Button>
                 </div>
               </TabsContent>
