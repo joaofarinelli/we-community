@@ -226,8 +226,9 @@ export const EventPaymentDialog = ({ open, onOpenChange, event, onSuccess }: Eve
       <InsufficientBalanceDialog
         open={insufficientBalanceOpen}
         onOpenChange={setInsufficientBalanceOpen}
-        currentAmount={userCoins}
-        onTopup={() => {
+        event={event}
+        userCoins={userCoins}
+        onOpenCoinTopup={() => {
           setInsufficientBalanceOpen(false);
           setCoinTopupOpen(true);
         }}

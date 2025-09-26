@@ -16,8 +16,9 @@ interface InsufficientBalanceDialogProps {
     title: string;
     description?: string;
     start_date: string;
-    end_date: string;
-    location?: string;
+    end_date?: string;
+    location_type?: string;
+    location_address?: string;
     price_coins?: number;
     max_participants?: number;
   };
@@ -39,7 +40,7 @@ export const InsufficientBalanceDialog = ({
   const priceCoins = event.price_coins || 0;
   const coinsNeeded = priceCoins - userCoins;
   const startDate = new Date(event.start_date);
-  const endDate = new Date(event.end_date);
+  const endDate = event.end_date ? new Date(event.end_date) : startDate;
 
   const handleWhatsAppClick = () => {
     if (!whatsappConfig?.whatsapp_enabled || !whatsappConfig?.whatsapp_phone) return;
@@ -85,10 +86,10 @@ export const InsufficientBalanceDialog = ({
                 </span>
               </div>
               
-              {event.location && (
+              {event.location_address && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  <span>{event.location}</span>
+                  <span>{event.location_address}</span>
                 </div>
               )}
               
