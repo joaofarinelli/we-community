@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -181,47 +180,67 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("id", profile.company_id)
       .single();
 
-    // Send email using Resend
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    // Send email using Resend API
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     
-    if (!Deno.env.get("RESEND_API_KEY")) {
-      throw new Error("RESEND_API_KEY not configured");
+    if (!resendApiKey) {
+      console.warn("RESEND_API_KEY not configured, skipping email");
+    } else {
+      // Build the invite URL based on the current request origin
+      const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://app.lovable.dev';
+      const inviteUrl = `${origin}/invite/accept/${inviteToken}`;
+
+      console.log("Sending email to:", email);
+      console.log("Invite URL:", inviteUrl);
+      
+      try {
+        const emailResponse = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: "Convite <onboarding@resend.dev>",
+            to: [email],
+            subject: `Convite para ${company?.name || 'nossa plataforma'}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1>Você foi convidado!</h1>
+                <p>Você foi convidado para se juntar a <strong>${company?.name || 'nossa plataforma'}</strong> como <strong>${role === 'admin' ? 'Administrador' : 'Membro'}</strong>.</p>
+                ${courseAccess.length > 0 ? `<p>Você terá acesso aos seguintes cursos específicos.</p>` : ''}
+                <div style="margin: 30px 0;">
+                  <a href="${inviteUrl}" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                    Aceitar Convite
+                  </a>
+                </div>
+                <p style="color: #666; font-size: 14px;">
+                  Este convite expira em 7 dias. Se você não conseguir clicar no botão, copie e cole este link no seu navegador:
+                  <br><br>
+                  <code style="background-color: #f4f4f4; padding: 4px 8px; border-radius: 4px;">${inviteUrl}</code>
+                </p>
+              </div>
+            `,
+          }),
+        });
+
+        if (emailResponse.ok) {
+          console.log("Email sent successfully");
+        } else {
+          const errorText = await emailResponse.text();
+          console.error("Failed to send email:", errorText);
+        }
+      } catch (emailError) {
+        console.error("Error sending email:", emailError);
+      }
     }
-    
-    // Build the invite URL based on the current request origin
-    const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://app.lovable.dev';
-    const inviteUrl = `${origin}/invite/accept/${inviteToken}`;
-
-    console.log("Sending email to:", email);
-    console.log("Invite URL:", inviteUrl);
-    
-    const emailResponse = await resend.emails.send({
-      from: "Convite <onboarding@resend.dev>",
-      to: [email],
-      subject: `Convite para ${company?.name || 'nossa plataforma'}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1>Você foi convidado!</h1>
-          <p>Você foi convidado para se juntar a <strong>${company?.name || 'nossa plataforma'}</strong> como <strong>${role === 'admin' ? 'Administrador' : 'Membro'}</strong>.</p>
-          ${courseAccess.length > 0 ? `<p>Você terá acesso aos seguintes cursos específicos.</p>` : ''}
-          <div style="margin: 30px 0;">
-            <a href="${inviteUrl}" style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-              Aceitar Convite
-            </a>
-          </div>
-          <p style="color: #666; font-size: 14px;">
-            Este convite expira em 7 dias. Se você não conseguir clicar no botão, copie e cole este link no seu navegador:
-            <br><br>
-            <code style="background-color: #f4f4f4; padding: 4px 8px; border-radius: 4px;">${inviteUrl}</code>
-          </p>
-        </div>
-      `,
-    });
-
-    console.log("Email sent successfully:", emailResponse);
 
     // Send data to webhook
     try {
+      // Build the invite URL for webhook
+      const origin = req.headers.get('origin') || req.headers.get('referer') || 'https://app.lovable.dev';
+      const webhookInviteUrl = `${origin}/invite/accept/${inviteToken}`;
+      
       const webhookData = {
         event: 'user_invited',
         invite: {
@@ -234,7 +253,7 @@ const handler = async (req: Request): Promise<Response> => {
           course_access: courseAccess,
           token: inviteToken,
           expires_at: expiresAt.toISOString(),
-          invite_url: inviteUrl,
+          invite_url: webhookInviteUrl,
           created_at: invite.created_at
         },
         company: {

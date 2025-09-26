@@ -1,12 +1,9 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
-import { Resend } from 'npm:resend@2.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-company-id',
 }
-
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'))
 
 interface Database {
   public: {
@@ -102,23 +99,43 @@ function parseCSV(csvText: string): any[] {
 
 async function sendInviteEmail(email: string, firstName: string, token: string, companyName: string) {
   try {
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')
+    if (!resendApiKey) {
+      console.warn('RESEND_API_KEY not configured, skipping email')
+      return false
+    }
+
     const inviteUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token}&type=invite&redirect_to=${Deno.env.get('SITE_URL') || 'https://app.example.com'}/register`
     
-    await resend.emails.send({
-      from: `${companyName} <noreply@resend.dev>`,
-      to: [email],
-      subject: `Você foi convidado(a) para ${companyName}`,
-      html: `
-        <h1>Bem-vindo(a), ${firstName}!</h1>
-        <p>Você foi convidado(a) para fazer parte da ${companyName}.</p>
-        <p>Clique no link abaixo para criar sua conta:</p>
-        <a href="${inviteUrl}" style="background: #334155; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-          Aceitar Convite
-        </a>
-        <p><small>Este convite expira em 7 dias.</small></p>
-      `,
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `${companyName} <noreply@resend.dev>`,
+        to: [email],
+        subject: `Você foi convidado(a) para ${companyName}`,
+        html: `
+          <h1>Bem-vindo(a), ${firstName}!</h1>
+          <p>Você foi convidado(a) para fazer parte da ${companyName}.</p>
+          <p>Clique no link abaixo para criar sua conta:</p>
+          <a href="${inviteUrl}" style="background: #334155; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Aceitar Convite
+          </a>
+          <p><small>Este convite expira em 7 dias.</small></p>
+        `,
+      }),
     })
-    return true
+
+    if (response.ok) {
+      return true
+    } else {
+      const errorData = await response.text()
+      console.error('Error sending email:', errorData)
+      return false
+    }
   } catch (error) {
     console.error('Error sending email:', error)
     return false

@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,9 +35,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
     
-    if (!resend) {
+    if (!resendApiKey) {
       throw new Error("RESEND_API_KEY não configurado");
     }
 
@@ -149,17 +148,30 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    const emailResponse = await resend.emails.send({
-      from: "Bug Reports <onboarding@resend.dev>",
-      to: [recipientEmail],
-      subject: `🐛 [${companyInfo.name}] ${bugReport.title}`,
-      html: emailHtml,
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: "Bug Reports <onboarding@resend.dev>",
+        to: [recipientEmail],
+        subject: `🐛 [${companyInfo.name}] ${bugReport.title}`,
+        html: emailHtml,
+      }),
     });
 
-    console.log("Bug report email sent successfully:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      throw new Error(`Failed to send email: ${errorText}`);
+    }
+
+    const emailResult = await emailResponse.json();
+    console.log("Bug report email sent successfully:", emailResult);
 
     return new Response(
-      JSON.stringify({ success: true, emailResponse }),
+      JSON.stringify({ success: true, emailResponse: emailResult }),
       {
         status: 200,
         headers: {
