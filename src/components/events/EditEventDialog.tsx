@@ -43,6 +43,7 @@ import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { EventMaterialsSection } from './EventMaterialsSection';
+import { EventParticipantsManager } from './EventParticipantsManager';
 
 interface Event {
   id: string;
@@ -380,19 +381,12 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
               </TabsContent>
 
               <TabsContent value="people" className="space-y-6 mt-6">
-                <FormField
-                  control={form.control}
-                  name="presenter"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Apresentador</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite o nome do apresentador" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="min-h-[400px]">
+                  <EventParticipantsManager 
+                    eventId={event.id}
+                    isAdmin={isAdmin}
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="basics" className="space-y-6 mt-6">
