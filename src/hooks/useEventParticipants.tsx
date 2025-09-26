@@ -68,22 +68,30 @@ export const useEventParticipants = (eventId: string) => {
   });
 
   const joinEvent = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ eventId: paramEventId, paymentStatus = 'none', paymentMethod }: { 
+      eventId?: string; 
+      paymentStatus?: string;
+      paymentMethod?: string;
+    } = {}) => {
       if (!user || !currentCompanyId) {
         console.error('Missing authentication data:', { user: !!user, currentCompanyId });
         throw new Error('User not authenticated or company context missing');
       }
 
-      console.log('Joining event:', eventId, 'user:', user.id, 'company:', currentCompanyId);
+      const targetEventId = paramEventId || eventId;
+      console.log('Joining event:', targetEventId, 'user:', user.id, 'company:', currentCompanyId);
 
       // Use upsert to handle duplicate entries gracefully
       const { error } = await supabase
         .from('event_participants')
         .upsert({
-          event_id: eventId,
+          event_id: targetEventId,
           user_id: user.id,
           company_id: currentCompanyId,
-          status: 'confirmed'
+          status: 'confirmed',
+          payment_status: paymentStatus,
+          payment_method: paymentMethod,
+          payment_requested_at: paymentStatus.startsWith('pending') ? new Date().toISOString() : undefined,
         }, {
           onConflict: 'event_id,user_id'
         });
@@ -138,6 +146,7 @@ export const useEventParticipants = (eventId: string) => {
   });
 
   return {
+    data: participantsQuery.data || [],
     participants: participantsQuery.data || [],
     isLoading: participantsQuery.isLoading,
     joinEvent,

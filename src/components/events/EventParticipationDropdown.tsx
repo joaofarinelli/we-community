@@ -48,7 +48,7 @@ export const EventParticipationDropdown = ({
         return;
       } else {
         // Free event, just join
-        joinEvent.mutate();
+        joinEvent.mutate({});
       }
     } else if (value === 'not_confirmed' && userParticipation) {
       // Leave the event
@@ -57,9 +57,10 @@ export const EventParticipationDropdown = ({
       // If it was a paid event, process refund
       if (isPaid && priceCoins > 0) {
         await refundPayment.mutateAsync({
+          participantId: user?.id || '',
           eventId,
+          paymentMethod: 'coins',
           priceCoins,
-          eventTitle,
         });
       }
     }

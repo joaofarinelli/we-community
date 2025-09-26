@@ -72,7 +72,7 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
     if (isParticipant) {
       leaveEvent.mutate();
     } else {
-      joinEvent.mutate();
+      joinEvent.mutate({});
     }
   };
 

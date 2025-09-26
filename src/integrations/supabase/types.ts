@@ -1296,24 +1296,42 @@ export type Database = {
         Row: {
           company_id: string
           event_id: string
+          external_payment_data: Json | null
           id: string
           joined_at: string
+          payment_approved_at: string | null
+          payment_approved_by: string | null
+          payment_method: string | null
+          payment_requested_at: string | null
+          payment_status: string
           status: string
           user_id: string
         }
         Insert: {
           company_id: string
           event_id: string
+          external_payment_data?: Json | null
           id?: string
           joined_at?: string
+          payment_approved_at?: string | null
+          payment_approved_by?: string | null
+          payment_method?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           status?: string
           user_id: string
         }
         Update: {
           company_id?: string
           event_id?: string
+          external_payment_data?: Json | null
           id?: string
           joined_at?: string
+          payment_approved_at?: string | null
+          payment_approved_by?: string | null
+          payment_method?: string | null
+          payment_requested_at?: string | null
+          payment_status?: string
           status?: string
           user_id?: string
         }
@@ -1336,6 +1354,7 @@ export type Database = {
           created_by: string
           description: string | null
           end_date: string
+          external_payment_url: string | null
           id: string
           image_url: string | null
           is_paid: boolean
@@ -1347,7 +1366,9 @@ export type Database = {
           neighborhood: string | null
           number: string | null
           online_link: string | null
+          payment_approval_required: boolean
           payment_required: boolean
+          payment_type: string
           postal_code: string | null
           price_coins: number | null
           space_id: string
@@ -1366,6 +1387,7 @@ export type Database = {
           created_by: string
           description?: string | null
           end_date: string
+          external_payment_url?: string | null
           id?: string
           image_url?: string | null
           is_paid?: boolean
@@ -1377,7 +1399,9 @@ export type Database = {
           neighborhood?: string | null
           number?: string | null
           online_link?: string | null
+          payment_approval_required?: boolean
           payment_required?: boolean
+          payment_type?: string
           postal_code?: string | null
           price_coins?: number | null
           space_id: string
@@ -1396,6 +1420,7 @@ export type Database = {
           created_by?: string
           description?: string | null
           end_date?: string
+          external_payment_url?: string | null
           id?: string
           image_url?: string | null
           is_paid?: boolean
@@ -1407,7 +1432,9 @@ export type Database = {
           neighborhood?: string | null
           number?: string | null
           online_link?: string | null
+          payment_approval_required?: boolean
           payment_required?: boolean
+          payment_type?: string
           postal_code?: string | null
           price_coins?: number | null
           space_id?: string

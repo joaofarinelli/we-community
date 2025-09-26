@@ -108,6 +108,9 @@ export const eventSchema = z.object({
   isPaid: z.boolean().default(false),
   priceCoins: z.number().int().min(0, "Preço deve ser um número positivo").optional(),
   paymentRequired: z.boolean().default(false),
+  paymentType: z.enum(['free', 'coins', 'external', 'both']).default('free'),
+  externalPaymentUrl: z.string().url().optional().or(z.literal('')),
+  paymentApprovalRequired: z.boolean().default(false),
 }).refine((data) => {
   const startDateTime = new Date(`${data.startDate.toDateString()} ${data.startTime}`);
   const endDateTime = new Date(`${data.endDate.toDateString()} ${data.endTime}`);
@@ -133,13 +136,23 @@ export const eventSchema = z.object({
   message: "Link da reunião é obrigatório para eventos online",
   path: ["onlineLink"],
 }).refine((data) => {
-  if (data.isPaid) {
-    return data.priceCoins && data.priceCoins > 0;
+  if (data.isPaid || data.paymentType !== 'free') {
+    if (data.paymentType === 'coins' || data.paymentType === 'both') {
+      return data.priceCoins && data.priceCoins > 0;
+    }
   }
   return true;
 }, {
-  message: "Preço em moedas é obrigatório para eventos pagos",
+  message: "Preço em moedas é obrigatório para eventos pagos com moedas",
   path: ["priceCoins"],
+}).refine((data) => {
+  if (data.paymentType === 'external' || data.paymentType === 'both') {
+    return data.externalPaymentUrl && data.externalPaymentUrl.length > 0;
+  }
+  return true;
+}, {
+  message: "URL de pagamento externo é obrigatória para eventos com pagamento externo",
+  path: ["externalPaymentUrl"],
 });
 
 export type EventFormData = z.infer<typeof eventSchema>;

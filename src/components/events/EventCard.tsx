@@ -77,7 +77,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
       if (isPaidEvent) {
         setPurchaseDialogOpen(true);
       } else {
-        joinEvent.mutate();
+        joinEvent.mutate({});
       }
     }
   };
@@ -269,7 +269,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
           event={event}
           onSuccess={() => {
             setPurchaseDialogOpen(false);
-            joinEvent.mutate();
+            joinEvent.mutate({});
           }}
         />
       )}

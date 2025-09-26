@@ -64,7 +64,7 @@ export const PurchaseEventDialog = ({
       });
 
       // Add user as participant after successful payment
-      await joinEvent.mutateAsync();
+      await joinEvent.mutateAsync({});
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
