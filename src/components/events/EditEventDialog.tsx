@@ -147,13 +147,11 @@ export const EditEventDialog = ({ event, open, onOpenChange }: EditEventDialogPr
   const onSubmit = async (values: EventFormData) => {
     const startDateTime = new Date(`${values.startDate.toDateString()} ${values.startTime}`);
     const endDateTime = new Date(`${values.endDate.toDateString()} ${values.endTime}`);
-    
-    const description = values.presenter ? `Apresentador: ${values.presenter}` : values.description;
 
     await updateEvent.mutateAsync({
       id: event.id,
       title: values.title,
-      description,
+      description: values.description,
       startDate: startDateTime,
         endDate: endDateTime,
         imageUrl: values.imageUrl,

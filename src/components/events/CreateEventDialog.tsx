@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import {
   Popover,
@@ -71,6 +72,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
     resolver: zodResolver(eventSchema) as any,
     defaultValues: {
       title: "",
+      description: "",
       presenter: "",
       startDate: new Date(),
       startTime: "09:00",
@@ -96,13 +98,11 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
     const startDateTime = new Date(`${values.startDate.toDateString()} ${values.startTime}`);
     const endDateTime = new Date(`${values.endDate.toDateString()} ${values.endTime}`);
     
-    const description = values.presenter ? `Apresentador: ${values.presenter}` : values.description;
-    
     try {
       const event = await createEvent.mutateAsync({
         spaceId,
         title: values.title,
-        description,
+        description: values.description,
         startDate: startDateTime,
         endDate: endDateTime,
         imageUrl: values.imageUrl,
@@ -178,12 +178,16 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
 
                   <FormField
                     control={form.control}
-                    name="presenter"
+                    name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Apresentador</FormLabel>
+                        <FormLabel>Descrição</FormLabel>
                         <FormControl>
-                          <Input placeholder="Digite o nome do apresentador" {...field} />
+                          <Textarea 
+                            placeholder="Digite a descrição do evento" 
+                            className="min-h-[100px]"
+                            {...field} 
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
