@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ResponsiveBanner } from '@/components/ui/responsive-banner';
 import { useEventParticipants } from '@/hooks/useEventParticipants';
 import { useAuth } from '@/hooks/useAuth';
 import { useCanEditEvent } from '@/hooks/useCanEditEvent';
@@ -99,13 +100,12 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
       }}
     >
       {event.image_url && (
-        <div className="w-full aspect-[3/1]">
-          <img 
-            src={event.image_url} 
-            alt={event.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <ResponsiveBanner
+          src={event.image_url}
+          aspectRatio={3250/750}
+          fitMode="contain"
+          adaptiveHeight={true}
+        />
       )}
       
       <CardContent className="p-6">
