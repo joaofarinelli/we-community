@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { useEventParticipants } from "@/hooks/useEventParticipants";
 import { useAuth } from "@/hooks/useAuth";
+import { useEventParticipants } from "@/hooks/useEventParticipants";
 import { useEventPayment } from "@/hooks/useEventPayment";
 import { useCoinName } from "@/hooks/useCoinName";
+import { useCanLeaveEvent } from "@/hooks/useCanLeaveEvent";
+import { toast } from "sonner";
 import { PurchaseEventDialog } from "./PurchaseEventDialog";
 
 interface EventParticipationDropdownProps {
@@ -21,6 +23,8 @@ interface EventParticipationDropdownProps {
     location?: string;
     price_coins?: number;
     max_participants?: number;
+    space_id: string;
+    created_by: string;
   };
 }
 
@@ -32,75 +36,102 @@ export const EventParticipationDropdown = ({
   event
 }: EventParticipationDropdownProps) => {
   const { user } = useAuth();
-  const { participants, joinEvent, leaveEvent } = useEventParticipants(eventId);
-  const { processPayment, refundPayment, userCoins } = useEventPayment();
-  const { data: coinName } = useCoinName();
-  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
+  const { participants, joinEvent, leaveEvent, isJoining, isLeaving } = useEventParticipants(eventId);
+  const { userCoins, processPayment, refundPayment } = useEventPayment();
+  const coinName = useCoinName();
   
-  const userParticipation = participants?.find(p => p.user_id === user?.id);
-  const currentStatus = userParticipation ? 'confirmed' : 'not_confirmed';
+  const currentParticipation = participants.find(p => p.user_id === user?.id);
+  const canLeave = useCanLeaveEvent(event, currentParticipation);
+  const isParticipating = !!currentParticipation;
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
 
   const handleStatusChange = async (value: string) => {
-    if (value === 'confirmed' && !userParticipation) {
-      if (isPaid && priceCoins > 0 && event) {
-        // Open purchase dialog for paid events
+    if (value === "confirmed") {
+      if (isPaid && priceCoins && userCoins < priceCoins) {
         setShowPurchaseDialog(true);
         return;
-      } else {
-        // Free event, just join
-        joinEvent.mutate({});
       }
-    } else if (value === 'not_confirmed' && userParticipation) {
-      // Leave the event
-      leaveEvent.mutate();
       
-      // If it was a paid event, process refund
-      if (isPaid && priceCoins > 0) {
-        await refundPayment.mutateAsync({
-          participantId: user?.id || '',
-          eventId,
-          paymentMethod: 'coins',
-          priceCoins,
-        });
+      await joinEvent.mutateAsync({
+        eventId,
+        paymentStatus: isPaid ? 'pending_coins' : 'none',
+        paymentMethod: isPaid ? 'coins' : undefined,
+      });
+    } else if (value === "unconfirmed") {
+      if (!canLeave) {
+        toast.error('Você não pode sair do evento após se confirmar ou fazer o pagamento. Entre em contato com um administrador.');
+        return;
       }
+      
+      // Handle refund if user had paid
+      if (currentParticipation?.payment_status === 'approved') {
+        try {
+          await refundPayment.mutateAsync({
+            eventId,
+            participantId: user!.id,
+            paymentMethod: 'coins',
+            priceCoins: priceCoins || 0,
+          });
+        } catch (error) {
+          console.error('Refund failed:', error);
+          toast.error('Erro ao processar reembolso');
+          return;
+        }
+      }
+      
+      await leaveEvent.mutateAsync({});
     }
   };
 
   const handlePurchaseSuccess = () => {
     setShowPurchaseDialog(false);
-    // The PurchaseEventDialog already handles joining the event
   };
+
+  const currentStatus = isParticipating ? "confirmed" : "unconfirmed";
 
   return (
     <>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium">Status de Participação</label>
-          {isPaid && priceCoins > 0 && (
+          {isPaid && priceCoins && (
             <Badge variant="secondary" className="text-xs">
-              {priceCoins} {coinName || 'moedas'}
+              {priceCoins} {coinName.data}
             </Badge>
           )}
         </div>
-        <Select 
-          value={currentStatus} 
-          onValueChange={handleStatusChange}
-          disabled={joinEvent.isPending || leaveEvent.isPending || processPayment.isPending || refundPayment.isPending}
-        >
-          <SelectTrigger>
+        
+        <Select value={currentStatus} onValueChange={handleStatusChange} disabled={isJoining || isLeaving}>
+          <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="not_confirmed">Não confirmado</SelectItem>
             <SelectItem value="confirmed">
-              {isPaid && priceCoins > 0 ? `Confirmar (${priceCoins} ${coinName || 'moedas'})` : 'Confirmado'}
+              Confirmado
+              {isPaid && priceCoins && (
+                <span className="ml-2 text-xs opacity-70">
+                  ({priceCoins} {coinName.data})
+                </span>
+              )}
+            </SelectItem>
+            <SelectItem 
+              value="unconfirmed" 
+              disabled={!canLeave}
+              className={!canLeave ? "opacity-50 cursor-not-allowed" : ""}
+            >
+              Não confirmado
+              {!canLeave && isParticipating && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  (Bloqueado)
+                </span>
+              )}
             </SelectItem>
           </SelectContent>
         </Select>
         
-        {isPaid && priceCoins > 0 && userCoins < priceCoins && (
-          <p className="text-xs text-destructive">
-            Saldo insuficiente. Você precisa de {priceCoins - userCoins} {coinName || 'moedas'} a mais.
+        {!canLeave && isParticipating && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Você não pode sair após se confirmar ou pagar. Contate um administrador.
           </p>
         )}
       </div>

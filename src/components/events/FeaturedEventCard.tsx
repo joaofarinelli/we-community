@@ -71,7 +71,7 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
     
     // Handle free events or leaving paid events
     if (isParticipant) {
-      leaveEvent.mutate();
+      leaveEvent.mutate({});
     } else {
       joinEvent.mutate({});
     }

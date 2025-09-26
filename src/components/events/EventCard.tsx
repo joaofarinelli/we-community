@@ -73,7 +73,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
   const handleParticipationToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isParticipant) {
-      leaveEvent.mutate();
+      leaveEvent.mutate({});
     } else {
       if (isPaidEvent) {
         setPurchaseDialogOpen(true);

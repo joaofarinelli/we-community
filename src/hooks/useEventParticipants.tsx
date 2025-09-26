@@ -114,10 +114,23 @@ export const useEventParticipants = (eventId: string) => {
   });
 
   const leaveEvent = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ forceAdmin = false }: { forceAdmin?: boolean } = {}) => {
       if (!user || !currentCompanyId) {
         console.error('Missing authentication data:', { user: !!user, currentCompanyId });
         throw new Error('User not authenticated or company context missing');
+      }
+
+      // Check if user can leave (unless it's an admin force removal)
+      if (!forceAdmin) {
+        const currentParticipation = participantsQuery.data?.find(p => p.user_id === user.id);
+        if (currentParticipation) {
+          const hasPaid = currentParticipation.payment_status !== 'none' && currentParticipation.payment_status !== 'cancelled';
+          const isConfirmed = currentParticipation.status === 'confirmed';
+          
+          if (hasPaid || isConfirmed) {
+            throw new Error('Você não pode sair do evento após se confirmar ou fazer o pagamento. Entre em contato com um administrador.');
+          }
+        }
       }
 
       console.log('Leaving event:', eventId, 'user:', user.id, 'company:', currentCompanyId);
@@ -140,8 +153,40 @@ export const useEventParticipants = (eventId: string) => {
       queryClient.invalidateQueries({ queryKey: ['allUserEvents'] });
       toast.success('Você saiu do evento');
     },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Erro ao sair do evento');
+    },
+  });
+
+  const removeParticipant = useMutation({
+    mutationFn: async (participantUserId: string) => {
+      if (!user || !currentCompanyId) {
+        console.error('Missing authentication data:', { user: !!user, currentCompanyId });
+        throw new Error('User not authenticated or company context missing');
+      }
+
+      console.log('Admin removing participant:', participantUserId, 'from event:', eventId);
+
+      const { error } = await supabase
+        .from('event_participants')
+        .delete()
+        .eq('event_id', eventId)
+        .eq('user_id', participantUserId)
+        .eq('company_id', currentCompanyId);
+
+      if (error) {
+        console.error('Error removing participant:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['eventParticipants', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['allUserEvents'] });
+      toast.success('Participante removido do evento');
+    },
     onError: () => {
-      toast.error('Erro ao sair do evento');
+      toast.error('Erro ao remover participante do evento');
     },
   });
 
@@ -151,7 +196,9 @@ export const useEventParticipants = (eventId: string) => {
     isLoading: participantsQuery.isLoading,
     joinEvent,
     leaveEvent,
+    removeParticipant,
     isJoining: joinEvent.isPending,
     isLeaving: leaveEvent.isPending,
+    isRemoving: removeParticipant.isPending,
   };
 };
