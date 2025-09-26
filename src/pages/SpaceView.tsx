@@ -23,6 +23,8 @@ import { SpaceBanner } from '@/components/ui/space-banner';
 import { useState, useEffect } from 'react';
 import { PostListView } from '@/components/posts/PostListView';
 import { PostCardView } from '@/components/posts/PostCardView';
+import { useUpcomingEvents } from '@/hooks/useUpcomingEvents';
+import { UpcomingEventsCard } from '@/components/events/UpcomingEventsCard';
 import { PostGridContainer } from '@/components/posts/PostGridContainer';
 
 export type PostLayout = 'feed' | 'list' | 'card';
@@ -337,7 +339,7 @@ export const SpaceView = () => {
               )}
             </div>
             {/* Sidebar */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -383,6 +385,11 @@ export const SpaceView = () => {
                     </div>}
                 </CardContent>
               </Card>
+
+              {/* Upcoming Events Card - Only for events spaces */}
+              {space.type === 'events' && (
+                <UpcomingEventsCard spaceId={spaceId} />
+              )}
             </div>
           </div>
         </div>
