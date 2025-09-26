@@ -138,7 +138,7 @@ serve(async (req) => {
     console.error('Error testing TMB connection:', error);
     
     // Handle timeout errors
-    if (error.name === 'TimeoutError') {
+    if (error instanceof Error && error.name === 'TimeoutError') {
       return new Response(JSON.stringify({ 
         success: false, 
         error: 'Timeout - TMB não respondeu em 15 segundos'
@@ -150,7 +150,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message || 'Erro desconhecido ao testar conexão'
+      error: error instanceof Error ? error.message : 'Erro desconhecido ao testar conexão'
     }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

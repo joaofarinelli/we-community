@@ -138,7 +138,7 @@ serve(async (req) => {
 
     // Make API call to TMB with timeout and proper error handling
     console.log('Creating boleto with TMB:', { 
-      environment, 
+      environment: config.environment, 
       amount: amountCents / 100,
       expiration: expirationDate 
     });
@@ -209,7 +209,7 @@ serve(async (req) => {
     console.error('Error in tmb-create-boleto:', error);
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message 
+      error: error instanceof Error ? error.message : 'Unknown error' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

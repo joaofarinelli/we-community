@@ -97,13 +97,13 @@ Deno.serve(async (req) => {
 
       maxScore += question.points;
 
-      let isCorrect = false;
+      let isCorrect: boolean | null = false;
       let pointsEarned = 0;
 
       if (question.question_type === 'multiple_choice' || question.question_type === 'true_false') {
         // Find the selected option
         const selectedOption = question.lesson_quiz_options.find(
-          opt => opt.id === answer.selectedOptionId
+          (opt: any) => opt.id === answer.selectedOptionId
         );
         
         if (selectedOption && selectedOption.is_correct) {
@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message 
+        error: error instanceof Error ? error.message : 'Unknown error' 
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -184,7 +184,7 @@ serve(async (req) => {
     }
 
     // Log webhook for audit
-    await supabaseServiceClient
+    const { error: logError } = await supabaseServiceClient
       .from('payment_webhook_logs')
       .insert({
         payment_id: payment.id,
@@ -193,8 +193,11 @@ serve(async (req) => {
         webhook_data: webhookData,
         processing_status: 'success',
         processed_at: new Date().toISOString()
-      })
-      .catch(err => console.error('Failed to log webhook:', err));
+      });
+    
+    if (logError) {
+      console.error('Failed to log webhook:', logError);
+    }
 
     return new Response(JSON.stringify({ status: 'ok' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -215,7 +218,7 @@ serve(async (req) => {
         .insert({
           provider: 'tmb_educacao',
           event_type: 'unknown',
-          webhook_data: { error: error.message },
+          webhook_data: { error: error instanceof Error ? error.message : 'Unknown error' },
           processing_status: 'failed',
           processed_at: new Date().toISOString()
         });
