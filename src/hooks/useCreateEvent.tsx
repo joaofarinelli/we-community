@@ -27,6 +27,9 @@ interface CreateEventData {
   isPaid?: boolean;
   priceCoins?: number;
   paymentRequired?: boolean;
+  paymentType?: string;
+  externalPaymentUrl?: string;
+  paymentApprovalRequired?: boolean;
 }
 
 export const useCreateEvent = () => {
@@ -73,6 +76,9 @@ export const useCreateEvent = () => {
           is_paid: data.isPaid || false,
           price_coins: data.priceCoins || 0,
           payment_required: data.paymentRequired || false,
+          payment_type: data.paymentType || 'free',
+          external_payment_url: data.externalPaymentUrl,
+          payment_approval_required: data.paymentApprovalRequired || false,
         })
         .select()
         .single();

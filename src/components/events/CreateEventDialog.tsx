@@ -41,6 +41,7 @@ import { eventSchema, type EventFormData } from '@/lib/schemas';
 import { EventLocationSelector } from './EventLocationSelector';
 import { Switch } from '@/components/ui/switch';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { useCoinName } from '@/hooks/useCoinName';
 
 interface Event {
   id: string;
@@ -67,6 +68,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
   const createEvent = useCreateEvent();
+  const { data: coinName } = useCoinName();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventSchema) as any,
@@ -91,6 +93,9 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
       isPaid: false,
       priceCoins: 0,
       paymentRequired: false,
+      paymentType: "coins" as const,
+      externalPaymentUrl: "",
+      paymentApprovalRequired: false,
     },
   });
 
@@ -118,6 +123,9 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
         isPaid: values.isPaid,
         priceCoins: values.priceCoins,
         paymentRequired: values.paymentRequired,
+        paymentType: values.paymentType,
+        externalPaymentUrl: values.externalPaymentUrl,
+        paymentApprovalRequired: values.paymentApprovalRequired,
       });
       
       setCreatedEvent(event as Event);
@@ -392,24 +400,93 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                   />
 
                   {form.watch('isPaid') && (
-                    <FormField
-                      control={form.control}
-                      name="priceCoins"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Preço em moedas</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              placeholder="Digite o preço em moedas"
-                              {...field}
-                              onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="paymentType"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tipo de Pagamento</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecionar tipo de pagamento" />
+                                  <ChevronDown className="h-4 w-4 opacity-50" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="coins">Apenas {coinName || 'WomanCoins'}</SelectItem>
+                                <SelectItem value="external">Apenas Pagamento Externo</SelectItem>
+                                <SelectItem value="both">Ambas as Opções</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {(form.watch('paymentType') === 'coins' || form.watch('paymentType') === 'both') && (
+                        <FormField
+                          control={form.control}
+                          name="priceCoins"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Preço em {coinName || 'WomanCoins'}</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="number" 
+                                  placeholder={`Digite o preço em ${coinName || 'moedas'}`}
+                                  {...field}
+                                  onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       )}
-                    />
+
+                      {(form.watch('paymentType') === 'external' || form.watch('paymentType') === 'both') && (
+                        <FormField
+                          control={form.control}
+                          name="externalPaymentUrl"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Link de Pagamento Externo</FormLabel>
+                              <FormControl>
+                                <Input 
+                                  type="url"
+                                  placeholder="https://exemplo.com/pagamento"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      <FormField
+                        control={form.control}
+                        name="paymentApprovalRequired"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Requer Aprovação do Pagamento</FormLabel>
+                              <div className="text-sm text-muted-foreground">
+                                O pagamento precisará ser aprovado por um administrador?
+                              </div>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
