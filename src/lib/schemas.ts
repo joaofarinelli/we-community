@@ -108,7 +108,7 @@ export const eventSchema = z.object({
   isPaid: z.boolean().default(false),
   priceCoins: z.number().int().min(0, "Preço deve ser um número positivo").optional(),
   paymentRequired: z.boolean().default(false),
-  paymentType: z.enum(['free', 'coins', 'external', 'both']).default('free'),
+  paymentType: z.enum(['free', 'coins', 'external']).default('free'),
   externalPaymentUrl: z.string().url().optional().or(z.literal('')),
   paymentApprovalRequired: z.boolean().default(false),
 }).refine((data) => {
@@ -137,7 +137,7 @@ export const eventSchema = z.object({
   path: ["onlineLink"],
 }).refine((data) => {
   if (data.isPaid || data.paymentType !== 'free') {
-    if (data.paymentType === 'coins' || data.paymentType === 'both') {
+    if (data.paymentType === 'coins') {
       return data.priceCoins && data.priceCoins > 0;
     }
   }
@@ -146,7 +146,7 @@ export const eventSchema = z.object({
   message: "Preço em moedas é obrigatório para eventos pagos com moedas",
   path: ["priceCoins"],
 }).refine((data) => {
-  if (data.paymentType === 'external' || data.paymentType === 'both') {
+  if (data.paymentType === 'external') {
     return data.externalPaymentUrl && data.externalPaymentUrl.length > 0;
   }
   return true;

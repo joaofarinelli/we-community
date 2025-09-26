@@ -100,8 +100,8 @@ export const EventPaymentDialog = ({ open, onOpenChange, event, onSuccess }: Eve
     return format(new Date(dateString), "dd 'de' MMMM 'às' HH:mm", { locale: ptBR });
   };
 
-  const canPayWithCoins = event.payment_type === 'coins' || event.payment_type === 'both';
-  const canPayWithExternal = event.payment_type === 'external' || event.payment_type === 'both';
+  const canPayWithCoins = event.payment_type === 'coins';
+  const canPayWithExternal = event.payment_type === 'external';
   const hasInsufficientBalance = canPayWithCoins && event.price_coins && userCoins < event.price_coins;
 
   return (

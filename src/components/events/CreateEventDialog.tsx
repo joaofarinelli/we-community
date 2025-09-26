@@ -417,7 +417,6 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                               <SelectContent>
                                 <SelectItem value="coins">Apenas {coinName || 'WomanCoins'}</SelectItem>
                                 <SelectItem value="external">Apenas Pagamento Externo</SelectItem>
-                                <SelectItem value="both">Ambas as Opções</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -425,7 +424,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                         )}
                       />
 
-                      {(form.watch('paymentType') === 'coins' || form.watch('paymentType') === 'both') && (
+                      {form.watch('paymentType') === 'coins' && (
                         <FormField
                           control={form.control}
                           name="priceCoins"
@@ -446,7 +445,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                         />
                       )}
 
-                      {(form.watch('paymentType') === 'external' || form.watch('paymentType') === 'both') && (
+                      {form.watch('paymentType') === 'external' && (
                         <FormField
                           control={form.control}
                           name="externalPaymentUrl"
