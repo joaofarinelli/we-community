@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { format } from 'date-fns';
+import { format, startOfToday } from 'date-fns';
 import { CalendarIcon, Plus, ChevronDown } from 'lucide-react';
 import { EditEventDialog } from './EditEventDialog';
 import { Button } from '@/components/ui/button';
@@ -257,7 +257,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) => date < new Date()}
+                                disabled={(date) => date < startOfToday()}
                                 initialFocus
                                 className="pointer-events-auto"
                               />
@@ -326,7 +326,7 @@ export const CreateEventDialog = ({ spaceId }: CreateEventDialogProps) => {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) => date < new Date()}
+                                disabled={(date) => date < startOfToday()}
                                 initialFocus
                                 className="pointer-events-auto"
                               />
