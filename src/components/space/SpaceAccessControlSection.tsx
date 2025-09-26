@@ -64,6 +64,7 @@ export const SpaceAccessControlSection = ({ spaceId }: SpaceAccessControlSection
     if (rule.level_ids?.length > 0) criteria.push(`${rule.level_ids.length} nível(s)`);
     if (rule.badge_ids?.length > 0) criteria.push(`${rule.badge_ids.length} selo(s)`);
     if (rule.user_roles?.length > 0) criteria.push(`${rule.user_roles.length} cargo(s)`);
+    if (rule.user_ids?.length > 0) criteria.push(`${rule.user_ids.length} usuário(s) específico(s)`);
     
     return criteria.length > 0 
       ? criteria.join(', ') + ` (${rule.criteria_logic === 'any' ? 'qualquer' : 'todos'})`
@@ -91,7 +92,7 @@ export const SpaceAccessControlSection = ({ spaceId }: SpaceAccessControlSection
       </div>
       
       <p className="text-xs text-muted-foreground">
-        Configure quais usuários podem realizar cada ação baseado em tags, níveis, selos e cargos.
+        Configure quais usuários podem realizar cada ação baseado em tags, níveis, selos, cargos e usuários específicos.
       </p>
 
       <ScrollArea className="max-h-96">

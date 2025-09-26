@@ -14,6 +14,7 @@ export interface SpaceAccessRule {
   level_ids: string[];
   badge_ids: string[];
   user_roles: string[];
+  user_ids: string[];
   criteria_logic: 'any' | 'all';
   created_at: string;
   updated_at: string;
@@ -27,6 +28,7 @@ export interface SpaceAccessRuleInput {
   level_ids: string[];
   badge_ids: string[];
   user_roles: string[];
+  user_ids: string[];
   criteria_logic: 'any' | 'all';
 }
 

@@ -3119,6 +3119,7 @@ export type Database = {
           space_id: string
           tag_ids: string[] | null
           updated_at: string
+          user_ids: string[] | null
           user_roles: string[] | null
         }
         Insert: {
@@ -3134,6 +3135,7 @@ export type Database = {
           space_id: string
           tag_ids?: string[] | null
           updated_at?: string
+          user_ids?: string[] | null
           user_roles?: string[] | null
         }
         Update: {
@@ -3149,6 +3151,7 @@ export type Database = {
           space_id?: string
           tag_ids?: string[] | null
           updated_at?: string
+          user_ids?: string[] | null
           user_roles?: string[] | null
         }
         Relationships: [

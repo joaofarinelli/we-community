@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   useCreateSpaceAccessRule, 
   useUpdateSpaceAccessRule,
@@ -24,6 +25,7 @@ import {
 import { useTags } from '@/hooks/useTags';
 import { useCompanyLevels } from '@/hooks/useCompanyLevels';
 import { useTrailBadges } from '@/hooks/useTrailBadges';
+import { useUserSearch } from '@/hooks/useUserSearch';
 
 interface SpaceAccessRuleDialogProps {
   open: boolean;
@@ -59,11 +61,14 @@ export const SpaceAccessRuleDialog = ({
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
   const [criteriaLogic, setCriteriaLogic] = useState<'any' | 'all'>('any');
 
   const { data: tags = [] } = useTags();
   const { data: levels = [] } = useCompanyLevels();
   const { data: badges = [] } = useTrailBadges();
+  const { data: searchResults = [] } = useUserSearch(userSearchTerm);
 
   const createRuleMutation = useCreateSpaceAccessRule();
   const updateRuleMutation = useUpdateSpaceAccessRule();
@@ -78,6 +83,7 @@ export const SpaceAccessRuleDialog = ({
       setSelectedLevels(rule.level_ids || []);
       setSelectedBadges(rule.badge_ids || []);
       setSelectedRoles(rule.user_roles || []);
+      setSelectedUsers(rule.user_ids || []);
       setCriteriaLogic(rule.criteria_logic);
     } else {
       setRuleName(ruleTypeLabels[defaultRuleType] || '');
@@ -86,6 +92,8 @@ export const SpaceAccessRuleDialog = ({
       setSelectedLevels([]);
       setSelectedBadges([]);
       setSelectedRoles([]);
+      setSelectedUsers([]);
+      setUserSearchTerm('');
       setCriteriaLogic('any');
     }
   }, [rule, defaultRuleType, open]);
@@ -98,6 +106,7 @@ export const SpaceAccessRuleDialog = ({
       level_ids: selectedLevels,
       badge_ids: selectedBadges,
       user_roles: selectedRoles,
+      user_ids: selectedUsers,
       criteria_logic: criteriaLogic,
     };
 
@@ -131,7 +140,7 @@ export const SpaceAccessRuleDialog = ({
   };
 
   const hasAnyCriteria = selectedTags.length > 0 || selectedLevels.length > 0 || 
-    selectedBadges.length > 0 || selectedRoles.length > 0;
+    selectedBadges.length > 0 || selectedRoles.length > 0 || selectedUsers.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -173,7 +182,7 @@ export const SpaceAccessRuleDialog = ({
               <div className="flex items-center justify-between">
                 <Label>Lógica dos critérios</Label>
                 <Badge variant="outline">
-                  {hasAnyCriteria ? `${selectedTags.length + selectedLevels.length + selectedBadges.length + selectedRoles.length} critérios` : 'Nenhum critério'} 
+                  {hasAnyCriteria ? `${selectedTags.length + selectedLevels.length + selectedBadges.length + selectedRoles.length + selectedUsers.length} critérios` : 'Nenhum critério'} 
                 </Badge>
               </div>
               
@@ -276,6 +285,56 @@ export const SpaceAccessRuleDialog = ({
                 </CardContent>
               </Card>
             </div>
+
+            {/* Specific Users Selection */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Usuários Específicos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Buscar usuários..."
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    className="w-full"
+                  />
+                  
+                  <ScrollArea className="h-32">
+                    <div className="space-y-2">
+                      {searchResults.map((user) => (
+                        <div key={user.user_id} className="flex items-center space-x-2 py-1">
+                          <Checkbox
+                            checked={selectedUsers.includes(user.user_id)}
+                            onCheckedChange={() => toggleSelection(user.user_id, selectedUsers, setSelectedUsers)}
+                          />
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="text-xs">
+                              {(user.first_name?.[0] || '') + (user.last_name?.[0] || '')}
+                            </AvatarFallback>
+                          </Avatar>
+                          <Label className="text-sm font-normal cursor-pointer flex-1">
+                            {user.first_name} {user.last_name}
+                          </Label>
+                        </div>
+                      ))}
+                      
+                      {userSearchTerm && searchResults.length === 0 && (
+                        <div className="text-center py-4 text-sm text-muted-foreground">
+                          Nenhum usuário encontrado
+                        </div>
+                      )}
+                      
+                      {!userSearchTerm && (
+                        <div className="text-center py-4 text-sm text-muted-foreground">
+                          Digite para buscar usuários
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </ScrollArea>
 
