@@ -95,7 +95,7 @@ export const SpaceAccessControlSection = ({ spaceId }: SpaceAccessControlSection
         Configure quais usuários podem realizar cada ação baseado em tags, níveis, selos, cargos e usuários específicos.
       </p>
 
-      <ScrollArea className="max-h-96">
+      <ScrollArea className="max-h-80 md:max-h-96">
         <div className="space-y-3">
           {Object.entries(ruleTypeLabels).map(([type, label]) => {
             const rule = getRuleByType(type as SpaceAccessRule['rule_type']);

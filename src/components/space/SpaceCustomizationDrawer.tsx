@@ -181,7 +181,7 @@ export const SpaceCustomizationDrawer = ({
               </TabsContent>
 
               {/* Aba Acesso */}
-              <TabsContent value="access" className="mt-6 space-y-6">
+              <TabsContent value="access" className="mt-6 space-y-6 max-h-[60vh] overflow-y-auto">
                 <div className="space-y-4">
                   <h3 className="text-sm font-medium text-foreground">Visibilidade do Espaço</h3>
                   <RadioGroup value={accessType} onValueChange={setAccessType}>
