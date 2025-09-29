@@ -248,7 +248,7 @@ export const EventCard = ({ event, onEventClick }: EventCardProps) => {
                 : isPaidEvent && hasInsufficientBalance
                 ? "Saldo insuficiente"
                 : isPaidEvent
-                ? "Comprar presença"
+                ? "Participar"
                 : "Confirmar"
               }
             </Button>

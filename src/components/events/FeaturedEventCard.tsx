@@ -218,7 +218,7 @@ export const FeaturedEventCard = ({ event, onEventClick }: FeaturedEventCardProp
               : isPaidEvent
               ? hasInsufficientBalance
                 ? "Saldo insuficiente"
-                : "Comprar presença"
+                : "Participar"
               : "Confirmar presença"
             }
           </Button>
