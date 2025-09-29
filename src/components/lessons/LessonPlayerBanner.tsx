@@ -60,8 +60,8 @@ export const LessonPlayerBanner = ({ lessonId }: LessonPlayerBannerProps) => {
       >
         <ResponsiveBanner
           src={bannerConfig.imageUrl}
-          aspectRatio={1300/300}
-          maxWidth={1300}
+          aspectRatio={672/300}
+          maxWidth={672}
         />
         {bannerConfig.linkUrl && (
           <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs flex items-center gap-1 opacity-0 hover:opacity-100 transition-opacity">
