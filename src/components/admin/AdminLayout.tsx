@@ -152,8 +152,6 @@ const mainMenuItems = [
     subItems: [
       { label: 'Configurações gerais', path: '/admin/settings' },
       { label: 'Analytics', path: '/admin/analytics' },
-      { label: 'Suporte', path: '/admin/support' },
-      { label: 'Desenvolvedores', path: '/admin/developers' },
     ]
   }
 ];
