@@ -151,6 +151,7 @@ export const useCreateModule = () => {
       course_id: string;
       title: string;
       description?: string;
+      thumbnail_url?: string;
       order_index?: number;
     }) => {
       if (!currentCompanyId) throw new Error('Empresa não encontrada');
@@ -189,6 +190,7 @@ export const useUpdateModule = () => {
       course_id: string;
       title?: string;
       description?: string;
+      thumbnail_url?: string;
       order_index?: number;
       linear_lesson_progression?: boolean;
     }) => {

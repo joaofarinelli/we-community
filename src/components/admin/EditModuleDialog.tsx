@@ -23,11 +23,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useUpdateModule } from '@/hooks/useManageCourses';
+import { ImageUploader } from '@/components/ui/image-uploader';
 
 const moduleSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   linear_lesson_progression: z.boolean().optional(),
+  thumbnail_url: z.string().optional(),
 });
 
 type ModuleFormData = z.infer<typeof moduleSchema>;
@@ -48,6 +50,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
       title: '',
       description: '',
       linear_lesson_progression: false,
+      thumbnail_url: '',
     }
   });
 
@@ -57,6 +60,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         title: module.title || '',
         description: module.description || '',
         linear_lesson_progression: module.linear_lesson_progression || false,
+        thumbnail_url: module.thumbnail_url || '',
       });
     }
   }, [module, form]);
@@ -72,6 +76,7 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
         title: data.title,
         description: data.description || undefined,
         linear_lesson_progression: data.linear_lesson_progression || false,
+        thumbnail_url: data.thumbnail_url || undefined,
       });
       onOpenChange(false);
     } catch (error) {
@@ -128,6 +133,24 @@ export const EditModuleDialog = ({ module, open, onOpenChange }: EditModuleDialo
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="thumbnail_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Capa do Módulo</FormLabel>
+                  <FormControl>
+                    <ImageUploader
+                      value={field.value || ''}
+                      onChange={field.onChange}
+                      bucket="course-images"
+                      className="w-full"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
