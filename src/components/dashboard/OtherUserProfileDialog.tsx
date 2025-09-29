@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useOtherUserProfile, useOtherUserPoints, useOtherUserLevel } from '@/hooks/useOtherUserProfile';
 import { useOtherUserMarketplaceItems } from '@/hooks/useOtherUserMarketplaceItems';
+import { useOtherUserCustomProfileData } from '@/hooks/useCustomProfileFields';
 import { useUserTags } from '@/hooks/useUserTags';
 import { useUserPosts, useUserStats } from '@/hooks/useUserPosts';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,6 +50,7 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
   const { data: userPosts = [] } = useUserPosts(userId || '');
   const { data: userStats } = useUserStats(userId || '');
   const { data: userMarketplaceItems = [] } = useOtherUserMarketplaceItems(userId || '');
+  const { data: customProfileData = [] } = useOtherUserCustomProfileData(userId || '');
   
   const [showEditProfile, setShowEditProfile] = useState(false);
   const createConversationMutation = useCreateConversation();
@@ -371,6 +373,32 @@ export const OtherUserProfileDialog = ({ userId, open, onOpenChange }: OtherUser
                     )}
                   </div>
                 </div>
+
+                {/* Custom Profile Fields */}
+                {customProfileData.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Informações Adicionais</h3>
+                    <div className="space-y-2">
+                      {customProfileData
+                        .filter((data) => data.custom_profile_fields && data.field_value)
+                        .map((data) => {
+                          const field = data.custom_profile_fields;
+                          return (
+                            <div key={data.id} className="flex items-start">
+                              <div className="w-1/3 font-medium text-muted-foreground">
+                                {field.field_label}:
+                              </div>
+                              <div className="w-2/3">
+                                {field.field_type === 'date' 
+                                  ? new Date(data.field_value).toLocaleDateString('pt-BR')
+                                  : data.field_value}
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Gamification Stats */}
                 <div>

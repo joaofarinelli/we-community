@@ -1134,6 +1134,7 @@ export type Database = {
           field_type: string
           id: string
           is_active: boolean
+          is_public: boolean
           is_required: boolean
           order_index: number
           updated_at: string
@@ -1148,6 +1149,7 @@ export type Database = {
           field_type?: string
           id?: string
           is_active?: boolean
+          is_public?: boolean
           is_required?: boolean
           order_index?: number
           updated_at?: string
@@ -1162,6 +1164,7 @@ export type Database = {
           field_type?: string
           id?: string
           is_active?: boolean
+          is_public?: boolean
           is_required?: boolean
           order_index?: number
           updated_at?: string

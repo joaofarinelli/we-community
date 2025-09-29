@@ -15,6 +15,7 @@ export interface CustomProfileField {
   field_options: any;
   is_required: boolean;
   is_active: boolean;
+  is_public: boolean;
   order_index: number;
   created_by: string;
   created_at: string;
@@ -90,6 +91,7 @@ export const useCreateCustomProfileField = () => {
       field_type: CustomFieldType;
       field_options?: any;
       is_required?: boolean;
+      is_public?: boolean;
       order_index: number;
     }) => {
       if (!user?.id || !currentCompanyId) throw new Error('User not authenticated');
@@ -187,6 +189,38 @@ export const useDeleteCustomProfileField = () => {
   });
 };
 
+export const useOtherUserCustomProfileData = (userId: string) => {
+  const { user } = useAuth();
+  const { currentCompanyId } = useCompanyContext();
+
+  return useQuery({
+    queryKey: ['other-user-custom-profile-data', userId, currentCompanyId],
+    queryFn: async () => {
+      if (!userId || !currentCompanyId) return [];
+
+      const { data, error } = await supabase
+        .from('user_custom_profile_data')
+        .select(`
+          *,
+          custom_profile_fields (
+            id,
+            field_name,
+            field_label,
+            field_type,
+            field_options,
+            is_public
+          )
+        `)
+        .eq('user_id', userId)
+        .eq('company_id', currentCompanyId);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId && !!currentCompanyId,
+  });
+};
+
 export const useUpdateUserCustomProfileData = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -218,6 +252,7 @@ export const useUpdateUserCustomProfileData = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-custom-profile-data'] });
+      queryClient.invalidateQueries({ queryKey: ['other-user-custom-profile-data'] });
       toast({
         title: 'Sucesso',
         description: 'Dados personalizados atualizados!',

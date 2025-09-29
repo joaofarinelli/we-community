@@ -103,6 +103,11 @@ export const CustomProfileFieldsManagement = () => {
                         {field.is_required && (
                           <Badge variant="destructive">Obrigatório</Badge>
                         )}
+                        {!field.is_public && (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                            Privado
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground">
                         Nome interno: {field.field_name}

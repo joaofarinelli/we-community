@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash2 } from 'lucide-react';
 import { useCreateCustomProfileField, type CustomFieldType } from '@/hooks/useCustomProfileFields';
@@ -16,6 +17,7 @@ const customFieldSchema = z.object({
   field_label: z.string().min(1, 'Rótulo é obrigatório'),
   field_type: z.enum(['text', 'textarea', 'select', 'number', 'date']),
   is_required: z.boolean(),
+  is_public: z.boolean(),
 });
 
 type CustomFieldFormData = z.infer<typeof customFieldSchema>;
@@ -39,6 +41,7 @@ export const CreateCustomFieldDialog = ({ onSuccess }: CreateCustomFieldDialogPr
     defaultValues: {
       field_type: 'text',
       is_required: false,
+      is_public: true,
     },
   });
 
@@ -165,6 +168,20 @@ export const CreateCustomFieldDialog = ({ onSuccess }: CreateCustomFieldDialogPr
           {...register('is_required')}
         />
         <Label htmlFor="is_required">Campo obrigatório</Label>
+      </div>
+
+      <div className="flex items-center justify-between space-y-0 rounded-lg border p-4">
+        <div className="space-y-0.5">
+          <Label className="text-base">
+            Visível para outros usuários
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            Quando ativado, outros membros poderão ver este campo no perfil do usuário
+          </p>
+        </div>
+        <Switch
+          {...register('is_public')}
+        />
       </div>
 
       <div className="flex justify-end gap-2">

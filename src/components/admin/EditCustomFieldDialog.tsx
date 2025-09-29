@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Plus, Trash2 } from 'lucide-react';
 import { useUpdateCustomProfileField, type CustomFieldType, type CustomProfileField } from '@/hooks/useCustomProfileFields';
 
@@ -14,6 +15,7 @@ const editFieldSchema = z.object({
   field_label: z.string().min(1, 'Rótulo é obrigatório'),
   field_type: z.enum(['text', 'textarea', 'select', 'number', 'date']),
   is_required: z.boolean(),
+  is_public: z.boolean(),
 });
 
 type EditFieldFormData = z.infer<typeof editFieldSchema>;
@@ -40,6 +42,7 @@ export const EditCustomFieldDialog = ({ field, onSuccess }: EditCustomFieldDialo
       field_label: field.field_label,
       field_type: field.field_type as CustomFieldType,
       is_required: field.is_required,
+      is_public: field.is_public,
     },
   });
 
@@ -50,6 +53,7 @@ export const EditCustomFieldDialog = ({ field, onSuccess }: EditCustomFieldDialo
       field_label: field.field_label,
       field_type: field.field_type as CustomFieldType,
       is_required: field.is_required,
+      is_public: field.is_public,
     });
 
     // Set select options if field type is select
@@ -175,6 +179,20 @@ export const EditCustomFieldDialog = ({ field, onSuccess }: EditCustomFieldDialo
           {...register('is_required')}
         />
         <Label htmlFor="is_required">Campo obrigatório</Label>
+      </div>
+
+      <div className="flex items-center justify-between space-y-0 rounded-lg border p-4">
+        <div className="space-y-0.5">
+          <Label className="text-base">
+            Visível para outros usuários
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            Quando ativado, outros membros poderão ver este campo no perfil do usuário
+          </p>
+        </div>
+        <Switch
+          {...register('is_public')}
+        />
       </div>
 
       <div className="flex justify-end gap-2">
