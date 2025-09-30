@@ -91,14 +91,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Get all users from the company with additional data
+    // Get all users from the company
     const { data: users, error: usersError } = await supabaseClient
       .from('profiles')
-      .select(`
-        *,
-        user_tags(tag_id, tags(name)),
-        user_current_level(current_level_id, user_levels(level_name))
-      `)
+      .select('*')
       .eq('company_id', targetCompanyId)
       .order('created_at', { ascending: false })
 
@@ -115,9 +111,6 @@ Deno.serve(async (req) => {
 
     // Prepare data for Excel
     const excelData = users?.map(user => {
-      const tags = user.user_tags?.map((ut: any) => ut.tags?.name).filter(Boolean).join(', ') || ''
-      const level = user.user_current_level?.[0]?.user_levels?.level_name || ''
-      
       return {
         'ID': user.id,
         'Nome': user.first_name || '',
@@ -125,8 +118,6 @@ Deno.serve(async (req) => {
         'Email': user.email || '',
         'Telefone': user.phone || '',
         'Cargo': user.role,
-        'Tags': tags,
-        'Nível': level,
         'Ativo': user.is_active ? 'Sim' : 'Não',
         'Data de Criação': new Date(user.created_at).toLocaleDateString('pt-BR')
       }
@@ -144,8 +135,6 @@ Deno.serve(async (req) => {
       { wch: 30 }, // Email
       { wch: 15 }, // Telefone
       { wch: 15 }, // Cargo
-      { wch: 30 }, // Tags
-      { wch: 20 }, // Nível
       { wch: 10 }, // Ativo
       { wch: 18 }  // Data de Criação
     ]
