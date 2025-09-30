@@ -17,18 +17,22 @@ export const useUserImportExport = () => {
   const { currentCompanyId } = useCompanyContext();
   const exportUsers = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke('export-users');
+      const { data, error } = await supabase.functions.invoke('export-users', {
+        headers: {
+          'x-company-id': currentCompanyId || ''
+        }
+      });
       
       if (error) {
         throw new Error(error.message);
       }
       
       // Create blob and download
-      const blob = new Blob([data], { type: 'text/csv' });
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `usuarios-${new Date().toISOString().split('T')[0]}.csv`;
+      link.download = `usuarios-${new Date().toISOString().split('T')[0]}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
