@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.53.0'
-import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs'
+import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.3/package/xlsx.mjs'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -123,6 +123,8 @@ Deno.serve(async (req) => {
       }
     }) || []
 
+    console.log('Preparing Excel with', excelData.length, 'users')
+
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new()
     const worksheet = XLSX.utils.json_to_sheet(excelData)
@@ -143,15 +145,19 @@ Deno.serve(async (req) => {
     // Add worksheet to workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Usuários')
 
-    // Generate Excel file
-    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+    // Generate Excel file as array buffer
+    const excelArray = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' })
+    const excelBuffer = new Uint8Array(excelArray)
+
+    console.log('Generated Excel file, size:', excelBuffer.byteLength, 'bytes')
 
     // Return Excel file
     return new Response(excelBuffer, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="usuarios-${new Date().toISOString().split('T')[0]}.xlsx"`
+        'Content-Disposition': `attachment; filename="usuarios-${new Date().toISOString().split('T')[0]}.xlsx"`,
+        'Content-Length': excelBuffer.byteLength.toString()
       }
     })
 
